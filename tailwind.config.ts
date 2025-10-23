@@ -10,7 +10,6 @@ const config: Config = {
     extend: {
       fontFamily: {
         sans: ['var(--font-afacad)'],
-        heading: ['var(--font-baloo-2)'],
       },
       colors: {
         'accent-orange': 'var(--accent-orange)',
