@@ -12,7 +12,7 @@ const config: Config = {
         sans: ['var(--font-afacad)'],
       },
       colors: {
-        'accent-orange': 'var(--accent-orange)',
+        'accent-orange': '#FF6F3C',
       },
     },
   },
