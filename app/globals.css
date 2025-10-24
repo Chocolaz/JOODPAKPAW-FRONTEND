@@ -6,12 +6,12 @@
   --accent-orange: #ff6f3c;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-afacad);
+/* Theme overrides */
+@theme {
+  --color-accent-orange: var(--accent-orange);
 }
 
+/* Headers และ button ใช้ font อื่น */
 h1,
 h2,
 h3,
@@ -32,4 +32,5 @@ button {
 body {
   background: var(--background);
   color: var(--foreground);
+  font-family: var(--font-afacad);
 }
