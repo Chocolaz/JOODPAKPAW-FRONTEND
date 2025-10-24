@@ -1,5 +1,6 @@
 import Image from 'next/image'
 import Link from 'next/link'
+import { Button } from '@/components/ui/button'
 
 export default function AuthenPage() {
   return (
@@ -32,16 +33,18 @@ export default function AuthenPage() {
           <Link
             href="/login"
             passHref>
-            <button className="w-full p-3 rounded-lg border-none bg-blue-500 text-white cursor-pointer hover:bg-blue-600">
+            <Button className="w-full p-3 rounded-lg bg-accent-orange text-white hover:bg-accent-orange/80">
               Login
-            </button>
+            </Button>
           </Link>
           <Link
             href="/register"
             passHref>
-            <button className="w-full p-3 rounded-lg border border-gray-300 bg-white text-foreground cursor-pointer hover:bg-gray-100">
+            <Button
+              variant="outline"
+              className="w-full p-3 rounded-lg border-accent-orange text-accent-orange hover:bg-accent-orange hover:text-white">
               Register
-            </button>
+            </Button>
           </Link>
         </div>
       </div>
