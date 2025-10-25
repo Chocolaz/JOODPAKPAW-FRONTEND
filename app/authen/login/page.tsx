@@ -56,7 +56,7 @@ export default function LoginPage() {
           <Link
             href="/register"
             passHref>
-            <div className=" py-4  text-deep-teal hover:bg-accent-orange/80 h-auto text-[20px] font-semibold">
+            <div className=" py-4  text-deep-teal h-auto text-[20px] font-semibold">
               Create new account
             </div>
           </Link>
