@@ -24,25 +24,30 @@ export default function AuthenPage() {
         </div>
       </div>
 
-      <div className="p-8 w-full max-w-sm text-center mx-auto mt-8">
-        <h1 className="font-heading mb-4 text-[32px] text-accent-orange font-bold">
-          Welcome to JOODPAKPAW
+      <div className="px-5 w-full max-w-sm text-center mx-auto mt-8">
+        <h1 className="text-[32px] text-accent-orange font-semibold mb-4">
+          Welcome to <br /> JOODPAKPAW
         </h1>
-        <p className="mb-8 text-lg">Your pet's comfort starts here</p>
-        <div className="flex flex-col gap-4">
+        <div className="text-lg mb-[150px]">
+          <p>Find trusted stays, loving hosts, and happy tails.</p>
+          <p>Your pet’s comfort starts here.</p>
+        </div>
+        <div className="flex h-[60px]">
           <Link
             href="/login"
-            passHref>
-            <Button className="w-full p-3 rounded-lg bg-accent-orange text-white hover:bg-accent-orange/80">
+            passHref
+            className="flex-1">
+            <Button className="w-full py-4 rounded-lg bg-accent-orange text-white hover:bg-accent-orange/80 mr-2 h-full text-[20px]">
               Login
             </Button>
           </Link>
           <Link
             href="/register"
-            passHref>
+            passHref
+            className="flex-1">
             <Button
               variant="outline"
-              className="w-full p-3 rounded-lg border-accent-orange text-accent-orange hover:bg-accent-orange hover:text-white">
+              className="w-full py-4 rounded-lg border-accent-orange text-accent-orange hover:bg-accent-orange hover:text-white ml-2 h-full text-[20px]">
               Register
             </Button>
           </Link>
