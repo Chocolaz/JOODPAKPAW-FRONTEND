@@ -7,9 +7,12 @@
 
 :root {
   --accent-orange: #ff6f3c;
+  --deep-teal: #1c4f4a;
+  --neutral-gray: #6a6a6a;
+
   --radius: 0.625rem;
   --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
+  --foreground: #323232;
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.145 0 0);
   --popover: oklch(1 0 0);
@@ -41,12 +44,6 @@
   --sidebar-ring: oklch(0.708 0 0);
 }
 
-/* Theme overrides */
-@theme {
-  --color-accent-orange: var(--accent-orange);
-}
-
-/* Headers และ button ใช้ font อื่น */
 h1,
 h2,
 h3,
@@ -57,11 +54,38 @@ button {
   font-family: var(--font-baloo2);
 }
 
+h1 {
+  font-size: 32px;
+  font-weight: 600; /* semibold */
+}
+
+h2 {
+  font-size: 22px;
+  font-weight: 500; /* medium */
+}
+
+h3 {
+  font-size: 16px;
+  font-weight: 500; /* medium */
+}
+
 body {
   font-family: var(--font-afacad);
+  font-size: 16px;
+}
+
+.title {
+  font-size: 18px;
+  font-weight: 500;
 }
 
 @theme inline {
+  /* Project specific colors */
+  --color-accent-orange: var(--accent-orange);
+  --color-deep-teal: var(--deep-teal);
+  --color-neutral-gray: var(--neutral-gray);
+
+  /* Shadcn/ui variables */
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);

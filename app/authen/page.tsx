@@ -25,10 +25,10 @@ export default function AuthenPage() {
       </div>
 
       <div className="px-5 w-full max-w-sm text-center mx-auto mt-8">
-        <h1 className="text-[32px] text-accent-orange font-semibold mb-4">
+        <h1 className="text-accent-orange">
           Welcome to <br /> JOODPAKPAW
         </h1>
-        <div className="text-lg mb-[150px]">
+        <div className="text-[16px] mb-[150px]">
           <p>Find trusted stays, loving hosts, and happy tails.</p>
           <p>Your pet’s comfort starts here.</p>
         </div>
@@ -47,7 +47,7 @@ export default function AuthenPage() {
             className="flex-1">
             <Button
               variant="outline"
-              className="w-full py-4 rounded-lg border-accent-orange text-accent-orange hover:bg-accent-orange hover:text-white ml-2 h-full text-[20px]">
+              className="w-full py-4 rounded-lg border-accent-orange text-deep-teal hover:bg-accent-orange hover:text-white ml-2 h-full text-[20px]">
               Register
             </Button>
           </Link>

@@ -9,8 +9,11 @@ const config: Config = {
   darkMode: false,
   theme: {
     extend: {
-      colors: {
-        'accent-orange': '#FF6F3C'
+      colors: {},
+      fontSize: {
+        sm: '14px',
+        base: '16px',
+        lg: '18px'
       }
     }
   },
