@@ -1,6 +1,7 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 
 export default function LoginPage() {
   return (
@@ -28,17 +29,17 @@ export default function LoginPage() {
       <div className="px-5 w-full max-w-sm text-center mx-auto mt-[30px] ">
         <form className="space-y-[30px] mt-[70px]">
           <div>
-            <input
+            <Input
               type="email"
               placeholder="Email"
-              className="w-full p-4 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-accent-orange"
+              className="w-full py-6"
             />
           </div>
           <div>
-            <input
+            <Input
               type="password"
               placeholder="Password"
-              className="w-full p-4 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-accent-orange"
+              className="w-full py-6"
             />
             <div className="text-right mt-2">
               <Link
@@ -56,7 +57,7 @@ export default function LoginPage() {
           <Link
             href="/register"
             passHref>
-            <div className=" py-4  text-deep-teal h-auto text-[20px] font-semibold">
+            <div className="py-4  text-deep-teal h-auto text-[20px] font-semibold">
               Create new account
             </div>
           </Link>

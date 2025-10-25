@@ -45,7 +45,7 @@ export default function AuthenPage() {
             href="/register"
             passHref
             className="flex-1">
-            <h3 className="w-full py-4 rounded-lg border-none text-deep-teal hover:bg-accent-orange hover:text-white ml-2 h-full ">
+            <h3 className="w-full py-4 rounded-lg border-none text-deep-teal ml-2 h-full">
               Register
             </h3>
           </Link>
