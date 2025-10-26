@@ -4,7 +4,7 @@ import Image from 'next/image'
 
 export default function Home() {
   return (
-    <div className="bg-white text-foreground min-h-screen flex flex-col mx-5">
+    <div className="bg-white text-foreground min-h-screen flex flex-col px-5">
       <header className="sticky top-0 z-50 w-full bg-white/95 backdrop-blur mt-4">
         <div className="container flex h-14 items-center">
           <div className="relative w-full">

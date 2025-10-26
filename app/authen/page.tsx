@@ -1,28 +1,19 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
+import AuthHeader from './_components/AuthHeader'
 
 export default function AuthenPage() {
   return (
     <div className="bg-white text-foreground min-h-screen flex flex-col">
-      <div className="relative w-full flex justify-center pt-10">
-        <div className="absolute top-0 z-0">
-          <Image
-            src="/graphics/Ellipse.svg"
-            alt="Background Ellipse"
-            width={452}
-            height={308}
-          />
-        </div>
-        <div className="z-10">
-          <Image
-            src="/graphics/welcome.svg"
-            alt="Welcome"
-            width={391}
-            height={372}
-          />
-        </div>
-      </div>
+      <AuthHeader>
+        <Image
+          src="/graphics/welcome.svg"
+          alt="Welcome"
+          width={391}
+          height={372}
+        />
+      </AuthHeader>
 
       <div className="px-5 w-full max-w-sm text-center mx-auto mt-8">
         <h1 className="text-accent-orange">

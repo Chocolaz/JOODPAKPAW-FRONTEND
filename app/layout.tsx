@@ -15,8 +15,8 @@ export default function RootLayout({
   return (
     <html lang="en">
       {/* apply both variable classes, and base font = afacad */}
-      <body className={`${afacad.variable} ${baloo2.variable}`}>
-        {children}
+      <body className={`${afacad.variable} ${baloo2.variable} bg-white`}>
+        <main className="max-w-[500px] mx-auto">{children}</main>
       </body>
     </html>
   )
