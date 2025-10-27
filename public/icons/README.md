@@ -15,18 +15,13 @@ You can use the icons in your components in a few ways:
 This is the recommended way to use images in Next.js as it provides automatic optimization.
 
 ```tsx
-import Image from 'next/image';
+import Image from 'next/image'
 
 const MyComponent = () => (
   <div>
-    <Image
-      src="/icons/my-icon.svg"
-      alt="My Icon"
-      width={24}
-      height={24}
-    />
+    <Image src="/icons/my-icon.svg" alt="My Icon" width={24} height={24} />
   </div>
-);
+)
 ```
 
 ### 2. Using a regular `<img>` tag
@@ -36,7 +31,7 @@ const MyComponent = () => (
   <div>
     <img src="/icons/my-icon.svg" alt="My Icon" width="24" height="24" />
   </div>
-);
+)
 ```
 
 Replace `my-icon.svg` with the actual filename of your icon.

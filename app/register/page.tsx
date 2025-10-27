@@ -29,11 +29,7 @@ export default function RegisterPage() {
       <div className="px-5 w-full max-w-sm text-center mx-auto mt-[30px] ">
         <form className="space-y-[30px] mt-[70px]">
           <div>
-            <Input
-              type="email"
-              placeholder="Email"
-              className="w-full py-6"
-            />
+            <Input type="email" placeholder="Email" className="w-full py-6" />
           </div>
           <div>
             <Input
@@ -54,9 +50,7 @@ export default function RegisterPage() {
           </Button>
         </form>
         <div className="mt-[30px]">
-          <Link
-            href="/authen/login"
-            passHref>
+          <Link href="/authen/login" passHref>
             <div className=" py-4 h-auto text-[20px] font-semibold">
               Already have an account
             </div>

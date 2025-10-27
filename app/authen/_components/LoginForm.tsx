@@ -9,11 +9,7 @@ export default function LoginForm() {
     <div className="px-5 w-full max-w-sm text-center mx-auto mt-[30px] ">
       <form className="space-y-[30px] mt-[70px]">
         <div>
-          <Input
-            type="email"
-            placeholder="Email"
-            className="w-full py-6"
-          />
+          <Input type="email" placeholder="Email" className="w-full py-6" />
         </div>
         <div>
           <Input
@@ -24,7 +20,8 @@ export default function LoginForm() {
           <div className="text-right mt-2">
             <Link
               href="/authen/forgot-password"
-              className="text-sm text-accent-orange font-medium hover:underline">
+              className="text-sm text-accent-orange font-medium hover:underline"
+            >
               Forgot your password?
             </Link>
           </div>
@@ -34,9 +31,7 @@ export default function LoginForm() {
         </Button>
       </form>
       <div className="mt-[30px]">
-        <Link
-          href="/register"
-          passHref>
+        <Link href="/register" passHref>
           <div className="py-4  text-deep-teal h-auto text-[20px] font-semibold">
             Create new account
           </div>

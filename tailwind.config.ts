@@ -4,7 +4,7 @@ const config: Config = {
   content: [
     './app/**/*.{js,ts,jsx,tsx,mdx}',
     './components/**/*.{js,ts,jsx,tsx,mdx}',
-    './pages/**/*.{js,ts,jsx,tsx,mdx}'
+    './pages/**/*.{js,ts,jsx,tsx,mdx}',
   ],
   darkMode: false,
   theme: {
@@ -13,10 +13,10 @@ const config: Config = {
       fontSize: {
         sm: '14px',
         base: '16px',
-        lg: '18px'
-      }
-    }
+        lg: '18px',
+      },
+    },
   },
-  plugins: []
+  plugins: [],
 }
 export default config
