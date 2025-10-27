@@ -59,7 +59,7 @@ export default function LoginForm() {
         </Button>
       </form>
       <div className="mt-[30px]">
-        <Link href="/register" passHref>
+        <Link href="/authen/register" passHref>
           <div className="py-4  text-deep-teal h-auto text-[20px] font-semibold">
             Create new account
           </div>

@@ -29,10 +29,13 @@ export default function AuthenPage() {
               Login
             </Button>
           </Link>
-          <Link href="/register" passHref className="flex-1">
-            <h3 className="w-full py-4 rounded-lg border-none text-deep-teal ml-2 h-full">
+          <Link href="/authen/register" passHref className="flex-1">
+            <Button
+              variant="outline"
+              className="w-full py-4 rounded-lg border-deep-teal text-deep-teal hover:bg-deep-teal hover:text-white ml-2 h-full text-[20px] font-semibold"
+            >
               Register
-            </h3>
+            </Button>
           </Link>
         </div>
       </div>

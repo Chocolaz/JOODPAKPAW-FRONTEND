@@ -9,7 +9,10 @@ const config: Config = {
   darkMode: false,
   theme: {
     extend: {
-      colors: {},
+      colors: {
+        'accent-orange': 'var(--accent-orange)',
+        'deep-teal': 'var(--deep-teal)',
+      },
       fontSize: {
         sm: '14px',
         base: '16px',
