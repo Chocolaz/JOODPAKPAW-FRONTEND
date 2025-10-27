@@ -1,9 +1,32 @@
+'use client'
 import Image from 'next/image'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { useState } from 'react'
+import { signUp } from '@/lib/fetchAuthen'
 
 export default function RegisterPage() {
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
+
+  const handleSignUp = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (password !== confirmPassword) {
+      alert("Passwords don't match!")
+      return
+    }
+    try {
+      const data = await signUp({ email, password, confirmPassword })
+      console.log('Sign up successful:', data)
+      // Handle successful sign up, e.g., redirect to OTP page
+    } catch (error) {
+      console.error('Sign up failed:', error)
+      // Handle errors, e.g., show an error message to the user
+    }
+  }
+
   return (
     <div className="bg-white text-foreground min-h-screen flex flex-col items-center">
       <div className="relative w-full flex justify-center pt-10">
@@ -27,15 +50,23 @@ export default function RegisterPage() {
       </div>
 
       <div className="px-5 w-full max-w-sm text-center mx-auto mt-[30px] ">
-        <form className="space-y-[30px] mt-[70px]">
+        <form onSubmit={handleSignUp} className="space-y-[30px] mt-[70px]">
           <div>
-            <Input type="email" placeholder="Email" className="w-full py-6" />
+            <Input
+              type="email"
+              placeholder="Email"
+              className="w-full py-6"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
           </div>
           <div>
             <Input
               type="password"
               placeholder="Password"
               className="w-full py-6"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
             />
           </div>
           <div>
@@ -43,9 +74,14 @@ export default function RegisterPage() {
               type="password"
               placeholder="Confirm Password"
               className="w-full py-6"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
             />
           </div>
-          <Button className="w-full py-4 rounded-lg bg-accent-orange text-white hover:bg-accent-orange/80 h-auto text-[20px] font-semibold">
+          <Button
+            type="submit"
+            className="w-full py-4 rounded-lg bg-accent-orange text-white hover:bg-accent-orange/80 h-auto text-[20px] font-semibold"
+          >
             Sign up
           </Button>
         </form>
