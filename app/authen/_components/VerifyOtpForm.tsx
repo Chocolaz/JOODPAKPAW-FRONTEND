@@ -65,38 +65,46 @@ export default function VerifyOtpForm() {
   }
 
   return (
-    <div className="px-5 w-full max-w-sm text-center mx-auto">
-      <form onSubmit={handleVerifyOtp} className="space-y-[30px] mt-10">
-        <div>
-          <p className="text-lg mb-4">
-            An OTP has been sent to <strong>{email}</strong>. Please enter it below.
-          </p>
-          <Input
-            type="text"
-            placeholder="Enter OTP"
-            className="w-full py-6 text-center tracking-[1rem]"
-            value={otp}
-            onChange={(e) => setOtp(e.target.value)}
-            maxLength={6}
-          />
+    <div className="px-5 w-full max-w-sm text-center mx-auto grow relative">
+      <div className="pt-10 pb-28">
+        <form id="verify-otp-form" onSubmit={handleVerifyOtp}>
+          <div>
+            <p className="text-[20px] mb-16">
+              We’ve sent a 6-digit code to{' '}
+              <strong className="text-deep-teal">{email}</strong>
+              <br /> Please enter it below
+            </p>
+            <Input
+              type="text"
+              placeholder="OTP"
+              className="w-full py-6 text-center tracking-[1rem]"
+              value={otp}
+              onChange={(e) => setOtp(e.target.value.replace(/[^0-9]/g, ''))}
+              maxLength={6}
+            />
+          </div>
+        </form>
+        <div className="mt-8 text-center">
+          <span>Didn’t get the code? </span>
+          <button
+            type="button"
+            onClick={handleResendOtp}
+            disabled={cooldown > 0}
+            className="text-accent-orange disabled:text-gray-400 disabled:cursor-not-allowed font-semibold"
+          >
+            {cooldown > 0 ? `Resend OTP in ${cooldown}s` : 'Resend OTP'}
+          </button>
         </div>
+      </div>
+      <div className="absolute bottom-0 left-0 right-0 px-5 pb-7">
         <Button
           type="submit"
+          form="verify-otp-form"
           disabled={isButtonDisabled}
           className="w-full py-4 rounded-lg bg-accent-orange text-white hover:bg-accent-orange/80 h-auto text-[20px] font-semibold"
         >
-          Verify Account
+          Confirm
         </Button>
-      </form>
-      <div className="mt-4 text-center">
-        <button
-          type="button"
-          onClick={handleResendOtp}
-          disabled={cooldown > 0}
-          className="text-accent-orange disabled:text-gray-400 disabled:cursor-not-allowed"
-        >
-          {cooldown > 0 ? `Resend OTP in ${cooldown}s` : 'Resend OTP'}
-        </button>
       </div>
     </div>
   )
