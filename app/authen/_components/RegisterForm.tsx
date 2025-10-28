@@ -5,8 +5,10 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { useState, useMemo } from 'react'
 import { signUp } from '@/lib/fetchAuthen'
+import { useRouter } from 'next/navigation'
 
 export default function RegisterForm() {
+  const router = useRouter()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
@@ -43,7 +45,7 @@ export default function RegisterForm() {
         phone,
       })
       console.log('Sign up successful:', data)
-      // Handle successful sign up, e.g., redirect to OTP page
+      router.push(`/authen/verify-otp?email=${email}`)
     } catch (error) {
       console.error('Sign up failed:', error)
       // Handle errors, e.g., show an error message to the user
@@ -52,7 +54,7 @@ export default function RegisterForm() {
 
   return (
     <div className="px-5 w-full max-w-sm text-center mx-auto">
-      <form onSubmit={handleSignUp} className="space-y-[30px] mt-[40px]">
+      <form onSubmit={handleSignUp} className="space-y-[30px] mt-10">
         <div>
           <Input
             type="text"

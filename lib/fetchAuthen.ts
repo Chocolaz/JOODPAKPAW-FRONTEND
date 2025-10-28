@@ -38,6 +38,11 @@ export interface SignUpCredentials {
   phone: string;
 }
 
+export interface VerifyOtpCredentials {
+  email: string;
+  otp: string;
+}
+
 // --- API Functions ---
 export const signIn = (credentials: SignInCredentials) => {
   return post('api/v1/auth/sign-in', credentials, 'Sign-in');
@@ -45,4 +50,12 @@ export const signIn = (credentials: SignInCredentials) => {
 
 export const signUp = (credentials: SignUpCredentials) => {
   return post('api/v1/auth/sign-up', credentials, 'Sign-up');
+};
+
+export const verifyOtp = (credentials: VerifyOtpCredentials) => {
+  return post('api/v1/auth/verify-otp', credentials, 'OTP Verification');
+};
+
+export const resendOtp = (credentials: { email: string }) => {
+  return post('api/v1/auth/resend-otp', credentials, 'Resend OTP');
 };
