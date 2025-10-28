@@ -43,9 +43,19 @@ export interface VerifyOtpCredentials {
   otp: string;
 }
 
+// --- Response Interfaces ---
+export interface SignInResponse {
+  accessToken: string;
+  refreshToken: string;
+  code: number;
+  expiresIn: number;
+  message: string;
+  tokenType: string;
+}
+
 // --- API Functions ---
-export const signIn = (credentials: SignInCredentials) => {
-  return post('api/v1/auth/sign-in', credentials, 'Sign-in');
+export const signIn = (credentials: SignInCredentials): Promise<SignInResponse> => {
+  return post<SignInResponse>('api/v1/auth/sign-in', credentials, 'Sign-in');
 };
 
 export const signUp = (credentials: SignUpCredentials) => {

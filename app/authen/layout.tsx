@@ -1,7 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useAuthRedirect } from '@/lib/authenUtils'
 import { Spinner } from '@/components/ui/spinner'
 
 export default function AuthenLayout({
@@ -9,18 +8,7 @@ export default function AuthenLayout({
 }: {
   children: React.ReactNode
 }) {
-  const router = useRouter()
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null)
-
-  useEffect(() => {
-    const token = localStorage.getItem('accessToken')
-    if (token) {
-      setIsAuthenticated(true)
-      router.push('/')
-    } else {
-      setIsAuthenticated(false)
-    }
-  }, [router])
+  const isAuthenticated = useAuthRedirect('/')
 
   if (isAuthenticated === null || isAuthenticated === true) {
     return (

@@ -8,7 +8,10 @@ import { signUp } from '@/lib/fetchAuthen'
 import { useRouter } from 'next/navigation'
 
 export default function RegisterForm() {
+  // Hooks
   const router = useRouter()
+
+  // State
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
@@ -16,6 +19,7 @@ export default function RegisterForm() {
   const [lastname, setLastname] = useState('')
   const [phone, setPhone] = useState('')
 
+  // Memoized values
   const isButtonDisabled = useMemo(() => {
     return (
       !firstname ||
@@ -27,6 +31,7 @@ export default function RegisterForm() {
     )
   }, [firstname, lastname, phone, email, password, confirmPassword])
 
+  // Handlers
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault()
     if (isButtonDisabled) return
@@ -36,7 +41,7 @@ export default function RegisterForm() {
       return
     }
     try {
-      const data = await signUp({
+      await signUp({
         email,
         password,
         confirmPassword,
@@ -44,7 +49,7 @@ export default function RegisterForm() {
         lastname,
         phone,
       })
-      console.log('Sign up successful:', data)
+      console.log('Sign up successful')
       router.push(`/authen/verify-otp?email=${email}`)
     } catch (error) {
       console.error('Sign up failed:', error)
@@ -119,7 +124,7 @@ export default function RegisterForm() {
       </form>
       <div className="mt-[30px]">
         <Link href="/authen/login" passHref>
-          <div className=" py-4 h-auto text-[20px] font-semibold">
+          <div className=" py-4 h-auto text-[20px] font-semibold text-deep-teal">
             Already have an account
           </div>
         </Link>

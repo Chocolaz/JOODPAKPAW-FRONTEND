@@ -5,24 +5,27 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { useState } from 'react'
 import { signIn } from '@/lib/fetchAuthen'
+import { saveTokens } from '@/lib/authenUtils'
 import { useRouter } from 'next/navigation'
 
 export default function LoginForm() {
+  // Hooks
   const router = useRouter()
+
+  // State
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
 
+  // Handlers
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault()
     try {
       const data = await signIn({ email, password })
       console.log('Sign in successful:', data)
       if (data.accessToken && data.refreshToken) {
-        localStorage.setItem('accessToken', data.accessToken)
-        localStorage.setItem('refreshToken', data.refreshToken)
+        saveTokens(data.accessToken, data.refreshToken)
         router.push('/')
       } else {
-        // Handle case where tokens are not in the response
         console.error('Sign in successful, but no tokens received.')
         alert('Sign in failed. Please try again.')
       }
