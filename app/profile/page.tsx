@@ -2,7 +2,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { PawPrint, History, Home,Globe,Landmark, Scale, LogOut, ChevronRight } from "lucide-react"
-import  {BottomNav}  from "./_components/BottomNav"
+// import  {BottomNav}  from "./_components/BottomNav"
 export default function ProfilePage() {
   return (
     <main className="flex min-h-screen flex-col items-center bg-gray-900 p-4">
@@ -117,7 +117,7 @@ export default function ProfilePage() {
             </CardContent>
           </Card>
 
-          <BottomNav />          
+          {/* <BottomNav />           */}
         </div>
       </div>
     </main>
