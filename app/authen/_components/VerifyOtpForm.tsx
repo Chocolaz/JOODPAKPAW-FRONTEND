@@ -4,7 +4,11 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { useState, useMemo } from 'react'
 import { verifyOtp, resendOtp } from '@/lib/fetchAuthen'
-import { useCooldown, useEmailFromQuery } from '@/lib/authenUtils'
+import {
+  useCooldown,
+  useEmailFromQuery,
+  saveTokens,
+} from '@/lib/authenUtils'
 import { useRouter } from 'next/navigation'
 
 export default function VerifyOtpForm() {
@@ -27,9 +31,16 @@ export default function VerifyOtpForm() {
     if (isButtonDisabled) return
 
     try {
-      await verifyOtp({ email, otp })
+      const data = await verifyOtp({ email, otp })
       console.log('OTP verification successful')
-      router.push('/authen/login')
+      if (data.accessToken && data.refreshToken) {
+        saveTokens(data.accessToken, data.refreshToken)
+        router.push('/')
+      } else {
+        console.error('OTP verification successful, but no tokens received.')
+        alert('Verification successful! Please log in.')
+        router.push('/authen/login')
+      }
     } catch (error) {
       console.error('OTP verification failed:', error)
       alert('Invalid or expired OTP. Please try again.')

@@ -73,9 +73,15 @@ export const signUp = (credentials: SignUpCredentials) => {
   return post('api/v1/auth/sign-up', credentials, 'Sign-up');
 };
 
-export const verifyOtp = (credentials: VerifyOtpCredentials) => {
-  return post('api/v1/auth/verify-otp', credentials, 'OTP Verification');
-};
+export const verifyOtp = (
+  credentials: VerifyOtpCredentials
+): Promise<SignInResponse> => {
+  return post<SignInResponse>(
+    'api/v1/auth/verify-otp',
+    credentials,
+    'OTP Verification'
+  )
+}
 
 export const resendOtp = (credentials: { email: string }) => {
   return post('api/v1/auth/resend-otp', credentials, 'Resend OTP');
