@@ -47,10 +47,17 @@ export interface ForgotPasswordCredentials {
   email: string;
 }
 
+export interface ResetPasswordCredentials {
+  email: string;
+  password: string;
+  confirmPassword: string;
+  resetPasswordToken: string;
+}
+
 // --- Response Interfaces ---
 export interface SignInResponse {
   accessToken: string;
-  refreshToken: string;
+  refreshToken:string;
   code: number;
   expiresIn: number;
   message: string;
@@ -76,4 +83,8 @@ export const resendOtp = (credentials: { email: string }) => {
 
 export const forgotPassword = (credentials: ForgotPasswordCredentials) => {
   return post('api/v1/auth/forgot-password', credentials, 'Forgot Password');
+};
+
+export const resetPassword = (credentials: ResetPasswordCredentials) => {
+  return post('api/v1/auth/reset-password', credentials, 'Reset Password');
 };
