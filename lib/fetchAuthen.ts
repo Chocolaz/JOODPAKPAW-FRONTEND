@@ -43,6 +43,10 @@ export interface VerifyOtpCredentials {
   otp: string;
 }
 
+export interface ForgotPasswordCredentials {
+  email: string;
+}
+
 // --- Response Interfaces ---
 export interface SignInResponse {
   accessToken: string;
@@ -68,4 +72,8 @@ export const verifyOtp = (credentials: VerifyOtpCredentials) => {
 
 export const resendOtp = (credentials: { email: string }) => {
   return post('api/v1/auth/resend-otp', credentials, 'Resend OTP');
+};
+
+export const forgotPassword = (credentials: ForgotPasswordCredentials) => {
+  return post('api/v1/auth/forgot-password', credentials, 'Forgot Password');
 };
