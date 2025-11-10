@@ -3,30 +3,38 @@
 
 import { Card, CardContent } from '@/components/ui/card'
 import Image from 'next/image'
-import LogoutIcon from '@/public/icons/setting/logout.svg'
+import { useRouter } from 'next/navigation'
+import { clearTokens } from '@/lib/authenUtils'
 
 import { ChevronRight } from 'lucide-react'
 
 export function SettingsList() {
+  const router = useRouter()
+
+  const handleLogout = () => {
+    clearTokens()
+    router.push('/authen')
+  }
+
   return (
     <Card className="w-full shadow-sm">
       <CardContent className="p-0">
-        {/* Item 4: Logout */}
         <button
           className="w-full flex items-center justify-between p-4 hover:bg-gray-100"
-          onClick={() => alert('Logout clicked!')}
+          onClick={handleLogout}
         >
           <div className="flex items-center gap-3">
-            {/* --- YOUR ICON --- */}
-            <Image
-              src={LogoutIcon}
-              alt="Pets"
-              width={24}
-              height={24}
-            />
-            <span className="font-medium text-red-500">Logout</span>
+            <div className="relative w-6 h-6">
+              <Image
+                src="/icons/setting/logout.svg"
+                alt="logout"
+                width={24}
+                height={24}
+              />
+            </div>
+            <span className="font-medium text-neutral-gray">Logout</span>
           </div>
-          <ChevronRight className="w-4 h-4 text-gray-400" />
+          <ChevronRight className="w-4 h-4 text-neutral-gray" />
         </button>
       </CardContent>
     </Card>

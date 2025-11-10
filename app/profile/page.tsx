@@ -22,7 +22,7 @@ export default function ProfilePage() {
                   <AvatarImage src="/graphics/welcome.svg" alt="Jane Doe" />
                   <AvatarFallback className="text-3xl">JD</AvatarFallback>
                 </Avatar>
-                <h3 className="mt-4 text-2xl font-semibold">Jane Doe</h3>
+                <h3 className="mt-4 text-[22px] font-semibold">Jane Doe</h3>
                 <p className="text-sm text-neutral-gray">Guest</p>
               </CardContent>
             </Card>
