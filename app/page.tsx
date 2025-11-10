@@ -1,12 +1,5 @@
 'use client'
 
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { getProperties } from '@/lib/fetchUtils'
 import { PropertiesResponse, Property } from '@/types'
@@ -34,14 +27,16 @@ export default function Home() {
 
   return (
     <div className="bg-white text-foreground min-h-screen flex flex-col px-5">
-      <header className="sticky top-0 z-50 w-full bg-white/95 backdrop-blur mt-4">
+      <div className="sticky top-4 z-50 w-full bg-white/95 rounded-full backdrop-blur">
         <div className="container flex h-14 items-center">
           <div className="relative w-full">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
             <Input placeholder="Search" className="pl-10 py-7 rounded-full" />
           </div>
         </div>
-        <h4 className="my-3 text-deep-teal">
+      </div>
+      <header>
+        <h4 className="mt-7 text-deep-teal">
           Discover Local Pet Hotels & Care Homes Near You
         </h4>
         <div className="mt-4">
@@ -55,40 +50,37 @@ export default function Home() {
         </div>
       </header>
       <main className="mt-5">
-        <h2 className="text-xl font-bold">Properties</h2>
-        <div className="grid grid-cols-2 gap-4 mt-4">
+        <h5 className="text-xl font-medium text-deep-teal mb-4">Properties</h5>
+        <div className="grid grid-cols-3 gap-4 mt-4">
           {properties.map((property) => (
-            <Card key={property.id}>
-              <CardContent className="p-0">
-                <div className="relative h-48 w-full">
-                  <Image
-                    src={
-                      property.images.length > 0
-                        ? `${API_BASE_URL}${property.images[0].filePath}`
-                        : '/graphics/home.svg'
-                    }
-                    alt={property.title}
-                    fill
-                    className="object-cover rounded-t-xl"
-                  />
-                </div>
-              </CardContent>
-              <CardHeader>
-                <CardTitle className="overflow-hidden text-ellipsis whitespace-nowrap">
+            <div key={property.id}>
+              <div className="relative w-[130px] h-[130px]">
+                <Image
+                  src={
+                    property.images.length > 0
+                      ? `${API_BASE_URL}${property.images[0].filePath}`
+                      : '/graphics/home.svg'
+                  }
+                  alt={property.title}
+                  width={130}
+                  height={130}
+                  className="object-cover rounded-[14px] shadow-lg"
+                />
+              </div>
+              <div className="mt-2 w-[130px]">
+                <p className="overflow-hidden text-ellipsis whitespace-nowrap text-xs font-medium text-deep-teal">
                   {property.title}
-                </CardTitle>
-                <CardDescription>
+                </p>
+                <p className="text-[10px] text-gray-500">
                   {property.province}, {property.district}
-                </CardDescription>
-              </CardHeader>
-              <div className="p-6 pt-0">
+                </p>
                 {property.roomCategory && (
-                  <p className="font-bold">
+                  <p className="font-bold text-[10px]">
                     THB {property.roomCategory.basePrice}
                   </p>
                 )}
               </div>
-            </Card>
+            </div>
           ))}
         </div>
       </main>
