@@ -1,26 +1,13 @@
 'use client'
 
-import { getProperties } from '@/lib/fetchUtils'
-import { PropertiesResponse, Property } from '@/types'
-import { useEffect, useState } from 'react'
+import { Property } from '@/types'
 import { PropertyCard } from './PropertyCard'
 
-export function PropertyList() {
-  const [properties, setProperties] = useState<Property[]>([])
+interface PropertyListProps {
+  properties: Property[]
+}
 
-  useEffect(() => {
-    const fetchProperties = async () => {
-      try {
-        const response = (await getProperties(1, 10)) as PropertiesResponse
-        setProperties(response.data)
-      } catch (error) {
-        console.error(error)
-      }
-    }
-
-    fetchProperties()
-  }, [])
-
+export function PropertyList({ properties }: PropertyListProps) {
   return (
     <main className="mt-5">
       <h5 className="text-xl font-medium text-deep-teal mb-4">Properties</h5>
