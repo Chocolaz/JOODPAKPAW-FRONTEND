@@ -1,19 +1,17 @@
 // app/profile/page.tsx
 // (This page can stay a Server Component)
 
-import { Card, CardContent } from "@/components/ui/card";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-// import { BottomNav } from "@/components/BottomNav"
-import { SettingsList } from "./_components/SettingsList"; // We'll make this
-import Image from 'next/image'
+import { Card, CardContent } from '@/components/ui/card'
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
+import { SettingsList } from './_components/SettingsList' // We'll make this
 
 // --- NEW ICON IMPORTS ---
 // Import your SVGs directly as components
-import PawPrint from "@/public/icons/PawPrint.svg";
-import History from "@/public/icons/History.svg";
+import PawPrint from '@/public/icons/PawPrint.svg'
+import History from '@/public/icons/History.svg'
 // I'll use Home.svg as seen in your screenshot. If you renamed it
 // to Host.svg, just change the import path.
-import HostIcon from "@/public/icons/Host.svg";
+import HostIcon from '@/public/icons/Host.svg'
 
 export default function ProfilePage() {
   return (
@@ -29,9 +27,9 @@ export default function ProfilePage() {
           {/* Profile Card */}
           <Card className="w-full overflow-hidden">
             {/* ... (Avatar, Jane Doe, etc. - no changes here) ... */}
-            <CardContent className="p-0 flex flex-col items-center justify-center pt-8 pb-6 relative bg-gradient-to-r from-orange-100 to-green-100">
+            <CardContent className="p-0 flex flex-col items-center justify-center pt-8 pb-6 relative bg-linear-to-r from-orange-100 to-green-100">
               <Avatar className="w-24 h-24 border-4 border-white shadow-lg">
-                <AvatarImage src="/graphics/Ellipse.png" alt="Jane Doe" />{" "}
+                <AvatarImage src="/graphics/Ellipse.png" alt="Jane Doe" />{' '}
                 {/* Assuming Ellipse.png is your profile pic */}
                 <AvatarFallback className="text-3xl">JD</AvatarFallback>
               </Avatar>
@@ -48,13 +46,7 @@ export default function ProfilePage() {
             <Card className="shadow-sm">
               <CardContent className="flex flex-col items-center justify-center p-6 gap-2">
                 {/* --- THIS IS YOUR ICON! --- */}
-                <Image
-                    src={PawPrint}
-                    alt="Pets"
-                    width={40}
-                    height={40}
-                    className="w-10 h-10"
-                  />
+                <PawPrint />
                 <span className="font-medium text-gray-800">Pets</span>
               </CardContent>
             </Card>
@@ -63,13 +55,7 @@ export default function ProfilePage() {
             <Card className="shadow-sm">
               <CardContent className="flex flex-col items-center justify-center p-6 gap-2">
                 {/* --- THIS IS YOUR ICON! --- */}
-                <Image
-                    src={History}
-                    alt="Pets"
-                    width={40}
-                    height={40}
-                    className="w-10 h-10"
-                  />
+                <History />
                 <span className="font-medium text-gray-800">History</span>
               </CardContent>
             </Card>
@@ -79,13 +65,7 @@ export default function ProfilePage() {
           <Card className="shadow-sm">
             <CardContent className="flex flex-col items-center justify-center p-6 gap-2">
               {/* --- THIS IS YOUR ICON! --- */}
-              <Image
-                    src={HostIcon}
-                    alt="Pets"
-                    width={40}
-                    height={40}
-                    className="w-10 h-10"
-                  />
+              <HostIcon />
               <span className="font-medium text-gray-800">Become a host</span>
             </CardContent>
           </Card>
@@ -93,9 +73,7 @@ export default function ProfilePage() {
           {/* Settings List (as a separate component) */}
           <SettingsList />
         </div>
-
-        {/* <BottomNav /> */}
       </div>
     </main>
-  );
+  )
 }
