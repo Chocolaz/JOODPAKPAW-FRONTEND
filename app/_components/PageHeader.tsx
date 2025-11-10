@@ -12,7 +12,6 @@ export function PageHeader() {
           alt="Illustration of pets and a house"
           width={390}
           height={144}
-          style={{ width: '100%', height: 'auto' }}
           sizes="100vw"
           priority
         />
