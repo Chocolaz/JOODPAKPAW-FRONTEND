@@ -37,20 +37,20 @@ export function BottomNav() {
               {/* This div is for the active top border */}
               <div
                 className={`absolute top-0 w-10 h-[3px] rounded-full ${
-                  isActive ? 'bg-orange-500' : 'bg-transparent'
+                  isActive ? 'bg-accent-orange' : 'bg-transparent'
                 }`}
               ></div>
 
               {/* Icon */}
               <item.icon
                 className={`w-6 h-6 ${
-                  isActive ? 'text-orange-600' : 'text-gray-500'
+                  isActive ? 'text-accent-orange' : 'text-gray-500'
                 }`}
               />
 
               {/* Label */}
               {isActive && (
-                <span className="text-xs font-medium text-orange-600">
+                <span className="text-xs font-medium text-accent-orange baloo2">
                   {item.label}
                 </span>
               )}

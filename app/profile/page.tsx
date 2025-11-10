@@ -15,11 +15,8 @@ import HostIcon from '@/public/icons/Host.svg'
 
 export default function ProfilePage() {
   return (
-    <main className="flex min-h-screen flex-col items-center bg-gray-900 p-4">
-      <div
-        className="w-full max-w-[430px] h-[932px] rounded-3xl bg-gray-50 shadow-2xl
-                      flex flex-col overflow-hidden"
-      >
+    <main className="flex flex-col items-center">
+      <div className="w-full max-w-[500px] flex flex-col overflow-hidden">
         {/* Scrollable Content Area */}
         <div className="flex-1 flex-col gap-4 p-4 overflow-y-auto">
           <h2 className="text-xl font-semibold text-center">Profile</h2>

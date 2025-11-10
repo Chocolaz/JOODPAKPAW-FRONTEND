@@ -18,6 +18,9 @@ const config: Config = {
         base: '16px',
         lg: '18px',
       },
+      fontFamily: {
+        baloo2: ['var(--font-baloo2)'],
+      },
     },
   },
   plugins: [],
