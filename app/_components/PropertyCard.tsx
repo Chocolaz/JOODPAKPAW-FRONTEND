@@ -1,5 +1,6 @@
 import { Property } from '@/types'
 import Image from 'next/image'
+import { useState } from 'react'
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL
 
@@ -8,19 +9,22 @@ interface PropertyCardProps {
 }
 
 export function PropertyCard({ property }: PropertyCardProps) {
+  const [imgSrc, setImgSrc] = useState(
+    property.images.length > 0
+      ? `${API_BASE_URL}${property.images[0].filePath}`
+      : '/graphics/welcome.svg'
+  )
+
   return (
     <div>
       <div className="relative w-[130px] h-[130px]">
         <Image
-          src={
-            property.images.length > 0
-              ? `${API_BASE_URL}${property.images[0].filePath}`
-              : '/graphics/home.svg'
-          }
+          src={imgSrc}
           alt={property.title}
           width={130}
           height={130}
           className="object-cover rounded-[14px] shadow-lg"
+          onError={() => setImgSrc('/graphics/home.svg')}
         />
       </div>
       <div className="mt-2 w-[130px]">
