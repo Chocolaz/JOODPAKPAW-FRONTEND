@@ -21,9 +21,8 @@ export function SettingsList() {
             <Image
               src={LogoutIcon}
               alt="Pets"
-              width={5}
-              height={5}
-              className="w-5 h-5"
+              width={24}
+              height={24}
             />
             <span className="font-medium text-red-500">Logout</span>
           </div>
