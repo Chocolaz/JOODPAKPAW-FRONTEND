@@ -1,6 +1,19 @@
-const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+import {
+  ForgotPasswordCredentials,
+  ResetPasswordCredentials,
+  SignInCredentials,
+  SignInResponse,
+  SignUpCredentials,
+  VerifyOtpCredentials,
+} from '@/types'
 
-async function post<T>(endpoint: string, body: any, errorContext: string): Promise<T> {
+const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL
+
+async function post<T>(
+  endpoint: string,
+  body: any,
+  errorContext: string
+): Promise<T> {
   try {
     const response = await fetch(`${BASE_URL}${endpoint}`, {
       method: 'POST',
@@ -8,66 +21,27 @@ async function post<T>(endpoint: string, body: any, errorContext: string): Promi
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(body),
-    });
+    })
 
-    const data = await response.json();
+    const data = await response.json()
 
     if (!response.ok) {
-      throw new Error(data.message || "Something went wrong");
+      throw new Error(data.message || 'Something went wrong')
     }
 
-    return data;
+    return data
   } catch (error: any) {
-    console.error(`${errorContext} failed:`, error.message);
-    throw error; 
+    console.error(`${errorContext} failed:`, error.message)
+    throw error
   }
 }
 
-// --- Credentials Interfaces ---
-export interface SignInCredentials {
-  email: string;
-  password: string;
-}
-
-export interface SignUpCredentials {
-  email: string;
-  password: string;
-  confirmPassword: string;
-  firstname: string;
-  lastname: string;
-  phone: string;
-}
-
-export interface VerifyOtpCredentials {
-  email: string;
-  otp: string;
-}
-
-export interface ForgotPasswordCredentials {
-  email: string;
-}
-
-export interface ResetPasswordCredentials {
-  email: string;
-  password: string;
-  confirmPassword: string;
-  resetPasswordToken: string;
-}
-
-// --- Response Interfaces ---
-export interface SignInResponse {
-  accessToken: string;
-  refreshToken:string;
-  code: number;
-  expiresIn: number;
-  message: string;
-  tokenType: string;
-}
-
 // --- API Functions ---
-export const signIn = (credentials: SignInCredentials): Promise<SignInResponse> => {
-  return post<SignInResponse>('api/v1/auth/sign-in', credentials, 'Sign-in');
-};
+export const signIn = (
+  credentials: SignInCredentials
+): Promise<SignInResponse> => {
+  return post<SignInResponse>('api/v1/auth/sign-in', credentials, 'Sign-in')
+}
 
 export const signUp = (credentials: SignUpCredentials) => {
   return post('api/v1/auth/sign-up', credentials, 'Sign-up');
