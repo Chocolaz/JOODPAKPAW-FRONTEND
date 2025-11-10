@@ -10,6 +10,14 @@ import ProfileIcon from '@/public/icons/nav/Profile.svg'
 export function BottomNav() {
   const pathname = usePathname()
 
+  // Define paths where BottomNav should be visible
+  const visiblePaths = ['/', '/profile']
+
+  // If the current pathname is not in the visiblePaths, return null to hide the component
+  if (!visiblePaths.includes(pathname)) {
+    return null
+  }
+
   // This array holds our nav items
   const navItems = [
     { href: '/', label: 'Home', icon: HomeIcon },
