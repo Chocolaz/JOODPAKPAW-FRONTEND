@@ -10,7 +10,7 @@ export default function ProfilePage() {
     <main className="flex flex-col items-center">
       <div className="w-full max-w-[500px] flex flex-col overflow-hidden">
         <div className="flex-1 flex-col gap-[15px] p-4 overflow-y-auto">
-          <h2 className="text-xl font-semibold text-center">Profile</h2>
+          <h2 className="text-xl font-semibold mb-4">Profile</h2>
 
           {/* New wrapper div for cards */}
           <div className="flex flex-col gap-[15px]">
