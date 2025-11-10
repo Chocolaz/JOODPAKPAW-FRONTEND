@@ -32,7 +32,7 @@ export default function Home() {
       <SearchBar />
       <PageHeader />
       {isLoading ? (
-        <div className="flex-grow flex items-center justify-center">
+        <div className="grow flex items-center justify-center">
           <Spinner />
         </div>
       ) : (
@@ -41,4 +41,3 @@ export default function Home() {
     </div>
   )
 }
-

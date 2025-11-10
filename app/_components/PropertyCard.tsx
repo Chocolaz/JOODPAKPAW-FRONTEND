@@ -24,7 +24,7 @@ export function PropertyCard({ property }: PropertyCardProps) {
           width={130}
           height={130}
           className="object-cover rounded-[14px] shadow-lg w-full h-full"
-          onError={() => setImgSrc('/graphics/home.svg')}
+          onError={() => setImgSrc('/graphics/welcome.svg')}
         />
       </div>
       <div className="mt-2 w-[130px]">

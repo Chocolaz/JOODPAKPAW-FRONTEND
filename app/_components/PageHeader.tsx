@@ -12,7 +12,9 @@ export function PageHeader() {
           alt="Illustration of pets and a house"
           width={390}
           height={144}
-          className="w-full h-auto"
+          style={{ width: '100%', height: 'auto' }}
+          sizes="100vw"
+          priority
         />
       </div>
     </header>
