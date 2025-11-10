@@ -1,16 +1,10 @@
 // components/SettingsList.tsx
-'use client' // This is required for the onClick handler
+'use client'
 
 import { Card, CardContent } from '@/components/ui/card'
 import Image from 'next/image'
-// --- NEW ICON IMPORTS ---
-import LanguageIcon from '@/public/icons/iconoir_language.svg'
-import CurrencyIcon from '@/public/icons/ri_currency-line.svg'
-import TermsIcon from '@/public/icons/Measurment.svg' // Using this from your screenshot
 import LogoutIcon from '@/public/icons/setting/logout.svg'
 
-// We still need the arrow. I'll use lucide-react for just this one.
-// If you have your own arrow SVG, import it like the others.
 import { ChevronRight } from 'lucide-react'
 
 export function SettingsList() {
