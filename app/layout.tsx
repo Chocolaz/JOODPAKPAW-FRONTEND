@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import './globals.css'
 import { afacad, baloo2 } from './fonts'
-import { BottomNav } from '@/app/profile/_components/BottomNav'
+import { BottomNav } from '@/app/_components/BottomNav'
 
 export const metadata: Metadata = {
   title: 'Create Next App',
