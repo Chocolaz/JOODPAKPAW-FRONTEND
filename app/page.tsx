@@ -1,34 +1,43 @@
-import { Input } from '@/components/ui/input'
-import { Search } from 'lucide-react'
-import Image from 'next/image'
+'use client'
 
-//test1234
+import { useEffect, useState } from 'react'
+import { PageHeader } from './_components/PageHeader'
+import { PropertyList } from './_components/PropertyList'
+import { SearchBar } from './_components/SearchBar'
+import { Spinner } from '@/components/ui/spinner'
+import { getProperties } from '@/lib/fetchUtils'
+import { PropertiesResponse, Property } from '@/types'
+
 export default function Home() {
+  const [properties, setProperties] = useState<Property[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    const fetchProperties = async () => {
+      try {
+        const response = (await getProperties(1, 10)) as PropertiesResponse
+        setProperties(response.data)
+      } catch (error) {
+        console.error(error)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    fetchProperties()
+  }, [])
+
   return (
     <div className="bg-white text-foreground min-h-screen flex flex-col px-5">
-      <header className="sticky top-0 z-50 w-full bg-white/95 backdrop-blur mt-4">
-        <div className="container flex h-14 items-center">
-          <div className="relative w-full">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-            <Input
-              placeholder="Search"
-              className="pl-10 py-7 rounded-full"
-            />
-          </div>
+      <SearchBar />
+      <PageHeader />
+      {isLoading ? (
+        <div className="grow flex items-center justify-center">
+          <Spinner />
         </div>
-        <h4 className="my-3 text-deep-teal">
-          Discover Local Pet Hotels & Care Homes Near You
-        </h4>
-        <div className="mt-4">
-          <Image
-            src="/graphics/home.svg"
-            alt="Illustration of pets and a house"
-            width={390}
-            height={144}
-            className="w-full h-auto"
-          />
-        </div>
-      </header>
+      ) : (
+        <PropertyList properties={properties} />
+      )}
     </div>
   )
 }

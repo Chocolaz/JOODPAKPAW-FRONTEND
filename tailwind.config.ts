@@ -4,19 +4,25 @@ const config: Config = {
   content: [
     './app/**/*.{js,ts,jsx,tsx,mdx}',
     './components/**/*.{js,ts,jsx,tsx,mdx}',
-    './pages/**/*.{js,ts,jsx,tsx,mdx}'
+    './pages/**/*.{js,ts,jsx,tsx,mdx}',
   ],
   darkMode: false,
   theme: {
     extend: {
-      colors: {},
+      colors: {
+        'accent-orange': 'var(--accent-orange)',
+        'deep-teal': 'var(--deep-teal)',
+      },
       fontSize: {
         sm: '14px',
         base: '16px',
-        lg: '18px'
-      }
-    }
+        lg: '18px',
+      },
+      fontFamily: {
+        baloo2: ['var(--font-baloo2)'],
+      },
+    },
   },
-  plugins: []
+  plugins: [],
 }
 export default config

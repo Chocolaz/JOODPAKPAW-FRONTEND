@@ -89,6 +89,10 @@ body {
   font-weight: 500;
 }
 
+.baloo2 {
+  font-family: var(--font-baloo2);
+}
+
 @theme inline {
   /* Project specific colors */
   --color-accent-orange: var(--accent-orange);
