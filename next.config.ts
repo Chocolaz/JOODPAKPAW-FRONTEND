@@ -3,12 +3,12 @@ import type { NextConfig } from 'next'
 // Define a minimal type for RuleSetRule
 type WebpackRuleSetRule = {
   test?: {
-    test: (value: string) => boolean;
-    source: string;
-  };
-  exclude?: RegExp;
-  use?: any;
-};
+    test: (value: string) => boolean
+    source: string
+  }
+  exclude?: RegExp | RegExp[]
+  use?: any
+}
 
 const nextConfig: NextConfig = {
   images: {
@@ -24,19 +24,27 @@ const nextConfig: NextConfig = {
   webpack(config, { isServer }) {
     // Grab the existing rule that handles SVG imports
     const fileLoaderRule = config.module.rules.find(
-      (rule: WebpackRuleSetRule) => rule.test && rule.test.test && rule.test.test('.svg')
-    );
+      (rule: WebpackRuleSetRule) =>
+        rule.test && rule.test.test && rule.test.test('.svg')
+    )
 
     if (fileLoaderRule) {
-      fileLoaderRule.exclude = /\.svg$/;
+      fileLoaderRule.exclude = /\.svg$/
     }
 
     config.module.rules.push({
       test: /\.svg$/,
       use: ['@svgr/webpack'],
-    });
+    })
 
-    return config;
+    // ❌ Exclude GitHub Actions runner folders from being compiled
+    config.module.rules.push({
+      test: /\.(ts|tsx)$/,
+      exclude: /(_actions|actions-runner|node_modules)/,
+      use: [],
+    })
+
+    return config
   },
 }
 
