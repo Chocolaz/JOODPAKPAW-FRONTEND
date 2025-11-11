@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
+import { refreshToken as callRefreshTokenApi } from './fetchAuthen' // Alias to avoid name collision
 
 // --- Token Management ---
 export const saveTokens = (accessToken: string, refreshToken: string) => {
@@ -27,6 +28,29 @@ export const getAccessToken = (): string | null => {
 
 export const isAuthenticated = (): boolean => {
   return getAccessToken() !== null
+}
+
+export const refreshAccessToken = async (): Promise<string | null> => {
+  if (typeof window === 'undefined') {
+    return null
+  }
+
+  const currentRefreshToken = localStorage.getItem('refreshToken')
+  if (!currentRefreshToken) {
+    console.error('No refresh token found in local storage.')
+    clearTokens() // Clear any stale tokens
+    return null
+  }
+
+  try {
+    const newAccessToken = await callRefreshTokenApi(currentRefreshToken)
+    saveTokens(newAccessToken, currentRefreshToken) // Save new access token, keep old refresh token
+    return newAccessToken
+  } catch (error) {
+    console.error('Failed to refresh access token:', error)
+    clearTokens() // Clear tokens on refresh failure
+    return null
+  }
 }
 
 // --- Custom Hooks ---

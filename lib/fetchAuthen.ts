@@ -68,3 +68,12 @@ export const forgotPassword = (credentials: ForgotPasswordCredentials) => {
 export const resetPassword = (credentials: ResetPasswordCredentials) => {
   return post('api/v1/auth/reset-password', credentials, 'Reset Password');
 };
+
+export const refreshToken = async (token: string): Promise<string> => {
+  const response = await post<{ accessToken: string }>(
+    'api/v1/auth/refresh-token',
+    { refreshToken: token },
+    'Refresh Token'
+  )
+  return response.accessToken
+}
