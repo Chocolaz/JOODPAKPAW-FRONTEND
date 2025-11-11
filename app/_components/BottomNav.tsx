@@ -28,9 +28,8 @@ export function BottomNav() {
 
   return (
     // NAV CONTAINER:
-    // We make it 'sticky' or 'fixed'. Since it's INSIDE our
-    // phone wrapper, 'sticky' works perfectly. 'bottom-0' pins it.
-    <nav className="sticky bottom-4 left-0 right-0 mx-5 bg-white border border-black/20 shadow-lg rounded-[10px]">
+    // We make it 'fixed'. 'bottom-4' pins it.
+    <nav className="fixed bottom-4 left-0 right-0 mx-5 bg-white border border-black/20 shadow-lg rounded-[10px]">
       <div className="flex justify-around items-center">
         {navItems.map((item) => {
           // Check if this item is the active one
