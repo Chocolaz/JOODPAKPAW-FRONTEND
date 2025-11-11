@@ -7,7 +7,7 @@ on:
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted # เปลี่ยนจาก ubuntu-latest เป็น self-hosted runner
 
     steps:
       # 1️⃣ ดึง code ล่าสุดจาก repo
@@ -29,10 +29,10 @@ jobs:
       - name: Deploy via SSH
         uses: appleboy/ssh-action@v0.1.8
         with:
-          host: ${{ secrets.VM_HOST }} # ใส่เฉพาะ host หรือ public IP ของ VM
-          username: ${{ secrets.VM_USER }} # user บน VM เช่น sysadmin
-          key: ${{ secrets.VM_SSH_KEY }} # private key ที่คู่กับ public key บน VM
-          port: 22 # default SSH port
+          host: 10.4.88.39 # private IP ของ VM
+          username: sysadmin # user บน VM
+          key: ${{ secrets.VM_SSH_KEY }} # private key ของ sysadmin
+          port: 22
           script: |
             cd ~/JOODPAKPAW-FRONTEND
             ./deploy.sh
