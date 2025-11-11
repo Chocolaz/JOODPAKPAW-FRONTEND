@@ -10,24 +10,29 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # 1️⃣ ดึง code ล่าสุดจาก repo
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      # 2️⃣ ติดตั้ง Node.js เวอร์ชัน 20
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
 
+      # 3️⃣ สร้างไฟล์ .env.production สำหรับ frontend
       - name: Create .env.production
         run: |
           echo "NEXT_PUBLIC_API_BASE_URL=http://cp25nk2.sit.kmutt.ac.th:8000/" > .env.production
 
+      # 4️⃣ Deploy ไป VM ผ่าน SSH
       - name: Deploy via SSH
         uses: appleboy/ssh-action@v0.1.8
         with:
-          host: ${{ secrets.VM_HOST }}
-          username: ${{ secrets.VM_USER }}
-          key: ${{ secrets.VM_SSH_KEY }}
+          host: ${{ secrets.VM_HOST }} # ใส่เฉพาะ host หรือ public IP ของ VM
+          username: ${{ secrets.VM_USER }} # user บน VM เช่น sysadmin
+          key: ${{ secrets.VM_SSH_KEY }} # private key ที่คู่กับ public key บน VM
+          port: 22 # default SSH port
           script: |
             cd ~/JOODPAKPAW-FRONTEND
             ./deploy.sh
