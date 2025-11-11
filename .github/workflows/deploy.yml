@@ -7,7 +7,7 @@ on:
 
 jobs:
   deploy:
-    runs-on: self-hosted # เปลี่ยนจาก ubuntu-latest เป็น self-hosted runner
+    runs-on: self-hosted # ใช้ runner ที่อยู่ใน private network
 
     steps:
       # 1️⃣ ดึง code ล่าสุดจาก repo
@@ -25,14 +25,14 @@ jobs:
         run: |
           echo "NEXT_PUBLIC_API_BASE_URL=http://cp25nk2.sit.kmutt.ac.th:8000/" > .env.production
 
-      # 4️⃣ Deploy ไป VM ผ่าน SSH
+      # 4️⃣ Deploy ไป VM ผ่าน SSH (key-based, ไม่ต้องพิมพ์ password)
       - name: Deploy via SSH
         uses: appleboy/ssh-action@v0.1.8
         with:
           host: 10.4.88.39 # private IP ของ VM
           username: sysadmin # user บน VM
-          key: ${{ secrets.VM_SSH_KEY }} # private key ของ sysadmin
-          port: 22
+          key: ${{ secrets.VM_SSH_KEY }} # private key ของ sysadmin (secret)
+          port: 22 # SSH default port
           script: |
             cd ~/JOODPAKPAW-FRONTEND
             ./deploy.sh
