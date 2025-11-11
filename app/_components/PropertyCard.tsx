@@ -10,8 +10,8 @@ interface PropertyCardProps {
 
 export function PropertyCard({ property }: PropertyCardProps) {
   const [imgSrc, setImgSrc] = useState(
-    property.images.length > 0
-      ? `${API_BASE_URL}${property.images[0].filePath}`
+    property.images.length > 0 && API_BASE_URL
+      ? new URL(property.images[0].filePath, API_BASE_URL).toString()
       : '/graphics/welcome.svg'
   )
 
@@ -23,6 +23,7 @@ export function PropertyCard({ property }: PropertyCardProps) {
           alt={property.title}
           width={130}
           height={130}
+          unoptimized={true} //fix this after
           className="object-cover rounded-[14px] shadow-lg w-full h-full"
           onError={() => setImgSrc('/graphics/welcome.svg')}
         />

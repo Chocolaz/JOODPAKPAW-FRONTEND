@@ -17,7 +17,7 @@ const nextConfig: NextConfig = {
         protocol: 'http',
         hostname: 'cp25nk2.sit.kmutt.ac.th',
         port: '8000',
-        pathname: '/**',
+        pathname: '/properties/**',
       },
     ],
   },
