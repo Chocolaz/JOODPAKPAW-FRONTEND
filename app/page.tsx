@@ -31,13 +31,15 @@ export default function Home() {
     <div className="bg-white text-foreground min-h-screen flex flex-col px-5">
       <SearchBar />
       <PageHeader />
-      {isLoading ? (
-        <div className="grow flex items-center justify-center">
-          <Spinner />
-        </div>
-      ) : (
-        <PropertyList properties={properties} />
-      )}
+      <div className="flex-1">
+        {isLoading ? (
+          <div className="grow flex items-center justify-center">
+            <Spinner />
+          </div>
+        ) : (
+          <PropertyList properties={properties} />
+        )}
+      </div>
     </div>
   )
 }

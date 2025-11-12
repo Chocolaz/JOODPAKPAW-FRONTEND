@@ -16,14 +16,14 @@ export function PropertyCard({ property }: PropertyCardProps) {
   )
 
   return (
-    <div>
+    <div className="flex-shrink-0 w-[130px] mr-4">
       <div className="relative w-[130px] h-[130px]">
         <Image
           src={imgSrc}
           alt={property.title}
           width={130}
           height={130}
-          unoptimized={true} //fix this after
+          unoptimized={true}
           className="object-cover rounded-[14px] shadow-lg w-full h-full"
           onError={() => setImgSrc('/graphics/welcome.svg')}
         />

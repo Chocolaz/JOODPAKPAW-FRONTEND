@@ -11,7 +11,7 @@ export function PropertyList({ properties }: PropertyListProps) {
   return (
     <main className="mt-5">
       <h5 className="text-xl font-medium text-deep-teal mb-4">Properties</h5>
-      <div className="grid grid-cols-3 gap-4 mt-4">
+      <div className="flex flex-nowrap overflow-x-auto mt-4 pb-2"> {/* Changed to flex, flex-nowrap, overflow-x-auto, added pb-2 for scrollbar */}
         {properties.map((property) => (
           <PropertyCard key={property.id} property={property} />
         ))}
