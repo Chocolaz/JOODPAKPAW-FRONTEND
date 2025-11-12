@@ -28,9 +28,11 @@ export default function Home() {
   }, [])
 
   return (
-    <div className="bg-white text-foreground min-h-screen flex flex-col px-5">
-      <SearchBar />
-      <PageHeader />
+    <div className="bg-white text-foreground min-h-screen flex flex-col">
+      <div className="px-5">
+        <SearchBar />
+        <PageHeader />
+      </div>
       <div className="flex-1">
         {isLoading ? (
           <div className="grow flex items-center justify-center">

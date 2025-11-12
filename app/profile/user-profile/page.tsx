@@ -71,7 +71,7 @@ export default function UserProfilePage() {
     <div className="px-5">
       <button
         onClick={() => router.back()}
-        className="absolute top-[10px] left-4 p-2 rounded-full hover:bg-gray-100 transition-colors duration-200 ease-in-out"
+        className="absolute top-2.5 left-4 p-2 rounded-full hover:bg-gray-100 transition-colors duration-200 ease-in-out"
       >
         <ChevronLeft className="w-6 h-6 text-neutral-gray" />
       </button>

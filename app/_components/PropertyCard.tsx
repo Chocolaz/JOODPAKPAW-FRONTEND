@@ -16,7 +16,7 @@ export function PropertyCard({ property }: PropertyCardProps) {
   )
 
   return (
-    <div className="flex-shrink-0 w-[130px] mr-4">
+    <div className="shrink-0 w-[130px] mr-4">
       <div className="relative w-[130px] h-[130px]">
         <Image
           src={imgSrc}
