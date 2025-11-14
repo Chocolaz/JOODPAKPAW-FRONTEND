@@ -26,7 +26,7 @@ export const refreshAccessToken = async (): Promise<string | null> => {
 
   const currentRefreshToken = getRefreshToken()
   if (!currentRefreshToken) {
-    console.error('No refresh token found in local storage.')
+    console.warn('No refresh token found in local storage.')
     clearTokens() // Clear any stale tokens
     return null
   }

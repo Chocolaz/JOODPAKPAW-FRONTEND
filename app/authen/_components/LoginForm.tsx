@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input'
 import { useState, useMemo } from 'react'
 import { signIn } from '@/lib/fetchAuthen'
 import { useRouter } from 'next/navigation'
-import { getApiErrorMessage, ApiError } from '@/lib/errorHandling'
+import { getApiErrorMessages, ApiError } from '@/lib/errorHandling'
 import clsx from 'clsx'
 import { useAuth } from '@/app/_components/AuthContext'
 
@@ -44,9 +44,9 @@ export default function LoginForm() {
       }
     } catch (err: unknown) {
       console.error('Sign in failed:', err)
-      const message = getApiErrorMessage(err)
-      if (message) {
-        setError(message)
+      const messages = getApiErrorMessages(err)
+      if (messages && messages.length > 0) {
+        setError(messages[0].message)
         if (err instanceof ApiError && err.code === 'T-2007') {
           setIsEmailError(true)
         } else {

@@ -8,6 +8,7 @@ import History from '@/public/icons/History.svg'
 import HostIcon from '@/public/icons/Host.svg'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/app/_components/AuthContext'
+import clsx from 'clsx'
 
 export default function ProfilePage() {
   const router = useRouter()
@@ -28,7 +29,15 @@ export default function ProfilePage() {
 
   const ProfileCardContent = (
     <Card className="w-full overflow-hidden">
-      <CardContent className="p-0 flex flex-col items-center justify-center pt-8 pb-6 relative bg-linear-to-r from-orange-100 to-green-100">
+      <CardContent
+        className={clsx(
+          'p-0 flex flex-col items-center justify-center pt-8 pb-6 relative',
+          {
+            'bg-linear-to-r from-orange-100 to-green-100': isAuthenticated,
+            'bg-linear-to-r from-gray-100 to-gray-300': !isAuthenticated,
+          }
+        )}
+      >
         <Avatar className="w-14 h-14 border-4 border-none">
           <AvatarImage
             src="/graphics/welcome.svg"
@@ -37,7 +46,7 @@ export default function ProfilePage() {
           <AvatarFallback className="text-3xl">
             {user
               ? `${user.firstName?.charAt(0)}${user.lastName?.charAt(0)}`
-              : 'JD'}
+              : '?'}
           </AvatarFallback>
         </Avatar>
         <h3 className="mt-4 text-[22px] font-semibold">
