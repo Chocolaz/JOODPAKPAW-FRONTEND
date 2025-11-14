@@ -8,6 +8,7 @@ import {
   VerifyOtpCredentials,
 } from '@/types'
 import { getAccessToken } from './authenUtils'
+import { ApiError } from './errorHandling'
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL
 
@@ -28,12 +29,14 @@ async function post<T>(
     const data = await response.json()
 
     if (!response.ok) {
-      throw new Error(data.message || 'Something went wrong')
+      throw new ApiError(data.message || 'Something went wrong', data.code)
     }
 
     return data
   } catch (error: unknown) {
-    if (error instanceof Error) {
+    if (error instanceof ApiError) {
+      console.error(`${errorContext} failed:`, error.message, error.code)
+    } else if (error instanceof Error) {
       console.error(`${errorContext} failed:`, error.message)
     } else {
       console.error(`${errorContext} failed:`, error)

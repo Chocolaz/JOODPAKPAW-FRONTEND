@@ -1,11 +1,12 @@
 'use client'
-
+import { useState, useMemo } from 'react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { useState, useMemo } from 'react'
 import { signUp } from '@/lib/fetchAuthen'
+import { getApiErrorMessage } from '@/lib/errorHandling'
 import { useRouter } from 'next/navigation'
+import clsx from 'clsx'
 
 export default function RegisterForm() {
   // Hooks
@@ -18,6 +19,7 @@ export default function RegisterForm() {
   const [firstname, setFirstname] = useState('')
   const [lastname, setLastname] = useState('')
   const [phone, setPhone] = useState('')
+  const [emailError, setEmailError] = useState('')
 
   // Memoized values
   const isButtonDisabled = useMemo(() => {
@@ -51,9 +53,15 @@ export default function RegisterForm() {
       })
       console.log('Sign up successful')
       router.push(`/authen/verify-otp?email=${email}`)
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Sign up failed:', error)
-      // Handle errors, e.g., show an error message to the user
+      const message = getApiErrorMessage(error)
+      if (message) {
+        setEmailError(message)
+      } else {
+        // Handle other errors, e.g., show a generic error message
+        alert('An unexpected error occurred. Please try again.')
+      }
     }
   }
 
@@ -91,10 +99,18 @@ export default function RegisterForm() {
           <Input
             type="email"
             placeholder="Email"
-            className="w-full py-6"
+            className={clsx('w-full py-6', {
+              'border-red-500': emailError,
+            })}
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={(e) => {
+              setEmail(e.target.value)
+              setEmailError('')
+            }}
           />
+          {emailError && (
+            <p className="text-red-500 text-left text-sm mt-1">{emailError}</p>
+          )}
         </div>
         <div>
           <Input
