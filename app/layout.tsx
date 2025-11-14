@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import './globals.css'
 import { afacad, baloo2 } from './fonts'
 import { BottomNav } from '@/app/_components/BottomNav'
-import { AuthProvider } from '@/app/_components/AuthProvider'
+import { AuthProvider } from '@/app/_components/AuthContext'
 
 export const metadata: Metadata = {
   title: 'Create Next App',

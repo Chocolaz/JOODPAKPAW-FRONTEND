@@ -5,14 +5,15 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { useState, useMemo } from 'react'
 import { signIn } from '@/lib/fetchAuthen'
-import { saveTokens } from '@/lib/authenUtils'
 import { useRouter } from 'next/navigation'
 import { getApiErrorMessage, ApiError } from '@/lib/errorHandling'
 import clsx from 'clsx'
+import { useAuth } from '@/app/_components/AuthContext'
 
 export default function LoginForm() {
   // Hooks
   const router = useRouter()
+  const { login } = useAuth()
 
   // State
   const [email, setEmail] = useState('')
@@ -34,7 +35,7 @@ export default function LoginForm() {
       const data = await signIn({ email, password })
       console.log('Sign in successful:', data)
       if (data.accessToken && data.refreshToken) {
-        saveTokens(data.accessToken, data.refreshToken)
+        login(data.accessToken, data.refreshToken) // Use login from AuthContext
         router.push('/')
       } else {
         console.error('Sign in successful, but no tokens received.')

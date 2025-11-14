@@ -4,45 +4,48 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { getProfile } from '@/lib/fetchAuthen'
-import { isAuthenticated } from '@/lib/authenUtils'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
 import { Spinner } from '@/components/ui/spinner'
 import { ChevronLeft } from 'lucide-react' // Import ChevronLeft
 import { UserProfile } from '@/types'
+import { useAuth } from '@/app/_components/AuthContext'
 
 export default function UserProfilePage() {
   const router = useRouter()
+  const { user, isAuthenticated, loading: authLoading } = useAuth()
   const [profile, setProfile] = useState<UserProfile | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    if (!isAuthenticated()) {
+    if (!authLoading && !isAuthenticated) {
       router.replace('/authen')
       return
     }
 
-    const fetchProfile = async () => {
-      try {
-        setLoading(true)
-        const response = await getProfile()
-        setProfile(response.data)
-      } catch (err: unknown) {
-        if (err instanceof Error) {
-          setError(err.message || 'Failed to fetch profile.')
-        } else {
-          setError('An unknown error occurred.')
+    if (isAuthenticated && !profile) { // Only fetch if authenticated and profile not yet loaded
+      const fetchProfile = async () => {
+        try {
+          setLoading(true)
+          const response = await getProfile()
+          setProfile(response.data)
+        } catch (err: unknown) {
+          if (err instanceof Error) {
+            setError(err.message || 'Failed to fetch profile.')
+          } else {
+            setError('An unknown error occurred.')
+          }
+        } finally {
+          setLoading(false)
         }
-      } finally {
-        setLoading(false)
       }
+
+      fetchProfile()
     }
+  }, [router, isAuthenticated, authLoading, profile])
 
-    fetchProfile()
-  }, [router])
-
-  if (loading) {
+  if (authLoading || loading) {
     return (
       <div className="flex justify-center items-center h-screen">
         <Spinner />

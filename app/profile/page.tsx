@@ -7,26 +7,22 @@ import PawPrint from '@/public/icons/PawPrint.svg'
 import History from '@/public/icons/History.svg'
 import HostIcon from '@/public/icons/Host.svg'
 import { useRouter } from 'next/navigation'
-import { isAuthenticated, refreshAccessToken } from '@/lib/authenUtils'
+import { useAuth } from '@/app/_components/AuthContext'
 
 export default function ProfilePage() {
   const router = useRouter()
+  const { user, isAuthenticated, login, loading: authLoading } = useAuth()
 
   const handleProfileClick = async () => {
-    if (isAuthenticated()) {
+    if (authLoading) return; // Prevent clicks while auth is loading
+
+    if (isAuthenticated) {
       router.push('/profile/user-profile')
     } else {
-      try {
-        const newAccessToken = await refreshAccessToken()
-        if (newAccessToken) {
-          router.push('/profile/user-profile')
-        } else {
-          router.push('/authen')
-        }
-      } catch (error) {
-        console.error('Failed to refresh token on profile click:', error)
-        router.push('/authen')
-      }
+      // If not authenticated, try to refresh token via AuthContext's initialization
+      // The AuthProvider already handles refreshing on load.
+      // If still not authenticated after AuthProvider loads, redirect to login.
+      router.push('/authen')
     }
   }
 
@@ -34,11 +30,13 @@ export default function ProfilePage() {
     <Card className="w-full overflow-hidden">
       <CardContent className="p-0 flex flex-col items-center justify-center pt-8 pb-6 relative bg-linear-to-r from-orange-100 to-green-100">
         <Avatar className="w-14 h-14 border-4 border-none">
-          <AvatarImage src="/graphics/welcome.svg" alt="Jane Doe" />
-          <AvatarFallback className="text-3xl">JD</AvatarFallback>
+          <AvatarImage src="/graphics/welcome.svg" alt={user ? `${user.firstName} ${user.lastName}` : 'Guest'} />
+          <AvatarFallback className="text-3xl">
+            {user ? `${user.firstName?.charAt(0)}${user.lastName?.charAt(0)}` : 'JD'}
+          </AvatarFallback>
         </Avatar>
-        <h3 className="mt-4 text-[22px] font-semibold">Jane Doe</h3>
-        <p className="text-sm text-neutral-gray">Guest</p>
+        <h3 className="mt-4 text-[22px] font-semibold">{user ? `${user.firstName} ${user.lastName}` : 'Jane Doe'}</h3>
+        <p className="text-sm text-neutral-gray">{user ? user.roles[0]?.name : 'Guest'}</p>
       </CardContent>
     </Card>
   )
