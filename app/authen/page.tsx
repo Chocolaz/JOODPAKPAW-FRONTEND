@@ -26,7 +26,7 @@ export default function AuthenPage() {
         <div className="flex h-[60px]">
           <Link href="/authen/login" passHref className="flex-1">
             <Button className="w-full py-4 rounded-lg bg-accent-orange text-white hover:bg-accent-orange/80 mr-2 h-full text-[20px] font-semibold">
-              Login
+              Sing In
             </Button>
           </Link>
           <Link href="/authen/register" passHref className="flex-1">
@@ -34,7 +34,17 @@ export default function AuthenPage() {
               variant="outline"
               className="w-full py-4 rounded-lg border-deep-teal text-deep-teal hover:bg-deep-teal hover:text-white ml-2 h-full text-[20px] font-semibold"
             >
-              Register
+              Sign Up
+            </Button>
+          </Link>
+        </div>
+        <div className="mt-4">
+          <Link href="/" passHref>
+            <Button
+              variant="ghost"
+              className="w-full text-deep-teal text-[18px] font-semibold"
+            >
+              Continue without signing in
             </Button>
           </Link>
         </div>

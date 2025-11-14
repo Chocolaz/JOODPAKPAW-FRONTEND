@@ -14,7 +14,7 @@ export default function ProfilePage() {
   const { user, isAuthenticated, login, loading: authLoading } = useAuth()
 
   const handleProfileClick = async () => {
-    if (authLoading) return; // Prevent clicks while auth is loading
+    if (authLoading) return // Prevent clicks while auth is loading
 
     if (isAuthenticated && user) {
       router.push(`/profile/${user.firstName.toLowerCase()}`)
@@ -30,13 +30,22 @@ export default function ProfilePage() {
     <Card className="w-full overflow-hidden">
       <CardContent className="p-0 flex flex-col items-center justify-center pt-8 pb-6 relative bg-linear-to-r from-orange-100 to-green-100">
         <Avatar className="w-14 h-14 border-4 border-none">
-          <AvatarImage src="/graphics/welcome.svg" alt={user ? `${user.firstName} ${user.lastName}` : 'Guest'} />
+          <AvatarImage
+            src="/graphics/welcome.svg"
+            alt={user ? `${user.firstName} ${user.lastName}` : 'Guest'}
+          />
           <AvatarFallback className="text-3xl">
-            {user ? `${user.firstName?.charAt(0)}${user.lastName?.charAt(0)}` : 'JD'}
+            {user
+              ? `${user.firstName?.charAt(0)}${user.lastName?.charAt(0)}`
+              : 'JD'}
           </AvatarFallback>
         </Avatar>
-        <h3 className="mt-4 text-[22px] font-semibold">{user ? `${user.firstName} ${user.lastName}` : 'Jane Doe'}</h3>
-        <p className="text-sm text-neutral-gray">{user ? user.roles[0]?.name : 'Guest'}</p>
+        <h3 className="mt-4 text-[22px] font-semibold">
+          {user ? `${user.firstName} ${user.lastName}` : 'Guest'}
+        </h3>
+        <p className="text-sm text-neutral-gray">
+          {user ? user.roles[0]?.name : 'Welcome to JoodPakPaw!'}
+        </p>
       </CardContent>
     </Card>
   )

@@ -24,7 +24,8 @@ export default function UserProfilePage() {
       return
     }
 
-    if (isAuthenticated && !profile) { // Only fetch if authenticated and profile not yet loaded
+    if (isAuthenticated && !profile) {
+      // Only fetch if authenticated and profile not yet loaded
       const fetchProfile = async () => {
         try {
           setLoading(true)
