@@ -20,6 +20,7 @@ export default function RegisterForm() {
   const [lastname, setLastname] = useState('')
   const [phone, setPhone] = useState('')
   const [emailError, setEmailError] = useState('')
+  const [passwordMismatchError, setPasswordMismatchError] = useState('')
 
   // Memoized values
   const isButtonDisabled = useMemo(() => {
@@ -29,9 +30,18 @@ export default function RegisterForm() {
       !phone ||
       !email ||
       !password ||
-      !confirmPassword
+      !confirmPassword ||
+      !!passwordMismatchError // Disable if there's a mismatch error
     )
-  }, [firstname, lastname, phone, email, password, confirmPassword])
+  }, [
+    firstname,
+    lastname,
+    phone,
+    email,
+    password,
+    confirmPassword,
+    passwordMismatchError,
+  ])
 
   // Handlers
   const handleSignUp = async (e: React.FormEvent) => {
@@ -39,7 +49,7 @@ export default function RegisterForm() {
     if (isButtonDisabled) return
 
     if (password !== confirmPassword) {
-      alert("Passwords don't match!")
+      setPasswordMismatchError("Passwords don't match")
       return
     }
     try {
@@ -116,19 +126,34 @@ export default function RegisterForm() {
           <Input
             type="password"
             placeholder="Password"
-            className="w-full py-6"
+            className={clsx('w-full py-6', {
+              'border-red-500': passwordMismatchError,
+            })}
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={(e) => {
+              setPassword(e.target.value)
+              setPasswordMismatchError('')
+            }}
           />
         </div>
         <div>
           <Input
             type="password"
             placeholder="Confirm Password"
-            className="w-full py-6"
+            className={clsx('w-full py-6', {
+              'border-red-500': passwordMismatchError,
+            })}
             value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
+            onChange={(e) => {
+              setConfirmPassword(e.target.value)
+              setPasswordMismatchError('')
+            }}
           />
+          {passwordMismatchError && (
+            <p className="text-red-500 text-left text-sm mt-1">
+              {passwordMismatchError}
+            </p>
+          )}
         </div>
         <Button
           type="submit"
