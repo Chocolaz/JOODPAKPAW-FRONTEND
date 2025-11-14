@@ -6,11 +6,29 @@ import { SettingsList } from './_components/SettingsList'
 import PawPrint from '@/public/icons/PawPrint.svg'
 import History from '@/public/icons/History.svg'
 import HostIcon from '@/public/icons/Host.svg'
-import Link from 'next/link'
-import { isAuthenticated } from '@/lib/authenUtils' // Import isAuthenticated
+import { useRouter } from 'next/navigation'
+import { isAuthenticated, refreshAccessToken } from '@/lib/authenUtils'
 
 export default function ProfilePage() {
-  const authenticated = isAuthenticated() // Get authentication status
+  const router = useRouter()
+
+  const handleProfileClick = async () => {
+    if (isAuthenticated()) {
+      router.push('/profile/user-profile')
+    } else {
+      try {
+        const newAccessToken = await refreshAccessToken()
+        if (newAccessToken) {
+          router.push('/profile/user-profile')
+        } else {
+          router.push('/authen')
+        }
+      } catch (error) {
+        console.error('Failed to refresh token on profile click:', error)
+        router.push('/authen')
+      }
+    }
+  }
 
   const ProfileCardContent = (
     <Card className="w-full overflow-hidden">
@@ -30,9 +48,9 @@ export default function ProfilePage() {
       {/* New wrapper div for cards */}
       <div className="flex flex-col gap-[15px] mb-4">
         {/* Profile Card */}
-        <Link href={authenticated ? '/profile/user-profile' : '/authen'}>
+        <div onClick={handleProfileClick} style={{ cursor: 'pointer' }}>
           {ProfileCardContent}
-        </Link>
+        </div>
 
         {/* Action Grid ("Pets" & "History") */}
         <div className="grid grid-cols-2 gap-4">

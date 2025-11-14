@@ -7,8 +7,9 @@ import {
   SignUpCredentials,
   VerifyOtpCredentials,
 } from '@/types'
-import { getAccessToken } from './authenUtils'
+import { getAccessToken } from './tokenManager'
 import { ApiError } from './errorHandling'
+import { refreshAccessToken, clearTokens } from './authenUtils'
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL
 
@@ -50,7 +51,7 @@ async function post<T>(
 }
 
 async function get<T>(endpoint: string, errorContext: string): Promise<T> {
-  const token = getAccessToken()
+  let token = getAccessToken()
   if (!token) {
     throw new Error('No access token found')
   }
@@ -64,10 +65,40 @@ async function get<T>(endpoint: string, errorContext: string): Promise<T> {
       },
     })
 
+    if (response.status === 401) {
+      const newAccessToken = await refreshAccessToken()
+      if (newAccessToken) {
+        // Retry the request with the new token
+        const retryResponse = await fetch(`${BASE_URL}${endpoint}`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${newAccessToken}`,
+          },
+        })
+        const retryData = await retryResponse.json()
+        if (!retryResponse.ok) {
+          throw new ApiError(
+            retryData.message || 'Something went wrong on retry',
+            retryData.code,
+            retryData.errors
+          )
+        }
+        return retryData
+      } else {
+        clearTokens()
+        throw new Error('Session expired. Please log in again.')
+      }
+    }
+
     const data = await response.json()
 
     if (!response.ok) {
-      throw new Error(data.message || 'Something went wrong')
+      throw new ApiError(
+        data.message || 'Something went wrong',
+        data.code,
+        data.errors
+      )
     }
 
     return data
