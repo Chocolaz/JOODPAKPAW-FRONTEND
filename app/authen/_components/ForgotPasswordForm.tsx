@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input'
 import { useState } from 'react'
 import { forgotPassword } from '@/lib/fetchAuthen'
 import Link from 'next/link'
-import { getApiErrorMessage } from '@/lib/errorHandling'
+import { getApiErrorMessages } from '@/lib/errorHandling'
 import clsx from 'clsx'
 
 interface ForgotPasswordFormProps {
@@ -27,9 +27,9 @@ export default function ForgotPasswordForm({
       onSubmitSuccess(email)
     } catch (err) {
       console.error('Forgot password failed:', err)
-      const errorResponse = getApiErrorMessage(err)
-      if (errorResponse) {
-        setError(errorResponse.message)
+      const errorResponse = getApiErrorMessages(err)
+      if (errorResponse && errorResponse.length > 0) {
+        setError(errorResponse[0].message)
       } else {
         setError(
           'Failed to send password reset email. Please check the email address and try again.'

@@ -23,20 +23,30 @@ const errorMessages: { [key: string]: string } = {
   // Add other error codes and messages here
 }
 
-export function getApiErrorMessage(error: unknown): { field: 'email' | 'password' | 'general', message: string } | null {
+export function getApiErrorMessages(
+  error: unknown
+): { field: 'email' | 'password' | 'general'; message: string }[] | null {
   if (error instanceof ApiError) {
     if (error.code === 'T-2007' && error.errors && error.errors.length > 0) {
-      const field = error.errors[0].field;
-      if (field.includes('Password')) {
-        return { field: 'password', message: 'Password must be at least 8 characters long.' };
-      }
-      if (field.includes('Email')) {
-        return { field: 'email', message: 'Invalid email format.' };
-      }
+      return error.errors.map((err) => {
+        if (err.field.includes('Password')) {
+          return {
+            field: 'password',
+            message: 'Password must be at least 8 characters.',
+          }
+        }
+        if (err.field.includes('Email')) {
+          return { field: 'email', message: 'Invalid email format.' }
+        }
+        return {
+          field: 'general',
+          message: 'An unknown validation error occurred.',
+        }
+      })
     }
     if (error.code in errorMessages) {
-      return { field: 'general', message: errorMessages[error.code] };
+      return [{ field: 'general', message: errorMessages[error.code] }]
     }
   }
-  return null;
+  return null
 }

@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { signUp } from '@/lib/fetchAuthen'
-import { getApiErrorMessage, ApiError } from '@/lib/errorHandling'
+import { getApiErrorMessages, ApiError } from '@/lib/errorHandling'
 import { useRouter } from 'next/navigation'
 import clsx from 'clsx'
 
@@ -66,26 +66,25 @@ export default function RegisterForm() {
       router.push(`/authen/verify-otp?email=${email}`)
     } catch (error: unknown) {
       console.error('Sign up failed:', error)
-      const apiError = getApiErrorMessage(error)
-      if (apiError) {
-        if (apiError.field === 'email') {
-          setEmailError(apiError.message)
-          setPasswordApiError('')
-        } else if (apiError.field === 'password') {
-          setPasswordApiError(apiError.message)
-          setEmailError('')
-        } else {
-          // General error, if any, can be handled here or with an alert
-          alert(apiError.message)
-          setEmailError('')
-          setPasswordApiError('')
-        }
+      const apiErrors = getApiErrorMessages(error)
+      if (apiErrors) {
+        apiErrors.forEach(apiError => {
+          if (apiError.field === 'email') {
+            setEmailError(apiError.message)
+          } else if (apiError.field === 'password') {
+            setPasswordApiError(apiError.message)
+          } else {
+            // General error, if any, can be handled here or with an alert
+            alert(apiError.message)
+          }
+        });
       } else {
         // Handle other errors, e.g., show a generic error message
         alert('An unexpected error occurred. Please try again.')
-        setEmailError('')
-        setPasswordApiError('')
       }
+      // Clear any errors not present in the new error list
+      if (!apiErrors?.some(e => e.field === 'email')) setEmailError('');
+      if (!apiErrors?.some(e => e.field === 'password')) setPasswordApiError('');
     }
   }
 
