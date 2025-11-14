@@ -5,6 +5,8 @@ import { Input } from '@/components/ui/input'
 import { useState } from 'react'
 import { forgotPassword } from '@/lib/fetchAuthen'
 import Link from 'next/link'
+import { getApiErrorMessage } from '@/lib/errorHandling'
+import clsx from 'clsx'
 
 interface ForgotPasswordFormProps {
   onSubmitSuccess: (email: string) => void
@@ -15,6 +17,7 @@ export default function ForgotPasswordForm({
 }: ForgotPasswordFormProps) {
   // State
   const [email, setEmail] = useState('')
+  const [error, setError] = useState('')
 
   // Handlers
   const handleForgotPassword = async (e: React.FormEvent) => {
@@ -22,11 +25,16 @@ export default function ForgotPasswordForm({
     try {
       await forgotPassword({ email })
       onSubmitSuccess(email)
-    } catch (error) {
-      console.error('Forgot password failed:', error)
-      alert(
-        'Failed to send password reset email. Please check the email address and try again.'
-      )
+    } catch (err) {
+      console.error('Forgot password failed:', err)
+      const errorResponse = getApiErrorMessage(err)
+      if (errorResponse) {
+        setError(errorResponse.message)
+      } else {
+        setError(
+          'Failed to send password reset email. Please check the email address and try again.'
+        )
+      }
     }
   }
 
@@ -40,11 +48,19 @@ export default function ForgotPasswordForm({
           <Input
             type="email"
             placeholder="Email"
-            className="w-full py-6"
+            className={clsx('w-full py-6', {
+              'border-red-500': error,
+            })}
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={(e) => {
+              setEmail(e.target.value)
+              setError('')
+            }}
             required
           />
+          {error && (
+            <p className="text-red-500 text-left text-sm mt-1">{error}</p>
+          )}
         </div>
         <Button
           type="submit"

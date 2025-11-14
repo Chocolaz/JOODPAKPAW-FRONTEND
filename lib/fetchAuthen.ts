@@ -29,7 +29,11 @@ async function post<T>(
     const data = await response.json()
 
     if (!response.ok) {
-      throw new ApiError(data.message || 'Something went wrong', data.code)
+      throw new ApiError(
+        data.message || 'Something went wrong',
+        data.code,
+        data.errors
+      )
     }
 
     return data

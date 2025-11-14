@@ -7,7 +7,7 @@ import { useState, useMemo } from 'react'
 import { signIn } from '@/lib/fetchAuthen'
 import { saveTokens } from '@/lib/authenUtils'
 import { useRouter } from 'next/navigation'
-import { getApiErrorMessage } from '@/lib/errorHandling'
+import { getApiErrorMessage, ApiError } from '@/lib/errorHandling'
 import clsx from 'clsx'
 
 export default function LoginForm() {
@@ -18,6 +18,7 @@ export default function LoginForm() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
+  const [isEmailError, setIsEmailError] = useState(false)
 
   // Memoized values
   const isButtonDisabled = useMemo(() => {
@@ -38,14 +39,21 @@ export default function LoginForm() {
       } else {
         console.error('Sign in successful, but no tokens received.')
         setError('Sign in failed. Please try again.')
+        setIsEmailError(false)
       }
-    } catch (err) {
+    } catch (err: unknown) {
       console.error('Sign in failed:', err)
       const message = getApiErrorMessage(err)
       if (message) {
         setError(message)
+        if (err instanceof ApiError && err.code === 'T-2007') {
+          setIsEmailError(true)
+        } else {
+          setIsEmailError(false)
+        }
       } else {
         setError('Sign in failed. Please check your credentials and try again.')
+        setIsEmailError(false)
       }
     }
   }
@@ -57,11 +65,14 @@ export default function LoginForm() {
           <Input
             type="email"
             placeholder="Email"
-            className="w-full py-6"
+            className={clsx('w-full py-6', {
+              'border-red-500': isEmailError,
+            })}
             value={email}
             onChange={(e) => {
               setEmail(e.target.value)
               setError('')
+              setIsEmailError(false)
             }}
           />
         </div>
@@ -70,12 +81,13 @@ export default function LoginForm() {
             type="password"
             placeholder="Password"
             className={clsx('w-full py-6', {
-              'border-red-500': error,
+              'border-red-500': error && !isEmailError,
             })}
             value={password}
             onChange={(e) => {
               setPassword(e.target.value)
-              setError('') // Clear API error
+              setError('')
+              setIsEmailError(false)
             }}
           />
           {error && <p className="text-red-500 text-left text-sm mt-1">{error}</p>}

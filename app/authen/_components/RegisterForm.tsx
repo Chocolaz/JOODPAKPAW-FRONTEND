@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { signUp } from '@/lib/fetchAuthen'
-import { getApiErrorMessage } from '@/lib/errorHandling'
+import { getApiErrorMessage, ApiError } from '@/lib/errorHandling'
 import { useRouter } from 'next/navigation'
 import clsx from 'clsx'
 
@@ -21,6 +21,7 @@ export default function RegisterForm() {
   const [phone, setPhone] = useState('')
   const [emailError, setEmailError] = useState('')
   const [passwordMismatchError, setPasswordMismatchError] = useState('')
+  const [passwordApiError, setPasswordApiError] = useState('')
 
   // Memoized values
   const isButtonDisabled = useMemo(() => {
@@ -65,12 +66,25 @@ export default function RegisterForm() {
       router.push(`/authen/verify-otp?email=${email}`)
     } catch (error: unknown) {
       console.error('Sign up failed:', error)
-      const message = getApiErrorMessage(error)
-      if (message) {
-        setEmailError(message)
+      const apiError = getApiErrorMessage(error)
+      if (apiError) {
+        if (apiError.field === 'email') {
+          setEmailError(apiError.message)
+          setPasswordApiError('')
+        } else if (apiError.field === 'password') {
+          setPasswordApiError(apiError.message)
+          setEmailError('')
+        } else {
+          // General error, if any, can be handled here or with an alert
+          alert(apiError.message)
+          setEmailError('')
+          setPasswordApiError('')
+        }
       } else {
         // Handle other errors, e.g., show a generic error message
         alert('An unexpected error occurred. Please try again.')
+        setEmailError('')
+        setPasswordApiError('')
       }
     }
   }
@@ -127,14 +141,18 @@ export default function RegisterForm() {
             type="password"
             placeholder="Password"
             className={clsx('w-full py-6', {
-              'border-red-500': passwordMismatchError,
+              'border-red-500': passwordMismatchError || passwordApiError,
             })}
             value={password}
             onChange={(e) => {
               setPassword(e.target.value)
               setPasswordMismatchError('')
+              setPasswordApiError('')
             }}
           />
+          {passwordApiError && (
+            <p className="text-red-500 text-left text-sm mt-1">{passwordApiError}</p>
+          )}
         </div>
         <div>
           <Input
