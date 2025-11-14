@@ -4,11 +4,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { useState, useMemo } from 'react'
 import { verifyOtp, resendOtp } from '@/lib/fetchAuthen'
-import {
-  useCooldown,
-  useEmailFromQuery,
-  saveTokens,
-} from '@/lib/authenUtils'
+import { useCooldown, useEmailFromQuery, saveTokens } from '@/lib/authenUtils'
 import { useRouter } from 'next/navigation'
 
 export default function VerifyOtpForm() {

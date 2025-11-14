@@ -4,12 +4,11 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { useState, useEffect, Suspense } from 'react'
 import { resetPassword } from '@/lib/fetchAuthen'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 
 function ResetPasswordFormComponent() {
   // Hooks
-  const router = useRouter()
   const searchParams = useSearchParams()
 
   // State
@@ -81,7 +80,9 @@ function ResetPasswordFormComponent() {
   if (isSuccess) {
     return (
       <div className="px-5 w-full max-w-sm text-center mx-auto mt-[30px]">
-        <h2 className="text-2xl font-bold text-accent-orange mb-4">Password Reset Successful</h2>
+        <h2 className="text-2xl font-bold text-accent-orange mb-4">
+          Password Reset Successful
+        </h2>
         <p>You can now log in with your new password.</p>
         <div className="mt-6">
           <Link href="/authen/login" passHref>
@@ -137,9 +138,9 @@ function ResetPasswordFormComponent() {
 }
 
 export default function ResetPasswordForm() {
-    return (
-        <Suspense fallback={<div>Loading...</div>}>
-            <ResetPasswordFormComponent />
-        </Suspense>
-    )
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <ResetPasswordFormComponent />
+    </Suspense>
+  )
 }

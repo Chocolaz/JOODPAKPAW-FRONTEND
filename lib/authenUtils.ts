@@ -65,6 +65,7 @@ export const useAuthRedirect = (redirectPath: string = '/') => {
 
   useEffect(() => {
     const authenticated = isAuthenticated()
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsAuthent(authenticated)
     if (authenticated) {
       router.push(redirectPath)
@@ -105,6 +106,7 @@ export const useEmailFromQuery = (fallbackPath: string) => {
   useEffect(() => {
     const emailFromQuery = searchParams.get('email')
     if (emailFromQuery) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setEmail(emailFromQuery)
     } else {
       console.error('Email not found in query parameters')

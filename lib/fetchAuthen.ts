@@ -1,5 +1,6 @@
 import {
   ForgotPasswordCredentials,
+  ProfileResponse,
   ResetPasswordCredentials,
   SignInCredentials,
   SignInResponse,
@@ -12,7 +13,7 @@ const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL
 
 async function post<T>(
   endpoint: string,
-  body: any,
+  body: unknown,
   errorContext: string
 ): Promise<T> {
   try {
@@ -31,8 +32,12 @@ async function post<T>(
     }
 
     return data
-  } catch (error: any) {
-    console.error(`${errorContext} failed:`, error.message)
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error(`${errorContext} failed:`, error.message)
+    } else {
+      console.error(`${errorContext} failed:`, error)
+    }
     throw error
   }
 }
@@ -59,27 +64,14 @@ async function get<T>(endpoint: string, errorContext: string): Promise<T> {
     }
 
     return data
-  } catch (error: any) {
-    console.error(`${errorContext} failed:`, error.message)
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error(`${errorContext} failed:`, error.message)
+    } else {
+      console.error(`${errorContext} failed:`, error)
+    }
     throw error
   }
-}
-
-// --- Type Definitions ---
-interface UserProfile {
-  id: number
-  email: string
-  firstName: string
-  lastName: string
-  avatar: string
-  phone: string
-  isBecomeToHost: boolean
-}
-
-interface ProfileResponse {
-  code: number
-  data: UserProfile
-  message: string
 }
 
 // --- API Functions ---

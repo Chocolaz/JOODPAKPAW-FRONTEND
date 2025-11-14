@@ -30,7 +30,7 @@ export default function ProfilePage() {
       {/* New wrapper div for cards */}
       <div className="flex flex-col gap-[15px] mb-4">
         {/* Profile Card */}
-        <Link href={authenticated ? "/profile/user-profile" : "/authen"}>
+        <Link href={authenticated ? '/profile/user-profile' : '/authen'}>
           {ProfileCardContent}
         </Link>
 

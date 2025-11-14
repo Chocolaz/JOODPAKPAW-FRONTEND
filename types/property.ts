@@ -1,3 +1,5 @@
+import { Pet } from './pet'
+
 export interface PropertyImage {
   id: number
   fileName: string
@@ -29,7 +31,7 @@ export interface Property {
   propertyTypeId: number
   images: PropertyImage[]
   roomCategory: RoomCategory
-  pets: any[]
+  pets: Pet[]
   createdAt: string
   updatedAt: string
 }

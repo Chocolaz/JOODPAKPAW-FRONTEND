@@ -9,16 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
 import { Spinner } from '@/components/ui/spinner'
 import { ChevronLeft } from 'lucide-react' // Import ChevronLeft
-
-// Define the type for the profile data
-interface UserProfile {
-  id: number
-  email: string
-  firstName: string
-  lastName: string
-  avatar: string
-  phone: string
-}
+import { UserProfile } from '@/types'
 
 export default function UserProfilePage() {
   const router = useRouter()
@@ -37,8 +28,12 @@ export default function UserProfilePage() {
         setLoading(true)
         const response = await getProfile()
         setProfile(response.data)
-      } catch (err: any) {
-        setError(err.message || 'Failed to fetch profile.')
+      } catch (err: unknown) {
+        if (err instanceof Error) {
+          setError(err.message || 'Failed to fetch profile.')
+        } else {
+          setError('An unknown error occurred.')
+        }
       } finally {
         setLoading(false)
       }
