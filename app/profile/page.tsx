@@ -16,8 +16,8 @@ export default function ProfilePage() {
   const handleProfileClick = async () => {
     if (authLoading) return; // Prevent clicks while auth is loading
 
-    if (isAuthenticated) {
-      router.push('/profile/user-profile')
+    if (isAuthenticated && user) {
+      router.push(`/profile/${user.firstName.toLowerCase()}`)
     } else {
       // If not authenticated, try to refresh token via AuthContext's initialization
       // The AuthProvider already handles refreshing on load.
