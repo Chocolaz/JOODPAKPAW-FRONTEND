@@ -31,7 +31,7 @@ export default function RegisterForm() {
       !email ||
       !password ||
       !confirmPassword ||
-      !!passwordMismatchError // Disable if there's a mismatch error
+      !!passwordMismatchError
     )
   }, [
     firstname,

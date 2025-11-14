@@ -3,10 +3,12 @@
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { signIn } from '@/lib/fetchAuthen'
 import { saveTokens } from '@/lib/authenUtils'
 import { useRouter } from 'next/navigation'
+import { getApiErrorMessage } from '@/lib/errorHandling'
+import clsx from 'clsx'
 
 export default function LoginForm() {
   // Hooks
@@ -15,10 +17,18 @@ export default function LoginForm() {
   // State
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [error, setError] = useState('')
+
+  // Memoized values
+  const isButtonDisabled = useMemo(() => {
+    return !email || !password || password.length < 8;
+  }, [email, password]);
 
   // Handlers
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (isButtonDisabled) return // Prevent sign-in if button is disabled
+
     try {
       const data = await signIn({ email, password })
       console.log('Sign in successful:', data)
@@ -27,11 +37,16 @@ export default function LoginForm() {
         router.push('/')
       } else {
         console.error('Sign in successful, but no tokens received.')
-        alert('Sign in failed. Please try again.')
+        setError('Sign in failed. Please try again.')
       }
-    } catch (error) {
-      console.error('Sign in failed:', error)
-      alert('Sign in failed. Please check your credentials and try again.')
+    } catch (err) {
+      console.error('Sign in failed:', err)
+      const message = getApiErrorMessage(err)
+      if (message) {
+        setError(message)
+      } else {
+        setError('Sign in failed. Please check your credentials and try again.')
+      }
     }
   }
 
@@ -44,17 +59,26 @@ export default function LoginForm() {
             placeholder="Email"
             className="w-full py-6"
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={(e) => {
+              setEmail(e.target.value)
+              setError('')
+            }}
           />
         </div>
         <div>
           <Input
             type="password"
             placeholder="Password"
-            className="w-full py-6"
+            className={clsx('w-full py-6', {
+              'border-red-500': error,
+            })}
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={(e) => {
+              setPassword(e.target.value)
+              setError('') // Clear API error
+            }}
           />
+          {error && <p className="text-red-500 text-left text-sm mt-1">{error}</p>}
           <div className="text-right mt-2">
             <Link
               href="/authen/forgot-password"
@@ -66,6 +90,7 @@ export default function LoginForm() {
         </div>
         <Button
           type="submit"
+          disabled={isButtonDisabled}
           className="w-full py-4 rounded-lg bg-accent-orange text-white hover:bg-accent-orange/80 h-auto text-[20px] font-semibold"
         >
           Sign in

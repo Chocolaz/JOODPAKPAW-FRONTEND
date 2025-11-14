@@ -11,6 +11,7 @@ export class ApiError extends Error {
 }
 
 const errorMessages: { [key: string]: string } = {
+  'A-3001': 'Invalid username or password',
   'A-3003': 'Email is already in used',
   // Add other error codes and messages here
 };

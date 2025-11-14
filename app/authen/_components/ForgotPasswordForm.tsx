@@ -48,6 +48,7 @@ export default function ForgotPasswordForm({
         </div>
         <Button
           type="submit"
+          disabled={!email}
           className="w-full py-4 rounded-lg bg-accent-orange text-white hover:bg-accent-orange/80 h-auto text-[20px] font-semibold"
         >
           Confirm
