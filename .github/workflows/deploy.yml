@@ -1,4 +1,4 @@
-name: Deploy Frontend Docker to VM
+name: Deploy Frontend to VM
 
 on:
   push:
@@ -10,21 +10,8 @@ jobs:
     runs-on: self-hosted
 
     steps:
-      - name: Checkout repository
+      - name: Checkout repo
         uses: actions/checkout@v4
-
-      - name: Create env file
-        run: |
-          echo "NEXT_PUBLIC_API_BASE_URL=http://cp25nk2.sit.kmutt.ac.th:8000/" > .env.production
-
-      - name: Copy project to VM
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: 10.4.88.39
-          username: sysadmin
-          key: ${{ secrets.VM_SSH_KEY }}
-          source: './'
-          target: '~/JOODPAKPAW-FRONTEND'
 
       - name: Deploy via SSH
         uses: appleboy/ssh-action@v0.1.8
@@ -32,9 +19,7 @@ jobs:
           host: 10.4.88.39
           username: sysadmin
           key: ${{ secrets.VM_SSH_KEY }}
+          port: 22
           script: |
             cd ~/JOODPAKPAW-FRONTEND
-            docker compose down
-            docker compose build --no-cache
-            docker compose up -d
-            docker system prune -f
+            ./deploy.sh
