@@ -1,0 +1,17 @@
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: joodpakpaw_frontend
+    restart: always
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env.production
+    networks:
+      - catbnb-network
+
+networks:
+  catbnb-network:
+    external: true
