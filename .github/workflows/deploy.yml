@@ -1,4 +1,4 @@
-name: Deploy to VM on merge to main
+name: Deploy Frontend Docker to VM
 
 on:
   push:
@@ -7,32 +7,34 @@ on:
 
 jobs:
   deploy:
-    runs-on: self-hosted # ใช้ runner ที่อยู่ใน private network
+    runs-on: self-hosted
 
     steps:
-      # 1️⃣ ดึง code ล่าสุดจาก repo
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 2️⃣ ติดตั้ง Node.js เวอร์ชัน 20
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-
-      # 3️⃣ สร้างไฟล์ .env.production สำหรับ frontend
-      - name: Create .env.production
+      - name: Create env file
         run: |
           echo "NEXT_PUBLIC_API_BASE_URL=http://cp25nk2.sit.kmutt.ac.th:8000/" > .env.production
 
-      # 4️⃣ Deploy ไป VM ผ่าน SSH (key-based, ไม่ต้องพิมพ์ password)
+      - name: Copy project to VM
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: 10.4.88.39
+          username: sysadmin
+          key: ${{ secrets.VM_SSH_KEY }}
+          source: './'
+          target: '~/JOODPAKPAW-FRONTEND'
+
       - name: Deploy via SSH
         uses: appleboy/ssh-action@v0.1.8
         with:
-          host: 10.4.88.39 # private IP ของ VM
-          username: sysadmin # user บน VM
-          key: ${{ secrets.VM_SSH_KEY }} # private key ของ sysadmin (secret)
-          port: 22 # SSH default port
+          host: 10.4.88.39
+          username: sysadmin
+          key: ${{ secrets.VM_SSH_KEY }}
           script: |
             cd ~/JOODPAKPAW-FRONTEND
-            ./deploy.sh
+            docker compose down
+            docker compose build --no-cache
+            docker compose up -d
+            docker system prune -f
