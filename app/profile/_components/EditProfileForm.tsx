@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useRef } from 'react'
+import { toast } from 'sonner'
 import { UserProfile } from '@/types'
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
 import { Input } from '@/components/ui/input'
@@ -62,6 +63,7 @@ export const EditProfileForm = ({
       onRefreshProfile()
       refreshAuth()
       onCloseDrawer()
+      toast.success('Profile updated successfully!')
     } catch (error) {
       console.error('Failed to update profile', error)
       // You might want to show an error message to the user

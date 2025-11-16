@@ -4,14 +4,16 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { useState, useMemo } from 'react'
 import { verifyOtp, resendOtp } from '@/lib/api'
-import { useCooldown, useEmailFromQuery, saveTokens } from '@/lib/authenUtils'
+import { useCooldown, useEmailFromQuery } from '@/lib/authenUtils'
 import { useRouter } from 'next/navigation'
+import { useAuth } from '@/app/_components/AuthContext'
 
 export default function VerifyOtpForm() {
   // Hooks
   const router = useRouter()
   const email = useEmailFromQuery('/authen/register')
   const { cooldown, startCooldown } = useCooldown()
+  const { login } = useAuth()
 
   // State
   const [otp, setOtp] = useState('')
@@ -30,7 +32,7 @@ export default function VerifyOtpForm() {
       const data = await verifyOtp({ email, otp })
       console.log('OTP verification successful')
       if (data.accessToken && data.refreshToken) {
-        saveTokens(data.accessToken, data.refreshToken)
+        login(data.accessToken, data.refreshToken)
         router.push('/')
       } else {
         console.error('OTP verification successful, but no tokens received.')

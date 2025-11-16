@@ -131,9 +131,11 @@ export default function RegisterForm() {
             })}
             value={phone}
             onChange={(e) => {
-              setPhone(e.target.value)
+              const numericValue = e.target.value.replace(/\D/g, '') // Remove non-digits
+              setPhone(numericValue)
               setPhoneError('')
             }}
+            maxLength={10}
           />
           {phoneError && (
             <p className="text-red-500 text-left text-sm mt-1">{phoneError}</p>
