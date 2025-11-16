@@ -191,3 +191,21 @@ body {
 .hide-scrollbar::-webkit-scrollbar {
   display: none; /* Chrome, Safari, Opera*/
 }
+
+/* Fix cropped icon */
+.sonner-icon,
+[data-sonner-toast] .sonner-icon {
+  width: 24px !important; /* or match your design */
+  height: 24px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  overflow: visible !important; /* key fix */
+}
+
+/* Force your app font in Sonner portal */
+[data-sonner-toast],
+[data-sonner-toast] * {
+  font-family: var(--font-afacad) !important; /* match your body font */
+  font-size: 16px; /* optional if you want the same size as body */
+}

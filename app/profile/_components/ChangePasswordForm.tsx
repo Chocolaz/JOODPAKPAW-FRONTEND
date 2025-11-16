@@ -1,5 +1,6 @@
 'use client'
 
+import { toast } from 'sonner'
 import { useState } from 'react'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
@@ -18,15 +19,12 @@ export const ChangePasswordForm = ({
   const [confirmPassword, setConfirmPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [fieldErrors, setFieldErrors] = useState<{ [key: string]: string }>({})
-  const [hasSubmitted, setHasSubmitted] = useState(false)
 
   const isDirty =
     oldPassword !== '' || newPassword !== '' || confirmPassword !== ''
-  const passwordsMatch = newPassword === confirmPassword && newPassword !== ''
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault()
-    setHasSubmitted(true)
     setError(null)
     setFieldErrors({})
 
@@ -58,6 +56,7 @@ export const ChangePasswordForm = ({
       setNewPassword('')
       setConfirmPassword('')
       onCloseDrawer()
+      toast.success('Password changed successfully!')
     } catch (error) {
       handleError(error, 'Failed to change password. Please try again.', {
         setGeneralError: setError,
@@ -118,7 +117,12 @@ export const ChangePasswordForm = ({
       <Button
         type="submit"
         className="w-full mt-6 bg-positive-green h-12 text-[16px]"
-        disabled={!isDirty || oldPassword.length < 8 || newPassword.length < 8}
+        disabled={
+          !isDirty ||
+          oldPassword.length < 8 ||
+          newPassword.length < 8 ||
+          confirmPassword.length < 8
+        }
       >
         Change Password
       </Button>

@@ -12,7 +12,7 @@ import clsx from 'clsx'
 
 export default function ProfilePage() {
   const router = useRouter()
-  const { user, isAuthenticated, login, loading: authLoading } = useAuth()
+  const { user, isAuthenticated, loading: authLoading } = useAuth()
 
   const handleProfileClick = async () => {
     if (authLoading) return // Prevent clicks while auth is loading

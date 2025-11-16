@@ -42,3 +42,5 @@ next-env.d.ts
 
 bun.lockb
 actions-runner/
+bun.lockb
+*.lockb

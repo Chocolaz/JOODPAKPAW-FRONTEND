@@ -2,7 +2,7 @@
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { useState, useEffect, Suspense } from 'react'
+import { useState, Suspense } from 'react'
 import { resetPassword } from '@/lib/api'
 import { useSearchParams } from 'next/navigation'
 import { getApiErrorMessages } from '@/lib/errorHandling'
@@ -17,8 +17,6 @@ function ResetPasswordFormComponent({
   const searchParams = useSearchParams()
 
   // State
-  const [token, setToken] = useState<string | null>(null)
-  const [email, setEmail] = useState<string | null>(null)
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [passwordError, setPasswordError] = useState<string | null>(null)
@@ -27,26 +25,35 @@ function ResetPasswordFormComponent({
   >(null)
   const [generalError, setGeneralError] = useState<string | null>(null)
 
-  useEffect(() => {
-    const payload = searchParams.get('payload')
-    if (payload) {
-      try {
-        const decodedPayload = atob(payload)
-        const { email, resetPasswordToken } = JSON.parse(decodedPayload)
-        if (email && resetPasswordToken) {
-          setEmail(email)
-          setToken(resetPasswordToken)
-        } else {
-          setGeneralError('Invalid payload in URL.')
+  const initialPayload = searchParams.get('payload')
+  const { email: initialEmail, token: initialToken, error: initialError } =
+    (() => {
+      if (initialPayload) {
+        try {
+          const decodedPayload = atob(initialPayload)
+          const { email, resetPasswordToken } = JSON.parse(decodedPayload)
+          if (email && resetPasswordToken) {
+            return { email, token: resetPasswordToken, error: null }
+          } else {
+            return { email: null, token: null, error: 'Invalid payload in URL.' }
+          }
+        } catch (e) {
+          console.error('Failed to decode payload:', e)
+          return {
+            email: null,
+            token: null,
+            error: 'Invalid or corrupted payload in URL.',
+          }
         }
-      } catch (e) {
-        console.error('Failed to decode payload:', e)
-        setGeneralError('Invalid or corrupted payload in URL.')
+      } else {
+        return { email: null, token: null, error: 'No payload found in URL.' }
       }
-    } else {
-      setGeneralError('No payload found in URL.')
-    }
-  }, [searchParams])
+    })()
+
+  const [token] = useState<string | null>(initialToken)
+  const [email] = useState<string | null>(initialEmail)
+  const [formGeneralError, setFormGeneralError] =
+    useState<string | null>(initialError)
 
   // Handlers
   const handleResetPassword = async (e: React.FormEvent) => {
@@ -54,7 +61,7 @@ function ResetPasswordFormComponent({
     // Clear previous errors
     setPasswordError(null)
     setConfirmPasswordError(null)
-    setGeneralError(null)
+    setFormGeneralError(null)
 
     if (password !== confirmPassword) {
       setConfirmPasswordError('Passwords do not match.')
@@ -83,9 +90,9 @@ function ResetPasswordFormComponent({
         if (passwordFieldErrors && passwordFieldErrors.length > 0) {
           setPasswordError(passwordFieldErrors[0].message)
         } else if (generalFieldErrors && generalFieldErrors.length > 0) {
-          setGeneralError(generalFieldErrors[0].message)
+          setFormGeneralError(generalFieldErrors[0].message)
         } else {
-          setGeneralError('Failed to reset password. Please try again.')
+          setFormGeneralError('Failed to reset password. Please try again.')
         }
       }
     }
@@ -94,8 +101,8 @@ function ResetPasswordFormComponent({
   if (!token || !email) {
     return (
       <div className="px-5 w-full max-w-sm text-center mx-auto mt-[30px]">
-        {generalError && (
-          <p className="text-red-500 text-center mb-4">{generalError}</p>
+        {formGeneralError && (
+          <p className="text-red-500 text-center mb-4">{formGeneralError}</p>
         )}
         <p>Loading...</p>
       </div>

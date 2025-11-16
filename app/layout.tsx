@@ -3,6 +3,7 @@ import './globals.css'
 import { afacad, baloo2 } from './fonts'
 import { BottomNav } from '@/app/_components/BottomNav'
 import { AuthProvider } from '@/app/_components/AuthContext'
+import { Toaster } from '@/components/ui/sonner'
 
 export const metadata: Metadata = {
   title: 'Create Next App',
@@ -23,6 +24,7 @@ export default function RootLayout({
             <main className="flex-1">{children}</main>
             <BottomNav />
           </div>
+          <Toaster />
         </AuthProvider>
       </body>
     </html>
