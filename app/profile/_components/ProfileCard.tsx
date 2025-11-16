@@ -3,8 +3,15 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
 import { UserProfile } from '@/types'
+import { Button } from '@/components/ui/button'
 
-export const ProfileCard = ({ profile }: { profile: UserProfile }) => (
+export const ProfileCard = ({
+  profile,
+  onPasswordChangeClick,
+}: {
+  profile: UserProfile
+  onPasswordChangeClick: () => void
+}) => (
   <Card className="my-2">
     <CardHeader className="flex flex-col items-center text-center">
       <Avatar className="w-24 h-24 mb-4 border border-gray-200 ring-1 ring-gray-200 ring-offset-10 ring-offset-background">
@@ -37,6 +44,13 @@ export const ProfileCard = ({ profile }: { profile: UserProfile }) => (
         <span className="font-medium text-neutral-gray">Phone</span>
         <span>{profile.phone}</span>
       </div>
+      <Button
+        variant="outline"
+        className="w-full"
+        onClick={onPasswordChangeClick}
+      >
+        Change Password
+      </Button>
     </CardContent>
   </Card>
 )

@@ -22,6 +22,7 @@ const errorMessages: { [key: string]: string } = {
   'DB-1002': 'This email is not registered.',
   'A-3010': 'Reset password token already used.',
   'A-3012': 'New password same as old password.',
+  'A-3011': 'Wrong password.',
   // Add other error codes and messages here
 }
 
@@ -34,24 +35,56 @@ export function getApiErrorMessages(
         // Use the 'tag' for more reliable error mapping
         switch (err.tag) {
           case 'email':
-            return { field: 'email', message: 'Invalid email format.' };
+            return { field: 'email', message: 'Invalid email format.' }
           case 'min': // Assuming 'min' tag for password length
             if (err.field.toLowerCase().includes('password')) {
-              return { field: 'password', message: 'Password must be at least 8 characters.' };
+              return {
+                field: 'password',
+                message: 'Password must be at least 8 characters.',
+              }
             }
-            break;
+            break
           // Add more cases for other tags like 'required', etc.
         }
         // Fallback for unhandled tags or fields
         return {
           field: 'general',
           message: 'An unknown validation error occurred.',
-        };
-      });
+        }
+      })
     }
     if (error.code in errorMessages) {
-      return [{ field: 'general', message: errorMessages[error.code] }];
+      return [{ field: 'general', message: errorMessages[error.code] }]
     }
   }
-  return null;
+  return null
+}
+
+export function handleError(
+  error: unknown,
+  defaultMessage: string,
+  setters: {
+    setGeneralError: (message: string) => void
+    setFieldError?: (field: string, message: string) => void
+  }
+) {
+  const { setGeneralError, setFieldError } = setters
+
+  if (error instanceof ApiError) {
+    if (error.code === 'A-3011' && setFieldError) {
+      setFieldError('oldPassword', errorMessages[error.code])
+      return
+    }
+
+    const apiErrorMessages = getApiErrorMessages(error)
+    if (apiErrorMessages && apiErrorMessages.length > 0) {
+      setGeneralError(apiErrorMessages[0].message)
+    } else {
+      setGeneralError(error.message || defaultMessage)
+    }
+  } else if (error instanceof Error) {
+    setGeneralError(error.message || defaultMessage)
+  } else {
+    setGeneralError(defaultMessage)
+  }
 }

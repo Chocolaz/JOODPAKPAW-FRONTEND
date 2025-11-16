@@ -22,19 +22,50 @@ export interface ForgotPasswordCredentials {
   email: string
 }
 
+
+
 export interface ResetPasswordCredentials {
+
   email: string
+
   password: string
+
   confirmPassword: string
+
   resetPasswordToken: string
+
 }
 
-// --- Response Interfaces ---
-export interface SignInResponse {
-  accessToken: string
-  refreshToken: string
-  code: number
-  expiresIn: number
-  message: string
-  tokenType: string
+
+
+export interface ChangePasswordCredentials {
+
+  oldPassword: string
+
+  newPassword: string
+
+  confirmPassword: string
+
 }
+
+
+
+// --- Response Interfaces ---
+
+export interface SignInResponse {
+
+  accessToken: string
+
+  refreshToken: string
+
+  code: number
+
+  expiresIn: number
+
+  message: string
+
+  tokenType: string
+
+}
+
+

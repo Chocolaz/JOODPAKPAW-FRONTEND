@@ -1,4 +1,6 @@
 import { ApiError } from './errorHandling'
+import request from './apiClient'
+import { ChangePasswordCredentials } from '@/types/authen'
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL
 
@@ -48,4 +50,17 @@ export const refreshToken = async (token: string): Promise<string> => {
     'Refresh Token'
   )
   return response.accessToken
+}
+
+export const resetPassword = async (
+  userId: string,
+  credentials: ChangePasswordCredentials
+): Promise<void> => {
+  await request<void>({
+    endpoint: `api/v1/users/${userId}/change-password`,
+    method: 'PATCH',
+    body: credentials,
+    errorContext: 'Change Password',
+    requiresAuth: true,
+  })
 }
