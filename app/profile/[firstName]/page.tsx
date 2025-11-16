@@ -11,8 +11,10 @@ import {
   DrawerContent,
   DrawerHeader,
   DrawerTitle,
+  DrawerClose,
 } from '@/components/ui/drawer'
 import { EditProfileForm } from '@/app/profile/_components/EditProfileForm'
+import { ChevronLeft } from 'lucide-react'
 
 export default function UserProfilePage() {
   const { profile, loading, error, router, refreshProfile } = useUserProfile()
@@ -36,9 +38,17 @@ export default function UserProfilePage() {
         <ProfileHeader onBack={() => router.back()} />
         <ProfileCard profile={profile} />
       </div>
-      <DrawerContent>
+      <DrawerContent aria-describedby={undefined}>
         <DrawerHeader>
-          <DrawerTitle>Edit Profile</DrawerTitle>
+          <div className="flex items-center ">
+            <DrawerClose asChild>
+              <button className="p-2 rounded-full hover:bg-gray-100 transition-colors duration-200 ease-in-out">
+                <ChevronLeft className="w-6 h-6 text-neutral-gray" />
+              </button>
+            </DrawerClose>
+            <DrawerTitle>Edit Profile</DrawerTitle>
+            <div className="w-10"></div> {/* Placeholder for alignment */}
+          </div>
         </DrawerHeader>
         <EditProfileForm
           profile={profile}

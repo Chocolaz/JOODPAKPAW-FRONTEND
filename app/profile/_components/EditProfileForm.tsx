@@ -61,9 +61,9 @@ export const EditProfileForm = ({
   }
 
   return (
-    <form onSubmit={handleSubmit} className="py-4 px-10">
-      <div className="relative mx-auto w-32 h-32 mb-4">
-        <Avatar className="w-32 h-32">
+    <form onSubmit={handleSubmit} className="py-4 px-14">
+      <div className="relative mx-auto w-47 h-47 mb-4">
+        <Avatar className="w-47 h-47 border border-gray-200 ring-1 ring-gray-200 ring-offset-15 ring-offset-background">
           <AvatarImage
             src={avatarPreview || '/graphics/guest.jpg'}
             alt="Avatar preview"
@@ -95,7 +95,7 @@ export const EditProfileForm = ({
       </div>
       <div>
         <div className="space-y-1">
-          <label htmlFor="firstName" className="text-sm">
+          <label htmlFor="firstName" className="text-sm text-deep-teal">
             Firstname
           </label>
           <Input
@@ -108,7 +108,7 @@ export const EditProfileForm = ({
           <p className="text-sm text-muted-foreground text-right">{`${firstName.length}/60`}</p>
         </div>
         <div className="space-y-1">
-          <label htmlFor="lastName" className="text-sm">
+          <label htmlFor="lastName" className="text-sm text-deep-teal">
             Lastname
           </label>
           <Input
@@ -121,8 +121,11 @@ export const EditProfileForm = ({
           <p className="text-sm text-muted-foreground text-right">{`${lastName.length}/60`}</p>
         </div>
       </div>
-      <Button type="submit" className="w-full mt-6">
-        Save Changes
+      <Button
+        type="submit"
+        className="w-full mt-6 bg-positive-green h-12 text-[16px]"
+      >
+        Confirm
       </Button>
     </form>
   )
