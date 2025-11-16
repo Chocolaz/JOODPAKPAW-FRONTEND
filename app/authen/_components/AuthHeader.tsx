@@ -7,7 +7,7 @@ type AuthHeaderProps = {
 export default function AuthHeader({ children }: AuthHeaderProps) {
   return (
     <div className="relative w-full flex justify-center  pt-10">
-      <div className="absolute top-0 z-0">
+      <div className="absolute top-0 z-0 pointer-events-none">
         <Image
           src="/graphics/Ellipse.svg"
           alt="Background Ellipse"
