@@ -13,6 +13,7 @@ const config: Config = {
         'accent-orange': 'var(--accent-orange)',
         'deep-teal': 'var(--deep-teal)',
         'positive-green': 'var(--positive-green)',
+        'off-white': 'var(--off-white)',
       },
       fontSize: {
         sm: '14px',

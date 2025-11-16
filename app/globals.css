@@ -10,6 +10,7 @@
   --deep-teal: #1c4f4a;
   --neutral-gray: #6a6a6a;
   --positive-green: #65bf73;
+  --off-white: #f7f2e8;
 
   --radius: 0.625rem;
   --background: oklch(1 0 0);
@@ -100,6 +101,7 @@ body {
   --color-deep-teal: var(--deep-teal);
   --color-neutral-gray: var(--neutral-gray);
   --color-positive-green: var(--positive-green);
+  --color-off-white: var(--off-white);
 
   /* Shadcn/ui variables */
   --radius-sm: calc(var(--radius) - 4px);
