@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { getProfile } from '@/lib/fetchAuthen'
 import { UserProfile } from '@/types'
@@ -12,6 +12,11 @@ export const useUserProfile = () => {
   const [profile, setProfile] = useState<UserProfile | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [refreshTrigger, setRefreshTrigger] = useState(0)
+
+  const refreshProfile = useCallback(() => {
+    setRefreshTrigger((prev) => prev + 1)
+  }, [])
 
   useEffect(() => {
     if (!authLoading && !isAuthenticated) {
@@ -37,7 +42,7 @@ export const useUserProfile = () => {
 
       fetchProfile()
     }
-  }, [router, isAuthenticated, authLoading])
+  }, [router, isAuthenticated, authLoading, refreshTrigger])
 
-  return { profile, loading: authLoading || loading, error, router }
+  return { profile, loading: authLoading || loading, error, router, refreshProfile }
 }
