@@ -90,7 +90,7 @@ export default function ProfilePage() {
         </div>
 
         {/* "Become a host" Card */}
-        <Card className="shadow-sm">
+        <Card className="shadow-sm" onClick={() => router.push('/profile/host')}>
           <CardContent className="flex flex-col items-center justify-center p-6 gap-2">
             <HostIcon />
             <span className="font-medium text-deep-teal text-[22px]">
