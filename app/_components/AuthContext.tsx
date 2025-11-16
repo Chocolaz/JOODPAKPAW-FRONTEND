@@ -4,7 +4,7 @@ import { createContext, useContext, useState, useEffect, ReactNode, useCallback 
 import { User } from '@/types';
 import { getAccessToken, clearTokens, saveTokens } from '@/lib/tokenManager';
 import { refreshAccessToken } from '@/lib/authenUtils';
-import { getProfile } from '@/lib/fetchAuthen';
+import { getProfile } from '@/lib/api';
 
 interface AuthContextType {
   user: User | null;

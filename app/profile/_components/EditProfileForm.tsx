@@ -6,7 +6,7 @@ import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import Image from 'next/image'
-import { updateUserProfile } from '@/lib/fetchAuthen'
+import { updateUserProfile } from '@/lib/api'
 import { useAuth } from '@/app/_components/AuthContext'
 
 export const EditProfileForm = ({

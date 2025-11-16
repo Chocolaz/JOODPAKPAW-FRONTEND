@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { refreshToken as callRefreshTokenApi } from './fetchAuthen' // Alias to avoid name collision
+import { refreshToken as callRefreshTokenApi } from './authApi' // Alias to avoid name collision
 import {
   saveTokens,
   clearTokens,

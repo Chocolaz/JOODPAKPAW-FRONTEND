@@ -2,28 +2,30 @@ import { ApiError } from './errorHandling'
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL
 
-async function get<T>(
+// This is a simplified post function that does not handle authentication
+// or token refresh, suitable for the refresh token call itself.
+async function post<T>(
   endpoint: string,
-  params: Record<string, string | number | boolean>,
+  body: unknown,
   errorContext: string
 ): Promise<T> {
   try {
-    const url = new URL(`${BASE_URL}${endpoint}`)
-    Object.keys(params).forEach((key) =>
-      url.searchParams.append(key, String(params[key]))
-    )
-
-    const response = await fetch(url.toString(), {
-      method: 'GET',
+    const response = await fetch(`${BASE_URL}${endpoint}`, {
+      method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
+      body: JSON.stringify(body),
     })
 
     const data = await response.json()
 
     if (!response.ok) {
-      throw new ApiError(data.message || 'Something went wrong', data.code)
+      throw new ApiError(
+        data.message || 'Something went wrong',
+        data.code,
+        data.errors
+      )
     }
 
     return data
@@ -39,6 +41,11 @@ async function get<T>(
   }
 }
 
-export const getProperties = (page: number, limit: number) => {
-  return get('api/v1/properties', { page, limit }, 'Get Properties')
+export const refreshToken = async (token: string): Promise<string> => {
+  const response = await post<{ accessToken: string }>(
+    'api/v1/auth/refresh-token',
+    { refreshToken: token },
+    'Refresh Token'
+  )
+  return response.accessToken
 }

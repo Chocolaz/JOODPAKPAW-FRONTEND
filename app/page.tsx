@@ -5,7 +5,7 @@ import { PageHeader } from './_components/PageHeader'
 import { PropertyList } from './_components/PropertyList'
 import { SearchBar } from './_components/SearchBar'
 import { Spinner } from '@/components/ui/spinner'
-import { getProperties } from '@/lib/fetchUtils'
+import { getProperties } from '@/lib/api'
 import { PropertiesResponse, Property } from '@/types'
 
 export default function Home() {

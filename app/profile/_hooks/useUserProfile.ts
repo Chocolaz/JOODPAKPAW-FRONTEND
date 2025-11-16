@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
-import { getProfile } from '@/lib/fetchAuthen'
+import { getProfile } from '@/lib/api'
 import { UserProfile } from '@/types'
 import { useAuth } from '@/app/_components/AuthContext'
 

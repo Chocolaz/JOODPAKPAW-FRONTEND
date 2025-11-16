@@ -3,7 +3,7 @@
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { useState, useEffect, Suspense } from 'react'
-import { resetPassword } from '@/lib/fetchAuthen'
+import { resetPassword } from '@/lib/api'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 
