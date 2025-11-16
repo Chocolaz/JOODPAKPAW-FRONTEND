@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import Image from 'next/image'
 import { updateUserProfile } from '@/lib/fetchAuthen'
+import { useAuth } from '@/app/_components/AuthContext'
 
 export const EditProfileForm = ({
   profile,
@@ -17,6 +18,7 @@ export const EditProfileForm = ({
   onRefreshProfile: () => void
   onCloseDrawer: () => void
 }) => {
+  const { refreshAuth } = useAuth()
   const [firstName, setFirstName] = useState(profile.firstName)
   const [lastName, setLastName] = useState(profile.lastName)
   const [avatarFile, setAvatarFile] = useState<File | null>(null)
@@ -58,6 +60,7 @@ export const EditProfileForm = ({
     try {
       await updateUserProfile(profile.id.toString(), formData)
       onRefreshProfile()
+      refreshAuth()
       onCloseDrawer()
     } catch (error) {
       console.error('Failed to update profile', error)

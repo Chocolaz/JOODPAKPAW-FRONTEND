@@ -40,7 +40,7 @@ export default function ProfilePage() {
       >
         <Avatar className="w-14 h-14 border-4 border-none">
           <AvatarImage
-            src="/graphics/welcome.svg"
+            src="/graphics/guest.jpg"
             alt={user ? `${user.firstName} ${user.lastName}` : 'Guest'}
           />
           <AvatarFallback className="text-3xl">
@@ -53,7 +53,7 @@ export default function ProfilePage() {
           {user ? `${user.firstName} ${user.lastName}` : 'Guest'}
         </h3>
         <p className="text-sm text-neutral-gray">
-          {user ? user.roles[0]?.name : 'Welcome to JoodPakPaw!'}
+          {user ? user.role?.[0]?.name || '' : 'Welcome to JoodPakPaw!'}
         </p>
       </CardContent>
     </Card>

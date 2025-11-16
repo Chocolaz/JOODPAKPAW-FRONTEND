@@ -8,7 +8,7 @@ export interface User {
   firstName: string
   id: number
   lastName: string
-  roles: Role[]
+  role: Role[]
 }
 
 export interface UserProfile {

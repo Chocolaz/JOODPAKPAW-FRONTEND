@@ -1,16 +1,18 @@
 'use client';
 
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { User } from '@/types'; // Assuming User interface is defined in '@/types'
-import { getAccessToken, clearTokens, saveTokens, getRefreshToken } from '@/lib/tokenManager';
+import { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
+import { User } from '@/types';
+import { getAccessToken, clearTokens, saveTokens } from '@/lib/tokenManager';
 import { refreshAccessToken } from '@/lib/authenUtils';
+import { getProfile } from '@/lib/fetchAuthen';
 
 interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
   login: (accessToken: string, refreshToken: string) => void;
   logout: () => void;
-  loading: boolean; // To indicate if auth state is being loaded
+  loading: boolean;
+  refreshAuth: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -18,22 +20,15 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
 
-  const decodeAndSetUser = (accessToken: string) => {
-    try {
-      const payload = JSON.parse(atob(accessToken.split('.')[1]));
-      if (payload && payload.dat && payload.dat.user) {
-        setUser(payload.dat.user);
-      }
-    } catch (e) {
-      console.error('Failed to decode access token or set user data:', e);
-      setUser(null);
-    }
-  };
+  const refreshAuth = useCallback(() => {
+    setRefreshTrigger(prev => prev + 1);
+  }, []);
 
   const login = (accessToken: string, refreshToken: string) => {
     saveTokens(accessToken, refreshToken);
-    decodeAndSetUser(accessToken);
+    refreshAuth(); // Trigger a refresh to fetch user data
   };
 
   const logout = () => {
@@ -43,32 +38,35 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const initializeAuth = async () => {
-      const accessToken = getAccessToken();
-      if (accessToken) {
-        decodeAndSetUser(accessToken);
-      } else {
-        // Try to refresh token if access token is missing
-        try {
+      setLoading(true);
+      try {
+        const accessToken = getAccessToken();
+        if (accessToken) {
+          const profileResponse = await getProfile();
+          setUser(profileResponse.data);
+        } else {
           const newAccessToken = await refreshAccessToken();
           if (newAccessToken) {
-            decodeAndSetUser(newAccessToken);
+            const profileResponse = await getProfile();
+            setUser(profileResponse.data);
           } else {
-            logout(); // Clear any stale refresh token
+            logout();
           }
-        } catch (e) {
-          console.error('Failed to refresh token during initialization:', e);
-          logout();
         }
+      } catch (e) {
+        console.error('Failed to initialize auth:', e);
+        logout();
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
     initializeAuth();
-  }, []);
+  }, [refreshTrigger]);
 
   const isAuthenticated = !!user;
 
   return (
-    <AuthContext.Provider value={{ user, isAuthenticated, login, logout, loading }}>
+    <AuthContext.Provider value={{ user, isAuthenticated, login, logout, loading, refreshAuth }}>
       {children}
     </AuthContext.Provider>
   );
