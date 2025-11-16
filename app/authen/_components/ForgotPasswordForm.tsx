@@ -28,8 +28,13 @@ export default function ForgotPasswordForm({
     } catch (err) {
       console.error('Forgot password failed:', err)
       const errorResponse = getApiErrorMessages(err)
-      if (errorResponse && errorResponse.length > 0) {
-        setError(errorResponse[0].message)
+      const emailError = errorResponse?.find(e => e.field === 'email');
+      const generalError = errorResponse?.find(e => e.field === 'general');
+
+      if (emailError) {
+        setError(emailError.message);
+      } else if (generalError) {
+        setError(generalError.message);
       } else {
         setError(
           'Failed to send password reset email. Please check the email address and try again.'

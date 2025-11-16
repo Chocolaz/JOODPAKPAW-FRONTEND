@@ -5,9 +5,14 @@ import { Input } from '@/components/ui/input'
 import { useState, useEffect, Suspense } from 'react'
 import { resetPassword } from '@/lib/api'
 import { useSearchParams } from 'next/navigation'
-import Link from 'next/link'
+import { getApiErrorMessages } from '@/lib/errorHandling'
+import clsx from 'clsx'
 
-function ResetPasswordFormComponent() {
+function ResetPasswordFormComponent({
+  onSubmitSuccess,
+}: {
+  onSubmitSuccess: () => void
+}) {
   // Hooks
   const searchParams = useSearchParams()
 
@@ -16,8 +21,11 @@ function ResetPasswordFormComponent() {
   const [email, setEmail] = useState<string | null>(null)
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
-  const [error, setError] = useState<string | null>(null)
-  const [isSuccess, setIsSuccess] = useState(false)
+  const [passwordError, setPasswordError] = useState<string | null>(null)
+  const [confirmPasswordError, setConfirmPasswordError] = useState<
+    string | null
+  >(null)
+  const [generalError, setGeneralError] = useState<string | null>(null)
 
   useEffect(() => {
     const payload = searchParams.get('payload')
@@ -29,24 +37,30 @@ function ResetPasswordFormComponent() {
           setEmail(email)
           setToken(resetPasswordToken)
         } else {
-          setError('Invalid payload in URL.')
+          setGeneralError('Invalid payload in URL.')
         }
       } catch (e) {
         console.error('Failed to decode payload:', e)
-        setError('Invalid or corrupted payload in URL.')
+        setGeneralError('Invalid or corrupted payload in URL.')
       }
     } else {
-      setError('No payload found in URL.')
+      setGeneralError('No payload found in URL.')
     }
   }, [searchParams])
 
   // Handlers
   const handleResetPassword = async (e: React.FormEvent) => {
     e.preventDefault()
+    // Clear previous errors
+    setPasswordError(null)
+    setConfirmPasswordError(null)
+    setGeneralError(null)
+
     if (password !== confirmPassword) {
-      alert('Passwords do not match.')
+      setConfirmPasswordError('Passwords do not match.')
       return
     }
+
     if (email && token) {
       try {
         await resetPassword({
@@ -55,49 +69,34 @@ function ResetPasswordFormComponent() {
           password,
           confirmPassword,
         })
-        setIsSuccess(true)
-      } catch (error) {
-        console.error('Reset password failed:', error)
-        alert('Failed to reset password. The link may have expired.')
+        onSubmitSuccess()
+      } catch (err) {
+        console.error('Reset password failed:', err)
+        const errorResponse = getApiErrorMessages(err)
+        const passwordFieldErrors = errorResponse?.filter(
+          (e) => e.field === 'password'
+        )
+        const generalFieldErrors = errorResponse?.filter(
+          (e) => e.field === 'general'
+        )
+
+        if (passwordFieldErrors && passwordFieldErrors.length > 0) {
+          setPasswordError(passwordFieldErrors[0].message)
+        } else if (generalFieldErrors && generalFieldErrors.length > 0) {
+          setGeneralError(generalFieldErrors[0].message)
+        } else {
+          setGeneralError('Failed to reset password. Please try again.')
+        }
       }
     }
-  }
-
-  if (error) {
-    return (
-      <div className="px-5 w-full max-w-sm text-center mx-auto mt-[30px]">
-        <h2 className="text-2xl font-bold text-red-500 mb-4">Error</h2>
-        <p>{error}</p>
-        <div className="mt-6">
-          <Link href="/authen/login" passHref>
-            <Button className="w-full">Back to Login</Button>
-          </Link>
-        </div>
-      </div>
-    )
-  }
-
-  if (isSuccess) {
-    return (
-      <div className="px-5 w-full max-w-sm text-center mx-auto mt-[30px]">
-        <h2 className="text-2xl font-bold text-accent-orange mb-4">
-          Password Reset Successful
-        </h2>
-        <p>You can now log in with your new password.</p>
-        <div className="mt-6">
-          <Link href="/authen/login" passHref>
-            <Button className="w-full py-4 rounded-lg bg-accent-orange text-white hover:bg-accent-orange/80 h-auto text-[20px] font-semibold">
-              Go to Login
-            </Button>
-          </Link>
-        </div>
-      </div>
-    )
   }
 
   if (!token || !email) {
     return (
       <div className="px-5 w-full max-w-sm text-center mx-auto mt-[30px]">
+        {generalError && (
+          <p className="text-red-500 text-center mb-4">{generalError}</p>
+        )}
         <p>Loading...</p>
       </div>
     )
@@ -110,24 +109,46 @@ function ResetPasswordFormComponent() {
           <Input
             type="password"
             placeholder="New Password"
-            className="w-full py-6"
+            className={clsx('w-full py-6', {
+              'border-red-500': passwordError,
+            })}
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={(e) => {
+              setPassword(e.target.value)
+              setPasswordError(null)
+            }}
             required
           />
+          {passwordError && (
+            <p className="text-red-500 text-left text-sm mt-1">
+              {passwordError}
+            </p>
+          )}
         </div>
         <div>
           <Input
             type="password"
             placeholder="Confirm New Password"
-            className="w-full py-6"
+            className={clsx('w-full py-6', {
+              'border-red-500': confirmPasswordError || generalError,
+            })}
             value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
+            onChange={(e) => {
+              setConfirmPassword(e.target.value)
+              setConfirmPasswordError(null)
+              setGeneralError(null)
+            }}
             required
           />
+          {(confirmPasswordError || generalError) && (
+            <p className="text-red-500 text-left text-sm mt-1">
+              {confirmPasswordError || generalError}
+            </p>
+          )}
         </div>
         <Button
           type="submit"
+          disabled={!password || !confirmPassword || password.length < 8}
           className="w-full py-4 rounded-lg bg-accent-orange text-white hover:bg-accent-orange/80 h-auto text-[20px] font-semibold"
         >
           Reset Password
@@ -137,10 +158,14 @@ function ResetPasswordFormComponent() {
   )
 }
 
-export default function ResetPasswordForm() {
+export default function ResetPasswordForm({
+  onSubmitSuccess,
+}: {
+  onSubmitSuccess: () => void
+}) {
   return (
     <Suspense fallback={<div>Loading...</div>}>
-      <ResetPasswordFormComponent />
+      <ResetPasswordFormComponent onSubmitSuccess={onSubmitSuccess} />
     </Suspense>
   )
 }
