@@ -20,7 +20,9 @@ export const EditProfileForm = ({
   const [firstName, setFirstName] = useState(profile.firstName)
   const [lastName, setLastName] = useState(profile.lastName)
   const [avatarFile, setAvatarFile] = useState<File | null>(null)
-  const [avatarPreview, setAvatarPreview] = useState<string | null>(profile.avatar)
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(
+    profile.avatar
+  )
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const handleAvatarClick = () => {
@@ -59,10 +61,13 @@ export const EditProfileForm = ({
   }
 
   return (
-    <form onSubmit={handleSubmit} className="p-4">
+    <form onSubmit={handleSubmit} className="py-4 px-10">
       <div className="relative mx-auto w-32 h-32 mb-4">
         <Avatar className="w-32 h-32">
-          <AvatarImage src={avatarPreview || '/graphics/guest.jpg'} alt="Avatar preview" />
+          <AvatarImage
+            src={avatarPreview || '/graphics/guest.jpg'}
+            alt="Avatar preview"
+          />
           <AvatarFallback className="text-5xl">
             {profile.firstName?.charAt(0)}
             {profile.lastName?.charAt(0)}
@@ -73,7 +78,12 @@ export const EditProfileForm = ({
           onClick={handleAvatarClick}
           className="absolute bottom-0 right-0 bg-white rounded-full p-2 shadow-md hover:bg-gray-100"
         >
-          <Image src="/icons/photo.svg" alt="Change photo" width={24} height={24} />
+          <Image
+            src="/icons/photo.svg"
+            alt="Change photo"
+            width={24}
+            height={24}
+          />
         </button>
         <input
           type="file"
@@ -83,17 +93,33 @@ export const EditProfileForm = ({
           accept="image/*"
         />
       </div>
-      <div className="space-y-4">
-        <Input
-          value={firstName}
-          onChange={(e) => setFirstName(e.target.value)}
-          placeholder="First Name"
-        />
-        <Input
-          value={lastName}
-          onChange={(e) => setLastName(e.target.value)}
-          placeholder="Last Name"
-        />
+      <div>
+        <div className="space-y-1">
+          <label htmlFor="firstName" className="text-sm">
+            Firstname
+          </label>
+          <Input
+            id="firstName"
+            value={firstName}
+            onChange={(e) => setFirstName(e.target.value)}
+            placeholder="First Name"
+            maxLength={60}
+          />
+          <p className="text-sm text-muted-foreground text-right">{`${firstName.length}/60`}</p>
+        </div>
+        <div className="space-y-1">
+          <label htmlFor="lastName" className="text-sm">
+            Lastname
+          </label>
+          <Input
+            id="lastName"
+            value={lastName}
+            onChange={(e) => setLastName(e.target.value)}
+            placeholder="Last Name"
+            maxLength={60}
+          />
+          <p className="text-sm text-muted-foreground text-right">{`${lastName.length}/60`}</p>
+        </div>
       </div>
       <Button type="submit" className="w-full mt-6">
         Save Changes
