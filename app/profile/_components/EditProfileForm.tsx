@@ -25,6 +25,11 @@ export const EditProfileForm = ({
   )
   const fileInputRef = useRef<HTMLInputElement>(null)
 
+  const isDirty =
+    firstName !== profile.firstName ||
+    lastName !== profile.lastName ||
+    avatarFile !== null
+
   const handleAvatarClick = () => {
     fileInputRef.current?.click()
   }
@@ -124,6 +129,7 @@ export const EditProfileForm = ({
       <Button
         type="submit"
         className="w-full mt-6 bg-positive-green h-12 text-[16px]"
+        disabled={!isDirty}
       >
         Confirm
       </Button>
