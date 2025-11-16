@@ -22,6 +22,7 @@ export default function RegisterForm() {
   const [emailError, setEmailError] = useState('')
   const [passwordMismatchError, setPasswordMismatchError] = useState('')
   const [passwordApiError, setPasswordApiError] = useState('')
+  const [phoneError, setPhoneError] = useState('')
 
   // Memoized values
   const isButtonDisabled = useMemo(() => {
@@ -32,7 +33,8 @@ export default function RegisterForm() {
       !email ||
       !password ||
       !confirmPassword ||
-      !!passwordMismatchError
+      !!passwordMismatchError ||
+      !!phoneError
     )
   }, [
     firstname,
@@ -42,11 +44,18 @@ export default function RegisterForm() {
     password,
     confirmPassword,
     passwordMismatchError,
+    phoneError,
   ])
 
   // Handlers
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault()
+    // Clear previous errors
+    setEmailError('')
+    setPasswordMismatchError('')
+    setPasswordApiError('')
+    setPhoneError('')
+
     if (isButtonDisabled) return
 
     if (password !== confirmPassword) {
@@ -68,23 +77,27 @@ export default function RegisterForm() {
       console.error('Sign up failed:', error)
       const apiErrors = getApiErrorMessages(error)
       if (apiErrors) {
-        apiErrors.forEach(apiError => {
+        apiErrors.forEach((apiError) => {
           if (apiError.field === 'email') {
             setEmailError(apiError.message)
           } else if (apiError.field === 'password') {
             setPasswordApiError(apiError.message)
+          } else if (apiError.field === 'phone') {
+            setPhoneError(apiError.message)
           } else {
             // General error, if any, can be handled here or with an alert
             alert(apiError.message)
           }
-        });
+        })
       } else {
         // Handle other errors, e.g., show a generic error message
         alert('An unexpected error occurred. Please try again.')
       }
       // Clear any errors not present in the new error list
-      if (!apiErrors?.some(e => e.field === 'email')) setEmailError('');
-      if (!apiErrors?.some(e => e.field === 'password')) setPasswordApiError('');
+      if (!apiErrors?.some((e) => e.field === 'email')) setEmailError('')
+      if (!apiErrors?.some((e) => e.field === 'password'))
+        setPasswordApiError('')
+      if (!apiErrors?.some((e) => e.field === 'phone')) setPhoneError('')
     }
   }
 
@@ -113,10 +126,18 @@ export default function RegisterForm() {
           <Input
             type="tel"
             placeholder="Phone Number"
-            className="w-full py-6"
+            className={clsx('w-full py-6', {
+              'border-red-500': phoneError,
+            })}
             value={phone}
-            onChange={(e) => setPhone(e.target.value)}
+            onChange={(e) => {
+              setPhone(e.target.value)
+              setPhoneError('')
+            }}
           />
+          {phoneError && (
+            <p className="text-red-500 text-left text-sm mt-1">{phoneError}</p>
+          )}
         </div>
         <div>
           <Input
@@ -150,7 +171,9 @@ export default function RegisterForm() {
             }}
           />
           {passwordApiError && (
-            <p className="text-red-500 text-left text-sm mt-1">{passwordApiError}</p>
+            <p className="text-red-500 text-left text-sm mt-1">
+              {passwordApiError}
+            </p>
           )}
         </div>
         <div>

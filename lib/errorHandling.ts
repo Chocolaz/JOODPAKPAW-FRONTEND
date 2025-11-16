@@ -23,12 +23,13 @@ const errorMessages: { [key: string]: string } = {
   'A-3010': 'Reset password token already used.',
   'A-3012': 'New password same as old password.',
   'A-3011': 'Wrong password.',
+  'A-3004': 'Phone number already exists.',
   // Add other error codes and messages here
 }
 
 export function getApiErrorMessages(
   error: unknown
-): { field: 'email' | 'password' | 'general'; message: string }[] | null {
+): { field: 'email' | 'password' | 'general' | 'phone'; message: string }[] | null {
   if (error instanceof ApiError) {
     if (error.code === 'T-2007' && error.errors && error.errors.length > 0) {
       return error.errors.map((err) => {
@@ -44,6 +45,8 @@ export function getApiErrorMessages(
               }
             }
             break
+          case 'phone':
+            return { field: 'phone', message: 'Invalid phone number format.' }
           // Add more cases for other tags like 'required', etc.
         }
         // Fallback for unhandled tags or fields
@@ -52,6 +55,9 @@ export function getApiErrorMessages(
           message: 'An unknown validation error occurred.',
         }
       })
+    }
+    if (error.code === 'A-3004') {
+      return [{ field: 'phone', message: errorMessages[error.code] }]
     }
     if (error.code in errorMessages) {
       return [{ field: 'general', message: errorMessages[error.code] }]
