@@ -211,3 +211,7 @@ body {
   font-family: var(--font-afacad) !important; /* match your body font */
   font-size: 16px; /* optional if you want the same size as body */
 }
+
+.interact-button {
+  @apply w-full bg-positive-green h-12 text-[16px];
+}
