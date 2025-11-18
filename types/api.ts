@@ -18,3 +18,20 @@ export interface Facility {
 export interface FacilitiesResponse {
   facilities: Facility[]
 }
+
+export interface PropertyFormData {
+  propertyTypeId: number | null
+  latitude: string
+  longitude: string
+  country: string
+  province: string
+  district: string
+  subdistrict: string
+  address: string
+  zipcode: string
+  title: string
+  description: string
+  facilities: number[]
+  images: File[]
+  hostId: number
+}

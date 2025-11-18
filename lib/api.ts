@@ -4,6 +4,7 @@ import {
   FacilitiesResponse,
   ForgotPasswordCredentials,
   ProfileResponse,
+  PropertyFormData,
   ResetPasswordCredentials,
   SignInCredentials,
   SignInResponse,
@@ -108,3 +109,30 @@ export const getFacilities = (): Promise<FacilitiesResponse> => {
     errorContext: 'Get Facilities',
   });
 };
+
+export const createProperty = (data: PropertyFormData) => {
+  const formData = new FormData();
+
+  Object.entries(data).forEach(([key, value]) => {
+    if (key === 'images') {
+      (value as File[]).forEach((file: File) => {
+        formData.append('images', file);
+      });
+    } else if (key === 'facilities') {
+      (value as number[]).forEach((facilityId: number) => {
+        formData.append('facilities', String(facilityId));
+      });
+    } else if (value !== null) {
+      formData.append(key, String(value));
+    }
+  });
+
+  return request({
+    endpoint: 'api/v1/hosts/properties',
+    method: 'POST',
+    body: formData,
+    requiresAuth: true,
+    errorContext: 'Create Property',
+  });
+};
+
