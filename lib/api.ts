@@ -1,6 +1,7 @@
 // lib/api.ts
 import request from './apiClient';
 import {
+  FacilitiesResponse,
   ForgotPasswordCredentials,
   ProfileResponse,
   ResetPasswordCredentials,
@@ -96,5 +97,14 @@ export const getProperties = (page: number, limit: number) => {
     endpoint: `api/v1/properties?${params.toString()}`,
     method: 'GET',
     errorContext: 'Get Properties',
+  });
+};
+
+export const getFacilities = (): Promise<FacilitiesResponse> => {
+  return request<FacilitiesResponse>({
+    endpoint: 'api/v1/hosts/facilities/all',
+    method: 'GET',
+    requiresAuth: true,
+    errorContext: 'Get Facilities',
   });
 };

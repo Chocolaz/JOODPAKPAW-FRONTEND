@@ -37,7 +37,7 @@ export default function AddPropertyPage() {
         </div>
       </div>
       <div className="fixed bottom-2 left-0 right-0 bg-white py-5 px-10 z-10 max-w-[500px] mx-auto">
-        <Link href="/profile/host/add-property/steps" className="w-full">
+        <Link href="/profile/host/add-property/1" className="w-full">
           <Button className="interact-button">Start</Button>
         </Link>
       </div>
