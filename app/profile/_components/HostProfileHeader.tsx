@@ -13,8 +13,7 @@ export const HostProfileHeader = () => {
       >
         <ChevronLeft className="w-6 h-6 text-neutral-gray" />
       </button>
-      {/* No edit button for host page */}
-      <div className="w-10"></div> {/* Placeholder for alignment */}
+      <div className="w-10"></div>
     </div>
   )
 }

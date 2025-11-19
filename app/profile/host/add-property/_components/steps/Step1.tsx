@@ -10,16 +10,19 @@ export function Step1({ onNext }: { onNext: () => void }) {
 
   return (
     <>
-      <div className="w-full text-left mt-10">
-        <h2 className="text-lg font-semibold text-neutral-gray mb-2">
-          Tell us about your space
-        </h2>
-        <h1 className="text-2xl font-bold mb-6">What type of place is this?</h1>
+      <div className="w-full text-center mt-5">
+        <h3 className="text-deep-teal">What type of place is this?</h3>
+        <p className="mb-6 text-neutral-gray">
+          Choose the kind of space where pets will stay
+        </p>
+
         <div className="space-y-4">
           {propertyTypes.map((type) => (
             <Button
               key={type.id}
-              variant={formData.propertyTypeId === type.id ? 'default' : 'outline'}
+              variant={
+                formData.propertyTypeId === type.id ? 'default' : 'outline'
+              }
               className="w-full justify-start p-6 text-lg"
               onClick={() => updateField('propertyTypeId', type.id)}
             >
@@ -28,7 +31,10 @@ export function Step1({ onNext }: { onNext: () => void }) {
           ))}
         </div>
       </div>
-      <StepNavigation onNext={onNext} isNextDisabled={!formData.propertyTypeId} />
+      <StepNavigation
+        onNext={onNext}
+        isNextDisabled={!formData.propertyTypeId}
+      />
     </>
   )
 }
