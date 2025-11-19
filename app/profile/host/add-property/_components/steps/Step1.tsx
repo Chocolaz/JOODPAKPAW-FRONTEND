@@ -17,9 +17,9 @@ export function Step1({ onNext }: { onNext: () => void }) {
 
   return (
     <>
-      <div className="w-full max-w-2xl mx-auto text-center mt-5">
+      <div className="w-full max-w-[500px] mx-auto text-center mt-5">
         <h3 className="text-deep-teal">What type of place is this?</h3>
-        <p className="mb-6 text-neutral-gray">
+        <p className="mb-6 text-neutral-gray text-sm">
           Choose the kind of space where pets will stay
         </p>
 
@@ -40,7 +40,7 @@ export function Step1({ onNext }: { onNext: () => void }) {
                 <button
                   onClick={() => updateField('propertyTypeId', type.id)}
                   className={cn(
-                    'flex flex-col items-center justify-center p-4 border-1 rounded-[20px] shadow-sm cursor-pointer transition-colors w-[150px] h-[150px]',
+                    'flex flex-col items-center justify-center p-4 border rounded-[20px] shadow-sm cursor-pointer transition-colors w-[150px] h-[150px]',
                     formData.propertyTypeId === type.id
                       ? 'border-positive-green bg-teal-50'
                       : 'border-[ECEFF2] bg-white hover:border-deep-teal/50'

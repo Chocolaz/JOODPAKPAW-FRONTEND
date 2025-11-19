@@ -4,16 +4,24 @@ import { Input } from '@/components/ui/input'
 import { useAddProperty } from '../../_context/AddPropertyContext'
 import { StepNavigation } from '../StepNavigation'
 
-export function Step2({ onNext, onBack }: { onNext: () => void; onBack: () => void }) {
+export function Step2({
+  onNext,
+  onBack,
+}: {
+  onNext: () => void
+  onBack: () => void
+}) {
   const { formData, updateField } = useAddProperty()
 
   return (
     <>
-      <div className="w-full text-left mt-10">
-        <h1 className="text-2xl font-bold mb-6">
-          Where is your property located?
-        </h1>
-        <div className="space-y-4">
+      <div className="w-full max-w-[500px] mx-auto text-center mt-5">
+        <h3 className="text-deep-teal">Where is your property located?</h3>
+        <p className="mb-6 text-neutral-gray text-sm">
+          Drag the marker or search to your property’s location on the map.
+        </p>
+
+        <div className="space-y-4 pb-4">
           <Input
             type="number"
             placeholder="Latitude"

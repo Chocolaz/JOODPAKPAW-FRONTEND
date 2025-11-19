@@ -1,16 +1,39 @@
 'use client'
 
+import * as React from 'react'
+import { Check, ChevronsUpDown } from 'lucide-react'
+
+import { cn } from '@/lib/utils'
+import { Button } from '@/components/ui/button'
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from '@/components/ui/command'
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover'
 import { Input } from '@/components/ui/input'
 import { useAddProperty } from '../../_context/AddPropertyContext'
 import { countryNames } from '../../_constants'
 import { StepNavigation } from '../StepNavigation'
 
-export function Step3({ onNext, onBack }: { onNext: () => void; onBack: () => void }) {
+export function Step3({
+  onNext,
+  onBack,
+}: {
+  onNext: () => void
+  onBack: () => void
+}) {
   const { formData, updateField } = useAddProperty()
+  const [open, setOpen] = React.useState(false)
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     updateField(e.target.name as keyof typeof formData, e.target.value)
   }
 
@@ -27,24 +50,67 @@ export function Step3({ onNext, onBack }: { onNext: () => void; onBack: () => vo
 
   return (
     <>
-      <div className="w-full text-left mt-10">
-        <h1 className="text-2xl font-bold mb-6">Confirm your address</h1>
+      <div className="w-full max-w-[500px] mx-auto text-center mt-5">
+        <h3 className="text-deep-teal">Confirm your address</h3>
+        <p className="mb-6 text-neutral-gray text-sm">
+          We’ve auto-filled your address based on the location you picked.
+          <br /> You can make adjustments if needed.
+        </p>
         <div className="space-y-4">
-          <select
-            name="country"
-            value={formData.country}
-            onChange={handleChange}
-            className="w-full p-6 text-lg border rounded-md bg-background"
-          >
-            <option value="" disabled>
-              Select your country
-            </option>
-            {countryNames.map((name) => (
-              <option key={name} value={name}>
-                {name}
-              </option>
-            ))}
-          </select>
+          <Popover open={open} onOpenChange={setOpen}>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                role="combobox"
+                aria-expanded={open}
+                className="w-full justify-between p-6 text-lg text-neutral-gray font-normal"
+              >
+                {formData.country
+                  ? countryNames.find((country) => country === formData.country)
+                  : 'Select your country'}
+                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-[460px] p-0">
+              <Command>
+                <CommandInput
+                  placeholder="Search country..."
+                  className="text-lg"
+                />
+                <CommandList>
+                  <CommandEmpty>No country found.</CommandEmpty>
+                  <CommandGroup>
+                    {countryNames.map((country) => (
+                      <CommandItem
+                        key={country}
+                        value={country}
+                        onSelect={(currentValue) => {
+                          updateField(
+                            'country',
+                            currentValue === formData.country
+                              ? ''
+                              : currentValue
+                          )
+                          setOpen(false)
+                        }}
+                        className="text-lg"
+                      >
+                        <Check
+                          className={cn(
+                            'mr-2 h-4 w-4',
+                            formData.country === country
+                              ? 'opacity-100'
+                              : 'opacity-0'
+                          )}
+                        />
+                        {country}
+                      </CommandItem>
+                    ))}
+                  </CommandGroup>
+                </CommandList>
+              </Command>
+            </PopoverContent>
+          </Popover>
           <Input
             type="text"
             name="province"
@@ -87,7 +153,11 @@ export function Step3({ onNext, onBack }: { onNext: () => void; onBack: () => vo
           />
         </div>
       </div>
-      <StepNavigation onBack={onBack} onNext={onNext} isNextDisabled={!isFormValid()} />
+      <StepNavigation
+        onBack={onBack}
+        onNext={onNext}
+        isNextDisabled={!isFormValid()}
+      />
     </>
   )
 }
