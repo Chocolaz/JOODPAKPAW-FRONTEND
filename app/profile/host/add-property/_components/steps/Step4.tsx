@@ -1,10 +1,17 @@
 'use client'
 
+import { Textarea } from '@/components/ui/textarea'
 import { Input } from '@/components/ui/input'
 import { useAddProperty } from '../../_context/AddPropertyContext'
 import { StepNavigation } from '../StepNavigation'
 
-export function Step4({ onNext, onBack }: { onNext: () => void; onBack: () => void }) {
+export function Step4({
+  onNext,
+  onBack,
+}: {
+  onNext: () => void
+  onBack: () => void
+}) {
   const { formData, updateField } = useAddProperty()
 
   const isFormValid = () => {
@@ -13,27 +20,37 @@ export function Step4({ onNext, onBack }: { onNext: () => void; onBack: () => vo
 
   return (
     <>
-      <div className="w-full text-left mt-10">
-        <h1 className="text-2xl font-bold mb-6">
-          What's your property called?
-        </h1>
-        <div className="space-y-4">
+      <div className="w-full text-center mt-10">
+        <h3 className="text-deep-teal">What’s your property called?</h3>
+        <p className="mb-6 text-neutral-gray text-sm">
+          Make it easy for pet parents to recognize your space
+        </p>
+
+        <div className="space-y-4 pb-4 text-left">
+          <p className="text-sm font-medium text-deep-teal mb-1">Title</p>
           <Input
             type="text"
             placeholder="Property Title"
             value={formData.title}
             onChange={(e) => updateField('title', e.target.value)}
-            className="p-6 text-lg"
+            className="p-6 text-lg w-full"
           />
-          <textarea
+
+          <p className="text-sm font-medium text-deep-teal mb-1">Description</p>
+          <Textarea
             placeholder="Property Description"
             value={formData.description}
             onChange={(e) => updateField('description', e.target.value)}
-            className="w-full p-6 text-lg border rounded-md bg-background min-h-[120px]"
+            className="p-6 text-lg min-h-40 w-full"
           />
         </div>
       </div>
-      <StepNavigation onBack={onBack} onNext={onNext} isNextDisabled={!isFormValid()} />
+
+      <StepNavigation
+        onBack={onBack}
+        onNext={onNext}
+        isNextDisabled={!isFormValid()}
+      />
     </>
   )
 }

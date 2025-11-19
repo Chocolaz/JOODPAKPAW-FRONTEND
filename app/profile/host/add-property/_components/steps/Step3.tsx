@@ -50,14 +50,16 @@ export function Step3({
 
   return (
     <>
-      <div className="w-full max-w-[500px] mx-auto text-center mt-5">
+      <div className="w-full text-center mt-10">
         <h3 className="text-deep-teal">Confirm your address</h3>
         <p className="mb-6 text-neutral-gray text-sm">
           We’ve auto-filled your address based on the location you picked.
           <br /> You can make adjustments if needed.
         </p>
-        <div className="space-y-4">
-          <div className="text-left">
+
+        <div className="space-y-4 text-left pb-4">
+          {/* Country */}
+          <div>
             <p className="text-sm font-medium text-deep-teal mb-1">Country</p>
             <Popover open={open} onOpenChange={setOpen}>
               <PopoverTrigger asChild>
@@ -68,9 +70,7 @@ export function Step3({
                   className="w-full rounded-lg justify-between p-6 text-lg font-normal"
                 >
                   {formData.country
-                    ? countryNames.find(
-                        (country) => country === formData.country
-                      )
+                    ? countryNames.find((c) => c === formData.country)
                     : 'Select your country'}
                   <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                 </Button>
@@ -88,12 +88,10 @@ export function Step3({
                         <CommandItem
                           key={country}
                           value={country}
-                          onSelect={(currentValue) => {
+                          onSelect={(v) => {
                             updateField(
                               'country',
-                              currentValue === formData.country
-                                ? ''
-                                : currentValue
+                              v === formData.country ? '' : v
                             )
                             setOpen(false)
                           }}
@@ -116,70 +114,71 @@ export function Step3({
               </PopoverContent>
             </Popover>
           </div>
-          <div className="text-left">
+
+          {/* Province */}
+          <div>
             <p className="text-sm font-medium text-deep-teal mb-1">Province</p>
             <Input
-              type="text"
               name="province"
               placeholder="Province"
               value={formData.province}
               onChange={handleChange}
               className="p-6 text-lg"
-              maxLength={60}
             />
           </div>
-          <div className="text-left">
+
+          {/* District */}
+          <div>
             <p className="text-sm font-medium text-deep-teal mb-1">District</p>
             <Input
-              type="text"
               name="district"
               placeholder="District"
               value={formData.district}
               onChange={handleChange}
               className="p-6 text-lg"
-              maxLength={60}
             />
           </div>
-          <div className="text-left">
+
+          {/* Subdistrict */}
+          <div>
             <p className="text-sm font-medium text-deep-teal mb-1">
               Subdistrict
             </p>
             <Input
-              type="text"
               name="subdistrict"
               placeholder="Subdistrict"
               value={formData.subdistrict}
               onChange={handleChange}
               className="p-6 text-lg"
-              maxLength={60}
             />
           </div>
-          <div className="text-left">
+
+          {/* Address */}
+          <div>
             <p className="text-sm font-medium text-deep-teal mb-1">Address</p>
             <Input
-              type="text"
               name="address"
               placeholder="Address"
               value={formData.address}
               onChange={handleChange}
               className="p-6 text-lg"
-              maxLength={60}
             />
           </div>
-          <div className="text-left">
+
+          {/* Zipcode */}
+          <div>
             <p className="text-sm font-medium text-deep-teal mb-1">Zipcode</p>
             <Input
-              type="text"
               name="zipcode"
               placeholder="Zipcode"
               value={formData.zipcode}
               onChange={handleChange}
               className="p-6 text-lg"
-              maxLength={60}
             />
           </div>
         </div>
       </div>
+
       <StepNavigation
         onBack={onBack}
         onNext={onNext}

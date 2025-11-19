@@ -17,47 +17,32 @@ export function Step1({ onNext }: { onNext: () => void }) {
 
   return (
     <>
-      <div className="w-full max-w-[500px] mx-auto text-center mt-5">
+      <div className="w-full text-center mt-5">
         <h3 className="text-deep-teal">What type of place is this?</h3>
         <p className="mb-6 text-neutral-gray text-sm">
           Choose the kind of space where pets will stay
         </p>
 
-        <div className="grid grid-cols-2 gap-8 pb-4">
-          {propertyTypeGraphics.map((type, index) => {
-            // The original propertyTypes from your constants might have different names.
-            // This finds the matching type to ensure we use the correct name.
+        <div className="flex flex-wrap justify-center gap-8 pb-4">
+          {propertyTypeGraphics.map((type) => {
             const propertyInfo = propertyTypes.find((p) => p.id === type.id)
-            const isLastItem = index === propertyTypeGraphics.length - 1
 
             return (
-              <div
+              <button
                 key={type.id}
-                className={cn('col-span-1', {
-                  'col-span-2 justify-self-center': isLastItem,
-                })}
+                onClick={() => updateField('propertyTypeId', type.id)}
+                className={cn(
+                  'flex flex-col items-center justify-center p-4 border rounded-[20px] shadow-sm cursor-pointer transition-colors w-[150px] h-[150px]',
+                  formData.propertyTypeId === type.id
+                    ? 'border-positive-green bg-teal-50'
+                    : 'border-[ECEFF2] bg-white hover:border-deep-teal/50'
+                )}
               >
-                <button
-                  onClick={() => updateField('propertyTypeId', type.id)}
-                  className={cn(
-                    'flex flex-col items-center justify-center p-4 border rounded-[20px] shadow-sm cursor-pointer transition-colors w-[150px] h-[150px]',
-                    formData.propertyTypeId === type.id
-                      ? 'border-positive-green bg-teal-50'
-                      : 'border-[ECEFF2] bg-white hover:border-deep-teal/50'
-                  )}
-                >
-                  <Image
-                    src={type.icon}
-                    alt={type.name}
-                    width={80}
-                    height={80}
-                  />
-                  <span className="mt-4 text-center font-medium text-neutral-dark">
-                    {/* Use name from original propertyTypes if available, otherwise fallback */}
-                    {propertyInfo?.name || type.name}
-                  </span>
-                </button>
-              </div>
+                <Image src={type.icon} alt={type.name} width={80} height={80} />
+                <span className="mt-4 text-center font-medium text-neutral-dark">
+                  {propertyInfo?.name || type.name}
+                </span>
+              </button>
             )
           })}
         </div>

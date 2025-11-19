@@ -5,16 +5,24 @@ import { useFacilities } from '../../_hooks/useFacilities'
 import { Facility } from '@/types'
 import { Spinner } from '@/components/ui/spinner'
 import { StepNavigation } from '../StepNavigation'
+import { cn } from '@/lib/utils'
 
-export function Step5({ onNext, onBack }: { onNext: () => void; onBack: () => void }) {
+export function Step5({
+  onNext,
+  onBack,
+}: {
+  onNext: () => void
+  onBack: () => void
+}) {
   const { formData, updateField } = useAddProperty()
   const { facilities, loading, error } = useFacilities()
 
-  const handleSelectFacility = (facilityId: number) => {
-    const newFacilities = formData.facilities.includes(facilityId)
+  const handleToggle = (facilityId: number) => {
+    const updated = formData.facilities.includes(facilityId)
       ? formData.facilities.filter((id) => id !== facilityId)
       : [...formData.facilities, facilityId]
-    updateField('facilities', newFacilities)
+
+    updateField('facilities', updated)
   }
 
   const groupedFacilities = facilities
@@ -22,55 +30,73 @@ export function Step5({ onNext, onBack }: { onNext: () => void; onBack: () => vo
     .reduce(
       (acc, facility) => {
         const category = facility.category.name
-        if (!acc[category]) {
-          acc[category] = []
-        }
+        if (!acc[category]) acc[category] = []
         acc[category].push(facility)
         return acc
       },
       {} as Record<string, Facility[]>
     )
 
-  if (loading) {
-    return <Spinner className="mt-20" />
-  }
-
-  if (error) {
-    return <div className="text-red-500 mt-20">{error}</div>
-  }
+  if (loading) return <Spinner className="mt-20" />
+  if (error) return <div className="text-red-500 mt-20">{error}</div>
 
   return (
     <>
-      <div className="w-full text-left mt-10">
-        <h1 className="text-2xl font-bold mb-6">
+      <div className="w-full text-center mt-5">
+        <h3 className="text-deep-teal">
           What facilities does your property offer?
-        </h1>
-        <div className="space-y-6">
+        </h3>
+        <p className="mb-6 text-neutral-gray text-sm">
+          Select all the facilities available for pets
+        </p>
+
+        <div className="max-h-[60vh] overflow-y-auto pr-2 space-y-10 mb-25">
           {Object.entries(groupedFacilities).map(([category, facilities]) => (
             <div key={category}>
-              <h3 className="text-lg font-semibold capitalize mb-3">
+              <h4 className="text-left text-neutral-dark font-semibold capitalize mb-4">
                 {category}
-              </h3>
-              <div className="space-y-2">
-                {facilities.map((facility) => (
-                  <label
-                    key={facility.id}
-                    className="flex items-center space-x-3 cursor-pointer"
-                  >
-                    <input
-                      type="checkbox"
-                      checked={formData.facilities.includes(facility.id)}
-                      onChange={() => handleSelectFacility(facility.id)}
-                      className="h-5 w-5 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
-                    />
-                    <span>{facility.name}</span>
-                  </label>
-                ))}
+              </h4>
+
+              <div className="grid grid-cols-2 gap-6">
+                {facilities.map((facility) => {
+                  const selected = formData.facilities.includes(facility.id)
+
+                  return (
+                    <button
+                      key={facility.id}
+                      onClick={() => handleToggle(facility.id)}
+                      className={cn(
+                        'flex items-center p-4 rounded-[20px] border shadow-sm text-left transition-all w-full h-[80px]',
+                        selected
+                          ? 'border-positive-green bg-teal-50'
+                          : 'border-[ECEFF2] bg-white hover:border-deep-teal/50'
+                      )}
+                    >
+                      <div
+                        className={cn(
+                          'w-5 h-5 rounded-full mr-3 flex-shrink-0 border flex items-center justify-center transition-all',
+                          selected
+                            ? 'border-positive-green bg-positive-green'
+                            : 'border-gray-300 bg-white'
+                        )}
+                      >
+                        {selected && (
+                          <div className="w-2.5 h-2.5 bg-white rounded-full"></div>
+                        )}
+                      </div>
+
+                      <span className="font-medium text-neutral-dark">
+                        {facility.name}
+                      </span>
+                    </button>
+                  )
+                })}
               </div>
             </div>
           ))}
         </div>
       </div>
+
       <StepNavigation onBack={onBack} onNext={onNext} />
     </>
   )

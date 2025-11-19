@@ -43,7 +43,7 @@ export default function AddPropertyDynamicStepsPage() {
   }
 
   return (
-    <div className="flex flex-col items-center h-full px-5 max-w-[500px] mx-auto">
+    <div className="flex flex-col h-full max-w-[500px] mx-auto w-full px-8">
       <HostProfileHeader />
 
       {renderStep()}

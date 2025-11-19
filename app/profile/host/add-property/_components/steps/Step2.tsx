@@ -15,7 +15,7 @@ export function Step2({
 
   return (
     <>
-      <div className="w-full max-w-[500px] mx-auto text-center mt-5">
+      <div className="w-full text-center mt-5">
         <h3 className="text-deep-teal">Where is your property located?</h3>
         <p className="mb-6 text-neutral-gray text-sm">
           Drag the marker or search to your property’s location on the map.
