@@ -66,7 +66,7 @@ export function Step5({
                       key={facility.id}
                       onClick={() => handleToggle(facility.id)}
                       className={cn(
-                        'flex items-center p-4 rounded-[20px] border shadow-sm text-left transition-all w-full h-[80px]',
+                        'flex items-center p-4 rounded-[20px] border shadow-sm text-left transition-all w-full h-20',
                         selected
                           ? 'border-positive-green bg-teal-50'
                           : 'border-[ECEFF2] bg-white hover:border-deep-teal/50'
@@ -74,7 +74,7 @@ export function Step5({
                     >
                       <div
                         className={cn(
-                          'w-5 h-5 rounded-full mr-3 flex-shrink-0 border flex items-center justify-center transition-all',
+                          'w-5 h-5 rounded-full mr-3 shrink-0 border flex items-center justify-center transition-all',
                           selected
                             ? 'border-positive-green bg-positive-green'
                             : 'border-gray-300 bg-white'
