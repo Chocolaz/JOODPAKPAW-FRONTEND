@@ -6,7 +6,7 @@ export function HostBanner() {
   const { user } = useAuth()
 
   return (
-    <div className="bg-off-white py-10 px-10 rounded-bl-xl rounded-br-xl -mt-2 shadow-sm w-full">
+    <div className="sticky top-14 z-9 bg-off-white p-10 rounded-bl-xl rounded-br-xl shadow-sm w-full">
       <p className="text-lg text-accent-orange">
         Hello {user?.firstName} {user?.lastName}
       </p>

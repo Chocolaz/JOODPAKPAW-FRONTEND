@@ -3,6 +3,7 @@
 import React, { ReactNode } from 'react'
 import { usePathname } from 'next/navigation'
 import { ProfileHeader } from './_components/ProfileHeader'
+import { HostBanner } from './_components/HostBanner'
 import { ProfileProvider, useProfileContext } from './ProfileContext'
 
 function LayoutContent({ children }: { children: ReactNode }) {
@@ -26,11 +27,14 @@ function LayoutContent({ children }: { children: ReactNode }) {
   }
 
   const headerProps = getHeaderProps()
+  const showBanner =
+    pathname.startsWith('/profile/host') && pathname !== '/profile/host/add-property'
 
   return (
     <main className="flex justify-center">
       <div className="w-full max-w-[500px] h-screen overflow-y-auto">
         <ProfileHeader {...headerProps} menu={menu} />
+        {showBanner && <HostBanner />}
         {children}
       </div>
     </main>
