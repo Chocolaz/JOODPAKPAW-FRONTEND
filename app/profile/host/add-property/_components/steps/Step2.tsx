@@ -4,8 +4,8 @@ import { useEffect, useState } from 'react'
 import {
   GoogleMap,
   Marker,
-  useJsApiLoader,
   StandaloneSearchBox,
+  useJsApiLoader,
 } from '@react-google-maps/api'
 import { Input } from '@/components/ui/input'
 import { useAddProperty } from '../../_context/AddPropertyContext'
@@ -21,9 +21,17 @@ export function Step2({
   onBack: () => void
 }) {
   const { formData, updateField } = useAddProperty()
-  const [center, setCenter] = useState({ lat: 13.736717, lng: 100.523186 }) // default BKK
-  const [searchBox, setSearchBox] = useState<any>(null)
-  const [address, setAddress] = useState('')
+
+  // -------------------------------
+  // 1) State
+  // -------------------------------
+  const [center, setCenter] = useState({
+    lat: Number(formData.latitude) || 13.736717,
+    lng: Number(formData.longitude) || 100.523186,
+  })
+  const [searchBox, setSearchBox] =
+    useState<google.maps.places.SearchBox | null>(null)
+  const [address, setAddress] = useState(formData.address || '')
   const [loadingUserLocation, setLoadingUserLocation] = useState(true)
 
   const { isLoaded } = useJsApiLoader({
@@ -32,10 +40,10 @@ export function Step2({
   })
 
   // -------------------------------
-  // 1) Use user's location
+  // 2) Use user's location if not set
   // -------------------------------
   useEffect(() => {
-    if (navigator.geolocation) {
+    if (navigator.geolocation && !formData.latitude && !formData.longitude) {
       navigator.geolocation.getCurrentPosition(
         (pos) => {
           const lat = pos.coords.latitude
@@ -54,13 +62,10 @@ export function Step2({
   }, [])
 
   // -------------------------------
-  // 2) Reverse Geocoding (English)
+  // 3) Reverse Geocoding
   // -------------------------------
   const reverseGeocode = (lat: number, lng: number) => {
-    if (!window.google || !window.google.maps) {
-      console.warn('Google Maps API not loaded yet')
-      return
-    }
+    if (!window.google || !window.google.maps) return
 
     const geocoder = new window.google.maps.Geocoder()
     geocoder.geocode(
@@ -72,7 +77,6 @@ export function Step2({
 
           place.address_components.forEach((c) => {
             const types = c.types
-
             if (types.includes('country')) components.country = 'Thailand' // lock country
             if (types.includes('administrative_area_level_1')) {
               let prov = c.long_name
@@ -92,7 +96,7 @@ export function Step2({
             if (types.includes('postal_code')) components.zipcode = c.long_name
           })
 
-          updateField('country', components.country || '')
+          updateField('country', components.country || 'Thailand')
           updateField('province', components.province || '')
           updateField('district', components.district || '')
           updateField('subdistrict', components.subdistrict || '')
@@ -102,37 +106,37 @@ export function Step2({
           )
           updateField('zipcode', components.zipcode || '')
 
-          // Update search box
-          setAddress(place.formatted_address)
+          setAddress(place.formatted_address || '')
         }
       }
     )
   }
 
   // -------------------------------
-  // 3) SearchBox (Thailand, English)
+  // 4) SearchBox change
   // -------------------------------
   const onPlacesChanged = () => {
     if (!searchBox) return
     const places = searchBox.getPlaces()
-    if (places && places[0]) {
+    if (places && places[0]?.geometry?.location) {
       const location = places[0].geometry.location
       const lat = location.lat()
       const lng = location.lng()
       setCenter({ lat, lng })
       updateField('latitude', lat)
       updateField('longitude', lng)
-      setAddress(places[0].formatted_address)
+      setAddress(places[0].formatted_address || '')
       reverseGeocode(lat, lng)
     }
   }
 
   // -------------------------------
-  // 4) Drag Marker
+  // 5) Drag Marker
   // -------------------------------
   const onMarkerDragEnd = (e: google.maps.MapMouseEvent) => {
-    const lat = e.latLng?.lat() || 0
-    const lng = e.latLng?.lng() || 0
+    if (!e.latLng) return
+    const lat = e.latLng.lat()
+    const lng = e.latLng.lng()
     setCenter({ lat, lng })
     updateField('latitude', lat)
     updateField('longitude', lng)
@@ -168,7 +172,7 @@ export function Step2({
         <div className="w-full h-[380px] rounded-xl overflow-hidden shadow-md border">
           <GoogleMap
             mapContainerStyle={{ width: '100%', height: '100%' }}
-            center={center}
+            center={{ lat: Number(center.lat), lng: Number(center.lng) }}
             zoom={15}
             options={{
               streetViewControl: false,
@@ -186,8 +190,8 @@ export function Step2({
             }}
           >
             <Marker
-              position={center}
-              draggable={true}
+              position={{ lat: Number(center.lat), lng: Number(center.lng) }}
+              draggable
               onDragEnd={onMarkerDragEnd}
             />
           </GoogleMap>
@@ -196,10 +200,10 @@ export function Step2({
         {/* Lat/Lng */}
         <div className="text-center text-neutral-gray text-sm my-4">
           <span className="block">
-            <b>Latitude:</b> {formData.latitude}
+            <b>Latitude:</b> {formData.latitude || ''}
           </span>
           <span className="block">
-            <b>Longitude:</b> {formData.longitude}
+            <b>Longitude:</b> {formData.longitude || ''}
           </span>
         </div>
       </div>
