@@ -60,7 +60,7 @@ export default function ProfilePage() {
   )
 
   return (
-    <div className="flex-1 flex-col gap-[15px] px-5 overflow-y-auto">
+    <div className="flex-1 flex-col gap-[15px] px-5 overflow-y-auto mt-4">
       {/* New wrapper div for cards */}
       <div className="flex flex-col gap-[15px] mb-4">
         {/* Profile Card */}
@@ -90,7 +90,10 @@ export default function ProfilePage() {
         </div>
 
         {/* "Become a host" Card */}
-        <Card className="shadow-sm" onClick={() => router.push('/profile/host')}>
+        <Card
+          className="shadow-sm"
+          onClick={() => router.push('/profile/host')}
+        >
           <CardContent className="flex flex-col items-center justify-center p-6 gap-2">
             <HostIcon />
             <span className="font-medium text-deep-teal text-[22px]">

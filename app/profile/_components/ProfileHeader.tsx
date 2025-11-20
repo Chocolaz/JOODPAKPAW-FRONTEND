@@ -6,13 +6,13 @@ import React from 'react'
 
 interface ProfileHeaderProps {
   title: string
-  showBackButton?: boolean
+  backPath?: string
   menu?: React.ReactNode
 }
 
 export const ProfileHeader = ({
   title,
-  showBackButton = false,
+  backPath,
   menu,
 }: ProfileHeaderProps) => {
   const router = useRouter()
@@ -20,9 +20,9 @@ export const ProfileHeader = ({
   return (
     <header className="sticky top-0 z-10 flex items-center justify-between w-full h-14 px-4 bg-white border-b-2">
       <div className="w-10">
-        {showBackButton && (
+        {backPath && (
           <button
-            onClick={() => router.back()}
+            onClick={() => router.push(backPath)}
             className="p-2 rounded-full hover:bg-gray-100 transition-colors duration-200 ease-in-out -ml-2"
           >
             <ChevronLeft className="w-6 h-6 text-neutral-gray" />

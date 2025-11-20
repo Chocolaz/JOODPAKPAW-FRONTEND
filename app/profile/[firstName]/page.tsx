@@ -1,8 +1,9 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import Image from 'next/image'
 import { useUserProfile } from '@/app/profile/_hooks/useUserProfile'
-import { ProfileHeader } from '@/app/profile/_components/ProfileHeader'
+import { useProfileContext } from '@/app/profile/ProfileContext'
 import { ProfileCard } from '@/app/profile/_components/ProfileCard'
 import { LoadingState } from '@/app/profile/_components/LoadingState'
 import { ErrorState } from '@/app/profile/_components/ErrorState'
@@ -19,8 +20,27 @@ import { ChevronLeft } from 'lucide-react'
 
 export default function UserProfilePage() {
   const { profile, loading, error, router, refreshProfile } = useUserProfile()
+  const { setMenu } = useProfileContext()
   const [isEditDrawerOpen, setIsEditDrawerOpen] = useState(false)
   const [isPasswordDrawerOpen, setIsPasswordDrawerOpen] = useState(false)
+
+  useEffect(() => {
+    const editButton = (
+      <button
+        onClick={() => setIsEditDrawerOpen(true)}
+        className="p-2 rounded-full hover:bg-gray-100 transition-colors duration-200 ease-in-out"
+      >
+        <Image src="/icons/edit.svg" alt="Edit" width={24} height={24} />
+      </button>
+    )
+
+    setMenu(editButton)
+
+    // Cleanup function to remove the menu when the component unmounts
+    return () => {
+      setMenu(null)
+    }
+  }, [setMenu, setIsEditDrawerOpen])
 
   if (loading) {
     return <LoadingState />
@@ -38,7 +58,6 @@ export default function UserProfilePage() {
     <>
       <Drawer open={isEditDrawerOpen} onOpenChange={setIsEditDrawerOpen}>
         <div className="px-5">
-          <ProfileHeader onBack={() => router.back()} />
           <ProfileCard
             profile={profile}
             onPasswordChangeClick={() => setIsPasswordDrawerOpen(true)}
