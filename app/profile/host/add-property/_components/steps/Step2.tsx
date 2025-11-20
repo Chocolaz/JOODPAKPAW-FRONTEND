@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState } from 'react'
 import {
   GoogleMap,
   Marker,
@@ -32,7 +32,7 @@ export function Step2({
   })
 
   // -------------------------------
-  // 1) ใช้ location ของ user
+  // 1) Use user's location
   // -------------------------------
   useEffect(() => {
     if (navigator.geolocation) {
@@ -54,21 +54,66 @@ export function Step2({
   }, [])
 
   // -------------------------------
-  // 2) Reverse Geocoding
+  // 2) Reverse Geocoding (English)
   // -------------------------------
   const reverseGeocode = (lat: number, lng: number) => {
-    const geocoder = new google.maps.Geocoder()
-    geocoder.geocode({ location: { lat, lng } }, (results, status) => {
-      if (status === 'OK' && results && results.length > 0) {
-        setAddress(results[0].formatted_address)
+    if (!window.google || !window.google.maps) {
+      console.warn('Google Maps API not loaded yet')
+      return
+    }
+
+    const geocoder = new window.google.maps.Geocoder()
+    geocoder.geocode(
+      { location: { lat, lng }, language: 'en' },
+      (results, status) => {
+        if (status === 'OK' && results && results.length > 0) {
+          const place = results[0]
+          const components: any = {}
+
+          place.address_components.forEach((c) => {
+            const types = c.types
+
+            if (types.includes('country')) components.country = 'Thailand' // lock country
+            if (types.includes('administrative_area_level_1')) {
+              let prov = c.long_name
+              if (/krung\s*thep/i.test(prov)) prov = 'Bangkok'
+              components.province = prov
+            }
+            if (types.includes('administrative_area_level_2'))
+              components.district = c.long_name
+            if (
+              types.includes('sublocality_level_1') ||
+              types.includes('locality')
+            )
+              components.subdistrict = c.long_name
+            if (types.includes('route')) components.route = c.long_name
+            if (types.includes('street_number'))
+              components.street_number = c.long_name
+            if (types.includes('postal_code')) components.zipcode = c.long_name
+          })
+
+          updateField('country', components.country || '')
+          updateField('province', components.province || '')
+          updateField('district', components.district || '')
+          updateField('subdistrict', components.subdistrict || '')
+          updateField(
+            'address',
+            `${components.street_number || ''} ${components.route || ''}`.trim()
+          )
+          updateField('zipcode', components.zipcode || '')
+
+          // Update search box
+          setAddress(place.formatted_address)
+        }
       }
-    })
+    )
   }
 
   // -------------------------------
-  // 3) SearchBox เลือกตำแหน่ง
+  // 3) SearchBox (Thailand, English)
   // -------------------------------
   const onPlacesChanged = () => {
+    if (!searchBox) return
     const places = searchBox.getPlaces()
     if (places && places[0]) {
       const location = places[0].geometry.location
@@ -78,11 +123,12 @@ export function Step2({
       updateField('latitude', lat)
       updateField('longitude', lng)
       setAddress(places[0].formatted_address)
+      reverseGeocode(lat, lng)
     }
   }
 
   // -------------------------------
-  // 4) ลาก Marker ให้ update
+  // 4) Drag Marker
   // -------------------------------
   const onMarkerDragEnd = (e: google.maps.MapMouseEvent) => {
     const lat = e.latLng?.lat() || 0
@@ -102,7 +148,7 @@ export function Step2({
           Where is your property located?
         </h3>
         <p className="mb-4 text-neutral-gray text-sm">
-          Drag the marker or search to choose your location.
+          Drag the marker or search to choose your location (within Thailand).
         </p>
 
         {/* Search box */}
@@ -128,6 +174,15 @@ export function Step2({
               streetViewControl: false,
               mapTypeControl: false,
               fullscreenControl: false,
+              restriction: {
+                latLngBounds: {
+                  north: 20.5,
+                  south: 5.5,
+                  west: 97.5,
+                  east: 105.5,
+                },
+                strictBounds: true,
+              },
             }}
           >
             <Marker

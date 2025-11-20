@@ -2,7 +2,6 @@
 
 import * as React from 'react'
 import { Check, ChevronsUpDown } from 'lucide-react'
-
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import {
@@ -33,6 +32,21 @@ export function Step3({
   const { formData, updateField } = useAddProperty()
   const [open, setOpen] = React.useState(false)
 
+  // ---------------------------
+  // Auto fill triggered on step load
+  // ---------------------------
+  React.useEffect(() => {
+    if (formData.latitude && formData.longitude) {
+      // If no country filled yet, pull from reverse geocode result already stored
+      updateField('country', formData.country || '')
+      updateField('province', formData.province || '')
+      updateField('district', formData.district || '')
+      updateField('subdistrict', formData.subdistrict || '')
+      updateField('address', formData.address || '')
+      updateField('zipcode', formData.zipcode || '')
+    }
+  }, [])
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     updateField(e.target.name as keyof typeof formData, e.target.value)
   }
@@ -61,6 +75,7 @@ export function Step3({
           {/* Country */}
           <div>
             <p className="text-sm font-medium text-deep-teal mb-1">Country</p>
+
             <Popover open={open} onOpenChange={setOpen}>
               <PopoverTrigger asChild>
                 <Button
@@ -69,12 +84,11 @@ export function Step3({
                   aria-expanded={open}
                   className="w-full rounded-lg justify-between p-6 text-lg font-normal"
                 >
-                  {formData.country
-                    ? countryNames.find((c) => c === formData.country)
-                    : 'Select your country'}
+                  {formData.country || 'Select your country'}
                   <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                 </Button>
               </PopoverTrigger>
+
               <PopoverContent className="w-[460px] p-0">
                 <Command>
                   <CommandInput
@@ -89,10 +103,7 @@ export function Step3({
                           key={country}
                           value={country}
                           onSelect={(v) => {
-                            updateField(
-                              'country',
-                              v === formData.country ? '' : v
-                            )
+                            updateField('country', v)
                             setOpen(false)
                           }}
                           className="text-lg"
