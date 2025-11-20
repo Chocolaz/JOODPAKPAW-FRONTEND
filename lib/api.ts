@@ -119,9 +119,7 @@ export const createProperty = (data: PropertyFormData) => {
         formData.append('images', file);
       });
     } else if (key === 'facilities') {
-      (value as number[]).forEach((facilityId: number) => {
-        formData.append('facilities', String(facilityId));
-      });
+      formData.append('facilities', JSON.stringify(value));
     } else if (value !== null) {
       formData.append(key, String(value));
     }
