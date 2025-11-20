@@ -9,7 +9,6 @@ import { Step5 } from '../_components/steps/Step5'
 import { Step6 } from '../_components/steps/Step6'
 import { Step7 } from '../_components/steps/Step7'
 import { Step8 } from '../_components/steps/Step8'
-import { HostProfileHeader } from '@/app/profile/_components/HostProfileHeader'
 
 export default function AddPropertyDynamicStepsPage() {
   const params = useParams()
@@ -44,8 +43,6 @@ export default function AddPropertyDynamicStepsPage() {
 
   return (
     <div className="flex flex-col h-full max-w-[500px] mx-auto w-full px-8">
-      <HostProfileHeader />
-
       {renderStep()}
     </div>
   )

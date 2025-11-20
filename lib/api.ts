@@ -3,7 +3,9 @@ import request from './apiClient';
 import {
   FacilitiesResponse,
   ForgotPasswordCredentials,
+  HostPropertiesResponse,
   ProfileResponse,
+  PropertiesResponse,
   PropertyFormData,
   ResetPasswordCredentials,
   SignInCredentials,
@@ -98,6 +100,15 @@ export const getProperties = (page: number, limit: number) => {
     endpoint: `api/v1/properties?${params.toString()}`,
     method: 'GET',
     errorContext: 'Get Properties',
+  });
+};
+
+export const getHostProperties = (): Promise<HostPropertiesResponse> => {
+  return request<HostPropertiesResponse>({
+    endpoint: 'api/v1/hosts/properties/all',
+    method: 'GET',
+    requiresAuth: true,
+    errorContext: 'Get Host Properties',
   });
 };
 

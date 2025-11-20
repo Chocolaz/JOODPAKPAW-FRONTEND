@@ -45,3 +45,7 @@ export interface PropertiesResponse {
   orderBy: string
   sort: string
 }
+
+export interface HostPropertiesResponse {
+  properties: Property[]
+}

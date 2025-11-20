@@ -1,21 +1,38 @@
 'use client'
 
-import Image from 'next/image'
 import { ChevronLeft } from 'lucide-react'
-import { DrawerTrigger } from '@/components/ui/drawer'
+import { useRouter } from 'next/navigation'
+import React from 'react'
 
-export const ProfileHeader = ({ onBack }: { onBack: () => void }) => (
-  <div className="absolute top-0 left-0 right-0 flex items-center justify-between px-5 py-2">
-    <button
-      onClick={onBack}
-      className="p-2 rounded-full hover:bg-gray-100 transition-colors duration-200 ease-in-out"
-    >
-      <ChevronLeft className="w-6 h-6 text-neutral-gray" />
-    </button>
-    <DrawerTrigger asChild>
-      <button className="p-2 rounded-full hover:bg-gray-100 transition-colors duration-200 ease-in-out">
-        <Image src="/icons/edit.svg" alt="Edit" width={24} height={24} />
-      </button>
-    </DrawerTrigger>
-  </div>
-)
+interface ProfileHeaderProps {
+  title: string
+  showBackButton?: boolean
+  menu?: React.ReactNode
+}
+
+export const ProfileHeader = ({
+  title,
+  showBackButton = false,
+  menu,
+}: ProfileHeaderProps) => {
+  const router = useRouter()
+
+  return (
+    <header className="sticky top-0 z-10 flex items-center justify-between w-full h-14 px-4 bg-white border-b-2">
+      <div className="w-10">
+        {showBackButton && (
+          <button
+            onClick={() => router.back()}
+            className="p-2 rounded-full hover:bg-gray-100 transition-colors duration-200 ease-in-out -ml-2"
+          >
+            <ChevronLeft className="w-6 h-6 text-neutral-gray" />
+          </button>
+        )}
+      </div>
+      <h2 className="text-xl font-semibold text-deep-teal absolute left-1/2 -translate-x-1/2">
+        {title}
+      </h2>
+      <div className="w-10">{menu}</div>
+    </header>
+  )
+}

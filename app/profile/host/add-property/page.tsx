@@ -1,6 +1,5 @@
 'use client'
 
-import { HostProfileHeader } from '@/app/profile/_components/HostProfileHeader'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
 import Image from 'next/image' // 1. Import Image Component
@@ -8,7 +7,6 @@ import Image from 'next/image' // 1. Import Image Component
 export default function AddPropertyPage() {
   return (
     <div className="flex flex-col items-center h-full px-5 max-w-[500px] mx-auto">
-      <HostProfileHeader />
       <div className="flex flex-col mt-10 pb-24">
         {' '}
         {/* เพิ่ม pb-24 กันปุ่มบังเนื้อหา */}
