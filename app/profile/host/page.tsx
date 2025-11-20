@@ -33,9 +33,9 @@ export default function HostPage() {
   }, [])
 
   return (
-    <div className="flex flex-col flex-1 px-5">
+    <div className="flex flex-col px-5">
       {/* Scrollable card section */}
-      <div className="flex-1 overflow-y-auto pb-[90px]">
+      <div>
         {loading ? (
           <div className="flex justify-center items-center h-64">
             <Spinner />

@@ -42,7 +42,7 @@ export default function AddPropertyDynamicStepsPage() {
   }
 
   return (
-    <div className="flex flex-col h-full max-w-[500px] mx-auto w-full px-8">
+    <div className="flex flex-col max-w-[500px] mx-auto w-full px-8">
       {renderStep()}
     </div>
   )

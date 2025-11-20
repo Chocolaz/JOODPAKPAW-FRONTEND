@@ -28,11 +28,12 @@ function LayoutContent({ children }: { children: ReactNode }) {
 
   const headerProps = getHeaderProps()
   const showBanner =
-    pathname.startsWith('/profile/host') && pathname !== '/profile/host/add-property'
+    pathname.startsWith('/profile/host') &&
+    pathname !== '/profile/host/add-property'
 
   return (
     <main className="flex justify-center">
-      <div className="w-full max-w-[500px] h-screen overflow-y-auto">
+      <div className="w-full max-w-[500px]">
         <ProfileHeader {...headerProps} menu={menu} />
         {showBanner && <HostBanner />}
         {children}
