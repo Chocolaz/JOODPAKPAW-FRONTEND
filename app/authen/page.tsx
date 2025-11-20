@@ -26,7 +26,7 @@ export default function AuthenPage() {
         <div className="flex h-[60px]">
           <Link href="/authen/login" passHref className="flex-1">
             <Button className="w-full py-4 rounded-lg bg-accent-orange text-white hover:bg-accent-orange/80 mr-2 h-full text-[20px] font-semibold">
-              Sing In
+              Sign In
             </Button>
           </Link>
           <Link href="/authen/register" passHref className="flex-1">

@@ -3,8 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createProperty } from '@/lib/api'
-import { useAddProperty }
-from '../../_context/AddPropertyContext'
+import { useAddProperty } from '../../_context/AddPropertyContext'
 import { propertyTypes } from '../../_constants'
 import { StepNavigation } from '../StepNavigation'
 
@@ -27,21 +26,64 @@ export function Step7({ onBack }: { onBack: () => void }) {
     }
   }
 
+  const address = `${formData.address}, ${formData.subdistrict}, ${formData.district}, ${formData.province}, ${formData.country} ${formData.zipcode}`
+
   return (
     <>
-      <div className="w-full text-left mt-10">
-        <h1 className="text-2xl font-bold mb-6">Review your listing</h1>
-        <div className="space-y-4">
-          <div><strong>Title:</strong> {formData.title}</div>
-          <div><strong>Description:</strong> {formData.description}</div>
-          <div><strong>Property Type:</strong> {propertyTypes.find(p => p.id === formData.propertyTypeId)?.name}</div>
-          <div><strong>Address:</strong> {`${formData.address}, ${formData.subdistrict}, ${formData.district}, ${formData.province}, ${formData.country} ${formData.zipcode}`}</div>
-          <div><strong>Location:</strong> Lat: {formData.latitude}, Long: {formData.longitude}</div>
-          <div><strong>Facilities:</strong> {formData.facilities.length} selected</div>
-          <div><strong>Images:</strong> {formData.images.length} selected</div>
+      <div className="w-full text-left mt-6 pb-24">
+        {/* HEADER */}
+        <h1 className="text-3xl font-bold mb-3 text-deep-teal">
+          Review your listing
+        </h1>
+        <p className="text-neutral-gray mb-6">
+          Make sure all details below are correct before publishing.
+        </p>
+
+        {/* CARD WRAPPER */}
+        <div className="space-y-5">
+          {/* Card */}
+          <section className="bg-white rounded-xl shadow-sm border border-neutral-200 px-5 py-4">
+            <h3 className="text-lg font-semibold mb-3">Basic Information</h3>
+            <ReviewItem label="Title" value={formData.title} />
+            <ReviewItem label="Description" value={formData.description} />
+            <ReviewItem
+              label="Property Type"
+              value={
+                propertyTypes.find((p) => p.id === formData.propertyTypeId)
+                  ?.name
+              }
+            />
+          </section>
+
+          <section className="bg-white rounded-xl shadow-sm border border-neutral-200 px-5 py-4">
+            <h3 className="text-lg font-semibold mb-3">Location</h3>
+            <ReviewItem label="Full Address" value={address} />
+            <ReviewItem label="Latitude" value={formData.latitude} />
+            <ReviewItem label="Longitude" value={formData.longitude} />
+          </section>
+
+          <section className="bg-white rounded-xl shadow-sm border border-neutral-200 px-5 py-4">
+            <h3 className="text-lg font-semibold mb-3">Facilities & Media</h3>
+            <ReviewItem
+              label="Facilities"
+              value={`${formData.facilities.length} selected`}
+            />
+            <ReviewItem
+              label="Images"
+              value={`${formData.images.length} selected`}
+            />
+          </section>
         </div>
-        {error && <div className="text-red-500 mt-4">{error}</div>}
+
+        {/* Error */}
+        {error && (
+          <div className="mt-5 p-3 rounded-lg bg-red-50 text-red-600 border border-red-300 text-sm">
+            {error}
+          </div>
+        )}
       </div>
+
+      {/* Navigation Buttons */}
       <StepNavigation
         onBack={onBack}
         onNext={handleSubmit}
@@ -49,5 +91,16 @@ export function Step7({ onBack }: { onBack: () => void }) {
         nextText="Submit"
       />
     </>
+  )
+}
+
+/* -------------------------- COMPONENT -------------------------- */
+
+function ReviewItem({ label, value }: { label: string; value: any }) {
+  return (
+    <div className="mb-3">
+      <p className="text-sm text-neutral-gray">{label}</p>
+      <p className="text-base font-medium text-deep-teal">{value}</p>
+    </div>
   )
 }
