@@ -8,6 +8,14 @@ import { Property } from '@/types'
 import { Spinner } from '@/components/ui/spinner'
 import { ErrorState } from '@/app/profile/_components/ErrorState'
 
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from '@/components/ui/carousel'
+
 export default function HostPropertyDetailPage() {
   const params = useParams()
   const propertyId = params.propertyId as string
@@ -45,52 +53,131 @@ export default function HostPropertyDetailPage() {
       )
     }
 
-    if (error) {
-      return <ErrorState error={error} />
-    }
+    if (error) return <ErrorState error={error} />
+    if (!property) return <ErrorState error="Property not found." />
 
-    if (!property) {
-      return <ErrorState error="Property not found." />
-    }
-
-    const imagePath = property.images?.[0]?.filePath
-    let mainImage = '/graphics/no-image.svg'
-    if (imagePath) {
-      let url = imagePath
-      if (url.startsWith('http://') || url.startsWith('https://')) {
-        mainImage = url
-      } else {
-        url = url.replace(/^(https?:)?\/*/, '')
-        mainImage = `http://${url}`
-      }
-      mainImage = mainImage.replace(/(?<!:)\/\//g, '/')
-    }
+    /* Normalize image URLs */
+    const images = property.images?.length
+      ? property.images.map((img) => {
+          let url = img.filePath
+          if (!url.startsWith('http')) {
+            url = url.replace(/^(https?:)?\/*/, '')
+            url = `http://${url}`
+          }
+          return url.replace(/(?<!:)\/\//g, '/')
+        })
+      : ['/graphics/no-image.svg']
 
     return (
-      <div className="p-4">
-        <div className="relative w-full h-64 rounded-lg overflow-hidden mb-4">
-          <Image
-            src={mainImage}
-            alt={property.title}
-            fill
-            unoptimized={true}
-            className="object-cover"
-          />
+      <div className="max-w-4xl mx-auto p-4 pb-24">
+        {/* -------------------- IMAGE SLIDESHOW -------------------- */}
+        <div className="w-full h-72 relative overflow-hidden rounded-xl mb-8 shadow">
+          <Carousel className="w-full h-full">
+            <CarouselContent className="h-full">
+              {images.map((src, i) => (
+                <CarouselItem key={i} className="h-full">
+                  <div className="relative w-full h-72">
+                    <Image
+                      src={src}
+                      alt={`Image ${i}`}
+                      fill
+                      unoptimized
+                      loading="eager"
+                      className="object-cover"
+                    />
+                  </div>
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+            {images.length > 1 && (
+              <>
+                <CarouselPrevious className="left-2 bg-white/80 backdrop-blur-sm shadow rounded-full" />
+                <CarouselNext className="right-2 bg-white/80 backdrop-blur-sm shadow rounded-full" />
+              </>
+            )}
+          </Carousel>
         </div>
-        <h1 className="text-2xl font-bold text-deep-teal mb-2">
-          {property.title}
-        </h1>
-        <p className="text-neutral-gray mb-1">
-          {property.district}, {property.province}
-        </p>
-        <p className="text-lg font-semibold text-deep-teal mb-4">
-          THB {property.roomCategory?.basePrice || 'N/A'}
-        </p>
-        <div className="border-t pt-4">
-          <h2 className="text-xl font-semibold text-deep-teal mb-2">
+
+        {/* -------------------- TITLE -------------------- */}
+        <div className="mb-6">
+          <h1 className="text-3xl font-bold text-gray-900">{property.title}</h1>
+          <p className="text-gray-600 mt-1">
+            {property.district}, {property.province}, {property.country}
+          </p>
+        </div>
+
+        {/* -------------------- PROPERTY INFO GRID -------------------- */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-10">
+          {/* Price */}
+          <div className="p-4 border rounded-xl shadow-sm bg-white">
+            <p className="text-gray-500 text-sm">Base Price</p>
+            <p className="text-xl font-semibold text-emerald-700 mt-1">
+              THB {property.roomCategory?.basePrice || 'N/A'} / night
+            </p>
+          </div>
+
+          {/* Property Type */}
+          <div className="p-4 border rounded-xl shadow-sm bg-white">
+            <p className="text-gray-500 text-sm">Property Type</p>
+            <p className="text-lg font-medium mt-1 capitalize">
+              {property.propertyType?.name.replace(/_/g, ' ')}
+            </p>
+          </div>
+
+          {/* Ratings */}
+          <div className="p-4 border rounded-xl shadow-sm bg-white">
+            <p className="text-gray-500 text-sm">Rating</p>
+            <p className="text-lg font-medium mt-1">
+              ⭐ {property.avgRating} ({property.reviewCount} reviews)
+            </p>
+          </div>
+
+          {/* Created At */}
+          <div className="p-4 border rounded-xl shadow-sm bg-white">
+            <p className="text-gray-500 text-sm">Created At</p>
+            <p className="text-lg mt-1">{property.createdAt}</p>
+          </div>
+        </div>
+
+        {/* -------------------- DESCRIPTION -------------------- */}
+        <div className="border-t pt-8 mb-10">
+          <h2 className="text-xl font-semibold text-gray-900 mb-3">
             Description
           </h2>
-          <p className="text-neutral-dark">{property.description}</p>
+          <p className="text-gray-700 leading-relaxed">
+            {property.description || 'No description provided.'}
+          </p>
+        </div>
+
+        {/* -------------------- FACILITIES -------------------- */}
+        {property.facilities && property.facilities.length > 0 && (
+          <div className="border-t pt-8 mb-10">
+            <h2 className="text-xl font-semibold text-gray-900 mb-4">
+              Facilities
+            </h2>
+
+            <ul className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+              {property.facilities?.map((f) => (
+                <li
+                  key={f.id}
+                  className="p-3 rounded-lg bg-gray-50 border text-gray-700"
+                >
+                  • {f.name}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {/* -------------------- HOST INFO -------------------- */}
+        <div className="border-t pt-8">
+          <h2 className="text-xl font-semibold mb-3 text-gray-900">
+            Host Information
+          </h2>
+
+          <p className="text-gray-700">
+            Host ID: <span className="font-medium">{property.hostId}</span>
+          </p>
         </div>
       </div>
     )
