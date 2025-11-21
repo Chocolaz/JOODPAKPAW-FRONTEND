@@ -10,7 +10,22 @@ interface PropertyCardProps {
 }
 
 export function PropertyCard({ property }: PropertyCardProps) {
-  const mainImage = property.images?.[0]?.filePath || '/graphics/no-image.svg'
+  const imagePath = property.images?.[0]?.filePath
+  let mainImage = '/graphics/no-image.svg'
+
+  if (imagePath) {
+    let url = imagePath
+    if (url.startsWith('http://') || url.startsWith('https://')) {
+      // It's already a full URL. Leave it as is, but clean up slashes.
+      mainImage = url
+    } else {
+      // It's some other format. Strip any leading slashes or partial protocols.
+      url = url.replace(/^(https?:)?\/*/, '')
+      mainImage = `http://${url}`
+    }
+    // Finally, fix double slashes in the path part, but not the protocol.
+    mainImage = mainImage.replace(/(?<!:)\/\//g, '/')
+  }
 
   return (
     <Link href={`/property/${property.id}`}>
@@ -20,6 +35,7 @@ export function PropertyCard({ property }: PropertyCardProps) {
             src={mainImage}
             alt={property.title}
             fill
+            unoptimized={true}
             className="object-cover"
           />
         </div>
