@@ -19,7 +19,7 @@ import { ChangePasswordForm } from '@/app/profile/_components/ChangePasswordForm
 import { ChevronLeft } from 'lucide-react'
 
 export default function UserProfilePage() {
-  const { profile, loading, error, router, refreshProfile } = useUserProfile()
+  const { profile, loading, error, refreshProfile } = useUserProfile()
   const { setMenu } = useProfileContext()
   const [isEditDrawerOpen, setIsEditDrawerOpen] = useState(false)
   const [isPasswordDrawerOpen, setIsPasswordDrawerOpen] = useState(false)

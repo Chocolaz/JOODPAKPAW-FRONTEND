@@ -14,8 +14,12 @@ export function useFacilities() {
         setLoading(true)
         const data = await getFacilities()
         setFacilities(data.facilities)
-      } catch (err: any) {
-        setError(err.message || 'Failed to fetch facilities')
+      } catch (err: unknown) {
+        if (err instanceof Error) {
+          setError(err.message)
+        } else {
+          setError('Failed to fetch facilities')
+        }
       } finally {
         setLoading(false)
       }

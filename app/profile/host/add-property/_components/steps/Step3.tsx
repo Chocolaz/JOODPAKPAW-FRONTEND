@@ -27,7 +27,16 @@ export function Step3({
       updateField('address', formData.address || '')
       updateField('zipcode', formData.zipcode || '')
     }
-  }, [])
+  }, [
+    formData.latitude,
+    formData.longitude,
+    formData.province,
+    formData.district,
+    formData.subdistrict,
+    formData.address,
+    formData.zipcode,
+    updateField,
+  ])
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     updateField(e.target.name as keyof typeof formData, e.target.value)

@@ -5,7 +5,6 @@ import { Input } from '@/components/ui/input'
 import { useAddProperty } from '../../_context/AddPropertyContext'
 import { StepNavigation } from '../StepNavigation'
 import { X } from 'lucide-react'
-import { cn } from '@/lib/utils'
 
 export function Step6({
   onNext,
@@ -73,10 +72,11 @@ export function Step6({
                 key={index}
                 className="relative w-full aspect-square rounded-xl overflow-hidden shadow-sm border border-gray-200"
               >
-                <img
+                <Image
                   src={URL.createObjectURL(file)}
                   alt={`preview ${index}`}
-                  className="w-full h-full object-cover"
+                  fill
+                  className="object-cover"
                 />
                 {/* Delete button */}
                 <button

@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import {
   GoogleMap,
   Marker,
@@ -12,6 +12,16 @@ import { useAddProperty } from '../../_context/AddPropertyContext'
 import { StepNavigation } from '../StepNavigation'
 
 const libraries: 'places'[] = ['places']
+
+interface AddressComponents {
+  country?: string;
+  province?: string;
+  district?: string;
+  subdistrict?: string;
+  route?: string;
+  street_number?: string;
+  zipcode?: string;
+}
 
 export function Step2({
   onNext,
@@ -32,7 +42,6 @@ export function Step2({
   const [searchBox, setSearchBox] =
     useState<google.maps.places.SearchBox | null>(null)
   const [address, setAddress] = useState(formData.address || '')
-  const [loadingUserLocation, setLoadingUserLocation] = useState(true)
 
   const { isLoaded } = useJsApiLoader({
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY!,
@@ -40,31 +49,9 @@ export function Step2({
   })
 
   // -------------------------------
-  // 2) Use user's location if not set
-  // -------------------------------
-  useEffect(() => {
-    if (navigator.geolocation && !formData.latitude && !formData.longitude) {
-      navigator.geolocation.getCurrentPosition(
-        (pos) => {
-          const lat = pos.coords.latitude
-          const lng = pos.coords.longitude
-          setCenter({ lat, lng })
-          updateField('latitude', lat)
-          updateField('longitude', lng)
-          reverseGeocode(lat, lng)
-          setLoadingUserLocation(false)
-        },
-        () => setLoadingUserLocation(false)
-      )
-    } else {
-      setLoadingUserLocation(false)
-    }
-  }, [])
-
-  // -------------------------------
   // 3) Reverse Geocoding
   // -------------------------------
-  const reverseGeocode = (lat: number, lng: number) => {
+  const reverseGeocode = useCallback((lat: number, lng: number) => {
     if (!window.google || !window.google.maps) return
 
     const geocoder = new window.google.maps.Geocoder()
@@ -73,7 +60,7 @@ export function Step2({
       (results, status) => {
         if (status === 'OK' && results && results.length > 0) {
           const place = results[0]
-          const components: any = {}
+          const components: AddressComponents = {}
 
           place.address_components.forEach((c) => {
             const types = c.types
@@ -110,7 +97,27 @@ export function Step2({
         }
       }
     )
-  }
+  }, [updateField])
+
+  // -------------------------------
+  // 2) Use user's location if not set
+  // -------------------------------
+  useEffect(() => {
+    const handleLocation = (lat: number, lng: number) => {
+      setCenter({ lat, lng })
+      updateField('latitude', String(lat))
+      updateField('longitude', String(lng))
+      reverseGeocode(lat, lng)
+    }
+
+    if (!formData.latitude && !formData.longitude) {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (pos) => handleLocation(pos.coords.latitude, pos.coords.longitude)
+        )
+      }
+    }
+  }, [formData.latitude, formData.longitude, reverseGeocode, updateField])
 
   // -------------------------------
   // 4) SearchBox change
@@ -123,8 +130,8 @@ export function Step2({
       const lat = location.lat()
       const lng = location.lng()
       setCenter({ lat, lng })
-      updateField('latitude', lat)
-      updateField('longitude', lng)
+      updateField('latitude', String(lat))
+      updateField('longitude', String(lng))
       setAddress(places[0].formatted_address || '')
       reverseGeocode(lat, lng)
     }
@@ -138,8 +145,8 @@ export function Step2({
     const lat = e.latLng.lat()
     const lng = e.latLng.lng()
     setCenter({ lat, lng })
-    updateField('latitude', lat)
-    updateField('longitude', lng)
+    updateField('latitude', String(lat))
+    updateField('longitude', String(lng))
     reverseGeocode(lat, lng)
   }
 

@@ -19,8 +19,12 @@ export function Step7({ onBack }: { onBack: () => void }) {
     try {
       await createProperty(formData)
       router.push('/profile/host/add-property/8')
-    } catch (err: any) {
-      setError(err.message || 'Failed to create property.')
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message)
+      } else {
+        setError('Failed to create property.')
+      }
     } finally {
       setIsSubmitting(false)
     }
@@ -96,7 +100,13 @@ export function Step7({ onBack }: { onBack: () => void }) {
 
 /* -------------------------- COMPONENT -------------------------- */
 
-function ReviewItem({ label, value }: { label: string; value: any }) {
+function ReviewItem({
+  label,
+  value,
+}: {
+  label: string
+  value: string | undefined
+}) {
   return (
     <div className="mb-3">
       <p className="text-sm text-neutral-gray">{label}</p>

@@ -5,7 +5,6 @@ import {
   ForgotPasswordCredentials,
   HostPropertiesResponse,
   ProfileResponse,
-  PropertiesResponse,
   PropertyFormData,
   ResetPasswordCredentials,
   SignInCredentials,

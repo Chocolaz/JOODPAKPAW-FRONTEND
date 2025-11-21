@@ -24,14 +24,14 @@ export default function AddPropertyDynamicStepsPage() {
   }
 
   const steps = [
-    <Step1 onNext={handleNext} />,
-    <Step2 onNext={handleNext} onBack={handleBack} />,
-    <Step3 onNext={handleNext} onBack={handleBack} />,
-    <Step4 onNext={handleNext} onBack={handleBack} />,
-    <Step5 onNext={handleNext} onBack={handleBack} />,
-    <Step6 onNext={handleNext} onBack={handleBack} />,
-    <Step7 onBack={handleBack} />,
-    <Step8 />,
+    <Step1 key="step-1" onNext={handleNext} />,
+    <Step2 key="step-2" onNext={handleNext} onBack={handleBack} />,
+    <Step3 key="step-3" onNext={handleNext} onBack={handleBack} />,
+    <Step4 key="step-4" onNext={handleNext} onBack={handleBack} />,
+    <Step5 key="step-5" onNext={handleNext} onBack={handleBack} />,
+    <Step6 key="step-6" onNext={handleNext} onBack={handleBack} />,
+    <Step7 key="step-7" onBack={handleBack} />,
+    <Step8 key="step-8" />,
   ]
 
   const renderStep = () => {

@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { Property } from '@/types'
 import { Star } from 'lucide-react'
 
@@ -15,10 +16,11 @@ export function PropertyCard({ property }: PropertyCardProps) {
     <Link href={`/property/${property.id}`}>
       <div className="border rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow cursor-pointer">
         <div className="w-full h-40 sm:h-48 relative">
-          <img
+          <Image
             src={mainImage}
             alt={property.title}
-            className="w-full h-full object-cover"
+            fill
+            className="object-cover"
           />
         </div>
         <div className="p-3 sm:p-4">

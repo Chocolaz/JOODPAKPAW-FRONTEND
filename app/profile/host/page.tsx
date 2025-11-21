@@ -2,6 +2,7 @@
 
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
+import Image from 'next/image'
 import { useEffect, useState } from 'react'
 import { getHostProperties } from '@/lib/api'
 import { Property } from '@/types'
@@ -46,9 +47,11 @@ export default function HostPage() {
           <PropertyList properties={properties} />
         ) : (
           <div className="text-center mt-20 text-neutral-gray">
-            <img
+            <Image
               src="/graphics/no-host.svg"
               alt="No host listing"
+              width={300}
+              height={300}
               className="w-full h-auto max-w-sm mx-auto"
             />
             <h2 className="mt-4 text-lg font-semibold">No host listing</h2>

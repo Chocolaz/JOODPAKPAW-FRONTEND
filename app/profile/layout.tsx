@@ -13,6 +13,16 @@ function LayoutContent({ children }: { children: ReactNode }) {
   // Determine header properties based on the current path
   const getHeaderProps = () => {
     if (pathname.startsWith('/profile/host/add-property')) {
+      const stepId = parseInt(pathname.split('/').pop() || '', 10)
+      if (!isNaN(stepId)) {
+        if (stepId === 1) {
+          return { title: 'Host', backPath: '/profile/host/add-property' }
+        }
+        return {
+          title: 'Host',
+          backPath: `/profile/host/add-property/${stepId - 1}`,
+        }
+      }
       return { title: 'Host', backPath: '/profile/host' }
     }
     if (pathname === '/profile/host') {
@@ -27,15 +37,26 @@ function LayoutContent({ children }: { children: ReactNode }) {
   }
 
   const headerProps = getHeaderProps()
-  const showBanner =
-    pathname.startsWith('/profile/host') &&
-    pathname !== '/profile/host/add-property'
+
+  const renderBanner = () => {
+    if (pathname.startsWith('/profile/host/add-property')) {
+      const stepId = parseInt(pathname.split('/').pop() || '', 10)
+      if (!isNaN(stepId)) {
+        return <HostBanner currentStep={stepId} totalSteps={8} />
+      }
+      return null
+    }
+    if (pathname.startsWith('/profile/host')) {
+      return <HostBanner />
+    }
+    return null
+  }
 
   return (
     <main className="flex justify-center">
       <div className="w-full max-w-[500px]">
         <ProfileHeader {...headerProps} menu={menu} />
-        {showBanner && <HostBanner />}
+        {renderBanner()}
         {children}
       </div>
     </main>

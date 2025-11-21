@@ -1,13 +1,13 @@
 'use client'
 
-import { createContext, useContext, useState, ReactNode, useEffect } from 'react'
+import { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react'
 import { PropertyFormData } from '@/types'
 import { useAuth } from '@/app/_components/AuthContext'
 
 interface AddPropertyContextType {
   formData: PropertyFormData
   setFormData: React.Dispatch<React.SetStateAction<PropertyFormData>>
-  updateField: (field: keyof PropertyFormData, value: any) => void
+  updateField: <K extends keyof PropertyFormData>(field: K, value: PropertyFormData[K]) => void
 }
 
 const AddPropertyContext = createContext<AddPropertyContextType | undefined>(undefined)
@@ -31,15 +31,21 @@ export const AddPropertyProvider = ({ children }: { children: ReactNode }) => {
     hostId: 0,
   })
 
+  const updateField = useCallback(<K extends keyof PropertyFormData>(field: K, value: PropertyFormData[K]) => {
+    setFormData(prev => ({ ...prev, [field]: value }))
+  }, [])
+
   useEffect(() => {
     if (user) {
-      updateField('hostId', user.id)
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setFormData(prevFormData => {
+        if (prevFormData.hostId !== user.id) {
+          return { ...prevFormData, hostId: user.id };
+        }
+        return prevFormData;
+      });
     }
-  }, [user])
-
-  const updateField = (field: keyof PropertyFormData, value: any) => {
-    setFormData(prev => ({ ...prev, [field]: value }))
-  }
+  }, [user]);
 
   return (
     <AddPropertyContext.Provider value={{ formData, setFormData, updateField }}>

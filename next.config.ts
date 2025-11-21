@@ -7,11 +7,18 @@ const nextConfig: NextConfig = {
       {
         protocol: 'http',
         hostname: 'cp25nk2.sit.kmutt.ac.th',
-        port: '8000',
-        pathname: '/properties/**',
+        port: '8900',
+        pathname: '/joodpakpaw/**',
+      },
+      {
+        protocol: 'http',
+        hostname: 'cp25nk2.sit.kmutt.ac.th',
+        port: '8900',
+        pathname: '/joodpakpaw//**',
       },
     ],
   },
+
   webpack(config) {
     // Grab the existing rule that handles SVG imports
     const fileLoaderRule = config.module.rules.find(
