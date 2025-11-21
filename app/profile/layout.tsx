@@ -46,7 +46,7 @@ function LayoutContent({ children }: { children: ReactNode }) {
       }
       return null
     }
-    if (pathname.startsWith('/profile/host')) {
+    if (pathname === '/profile/host') {
       return <HostBanner />
     }
     return null

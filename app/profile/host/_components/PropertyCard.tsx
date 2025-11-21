@@ -28,7 +28,7 @@ export function PropertyCard({ property }: PropertyCardProps) {
   }
 
   return (
-    <Link href={`/property/${property.id}`}>
+    <Link href={`/profile/host/${property.id}`}>
       <div className="border rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow cursor-pointer">
         <div className="w-full h-40 sm:h-48 relative">
           <Image

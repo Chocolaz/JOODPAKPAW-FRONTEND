@@ -5,6 +5,7 @@ import {
   ForgotPasswordCredentials,
   HostPropertiesResponse,
   ProfileResponse,
+  Property,
   PropertyFormData,
   ResetPasswordCredentials,
   SignInCredentials,
@@ -108,6 +109,15 @@ export const getHostProperties = (): Promise<HostPropertiesResponse> => {
     method: 'GET',
     requiresAuth: true,
     errorContext: 'Get Host Properties',
+  });
+};
+
+export const getHostPropertyById = (propertyId: string): Promise<{ property: Property }> => {
+  return request<{ property: Property }>({
+    endpoint: `api/v1/hosts/properties/${propertyId}`,
+    method: 'GET',
+    requiresAuth: true,
+    errorContext: 'Get Host Property By Id',
   });
 };
 

@@ -1,11 +1,19 @@
 import Image from 'next/image'
 
-export function PageHeader() {
+interface PageHeaderProps {
+  title?: string
+}
+
+export function PageHeader({ title }: PageHeaderProps) {
   return (
     <header>
-      <h4 className="mt-7 text-deep-teal">
-        Discover Local Pet Hotels & Care Homes Near You GitHub Actions15
-      </h4>
+      {title ? (
+        <h1 className="mt-7 text-deep-teal text-2xl font-bold">{title}</h1>
+      ) : (
+        <h4 className="mt-7 text-deep-teal">
+          Discover Local Pet Hotels & Care Homes Near You GitHub Actions15
+        </h4>
+      )}
       <div className="mt-4">
         <Image
           src="/graphics/home.svg"
