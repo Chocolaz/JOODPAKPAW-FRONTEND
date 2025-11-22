@@ -69,23 +69,25 @@ export default function HostPropertyDetailPage() {
       : ['/graphics/no-image.svg']
 
     return (
-      <div className="max-w-4xl mx-auto p-4 pb-24">
+      <div className="max-w-4xl mx-auto pb-24">
         {/* -------------------- IMAGE SLIDESHOW -------------------- */}
-        <div className="w-full h-72 relative overflow-hidden rounded-xl mb-8 shadow">
-          <Carousel className="w-full h-full">
-            <CarouselContent className="h-full">
+        <div className="w-full mb-8 overflow-hidden">
+          <Carousel>
+            <CarouselContent>
               {images.map((src, i) => (
-                <CarouselItem key={i} className="h-full">
-                  <div className="relative w-full h-72">
-                    <Image
-                      src={src}
-                      alt={`Image ${i}`}
-                      fill
-                      unoptimized
-                      loading="eager"
-                      className="object-cover"
-                    />
-                  </div>
+                <CarouselItem
+                  key={i}
+                  className="flex items-center justify-center"
+                >
+                  <Image
+                    src={src}
+                    alt={`Image ${i}`}
+                    width={500}
+                    height={500}
+                    unoptimized
+                    loading="eager"
+                    className="object-cover w-full h-auto aspect-square"
+                  />
                 </CarouselItem>
               ))}
             </CarouselContent>
@@ -98,86 +100,90 @@ export default function HostPropertyDetailPage() {
           </Carousel>
         </div>
 
-        {/* -------------------- TITLE -------------------- */}
-        <div className="mb-6">
-          <h1 className="text-3xl font-bold text-gray-900">{property.title}</h1>
-          <p className="text-gray-600 mt-1">
-            {property.district}, {property.province}, {property.country}
-          </p>
-        </div>
-
-        {/* -------------------- PROPERTY INFO GRID -------------------- */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-10">
-          {/* Price */}
-          <div className="p-4 border rounded-xl shadow-sm bg-white">
-            <p className="text-gray-500 text-sm">Base Price</p>
-            <p className="text-xl font-semibold text-emerald-700 mt-1">
-              THB {property.roomCategory?.basePrice || 'N/A'} / night
+        <div className="px-4 sm:px-0">
+          {/* -------------------- TITLE -------------------- */}
+          <div className="mb-6">
+            <h1 className="text-3xl font-bold text-gray-900">
+              {property.title}
+            </h1>
+            <p className="text-gray-600 mt-1">
+              {property.district}, {property.province}, {property.country}
             </p>
           </div>
 
-          {/* Property Type */}
-          <div className="p-4 border rounded-xl shadow-sm bg-white">
-            <p className="text-gray-500 text-sm">Property Type</p>
-            <p className="text-lg font-medium mt-1 capitalize">
-              {property.propertyType?.name.replace(/_/g, ' ')}
-            </p>
+          {/* -------------------- PROPERTY INFO GRID -------------------- */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-10">
+            {/* Price */}
+            <div className="p-4 border rounded-xl shadow-sm bg-white">
+              <p className="text-gray-500 text-sm">Base Price</p>
+              <p className="text-xl font-semibold text-emerald-700 mt-1">
+                THB {property.roomCategory?.basePrice || 'N/A'} / night
+              </p>
+            </div>
+
+            {/* Property Type */}
+            <div className="p-4 border rounded-xl shadow-sm bg-white">
+              <p className="text-gray-500 text-sm">Property Type</p>
+              <p className="text-lg font-medium mt-1 capitalize">
+                {property.propertyType?.name.replace(/_/g, ' ')}
+              </p>
+            </div>
+
+            {/* Ratings */}
+            <div className="p-4 border rounded-xl shadow-sm bg-white">
+              <p className="text-gray-500 text-sm">Rating</p>
+              <p className="text-lg font-medium mt-1">
+                ⭐ {property.avgRating} ({property.reviewCount} reviews)
+              </p>
+            </div>
+
+            {/* Created At */}
+            <div className="p-4 border rounded-xl shadow-sm bg-white">
+              <p className="text-gray-500 text-sm">Created At</p>
+              <p className="text-lg mt-1">{property.createdAt}</p>
+            </div>
           </div>
 
-          {/* Ratings */}
-          <div className="p-4 border rounded-xl shadow-sm bg-white">
-            <p className="text-gray-500 text-sm">Rating</p>
-            <p className="text-lg font-medium mt-1">
-              ⭐ {property.avgRating} ({property.reviewCount} reviews)
-            </p>
-          </div>
-
-          {/* Created At */}
-          <div className="p-4 border rounded-xl shadow-sm bg-white">
-            <p className="text-gray-500 text-sm">Created At</p>
-            <p className="text-lg mt-1">{property.createdAt}</p>
-          </div>
-        </div>
-
-        {/* -------------------- DESCRIPTION -------------------- */}
-        <div className="border-t pt-8 mb-10">
-          <h2 className="text-xl font-semibold text-gray-900 mb-3">
-            Description
-          </h2>
-          <p className="text-gray-700 leading-relaxed">
-            {property.description || 'No description provided.'}
-          </p>
-        </div>
-
-        {/* -------------------- FACILITIES -------------------- */}
-        {property.facilities && property.facilities.length > 0 && (
+          {/* -------------------- DESCRIPTION -------------------- */}
           <div className="border-t pt-8 mb-10">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">
-              Facilities
+            <h2 className="text-xl font-semibold text-gray-900 mb-3">
+              Description
+            </h2>
+            <p className="text-gray-700 leading-relaxed">
+              {property.description || 'No description provided.'}
+            </p>
+          </div>
+
+          {/* -------------------- FACILITIES -------------------- */}
+          {property.facilities && property.facilities.length > 0 && (
+            <div className="border-t pt-8 mb-10">
+              <h2 className="text-xl font-semibold text-gray-900 mb-4">
+                Facilities
+              </h2>
+
+              <ul className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                {property.facilities?.map((f) => (
+                  <li
+                    key={f.id}
+                    className="p-3 rounded-lg bg-gray-50 border text-gray-700"
+                  >
+                    • {f.name}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {/* -------------------- HOST INFO -------------------- */}
+          <div className="border-t pt-8">
+            <h2 className="text-xl font-semibold mb-3 text-gray-900">
+              Host Information
             </h2>
 
-            <ul className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-              {property.facilities?.map((f) => (
-                <li
-                  key={f.id}
-                  className="p-3 rounded-lg bg-gray-50 border text-gray-700"
-                >
-                  • {f.name}
-                </li>
-              ))}
-            </ul>
+            <p className="text-gray-700">
+              Host ID: <span className="font-medium">{property.hostId}</span>
+            </p>
           </div>
-        )}
-
-        {/* -------------------- HOST INFO -------------------- */}
-        <div className="border-t pt-8">
-          <h2 className="text-xl font-semibold mb-3 text-gray-900">
-            Host Information
-          </h2>
-
-          <p className="text-gray-700">
-            Host ID: <span className="font-medium">{property.hostId}</span>
-          </p>
         </div>
       </div>
     )
