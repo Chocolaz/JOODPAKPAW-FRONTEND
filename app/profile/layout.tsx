@@ -25,6 +25,9 @@ function LayoutContent({ children }: { children: ReactNode }) {
       }
       return { title: 'Host', backPath: '/profile/host' }
     }
+    if (pathname.startsWith('/profile/host/') && pathname.split('/').length === 4) { // /profile/host/[propertyId]
+      return { title: 'Property Details', backPath: '/profile/host' };
+    }
     if (pathname === '/profile/host') {
       return { title: 'Host', backPath: '/profile' }
     }
