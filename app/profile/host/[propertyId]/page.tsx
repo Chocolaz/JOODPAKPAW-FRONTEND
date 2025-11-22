@@ -16,6 +16,9 @@ import {
   CarouselPrevious,
 } from '@/components/ui/carousel'
 
+import Lightbox from 'yet-another-react-lightbox'
+import 'yet-another-react-lightbox/styles.css'
+
 export default function HostPropertyDetailPage() {
   const params = useParams()
   const propertyId = params.propertyId as string
@@ -23,6 +26,10 @@ export default function HostPropertyDetailPage() {
   const [property, setProperty] = useState<Property | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+
+  // Lightbox state
+  const [lightboxOpen, setLightboxOpen] = useState(false)
+  const [currentIndex, setCurrentIndex] = useState(0)
 
   useEffect(() => {
     if (!propertyId) return
@@ -71,26 +78,30 @@ export default function HostPropertyDetailPage() {
     return (
       <div className="max-w-4xl mx-auto pb-24">
         {/* -------------------- IMAGE SLIDESHOW -------------------- */}
-        <div className="w-full mb-8 overflow-hidden">
-          <Carousel>
+        <div className="w-full">
+          <Carousel className="w-full">
             <CarouselContent>
               {images.map((src, i) => (
-                <CarouselItem
-                  key={i}
-                  className="flex items-center justify-center"
-                >
-                  <Image
-                    src={src}
-                    alt={`Image ${i}`}
-                    width={500}
-                    height={500}
-                    unoptimized
-                    loading="eager"
-                    className="object-cover w-full h-auto aspect-square"
-                  />
+                <CarouselItem key={i}>
+                  <div
+                    className="relative w-full aspect-square rounded-xl overflow-hidden cursor-pointer"
+                    onClick={() => {
+                      setCurrentIndex(i)
+                      setLightboxOpen(true)
+                    }}
+                  >
+                    <Image
+                      src={src}
+                      alt={`Image ${i}`}
+                      fill
+                      unoptimized
+                      className="object-cover"
+                    />
+                  </div>
                 </CarouselItem>
               ))}
             </CarouselContent>
+
             {images.length > 1 && (
               <>
                 <CarouselPrevious className="left-2 bg-white/80 backdrop-blur-sm shadow rounded-full" />
@@ -99,6 +110,24 @@ export default function HostPropertyDetailPage() {
             )}
           </Carousel>
         </div>
+
+        {/* -------------------- LIGHTBOX -------------------- */}
+        <Lightbox
+          open={lightboxOpen}
+          close={() => setLightboxOpen(false)}
+          slides={images.map((src) => ({ src }))}
+          index={currentIndex}
+          on={{ view: ({ index }) => setCurrentIndex(index) }}
+          carousel={{
+            finite: images.length <= 1, // ปิด swipe ถ้ามีรูปเดียว
+            imageFit: 'contain',
+          }}
+          styles={{
+            root: {
+              '--yarl__color_backdrop': 'rgba(0,0,0,0.8)', // พื้นหลังดำ 50% opacity
+            },
+          }}
+        />
 
         <div className="px-4 sm:px-0">
           {/* -------------------- TITLE -------------------- */}
@@ -113,7 +142,6 @@ export default function HostPropertyDetailPage() {
 
           {/* -------------------- PROPERTY INFO GRID -------------------- */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-10">
-            {/* Price */}
             <div className="p-4 border rounded-xl shadow-sm bg-white">
               <p className="text-gray-500 text-sm">Base Price</p>
               <p className="text-xl font-semibold text-emerald-700 mt-1">
@@ -121,7 +149,6 @@ export default function HostPropertyDetailPage() {
               </p>
             </div>
 
-            {/* Property Type */}
             <div className="p-4 border rounded-xl shadow-sm bg-white">
               <p className="text-gray-500 text-sm">Property Type</p>
               <p className="text-lg font-medium mt-1 capitalize">
@@ -129,7 +156,6 @@ export default function HostPropertyDetailPage() {
               </p>
             </div>
 
-            {/* Ratings */}
             <div className="p-4 border rounded-xl shadow-sm bg-white">
               <p className="text-gray-500 text-sm">Rating</p>
               <p className="text-lg font-medium mt-1">
@@ -137,7 +163,6 @@ export default function HostPropertyDetailPage() {
               </p>
             </div>
 
-            {/* Created At */}
             <div className="p-4 border rounded-xl shadow-sm bg-white">
               <p className="text-gray-500 text-sm">Created At</p>
               <p className="text-lg mt-1">{property.createdAt}</p>
