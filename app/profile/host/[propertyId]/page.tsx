@@ -3,10 +3,12 @@
 import { useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
 import Image from 'next/image'
+import { Star } from 'lucide-react'
 import { getHostPropertyById } from '@/lib/api'
 import { Property } from '@/types'
 import { Spinner } from '@/components/ui/spinner'
 import { ErrorState } from '@/app/profile/_components/ErrorState'
+import { CheckCircle } from 'lucide-react'
 
 import {
   Carousel,
@@ -78,7 +80,7 @@ export default function HostPropertyDetailPage() {
     return (
       <div className="max-w-4xl mx-auto pb-24">
         {/* -------------------- IMAGE SLIDESHOW -------------------- */}
-        <div className="w-full">
+        <div className="w-full pb-2">
           <Carousel className="w-full">
             <CarouselContent>
               {images.map((src, i) => (
@@ -131,20 +133,55 @@ export default function HostPropertyDetailPage() {
 
         <div className="px-4 sm:px-0">
           {/* -------------------- TITLE -------------------- */}
-          <div className="mb-6">
-            <h1 className="text-3xl font-bold text-gray-900">
-              {property.title}
-            </h1>
-            <p className="text-gray-600 mt-1">
-              {property.district}, {property.province}, {property.country}
-            </p>
+          <div className="mb-6 text-deep-teal">
+            <h2 className="text-deep-teal">{property.title}</h2>
+            <div className="flex justify-between items-center">
+              <p>
+                {property.district}, {property.province}
+              </p>
+              <p className="flex items-center gap-1">
+                <Star
+                  className="w-5 h-5 text-yellow-400"
+                  fill="currentColor"
+                  strokeWidth={0}
+                />
+                <span>
+                  {property.avgRating} - {property.reviewCount} reviews
+                </span>
+              </p>
+            </div>
+            <p>{property.country}</p>
           </div>
+
+          {/* -------------------- FACILITIES -------------------- */}
+          {property.facilities && property.facilities.length > 0 && (
+            <div className="border-t pt-8 mb-10">
+              <h3 className="text-xl font-semibold text-deep-teal mb-2">
+                What your place offers
+              </h3>
+
+              <ul className="flex flex-col gap-3">
+                {property.facilities.map((f) => (
+                  <li
+                    key={f.id}
+                    className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 transition"
+                  >
+                    <CheckCircle className="w-5 h-5 text-accent-orange shrink-0" />
+                    <span className="text-neutral-dark">{f.name}</span>
+                  </li>
+                ))}
+              </ul>
+              <p className="mt-4 leading-relaxed">
+                {property.description || 'No description provided.'}
+              </p>
+            </div>
+          )}
 
           {/* -------------------- PROPERTY INFO GRID -------------------- */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-10">
             <div className="p-4 border rounded-xl shadow-sm bg-white">
               <p className="text-gray-500 text-sm">Base Price</p>
-              <p className="text-xl font-semibold text-emerald-700 mt-1">
+              <p className="text-xl font-semibold text-emerald-700">
                 THB {property.roomCategory?.basePrice || 'N/A'} / night
               </p>
             </div>
@@ -157,47 +194,10 @@ export default function HostPropertyDetailPage() {
             </div>
 
             <div className="p-4 border rounded-xl shadow-sm bg-white">
-              <p className="text-gray-500 text-sm">Rating</p>
-              <p className="text-lg font-medium mt-1">
-                ⭐ {property.avgRating} ({property.reviewCount} reviews)
-              </p>
-            </div>
-
-            <div className="p-4 border rounded-xl shadow-sm bg-white">
               <p className="text-gray-500 text-sm">Created At</p>
               <p className="text-lg mt-1">{property.createdAt}</p>
             </div>
           </div>
-
-          {/* -------------------- DESCRIPTION -------------------- */}
-          <div className="border-t pt-8 mb-10">
-            <h2 className="text-xl font-semibold text-gray-900 mb-3">
-              Description
-            </h2>
-            <p className="text-gray-700 leading-relaxed">
-              {property.description || 'No description provided.'}
-            </p>
-          </div>
-
-          {/* -------------------- FACILITIES -------------------- */}
-          {property.facilities && property.facilities.length > 0 && (
-            <div className="border-t pt-8 mb-10">
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">
-                Facilities
-              </h2>
-
-              <ul className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                {property.facilities?.map((f) => (
-                  <li
-                    key={f.id}
-                    className="p-3 rounded-lg bg-gray-50 border text-gray-700"
-                  >
-                    • {f.name}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
 
           {/* -------------------- HOST INFO -------------------- */}
           <div className="border-t pt-8">
