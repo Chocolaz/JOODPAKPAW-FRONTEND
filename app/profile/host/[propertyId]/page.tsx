@@ -9,6 +9,7 @@ import { Property } from '@/types'
 import { Spinner } from '@/components/ui/spinner'
 import { ErrorState } from '@/app/profile/_components/ErrorState'
 import { CheckCircle } from 'lucide-react'
+import { StaticMap } from '@/app/_components/StaticMap'
 
 import {
   Carousel,
@@ -86,7 +87,7 @@ export default function HostPropertyDetailPage() {
               {images.map((src, i) => (
                 <CarouselItem key={i}>
                   <div
-                    className="relative w-full aspect-square rounded-xl overflow-hidden cursor-pointer"
+                    className="relative w-full aspect-square overflow-hidden cursor-pointer"
                     onClick={() => {
                       setCurrentIndex(i)
                       setLightboxOpen(true)
@@ -174,6 +175,24 @@ export default function HostPropertyDetailPage() {
               <p className="mt-4 leading-relaxed">
                 {property.description || 'No description provided.'}
               </p>
+            </div>
+          )}
+
+          {/* -------------------- LOCATION MAP -------------------- */}
+          {property.latitude && property.longitude && (
+            <div className="mt-10 border-t pt-8">
+              <div className="mb-4">
+                <h3 className="text-xl font-semibold text-deep-teal ">
+                  Location
+                </h3>
+                <p className="text-neutral-gray">
+                  {property.district}, {property.province}
+                </p>
+              </div>
+              <StaticMap
+                latitude={property.latitude}
+                longitude={property.longitude}
+              />
             </div>
           )}
 
