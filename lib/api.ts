@@ -103,6 +103,14 @@ export const getProperties = (page: number, limit: number) => {
   });
 };
 
+export const getPropertyById = (propertyId: string): Promise<{ property: Property }> => {
+  return request<{ property: Property }>({
+    endpoint: `api/v1/properties/${propertyId}`,
+    method: 'GET',
+    errorContext: 'Get Property By Id',
+  });
+};
+
 export const getHostProperties = (): Promise<HostPropertiesResponse> => {
   return request<HostPropertiesResponse>({
     endpoint: 'api/v1/hosts/properties/all',

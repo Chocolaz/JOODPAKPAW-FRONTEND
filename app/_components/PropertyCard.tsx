@@ -1,5 +1,6 @@
 import { Property } from '@/types'
 import Image from 'next/image'
+import Link from 'next/link'
 import { useState } from 'react'
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL
@@ -16,7 +17,7 @@ export function PropertyCard({ property }: PropertyCardProps) {
   )
 
   return (
-    <div className="shrink-0 w-[130px] mr-4">
+    <Link href={`/${property.id}`} className="shrink-0 w-[130px] mr-4">
       <div className="relative w-[130px] h-[130px]">
         <Image
           src={imgSrc}
@@ -41,6 +42,6 @@ export function PropertyCard({ property }: PropertyCardProps) {
           </p>
         )}
       </div>
-    </div>
+    </Link>
   )
 }
