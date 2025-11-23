@@ -1,5 +1,5 @@
 // lib/api.ts
-import request from './apiClient';
+import request from './apiClient'
 import {
   FacilitiesResponse,
   ForgotPasswordCredentials,
@@ -12,17 +12,19 @@ import {
   SignInResponse,
   SignUpCredentials,
   VerifyOtpCredentials,
-} from '@/types';
+} from '@/types'
 
 // --- Auth Functions ---
-export const signIn = (credentials: SignInCredentials): Promise<SignInResponse> => {
+export const signIn = (
+  credentials: SignInCredentials
+): Promise<SignInResponse> => {
   return request<SignInResponse>({
     endpoint: 'api/v1/auth/sign-in',
     method: 'POST',
     body: credentials,
     errorContext: 'Sign-in',
-  });
-};
+  })
+}
 
 export const signUp = (credentials: SignUpCredentials) => {
   return request({
@@ -30,17 +32,19 @@ export const signUp = (credentials: SignUpCredentials) => {
     method: 'POST',
     body: credentials,
     errorContext: 'Sign-up',
-  });
-};
+  })
+}
 
-export const verifyOtp = (credentials: VerifyOtpCredentials): Promise<SignInResponse> => {
+export const verifyOtp = (
+  credentials: VerifyOtpCredentials
+): Promise<SignInResponse> => {
   return request<SignInResponse>({
     endpoint: 'api/v1/auth/verify-otp',
     method: 'POST',
     body: credentials,
     errorContext: 'OTP Verification',
-  });
-};
+  })
+}
 
 export const resendOtp = (credentials: { email: string }) => {
   return request({
@@ -48,8 +52,8 @@ export const resendOtp = (credentials: { email: string }) => {
     method: 'POST',
     body: credentials,
     errorContext: 'Resend OTP',
-  });
-};
+  })
+}
 
 export const forgotPassword = (credentials: ForgotPasswordCredentials) => {
   return request({
@@ -57,8 +61,8 @@ export const forgotPassword = (credentials: ForgotPasswordCredentials) => {
     method: 'POST',
     body: credentials,
     errorContext: 'Forgot Password',
-  });
-};
+  })
+}
 
 export const resetPassword = (credentials: ResetPasswordCredentials) => {
   return request({
@@ -66,8 +70,8 @@ export const resetPassword = (credentials: ResetPasswordCredentials) => {
     method: 'POST',
     body: credentials,
     errorContext: 'Reset Password',
-  });
-};
+  })
+}
 
 // --- User Functions ---
 export const getProfile = (): Promise<ProfileResponse> => {
@@ -77,8 +81,8 @@ export const getProfile = (): Promise<ProfileResponse> => {
     requiresAuth: true,
     errorContext: 'Get Profile',
     cache: 'no-store',
-  });
-};
+  })
+}
 
 export const updateUserProfile = (userId: string, formData: FormData) => {
   return request({
@@ -87,29 +91,31 @@ export const updateUserProfile = (userId: string, formData: FormData) => {
     body: formData,
     requiresAuth: true,
     errorContext: 'Update Profile',
-  });
-};
+  })
+}
 
 // --- Property Functions ---
 export const getProperties = (page: number, limit: number) => {
   const params = new URLSearchParams({
     page: String(page),
     limit: String(limit),
-  });
+  })
   return request({
     endpoint: `api/v1/properties?${params.toString()}`,
     method: 'GET',
     errorContext: 'Get Properties',
-  });
-};
+  })
+}
 
-export const getPropertyById = (propertyId: string): Promise<{ property: Property }> => {
+export const getPropertyById = (
+  propertyId: string
+): Promise<{ property: Property }> => {
   return request<{ property: Property }>({
     endpoint: `api/v1/properties/${propertyId}`,
     method: 'GET',
     errorContext: 'Get Property By Id',
-  });
-};
+  })
+}
 
 export const getHostProperties = (): Promise<HostPropertiesResponse> => {
   return request<HostPropertiesResponse>({
@@ -117,17 +123,19 @@ export const getHostProperties = (): Promise<HostPropertiesResponse> => {
     method: 'GET',
     requiresAuth: true,
     errorContext: 'Get Host Properties',
-  });
-};
+  })
+}
 
-export const getHostPropertyById = (propertyId: string): Promise<{ property: Property }> => {
+export const getHostPropertyById = (
+  propertyId: string
+): Promise<{ property: Property }> => {
   return request<{ property: Property }>({
     endpoint: `api/v1/hosts/properties/${propertyId}`,
     method: 'GET',
     requiresAuth: true,
     errorContext: 'Get Host Property By Id',
-  });
-};
+  })
+}
 
 export const updateHostPropertyIsActive = async (
   propertyId: string,
@@ -139,8 +147,8 @@ export const updateHostPropertyIsActive = async (
     body: { isActive },
     requiresAuth: true,
     errorContext: 'Update Property Active Status',
-  });
-};
+  })
+}
 
 export const getFacilities = (): Promise<FacilitiesResponse> => {
   return request<FacilitiesResponse>({
@@ -148,23 +156,23 @@ export const getFacilities = (): Promise<FacilitiesResponse> => {
     method: 'GET',
     requiresAuth: true,
     errorContext: 'Get Facilities',
-  });
-};
+  })
+}
 
 export const createProperty = (data: PropertyFormData) => {
-  const formData = new FormData();
+  const formData = new FormData()
 
   Object.entries(data).forEach(([key, value]) => {
     if (key === 'images') {
-      (value as File[]).forEach((file: File) => {
-        formData.append('images', file);
-      });
+      ;(value as File[]).forEach((file: File) => {
+        formData.append('images', file)
+      })
     } else if (key === 'facilities') {
-      formData.append('facilities', JSON.stringify(value));
+      formData.append('facilities', JSON.stringify(value))
     } else if (value !== null) {
-      formData.append(key, String(value));
+      formData.append(key, String(value))
     }
-  });
+  })
 
   return request({
     endpoint: 'api/v1/hosts/properties',
@@ -172,7 +180,5 @@ export const createProperty = (data: PropertyFormData) => {
     body: formData,
     requiresAuth: true,
     errorContext: 'Create Property',
-  });
-};
-
-
+  })
+}

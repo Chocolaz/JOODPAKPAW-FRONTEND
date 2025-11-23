@@ -10,14 +10,16 @@ import { PropertyFacilities } from '@/app/_components/property-detail/PropertyFa
 import { PropertyLocation } from '@/app/_components/property-detail/PropertyLocation'
 import { useRouter } from 'next/navigation'
 import { PageHeaderButtons } from '@/app/_components/property-detail/PageHeaderButtons'
-import { toast } from 'sonner' // Added toast import
-import { useState } from 'react' // Added useState import for isUpdating
+import { toast } from 'sonner'
+import { useState } from 'react'
+import { ConfirmationModal } from '@/app/_components/ConfirmationModal' // New import
 
 export default function HostPropertyDetailPage() {
   const { property, loading, error, refreshProperty } =
-    usePropertyLoader(getHostPropertyById) // Destructure refreshProperty
+    usePropertyLoader(getHostPropertyById)
   const router = useRouter()
-  const [isUpdatingStatus, setIsUpdatingStatus] = useState(false) // State for globe button loading
+  const [isUpdatingStatus, setIsUpdatingStatus] = useState(false)
+  const [showConfirmationModal, setShowConfirmationModal] = useState(false) // New state for modal
 
   const handleShare = async () => {
     if (navigator.share && property) {
@@ -41,9 +43,11 @@ export default function HostPropertyDetailPage() {
     }
   }
 
-  const handleGlobeClick = async () => {
+  // New function to handle the actual status update after confirmation
+  const confirmGlobeAction = async () => {
     if (!property || isUpdatingStatus) return
 
+    setShowConfirmationModal(false) // Close modal immediately
     setIsUpdatingStatus(true)
     try {
       const newStatus = !property.isActive
@@ -60,10 +64,15 @@ export default function HostPropertyDetailPage() {
     }
   }
 
+  // Modified handleGlobeClick to open modal
+  const handleGlobeClick = () => {
+    if (!property) return
+    setShowConfirmationModal(true)
+  }
+
   const handleBack = () => router.push('/profile/host')
 
   if (loading || isUpdatingStatus) {
-    // Check both loading states
     return (
       <div className="flex justify-center items-center h-64">
         <Spinner />
@@ -74,6 +83,13 @@ export default function HostPropertyDetailPage() {
   if (error) return <ErrorState error={error} />
   if (!property) return <ErrorState error="Property not found." />
 
+  const modalTitle = property.isActive
+    ? 'Unpublish This Property?'
+    : 'Publish This Property?'
+  const modalMessage = property.isActive
+    ? `Are you sure you want to unpublish "${property.title}"?<br />It will no longer be visible to the public.`
+    : `Are you sure you want to publish "${property.title}"?<br />It will become visible to the public.`
+
   return (
     <div className="max-w-4xl mx-auto pb-24 relative">
       <PageHeaderButtons
@@ -81,6 +97,20 @@ export default function HostPropertyDetailPage() {
         onShareClick={handleShare}
         onEditClick={() => console.log('Edit clicked')}
         onGlobeClick={handleGlobeClick}
+        isPropertyActive={property.isActive}
+      />
+
+      {/* Confirmation Modal */}
+      <ConfirmationModal
+        isOpen={showConfirmationModal}
+        onClose={() => setShowConfirmationModal(false)}
+        onConfirm={confirmGlobeAction}
+        title={modalTitle}
+        message={modalMessage}
+        titleClassName="text-deep-teal"
+        confirmButtonClassName={
+          property.isActive ? 'bg-accent-orange' : 'bg-positive-green'
+        }
       />
 
       <PropertyImageGallery images={property.images} />
@@ -121,6 +151,7 @@ export default function HostPropertyDetailPage() {
 
           <p className="text-gray-700">
             Host ID: <span className="font-medium">{property.hostId}</span>
+            <br />
           </p>
         </div>
 

@@ -34,7 +34,9 @@ export function ConfirmationModal({
       <DialogContent>
         <DialogHeader>
           <DialogTitle className={titleClassName}>{title}</DialogTitle>
-          <DialogDescription>{message}</DialogDescription>
+          <DialogDescription
+            dangerouslySetInnerHTML={{ __html: message }}
+          />
         </DialogHeader>
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>

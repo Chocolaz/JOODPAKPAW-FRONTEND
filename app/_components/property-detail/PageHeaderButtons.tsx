@@ -1,12 +1,13 @@
 'use client'
 
-import { ChevronLeft, Share2, Pencil, Globe } from 'lucide-react'
+import { ChevronLeft, Share2, Pencil, Globe, GlobeLock } from 'lucide-react'
 
 interface PageHeaderButtonsProps {
   onBackClick: () => void
   onShareClick: () => void
   onEditClick?: () => void
   onGlobeClick?: () => void
+  isPropertyActive?: boolean
 }
 
 export function PageHeaderButtons({
@@ -14,6 +15,7 @@ export function PageHeaderButtons({
   onShareClick,
   onEditClick,
   onGlobeClick,
+  isPropertyActive,
 }: PageHeaderButtonsProps) {
   return (
     <>
@@ -30,7 +32,11 @@ export function PageHeaderButtons({
             onClick={onGlobeClick}
             className="p-2 bg-white/80 backdrop-blur-sm rounded-full shadow hover:bg-gray-100 transition"
           >
-            <Globe className="w-5 h-5 text-gray-800" />
+            {isPropertyActive ? (
+              <Globe className="w-5 h-5 text-gray-800" />
+            ) : (
+              <GlobeLock className="w-5 h-5 text-gray-800" />
+            )}
           </button>
         )}
         {onEditClick && (
