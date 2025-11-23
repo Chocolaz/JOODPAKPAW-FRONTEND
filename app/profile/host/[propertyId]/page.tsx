@@ -195,39 +195,6 @@ export default function HostPropertyDetailPage() {
               />
             </div>
           )}
-
-          {/* -------------------- PROPERTY INFO GRID -------------------- */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-10">
-            <div className="p-4 border rounded-xl shadow-sm bg-white">
-              <p className="text-gray-500 text-sm">Base Price</p>
-              <p className="text-xl font-semibold text-emerald-700">
-                THB {property.roomCategory?.basePrice || 'N/A'} / night
-              </p>
-            </div>
-
-            <div className="p-4 border rounded-xl shadow-sm bg-white">
-              <p className="text-gray-500 text-sm">Property Type</p>
-              <p className="text-lg font-medium mt-1 capitalize">
-                {property.propertyType?.name.replace(/_/g, ' ')}
-              </p>
-            </div>
-
-            <div className="p-4 border rounded-xl shadow-sm bg-white">
-              <p className="text-gray-500 text-sm">Created At</p>
-              <p className="text-lg mt-1">{property.createdAt}</p>
-            </div>
-          </div>
-
-          {/* -------------------- HOST INFO -------------------- */}
-          <div className="border-t pt-8">
-            <h2 className="text-xl font-semibold mb-3 text-gray-900">
-              Host Information
-            </h2>
-
-            <p className="text-gray-700">
-              Host ID: <span className="font-medium">{property.hostId}</span>
-            </p>
-          </div>
         </div>
       </div>
     )
