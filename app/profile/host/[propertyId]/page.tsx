@@ -8,9 +8,36 @@ import { PropertyImageGallery } from '@/app/_components/property-detail/Property
 import { PropertyHeader } from '@/app/_components/property-detail/PropertyHeader'
 import { PropertyFacilities } from '@/app/_components/property-detail/PropertyFacilities'
 import { PropertyLocation } from '@/app/_components/property-detail/PropertyLocation'
+import { useRouter } from 'next/navigation'
+import { PageHeaderButtons } from '@/app/_components/property-detail/PageHeaderButtons'
 
 export default function HostPropertyDetailPage() {
   const { property, loading, error } = usePropertyLoader(getHostPropertyById)
+  const router = useRouter()
+
+  const handleShare = async () => {
+    if (navigator.share && property) {
+      const publicUrl = `${window.location.origin}/${property.id}`
+      try {
+        await navigator.share({
+          title: property.title,
+          text: `Check out this property: ${property.title}`,
+          url: publicUrl,
+        })
+        console.log('Shared successfully')
+      } catch (err) {
+        console.error('Error sharing:', err)
+      }
+    } else {
+      const publicUrl = `${window.location.origin}/${property?.id}`
+      console.log(
+        'Web Share API not supported or property data not available. Public URL:',
+        publicUrl
+      )
+    }
+  }
+
+  const handleBack = () => router.push('/profile/host')
 
   if (loading) {
     return (
@@ -24,7 +51,9 @@ export default function HostPropertyDetailPage() {
   if (!property) return <ErrorState error="Property not found." />
 
   return (
-    <div className="max-w-4xl mx-auto pb-24">
+    <div className="max-w-4xl mx-auto pb-24 relative">
+      <PageHeaderButtons onBackClick={handleBack} onShareClick={handleShare} />
+
       <PropertyImageGallery images={property.images} />
 
       <div className="px-4 sm:px-0">

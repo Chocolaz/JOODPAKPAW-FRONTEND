@@ -9,7 +9,7 @@ import { PropertyHeader } from '@/app/_components/property-detail/PropertyHeader
 import { PropertyFacilities } from '@/app/_components/property-detail/PropertyFacilities'
 import { PropertyLocation } from '@/app/_components/property-detail/PropertyLocation'
 import { useRouter } from 'next/navigation'
-import { ChevronLeft, Share2 } from 'lucide-react'
+import { PageHeaderButtons } from '@/app/_components/property-detail/PageHeaderButtons'
 
 export default function PropertyDetailPage() {
   const { property, loading, error } = usePropertyLoader(getPropertyById)
@@ -37,6 +37,8 @@ export default function PropertyDetailPage() {
     }
   }
 
+  const handleBack = () => router.push('/')
+
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
@@ -50,21 +52,7 @@ export default function PropertyDetailPage() {
 
   return (
     <div className="max-w-4xl mx-auto pb-24 relative">
-      {/* Back button */}
-      <button
-        onClick={() => router.back()}
-        className="fixed top-4 left-4 z-10 p-2 bg-white/80 backdrop-blur-sm rounded-full shadow hover:bg-gray-100 transition"
-      >
-        <ChevronLeft className="w-6 h-6 text-gray-800" />
-      </button>
-
-      {/* Share button */}
-      <button
-        onClick={handleShare}
-        className="fixed top-4 right-4 z-10 p-2 bg-white/80 backdrop-blur-sm rounded-full shadow hover:bg-gray-100 transition"
-      >
-        <Share2 className="w-6 h-6 text-gray-800" />
-      </button>
+      <PageHeaderButtons onBackClick={handleBack} onShareClick={handleShare} />
 
       <PropertyImageGallery images={property.images} />
 

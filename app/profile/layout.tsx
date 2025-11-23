@@ -39,7 +39,7 @@ function LayoutContent({ children }: { children: ReactNode }) {
       pathname.split('/').length === 4
     ) {
       // /profile/host/[propertyId]
-      return { title: 'Property Details', backPath: '/profile/host' }
+      return null // Do not show header for this specific page
     }
     if (pathname === '/profile/host') {
       return { title: 'Host', backPath: '/profile' }
@@ -71,7 +71,7 @@ function LayoutContent({ children }: { children: ReactNode }) {
   return (
     <main className="flex justify-center">
       <div className="w-full max-w-[500px]">
-        <ProfileHeader {...headerProps} menu={menu} />
+        {headerProps && <ProfileHeader {...headerProps} menu={menu} />}
         {renderBanner()}
         {children}
       </div>
