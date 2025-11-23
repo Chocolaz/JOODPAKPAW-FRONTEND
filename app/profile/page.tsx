@@ -14,15 +14,22 @@ export default function ProfilePage() {
   const router = useRouter()
   const { user, isAuthenticated, loading: authLoading } = useAuth()
 
+  // Function to check authentication and redirect
+  const checkAuthAndRedirect = (authenticatedPath: string) => {
+    if (authLoading) return // Prevent clicks while auth is loading
+    if (isAuthenticated) {
+      router.push(authenticatedPath)
+    } else {
+      router.push('/authen')
+    }
+  }
+
   const handleProfileClick = async () => {
     if (authLoading) return // Prevent clicks while auth is loading
 
     if (isAuthenticated && user) {
       router.push(`/profile/${user.firstName.toLowerCase()}`)
     } else {
-      // If not authenticated, try to refresh token via AuthContext's initialization
-      // The AuthProvider already handles refreshing on load.
-      // If still not authenticated after AuthProvider loads, redirect to login.
       router.push('/authen')
     }
   }
@@ -70,7 +77,11 @@ export default function ProfilePage() {
 
         {/* Action Grid ("Pets" & "History") */}
         <div className="grid grid-cols-2 gap-4">
-          <Card className="shadow-sm">
+          <Card
+            className="shadow-sm"
+            onClick={() => checkAuthAndRedirect('/profile/pets')}
+            style={{ cursor: 'pointer' }}
+          >
             <CardContent className="flex flex-col items-center justify-center p-6 gap-2">
               <PawPrint />
               <span className="font-medium text-deep-teal text-[22px]">
@@ -79,7 +90,11 @@ export default function ProfilePage() {
             </CardContent>
           </Card>
 
-          <Card className="shadow-sm">
+          <Card
+            className="shadow-sm"
+            onClick={() => checkAuthAndRedirect('/profile/history')}
+            style={{ cursor: 'pointer' }}
+          >
             <CardContent className="flex flex-col items-center justify-center p-6 gap-2">
               <History />
               <span className="font-medium text-deep-teal text-[22px]">
@@ -92,7 +107,8 @@ export default function ProfilePage() {
         {/* "Become a host" Card */}
         <Card
           className="shadow-sm"
-          onClick={() => router.push('/profile/host')}
+          onClick={() => checkAuthAndRedirect('/profile/host')}
+          style={{ cursor: 'pointer' }}
         >
           <CardContent className="flex flex-col items-center justify-center p-6 gap-2">
             <HostIcon />

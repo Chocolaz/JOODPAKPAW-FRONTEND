@@ -19,11 +19,7 @@ export const useUserProfile = () => {
   }, [])
 
   useEffect(() => {
-    if (!authLoading && !isAuthenticated) {
-      router.replace('/authen')
-      return
-    }
-
+    // The auth check is now handled in the layout, so we just fetch if authenticated.
     if (isAuthenticated) {
       const fetchProfile = async () => {
         try {
@@ -41,8 +37,17 @@ export const useUserProfile = () => {
       }
 
       fetchProfile()
+    } else if (!authLoading) {
+      // If not authenticated and not loading, we can stop the loading state.
+      setLoading(false)
     }
-  }, [router, isAuthenticated, authLoading, refreshTrigger])
+  }, [isAuthenticated, authLoading, refreshTrigger])
 
-  return { profile, loading: authLoading || loading, error, router, refreshProfile }
+  return {
+    profile,
+    loading: authLoading || loading,
+    error,
+    router,
+    refreshProfile,
+  }
 }

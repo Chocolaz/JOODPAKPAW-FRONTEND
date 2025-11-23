@@ -1,14 +1,23 @@
 'use client'
 // app/profile/layout.tsx
-import React, { ReactNode } from 'react'
-import { usePathname } from 'next/navigation'
+import React, { ReactNode, useEffect } from 'react'
+import { usePathname, useRouter } from 'next/navigation'
 import { ProfileHeader } from './_components/ProfileHeader'
 import { HostBanner } from './_components/HostBanner'
 import { ProfileProvider, useProfileContext } from './ProfileContext'
+import { useAuth } from '@/app/_components/AuthContext'
 
 function LayoutContent({ children }: { children: ReactNode }) {
   const pathname = usePathname()
+  const router = useRouter()
   const { menu } = useProfileContext()
+  const { isAuthenticated, loading: authLoading } = useAuth()
+
+  useEffect(() => {
+    if (!authLoading && !isAuthenticated && pathname !== '/profile') {
+      router.replace('/authen')
+    }
+  }, [isAuthenticated, authLoading, pathname, router])
 
   // Determine header properties based on the current path
   const getHeaderProps = () => {
@@ -25,8 +34,12 @@ function LayoutContent({ children }: { children: ReactNode }) {
       }
       return { title: 'Host', backPath: '/profile/host' }
     }
-    if (pathname.startsWith('/profile/host/') && pathname.split('/').length === 4) { // /profile/host/[propertyId]
-      return { title: 'Property Details', backPath: '/profile/host' };
+    if (
+      pathname.startsWith('/profile/host/') &&
+      pathname.split('/').length === 4
+    ) {
+      // /profile/host/[propertyId]
+      return { title: 'Property Details', backPath: '/profile/host' }
     }
     if (pathname === '/profile/host') {
       return { title: 'Host', backPath: '/profile' }
