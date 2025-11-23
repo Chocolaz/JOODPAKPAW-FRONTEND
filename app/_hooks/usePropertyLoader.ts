@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Property } from '@/types'
 import { useParams } from 'next/navigation'
 
@@ -13,6 +13,11 @@ export function usePropertyLoader(fetcher: FetcherFunc) {
   const [property, setProperty] = useState<Property | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [refreshTrigger, setRefreshTrigger] = useState(0)
+
+  const refreshProperty = useCallback(() => {
+    setRefreshTrigger((prev) => prev + 1)
+  }, [])
 
   useEffect(() => {
     if (!propertyId) {
@@ -36,7 +41,7 @@ export function usePropertyLoader(fetcher: FetcherFunc) {
     }
 
     fetchProperty()
-  }, [propertyId, fetcher])
+  }, [propertyId, fetcher, refreshTrigger])
 
-  return { property, loading, error }
+  return { property, loading, error, refreshProperty }
 }

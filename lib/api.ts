@@ -129,6 +129,19 @@ export const getHostPropertyById = (propertyId: string): Promise<{ property: Pro
   });
 };
 
+export const updateHostPropertyIsActive = async (
+  propertyId: string,
+  isActive: boolean
+): Promise<void> => {
+  await request({
+    endpoint: `api/v1/hosts/properties/${propertyId}/is-active`,
+    method: 'PATCH',
+    body: { isActive },
+    requiresAuth: true,
+    errorContext: 'Update Property Active Status',
+  });
+};
+
 export const getFacilities = (): Promise<FacilitiesResponse> => {
   return request<FacilitiesResponse>({
     endpoint: 'api/v1/hosts/facilities/all',
@@ -161,4 +174,5 @@ export const createProperty = (data: PropertyFormData) => {
     errorContext: 'Create Property',
   });
 };
+
 

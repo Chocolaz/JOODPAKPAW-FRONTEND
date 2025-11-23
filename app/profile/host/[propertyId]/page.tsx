@@ -1,6 +1,6 @@
 'use client'
 
-import { getHostPropertyById } from '@/lib/api'
+import { getHostPropertyById, updateHostPropertyIsActive } from '@/lib/api'
 import { Spinner } from '@/components/ui/spinner'
 import { ErrorState } from '@/app/profile/_components/ErrorState'
 import { usePropertyLoader } from '@/app/_hooks/usePropertyLoader'
@@ -10,10 +10,14 @@ import { PropertyFacilities } from '@/app/_components/property-detail/PropertyFa
 import { PropertyLocation } from '@/app/_components/property-detail/PropertyLocation'
 import { useRouter } from 'next/navigation'
 import { PageHeaderButtons } from '@/app/_components/property-detail/PageHeaderButtons'
+import { toast } from 'sonner' // Added toast import
+import { useState } from 'react' // Added useState import for isUpdating
 
 export default function HostPropertyDetailPage() {
-  const { property, loading, error } = usePropertyLoader(getHostPropertyById)
+  const { property, loading, error, refreshProperty } =
+    usePropertyLoader(getHostPropertyById) // Destructure refreshProperty
   const router = useRouter()
+  const [isUpdatingStatus, setIsUpdatingStatus] = useState(false) // State for globe button loading
 
   const handleShare = async () => {
     if (navigator.share && property) {
@@ -37,9 +41,29 @@ export default function HostPropertyDetailPage() {
     }
   }
 
+  const handleGlobeClick = async () => {
+    if (!property || isUpdatingStatus) return
+
+    setIsUpdatingStatus(true)
+    try {
+      const newStatus = !property.isActive
+      await updateHostPropertyIsActive(property.id.toString(), newStatus)
+      toast.success(
+        `Property successfully ${newStatus ? 'published' : 'unpublished'}.`
+      )
+      refreshProperty() // Re-fetch property data to update UI
+    } catch (err) {
+      console.error('Failed to update property status:', err)
+      toast.error('Failed to update property status. Please try again.')
+    } finally {
+      setIsUpdatingStatus(false)
+    }
+  }
+
   const handleBack = () => router.push('/profile/host')
 
-  if (loading) {
+  if (loading || isUpdatingStatus) {
+    // Check both loading states
     return (
       <div className="flex justify-center items-center h-64">
         <Spinner />
@@ -52,7 +76,12 @@ export default function HostPropertyDetailPage() {
 
   return (
     <div className="max-w-4xl mx-auto pb-24 relative">
-      <PageHeaderButtons onBackClick={handleBack} onShareClick={handleShare} />
+      <PageHeaderButtons
+        onBackClick={handleBack}
+        onShareClick={handleShare}
+        onEditClick={() => console.log('Edit clicked')}
+        onGlobeClick={handleGlobeClick}
+      />
 
       <PropertyImageGallery images={property.images} />
 
