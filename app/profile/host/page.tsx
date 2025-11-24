@@ -63,7 +63,7 @@ export default function HostPage() {
       </div>
 
       {/* Add Property Button fixed at bottom */}
-      <div className="fixed bottom-0 left-0 right-0 py-5 px-5 sm:px-10 z-10 border-t max-w-[500px] mx-auto">
+      <div className="fixed bottom-0 left-0 right-0 py-5 px-5 sm:px-10 z-10 max-w-[500px] mx-auto">
         <Link href="/profile/host/add-property">
           <Button className="interact-button w-full">Add Property</Button>
         </Link>

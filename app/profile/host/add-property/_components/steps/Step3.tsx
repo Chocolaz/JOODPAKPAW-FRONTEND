@@ -17,12 +17,18 @@ export function Step3({
   // Auto fill triggered on step load
   React.useEffect(() => {
     if (formData.latitude && formData.longitude) {
-      // กำหนด country เป็น Thailand ตลอด
       updateField('country', 'Thailand')
-
-      // province, district, subdistrict, address, zipcode อิงจาก Google Maps API (reverse geocode)
       updateField('province', formData.province || '')
-      updateField('district', formData.district || '')
+
+      let districtToSet = formData.district || ''
+      if (!districtToSet && formData.subdistrict) {
+        // In Thai, เขต (Khet) means district. When Google Maps doesn't find a
+        // district, it sometimes puts the district name in the subdistrict
+        // field with "Khet". This logic corrects that.
+        districtToSet = formData.subdistrict.replace(/Khet/gi, '').trim()
+      }
+      updateField('district', districtToSet)
+
       updateField('subdistrict', formData.subdistrict || '')
       updateField('address', formData.address || '')
       updateField('zipcode', formData.zipcode || '')
