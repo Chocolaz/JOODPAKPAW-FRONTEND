@@ -1,6 +1,8 @@
 'use client'
 
 import { useParams, useRouter } from 'next/navigation'
+import { useEffect } from 'react'
+import { useAddProperty } from '../_context/AddPropertyContext'
 import { Step1 } from '../_components/steps/Step1'
 import { Step2 } from '../_components/steps/Step2'
 import { Step3 } from '../_components/steps/Step3'
@@ -10,13 +12,25 @@ import { Step6 } from '../_components/steps/Step6'
 import { Step7 } from '../_components/steps/Step7'
 import { Step8 } from '../_components/steps/Step8'
 import { Step9 } from '../_components/steps/Step9'
+import { Spinner } from '@/components/ui/spinner'
 
 export default function AddPropertyDynamicStepsPage() {
   const params = useParams()
   const router = useRouter()
   const stepId = parseInt(params.stepId as string, 10)
+  const { highestStepReached, setHighestStepReached, isLoading } =
+    useAddProperty()
+
+  useEffect(() => {
+    if (!isLoading) {
+      if (stepId > highestStepReached + 1) {
+        router.push('/profile/host/add-property/1')
+      }
+    }
+  }, [stepId, highestStepReached, isLoading, router])
 
   const handleNext = () => {
+    setHighestStepReached(stepId)
     router.push(`/profile/host/add-property/${stepId + 1}`)
   }
 
@@ -41,6 +55,14 @@ export default function AddPropertyDynamicStepsPage() {
       return steps[stepId - 1]
     }
     return <div>Invalid Step</div>
+  }
+
+  if (isLoading || stepId > highestStepReached + 1) {
+    return (
+      <div className="flex grow items-center justify-center">
+        <Spinner />
+      </div>
+    )
   }
 
   return (

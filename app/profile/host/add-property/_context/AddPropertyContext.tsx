@@ -1,42 +1,107 @@
 'use client'
 
-import { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react'
+import {
+  createContext,
+  useContext,
+  useState,
+  ReactNode,
+  useCallback,
+  useEffect,
+} from 'react'
 import { PropertyFormData } from '@/types'
-import { useAuth } from '@/app/_components/AuthContext'
 
 interface AddPropertyContextType {
   formData: PropertyFormData
   setFormData: React.Dispatch<React.SetStateAction<PropertyFormData>>
-  updateField: <K extends keyof PropertyFormData>(field: K, value: PropertyFormData[K]) => void
+  updateField: <K extends keyof PropertyFormData>(
+    field: K,
+    value: PropertyFormData[K]
+  ) => void
+  highestStepReached: number
+  setHighestStepReached: (step: number) => void
+  isLoading: boolean
 }
 
-const AddPropertyContext = createContext<AddPropertyContextType | undefined>(undefined)
+const AddPropertyContext = createContext<AddPropertyContextType | undefined>(
+  undefined
+)
+
+const initialFormData: PropertyFormData = {
+  propertyId: undefined,
+  propertyTypeId: null,
+  latitude: '',
+  longitude: '',
+  country: '',
+  province: '',
+  district: '',
+  subdistrict: '',
+  address: '',
+  zipcode: '',
+  title: '',
+  description: '',
+  facilities: [],
+  images: [],
+}
 
 export const AddPropertyProvider = ({ children }: { children: ReactNode }) => {
-  const { user } = useAuth()
-  const [formData, setFormData] = useState<PropertyFormData>({
-    propertyId: undefined,
-    propertyTypeId: null,
-    latitude: '',
-    longitude: '',
-    country: '',
-    province: '',
-    district: '',
-    subdistrict: '',
-    address: '',
-    zipcode: '',
-    title: '',
-    description: '',
-    facilities: [],
-    images: [],
-  })
+  const [formData, setFormData] = useState<PropertyFormData>(initialFormData)
+  const [highestStepReached, setHighestStepReachedState] = useState(1)
+  const [isLoading, setIsLoading] = useState(true)
 
-  const updateField = useCallback(<K extends keyof PropertyFormData>(field: K, value: PropertyFormData[K]) => {
-    setFormData(prev => ({ ...prev, [field]: value }))
+  useEffect(() => {
+    try {
+      const storedData = sessionStorage.getItem('addPropertyFormData')
+      if (storedData) {
+        setFormData(JSON.parse(storedData))
+      }
+      const storedStep = sessionStorage.getItem('highestStepReached')
+      if (storedStep) {
+        setHighestStepReachedState(parseInt(storedStep, 10))
+      }
+    } catch (error) {
+      console.error('Failed to parse from sessionStorage', error)
+    } finally {
+      setIsLoading(false)
+    }
   }, [])
 
+  useEffect(() => {
+    if (!isLoading) {
+      sessionStorage.setItem('addPropertyFormData', JSON.stringify(formData))
+    }
+  }, [formData, isLoading])
+
+  useEffect(() => {
+    if (!isLoading) {
+      sessionStorage.setItem('highestStepReached', String(highestStepReached))
+    }
+  }, [highestStepReached, isLoading])
+
+  const updateField = useCallback(
+    <K extends keyof PropertyFormData>(field: K, value: PropertyFormData[K]) => {
+      setFormData((prev) => ({ ...prev, [field]: value }))
+    },
+    []
+  )
+
+  const setHighestStepReached = (step: number) => {
+    setHighestStepReachedState((prev) => {
+      const newHighest = Math.max(prev, step)
+      return newHighest
+    })
+  }
+
+  const value = {
+    formData,
+    setFormData,
+    updateField,
+    highestStepReached,
+    setHighestStepReached,
+    isLoading,
+  }
+
   return (
-    <AddPropertyContext.Provider value={{ formData, setFormData, updateField }}>
+    <AddPropertyContext.Provider value={value}>
       {children}
     </AddPropertyContext.Provider>
   )
