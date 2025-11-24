@@ -19,9 +19,7 @@ export function Step7({ onBack }: { onBack: () => void }) {
     setError(null)
 
     try {
-      const res = (await createProperty(
-        formData
-      )) as CreatePropertyResponse
+      const res = (await createProperty(formData)) as CreatePropertyResponse
 
       const propertyId = res?.data?.id
 
@@ -57,13 +55,13 @@ export function Step7({ onBack }: { onBack: () => void }) {
 
         <div className="space-y-5">
           <section className="bg-white rounded-xl shadow-sm border border-neutral-200 px-5 py-4">
-            <h3 className="text-lg font-semibold mb-3">Basic Information</h3>
+            <h3 className="mb-3">Basic Information</h3>
             <ReviewItem label="Title" value={formData.title} />
             <ReviewItem label="Description" value={formData.description} />
             <ReviewItem
               label="Property Type"
               value={
-                propertyTypes.find(p => p.id === formData.propertyTypeId)
+                propertyTypes.find((p) => p.id === formData.propertyTypeId)
                   ?.name
               }
             />

@@ -5,6 +5,8 @@ import {
   FacilitiesResponse,
   ForgotPasswordCredentials,
   HostPropertiesResponse,
+  PetSizeCategoriesResponse,
+  PetsResponse,
   ProfileResponse,
   Property,
   PropertyFormData,
@@ -159,6 +161,24 @@ export const getFacilities = (): Promise<FacilitiesResponse> => {
     method: 'GET',
     requiresAuth: true,
     errorContext: 'Get Facilities',
+  })
+}
+
+export const getPetTypes = (): Promise<PetsResponse> => {
+  return request<PetsResponse>({
+    endpoint: 'api/v1/pets/all',
+    method: 'GET',
+    requiresAuth: true,
+    errorContext: 'Get Pet Types',
+  })
+}
+
+export const getPetSizeCategories = (): Promise<PetSizeCategoriesResponse> => {
+  return request<PetSizeCategoriesResponse>({
+    endpoint: 'api/v1/pet-size-categories/all',
+    method: 'GET',
+    requiresAuth: true,
+    errorContext: 'Get Pet Size Categories',
   })
 }
 
