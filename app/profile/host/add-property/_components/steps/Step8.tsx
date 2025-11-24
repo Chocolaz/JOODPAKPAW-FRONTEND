@@ -24,6 +24,8 @@ import {
   DrawerTrigger,
 } from '@/components/ui/drawer'
 
+import { StepNavigation } from '../StepNavigation'
+
 export function Step8() {
   const router = useRouter()
   const { formData: propertyContextData } = useAddProperty()
@@ -80,7 +82,7 @@ export function Step8() {
       <Drawer open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
         <div className="space-y-4 text-left max-w-2xl mx-auto">
           {error && <p className="text-red-500 text-center">{error}</p>}
-          
+
           <DrawerTrigger asChild>
             <div className="mx-5 px-6 py-8 border-2 border-dashed border-positive-green rounded-xl cursor-pointer hover:bg-green-50/50 transition-colors">
               <div className="font-medium text-deep-teal text-lg flex items-center justify-between w-full">
@@ -117,11 +119,12 @@ export function Step8() {
         </DrawerContent>
       </Drawer>
 
-      <div className="fixed bottom-0 left-0 right-0 bg-white/80 backdrop-blur-sm border-t">
-        <div className="container mx-auto max-w-5xl p-4 flex justify-end items-center">
-          <Button onClick={() => router.push('/profile/host')}>Finish</Button>
-        </div>
-      </div>
+      <StepNavigation
+        onBack={() => router.push('/profile/host')}
+        backText="Later"
+        onNext={() => router.push('/profile/host')}
+        nextText="Continue"
+      />
     </div>
   )
 }
