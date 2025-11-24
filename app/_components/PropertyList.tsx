@@ -5,19 +5,24 @@ import { PropertyCard } from './PropertyCard'
 
 interface PropertyListProps {
   properties: Property[]
+  className?: string
+  buildHref?: (property: Property) => string
 }
 
-export function PropertyList({ properties }: PropertyListProps) {
+export function PropertyList({
+  properties,
+  className = 'grid grid-cols-2 gap-4 px-5',
+  buildHref,
+}: PropertyListProps) {
   return (
-    <main className="mt-5">
-      <h5 className="text-xl font-medium text-deep-teal mb-4 px-5">
-        Properties
-      </h5>
-      <div className="flex flex-nowrap overflow-x-auto mt-4 pb-2 hide-scrollbar pl-5">
-        {properties.map((property) => (
-          <PropertyCard key={property.id} property={property} />
-        ))}
-      </div>
-    </main>
+    <div className={className}>
+      {properties.map((property) => (
+        <PropertyCard
+          key={property.id}
+          property={property}
+          href={buildHref ? buildHref(property) : undefined}
+        />
+      ))}
+    </div>
   )
 }

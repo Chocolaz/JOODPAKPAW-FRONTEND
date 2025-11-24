@@ -29,7 +29,7 @@ export default function Home() {
 
   return (
     <div className="bg-white text-foreground min-h-screen flex flex-col">
-      <div className="px-5">
+      <div className="px-5 ">
         <SearchBar />
         <PageHeader />
       </div>
@@ -39,7 +39,12 @@ export default function Home() {
             <Spinner />
           </div>
         ) : (
-          <PropertyList properties={properties} />
+          <main className="mt-5 pb-24">
+            <h5 className="text-xl font-medium text-deep-teal mb-4 px-5">
+              Properties
+            </h5>
+            <PropertyList properties={properties} />
+          </main>
         )}
       </div>
     </div>

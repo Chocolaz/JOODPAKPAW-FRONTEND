@@ -6,7 +6,7 @@ import Image from 'next/image'
 import { useEffect, useState } from 'react'
 import { getHostProperties } from '@/lib/api'
 import { Property } from '@/types'
-import { PropertyList } from './_components/PropertyList'
+import { PropertyList } from '@/app/_components/PropertyList'
 import { Spinner } from '@/components/ui/spinner'
 import { ErrorState } from '@/app/profile/_components/ErrorState'
 
@@ -47,7 +47,11 @@ export default function HostPage() {
         ) : error ? (
           <ErrorState error={error} />
         ) : properties.length > 0 ? (
-          <PropertyList properties={properties} />
+          <PropertyList
+            properties={properties}
+            className="grid grid-cols-2 gap-3 mt-4"
+            buildHref={(property) => `/profile/host/${property.id}`}
+          />
         ) : (
           <div className="text-center mt-20 text-neutral-gray">
             <Image
