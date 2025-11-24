@@ -29,24 +29,11 @@ export const AddPropertyProvider = ({ children }: { children: ReactNode }) => {
     description: '',
     facilities: [],
     images: [],
-    hostId: 0,
   })
 
   const updateField = useCallback(<K extends keyof PropertyFormData>(field: K, value: PropertyFormData[K]) => {
     setFormData(prev => ({ ...prev, [field]: value }))
   }, [])
-
-  useEffect(() => {
-    if (user) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setFormData(prevFormData => {
-        if (prevFormData.hostId !== user.id) {
-          return { ...prevFormData, hostId: user.id };
-        }
-        return prevFormData;
-      });
-    }
-  }, [user]);
 
   return (
     <AddPropertyContext.Provider value={{ formData, setFormData, updateField }}>

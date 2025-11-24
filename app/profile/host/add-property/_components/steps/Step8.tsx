@@ -1,13 +1,18 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
+import { BedDouble, Dog, Plus } from 'lucide-react'
 
 import { useAddProperty } from '../../_context/AddPropertyContext'
-import { createRoomCategory } from '@/lib/api'
+import {
+  getRoomCategories,
+  createRoomCategory,
+  getFacilities,
+} from '@/lib/api'
 import { useFacilities } from '../../_hooks/useFacilities'
-import { RoomCategoryFormData } from '@/types'
+import { RoomCategory, RoomCategoryFormData } from '@/types'
 import { cn } from '@/lib/utils'
 
 import { Input } from '@/components/ui/input'
@@ -21,6 +26,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import {
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerDescription,
+  DrawerTrigger,
+  DrawerFooter,
+} from '@/components/ui/drawer'
 
 const petTypes = [
   { id: 1, name: 'Dog' },
@@ -47,19 +61,25 @@ const initialRoomState: RoomCategoryFormData = {
   petSizeCategoryId: 1,
 }
 
-export function Step8() {
-  const router = useRouter()
-  const { formData: propertyContextData } = useAddProperty()
+function AddRoomCategoryForm({
+  propertyId,
+  onAddSuccess,
+}: {
+  propertyId: number
+  onAddSuccess: () => void
+}) {
   const {
     facilities: allFacilities,
     loading: facilitiesLoading,
     error: facilitiesError,
   } = useFacilities()
-
-  const [roomData, setRoomData] = useState<RoomCategoryFormData>(initialRoomState)
+  const [roomData, setRoomData] =
+    useState<RoomCategoryFormData>(initialRoomState)
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [submitted, setSubmitted] = useState(false)
+
+  const roomFacilities = allFacilities.filter(
+    (f) => f.category.name === 'indoor'
+  )
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type } = e.target
@@ -89,296 +109,347 @@ export function Step8() {
     })
   }
 
-  const handleSubmit = async (e: React.FormEvent, onSuccess?: () => void) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!propertyContextData.propertyId) {
-      const msg = 'Property ID is missing. Cannot create room.'
-      setError(msg)
-      toast.error(msg)
-      return
-    }
-
     setIsSubmitting(true)
-    setError(null)
-
     try {
-      await createRoomCategory(propertyContextData.propertyId, roomData)
-      toast.success('Room category created successfully!')
-      if (onSuccess) {
-        onSuccess()
-      } else {
-        setSubmitted(true)
-      }
+      await createRoomCategory(propertyId, roomData)
+      toast.success('Room category added successfully!')
+      onAddSuccess()
     } catch (err) {
-      const errorMessage =
-        err instanceof Error ? err.message : 'An unknown error occurred.'
-      setError(errorMessage)
-      toast.error(`Failed to create room category: ${errorMessage}`)
+      toast.error(
+        err instanceof Error ? err.message : 'Failed to add room category.'
+      )
     } finally {
       setIsSubmitting(false)
     }
   }
 
-  const handleAddAnother = () => {
-    setRoomData(initialRoomState)
-    setSubmitted(false)
-    setError(null)
+  return (
+    <form onSubmit={handleSubmit} className="p-4 overflow-y-auto max-h-[80vh]">
+      <div className="space-y-8">
+        <section>
+          <h3 className="font-semibold text-lg text-neutral-dark mb-4">
+            Basic Details
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <Label htmlFor="name" className="text-deep-teal">
+                Room Name
+              </Label>
+              <Input
+                id="name"
+                name="name"
+                placeholder="e.g., Deluxe Double Room"
+                value={roomData.name}
+                onChange={handleChange}
+                required
+                className="p-6 text-base"
+              />
+            </div>
+            <div>
+              <Label htmlFor="basePrice" className="text-deep-teal">
+                Price per Night (THB)
+              </Label>
+              <Input
+                id="basePrice"
+                name="basePrice"
+                type="number"
+                placeholder="e.g., 1500"
+                value={roomData.basePrice}
+                onChange={handleChange}
+                required
+                className="p-6 text-base"
+              />
+            </div>
+            <div>
+              <Label htmlFor="totalRoom" className="text-deep-teal">
+                Total Rooms of this Category
+              </Label>
+              <Input
+                id="totalRoom"
+                name="totalRoom"
+                type="number"
+                placeholder="e.g., 5"
+                value={roomData.totalRoom}
+                onChange={handleChange}
+                required
+                className="p-6 text-base"
+              />
+            </div>
+            <div>
+              <Label htmlFor="numberOfPets" className="text-deep-teal">
+                Pet Capacity per Room
+              </Label>
+              <Input
+                id="numberOfPets"
+                name="numberOfPets"
+                type="number"
+                placeholder="e.g., 2"
+                value={roomData.numberOfPets}
+                onChange={handleChange}
+                required
+                className="p-6 text-base"
+              />
+            </div>
+          </div>
+        </section>
+
+        <section>
+          <h3 className="font-semibold text-lg text-neutral-dark mb-4">
+            Pet Details
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+            <div>
+              <Label className="text-deep-teal mb-2 block">
+                Allowed Pet Types
+              </Label>
+              <div className="grid grid-cols-2 gap-4 p-4 border rounded-lg bg-white">
+                {petTypes.map((petType) => (
+                  <button
+                    key={petType.id}
+                    type="button"
+                    onClick={() => handleMultiSelectToggle('pets', petType.id)}
+                    className={cn(
+                      'flex items-center p-2 rounded-md text-left transition-colors text-sm',
+                      roomData.pets.includes(petType.id)
+                        ? 'bg-teal-50'
+                        : 'hover:bg-gray-50'
+                    )}
+                  >
+                    <div
+                      className={cn(
+                        'w-4 h-4 rounded mr-2 shrink-0 border flex items-center justify-center',
+                        roomData.pets.includes(petType.id)
+                          ? 'border-positive-green bg-positive-green'
+                          : 'border-gray-300 bg-white'
+                      )}
+                    >
+                      {roomData.pets.includes(petType.id) && (
+                        <div className="w-2 h-2 bg-white rounded-full" />
+                      )}
+                    </div>
+                    <span className="font-medium text-neutral-dark">
+                      {petType.name}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div>
+              <Label htmlFor="petSizeCategoryId" className="text-deep-teal">
+                Max Pet Size
+              </Label>
+              <Select
+                value={String(roomData.petSizeCategoryId)}
+                onValueChange={(value) =>
+                  handleSelectChange('petSizeCategoryId', value)
+                }
+              >
+                <SelectTrigger className="p-6 text-base">
+                  <SelectValue placeholder="Select max pet size" />
+                </SelectTrigger>
+                <SelectContent>
+                  {petSizeCategories.map((size) => (
+                    <SelectItem key={size.id} value={String(size.id)}>
+                      {size.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        </section>
+
+        <section>
+          <h3 className="font-semibold text-lg text-neutral-dark mb-4">
+            In-Room Facilities
+          </h3>
+          {facilitiesLoading && <Spinner />}
+          {facilitiesError && (
+            <p className="text-red-500">{facilitiesError}</p>
+          )}
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+            {roomFacilities.map((facility) => (
+              <button
+                key={facility.id}
+                type="button"
+                onClick={() =>
+                  handleMultiSelectToggle('facilities', facility.id)
+                }
+                className={cn(
+                  'flex items-center p-4 rounded-lg border text-left transition-colors',
+                  roomData.facilities.includes(facility.id)
+                    ? 'border-positive-green bg-teal-50'
+                    : 'bg-white hover:border-deep-teal/50'
+                )}
+              >
+                <div
+                  className={cn(
+                    'w-5 h-5 rounded-full mr-3 shrink-0 border flex items-center justify-center',
+                    roomData.facilities.includes(facility.id)
+                      ? 'border-positive-green bg-positive-green'
+                      : 'border-gray-300 bg-white'
+                  )}
+                >
+                  {roomData.facilities.includes(facility.id) && (
+                    <div className="w-2.5 h-2.5 bg-white rounded-full" />
+                  )}
+                </div>
+                <span className="font-medium text-sm text-neutral-dark">
+                  {facility.name}
+                </span>
+              </button>
+            ))}
+          </div>
+        </section>
+      </div>
+      <DrawerFooter className="pt-8">
+        <Button type="submit" disabled={isSubmitting}>
+          {isSubmitting ? <Spinner /> : 'Save Room Category'}
+        </Button>
+      </DrawerFooter>
+    </form>
+  )
+}
+
+function RoomCategoryCard({ category }: { category: RoomCategory }) {
+  return (
+    <div className="bg-white border rounded-xl p-4 shadow-sm text-left">
+      <h3 className="font-bold text-lg text-deep-teal">{category.name}</h3>
+      <div className="grid grid-cols-2 gap-2 mt-2 text-sm text-neutral-dark">
+        <p className="flex items-center gap-2">
+          <BedDouble className="w-4 h-4 text-neutral-gray" />{' '}
+          {category.totalRoom} rooms
+        </p>
+        <p className="font-semibold text-lg text-right text-positive-green">
+          {category.basePrice} THB
+        </p>
+        <p className="flex items-center gap-2">
+          <Dog className="w-4 h-4 text-neutral-gray" /> {category.numberOfPets}{' '}
+          pets/room
+        </p>
+      </div>
+      {category.pets.length > 0 && (
+        <div className="mt-3">
+          <p className="text-xs font-semibold text-neutral-gray">
+            Allowed Pets:
+          </p>
+          <div className="flex flex-wrap gap-2 mt-1">
+            {category.pets.map((p) => (
+              <span
+                key={p.id}
+                className="text-xs bg-gray-100 rounded-full px-2 py-1"
+              >
+                {p.name}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+export function Step8() {
+  const router = useRouter()
+  const { formData: propertyContextData } = useAddProperty()
+  const propertyId = propertyContextData.propertyId
+
+  const [rooms, setRooms] = useState<RoomCategory[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false)
+
+  const fetchRooms = async () => {
+    if (!propertyId) {
+      setLoading(false)
+      setError('Property ID not found.')
+      return
+    }
+    try {
+      setLoading(true)
+      const res = await getRoomCategories(propertyId)
+      setRooms(res.roomCategories)
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : 'Failed to fetch room categories.'
+      )
+    } finally {
+      setLoading(false)
+    }
   }
 
-  if (submitted) {
+  useEffect(() => {
+    fetchRooms()
+  }, [propertyId])
+
+  const handleAddSuccess = () => {
+    fetchRooms()
+    setIsDrawerOpen(false)
+  }
+
+  if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center h-full text-center mt-10">
-        <h1 className="text-2xl font-bold mb-4 text-deep-teal">
-          Room Category Added!
-        </h1>
-        <p className="text-neutral-gray mb-6">
-          What would you like to do next?
-        </p>
-        <div className="flex gap-4 mt-2">
-          <Button onClick={handleAddAnother} variant="outline">
-            Add Another Room
-          </Button>
-          <Button onClick={() => router.push('/profile/host')}>
-            Finish & Go to Dashboard
-          </Button>
-        </div>
+      <div className="flex justify-center items-center h-full pt-20">
+        <Spinner className="w-8 h-8" />
       </div>
     )
   }
 
-  const roomFacilities = allFacilities.filter(
-    (f) => f.category.name === 'indoor'
-  )
-
   return (
-    <>
-      <form
-        id="room-category-form"
-        onSubmit={handleSubmit}
-        className="w-full text-left mt-6 pb-24"
-      >
-        <div className="w-full text-center">
-          <h1 className="text-3xl font-bold mb-2 text-deep-teal">
-            Add Room Categories
-          </h1>
-          <p className="text-neutral-gray mb-8">
-            Congratulations on listing your property! Now, define the types of
-            rooms or spaces available.
-          </p>
-        </div>
+    <div className="w-full text-center mt-6 pb-24">
+      <h1 className="text-3xl font-bold mb-2 text-deep-teal">
+        Manage Room Categories
+      </h1>
+      <p className="text-neutral-gray mb-8">
+        Your property is listed! Now, add the room types guests can book.
+      </p>
 
-        <div className="space-y-8">
-          <section>
-            <h3 className="font-semibold text-lg text-neutral-dark mb-4">
-              Basic Details
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <Label htmlFor="name" className="text-deep-teal">
-                  Room Name
-                </Label>
-                <Input
-                  id="name"
-                  name="name"
-                  placeholder="e.g., Deluxe Double Room"
-                  value={roomData.name}
-                  onChange={handleChange}
-                  required
-                  className="p-6 text-base"
-                />
-              </div>
-              <div>
-                <Label htmlFor="basePrice" className="text-deep-teal">
-                  Price per Night (THB)
-                </Label>
-                <Input
-                  id="basePrice"
-                  name="basePrice"
-                  type="number"
-                  placeholder="e.g., 1500"
-                  value={roomData.basePrice}
-                  onChange={handleChange}
-                  required
-                  className="p-6 text-base"
-                />
-              </div>
-              <div>
-                <Label htmlFor="totalRoom" className="text-deep-teal">
-                  Total Rooms of this Category
-                </Label>
-                <Input
-                  id="totalRoom"
-                  name="totalRoom"
-                  type="number"
-                  placeholder="e.g., 5"
-                  value={roomData.totalRoom}
-                  onChange={handleChange}
-                  required
-                  className="p-6 text-base"
-                />
-              </div>
-              <div>
-                <Label htmlFor="numberOfPets" className="text-deep-teal">
-                  Pet Capacity per Room
-                </Label>
-                <Input
-                  id="numberOfPets"
-                  name="numberOfPets"
-                  type="number"
-                  placeholder="e.g., 2"
-                  value={roomData.numberOfPets}
-                  onChange={handleChange}
-                  required
-                  className="p-6 text-base"
-                />
-              </div>
-            </div>
-          </section>
+      <div className="space-y-4 text-left max-w-2xl mx-auto">
+        {error && <p className="text-red-500 text-center">{error}</p>}
+        {rooms.length > 0 ? (
+          rooms.map((room) => <RoomCategoryCard key={room.id} category={room} />)
+        ) : (
+          <div className="text-center py-10 border-2 border-dashed rounded-xl">
+            <p className="text-neutral-gray">No room categories yet.</p>
+            <p className="text-sm text-neutral-gray">
+              Click the button below to add your first one.
+            </p>
+          </div>
+        )}
+      </div>
 
-          <section>
-            <h3 className="font-semibold text-lg text-neutral-dark mb-4">
-              Pet Details
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
-              <div>
-                <Label className="text-deep-teal mb-2 block">
-                  Allowed Pet Types
-                </Label>
-                <div className="grid grid-cols-2 gap-4 p-4 border rounded-lg bg-white">
-                  {petTypes.map((petType) => (
-                    <button
-                      key={petType.id}
-                      type="button"
-                      onClick={() => handleMultiSelectToggle('pets', petType.id)}
-                      className={cn(
-                        'flex items-center p-2 rounded-md text-left transition-colors text-sm',
-                        roomData.pets.includes(petType.id)
-                          ? 'bg-teal-50'
-                          : 'hover:bg-gray-50'
-                      )}
-                    >
-                      <div
-                        className={cn(
-                          'w-4 h-4 rounded mr-2 shrink-0 border flex items-center justify-center',
-                          roomData.pets.includes(petType.id)
-                            ? 'border-positive-green bg-positive-green'
-                            : 'border-gray-300 bg-white'
-                        )}
-                      >
-                        {roomData.pets.includes(petType.id) && (
-                          <div className="w-2 h-2 bg-white rounded-full" />
-                        )}
-                      </div>
-                      <span className="font-medium text-neutral-dark">
-                        {petType.name}
-                      </span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-              <div>
-                <Label htmlFor="petSizeCategoryId" className="text-deep-teal">
-                  Max Pet Size
-                </Label>
-                <Select
-                  value={String(roomData.petSizeCategoryId)}
-                  onValueChange={(value) =>
-                    handleSelectChange('petSizeCategoryId', value)
-                  }
-                >
-                  <SelectTrigger className="p-6 text-base">
-                    <SelectValue placeholder="Select max pet size" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {petSizeCategories.map((size) => (
-                      <SelectItem key={size.id} value={String(size.id)}>
-                        {size.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-          </section>
-
-          <section>
-            <h3 className="font-semibold text-lg text-neutral-dark mb-4">
-              In-Room Facilities
-            </h3>
-            {facilitiesLoading && <Spinner />}
-            {facilitiesError && (
-              <p className="text-red-500">{facilitiesError}</p>
-            )}
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-              {roomFacilities.map((facility) => (
-                <button
-                  key={facility.id}
-                  type="button"
-                  onClick={() =>
-                    handleMultiSelectToggle('facilities', facility.id)
-                  }
-                  className={cn(
-                    'flex items-center p-4 rounded-lg border text-left transition-colors',
-                    roomData.facilities.includes(facility.id)
-                      ? 'border-positive-green bg-teal-50'
-                      : 'bg-white hover:border-deep-teal/50'
-                  )}
-                >
-                  <div
-                    className={cn(
-                      'w-5 h-5 rounded-full mr-3 shrink-0 border flex items-center justify-center',
-                      roomData.facilities.includes(facility.id)
-                        ? 'border-positive-green bg-positive-green'
-                        : 'border-gray-300 bg-white'
-                    )}
-                  >
-                    {roomData.facilities.includes(facility.id) && (
-                      <div className="w-2.5 h-2.5 bg-white rounded-full" />
-                    )}
-                  </div>
-                  <span className="font-medium text-sm text-neutral-dark">
-                    {facility.name}
-                  </span>
-                </button>
-              ))}
-            </div>
-          </section>
-        </div>
-
-        {error && <p className="text-red-500 mt-6">{error}</p>}
-      </form>
+      <Drawer open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
+        <DrawerTrigger asChild>
+          <Button className="mt-6">
+            <Plus className="mr-2 h-4 w-4" /> Add Room Category
+          </Button>
+        </DrawerTrigger>
+        <DrawerContent>
+          <DrawerHeader>
+            <DrawerTitle>Add a New Room Category</DrawerTitle>
+            <DrawerDescription>
+              Fill in the details for the new room category.
+            </DrawerDescription>
+          </DrawerHeader>
+          {propertyId && (
+            <AddRoomCategoryForm
+              propertyId={propertyId}
+              onAddSuccess={handleAddSuccess}
+            />
+          )}
+        </DrawerContent>
+      </Drawer>
 
       <div className="fixed bottom-0 left-0 right-0 bg-white/80 backdrop-blur-sm border-t">
-        <div className="container mx-auto max-w-5xl p-4 flex justify-between items-center">
-          <Button
-            type="button"
-            variant="ghost"
-            onClick={() => router.push('/profile/host')}
-          >
-            I'll Do This Later
-          </Button>
-          <div className="flex items-center gap-4">
-            <Button
-              type="button"
-              onClick={(e) => handleSubmit(e, handleAddAnother)}
-              disabled={isSubmitting}
-              variant="outline"
-              className="min-w-[180px]"
-            >
-              {isSubmitting ? <Spinner /> : 'Save & Add Another'}
-            </Button>
-            <Button
-              type="submit"
-              form="room-category-form"
-              disabled={isSubmitting}
-              className="min-w-[180px]"
-            >
-              {isSubmitting ? <Spinner /> : 'Save and Finish'}
-            </Button>
-          </div>
+        <div className="container mx-auto max-w-5xl p-4 flex justify-end items-center">
+          <Button onClick={() => router.push('/profile/host')}>Finish</Button>
         </div>
       </div>
-    </>
+    </div>
   )
 }
 

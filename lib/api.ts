@@ -10,6 +10,7 @@ import {
   PropertyFormData,
   ResetPasswordCredentials,
   RoomCategoryFormData,
+  RoomCategoriesResponse,
   SignInCredentials,
   SignInResponse,
   SignUpCredentials,
@@ -205,5 +206,16 @@ export const createRoomCategory = (
     body: formData,
     requiresAuth: true,
     errorContext: 'Create Room Category',
+  })
+}
+
+export const getRoomCategories = (
+  propertyId: number
+): Promise<RoomCategoriesResponse> => {
+  return request<RoomCategoriesResponse>({
+    endpoint: `api/v1/hosts/properties/${propertyId}/room-categories/all`,
+    method: 'GET',
+    requiresAuth: true,
+    errorContext: 'Get Room Categories',
   })
 }

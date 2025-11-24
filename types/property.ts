@@ -12,8 +12,19 @@ export interface PropertyImage {
 
 export interface RoomCategory {
   id: number
-  basePrice: number
+  name: string
+  totalRoom: number
   numberOfPets: number
+  basePrice: number
+  propertyId: number
+  pets: {
+    id: number
+    name: string
+  }[]
+  facilities: {
+    id: number
+    name: string
+  }[]
 }
 
 export interface PropertyType {
@@ -57,4 +68,8 @@ export interface PropertiesResponse {
 
 export interface HostPropertiesResponse {
   properties: Property[]
+}
+
+export interface RoomCategoriesResponse {
+  roomCategories: RoomCategory[]
 }
