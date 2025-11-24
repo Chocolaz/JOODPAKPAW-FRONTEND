@@ -20,7 +20,10 @@ export default function HostPage() {
       try {
         setLoading(true)
         const response = await getHostProperties()
-        setProperties(response.properties || [])
+        const sortedProperties = (response.properties || []).sort(
+          (a, b) => a.id - b.id
+        )
+        setProperties(sortedProperties)
         setError(null)
       } catch (err) {
         setError('Failed to fetch properties. Please try again later.')
@@ -36,7 +39,7 @@ export default function HostPage() {
   return (
     <div className="flex flex-col px-5">
       {/* Scrollable card section */}
-      <div>
+      <div className="pb-24">
         {loading ? (
           <div className="flex justify-center items-center h-64">
             <Spinner />
