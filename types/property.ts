@@ -54,6 +54,7 @@ export interface Property {
   reviewCount?: number
   propertyType?: PropertyType
   facilities?: Facility[]
+  roomCount?: number
 }
 
 export interface PropertiesResponse {

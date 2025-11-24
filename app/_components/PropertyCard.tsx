@@ -5,6 +5,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useState } from 'react'
 import { cn } from '@/lib/utils'
+import { Globe, GlobeLock } from 'lucide-react'
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL
 
@@ -12,9 +13,15 @@ interface PropertyCardProps {
   property: Property
   href?: string
   className?: string
+  showRoomCount?: boolean
 }
 
-export function PropertyCard({ property, href, className }: PropertyCardProps) {
+export function PropertyCard({
+  property,
+  href,
+  className,
+  showRoomCount,
+}: PropertyCardProps) {
   const [imgSrc, setImgSrc] = useState(
     property.images.length > 0 && API_BASE_URL
       ? new URL(property.images[0].filePath, API_BASE_URL).toString()
@@ -32,9 +39,16 @@ export function PropertyCard({ property, href, className }: PropertyCardProps) {
           alt={property.title}
           fill
           unoptimized
-          className="object-cover rounded-[14px] shadow-md"
+          className="object-cover rounded-[20px] shadow-md"
           onError={() => setImgSrc('/graphics/welcome.svg')}
         />
+        <div className="absolute top-2 right-2 p-1 bg-white rounded-full opacity-90">
+          {property.isActive ? (
+            <Globe className="h-6 w-6 text-deep-teal" />
+          ) : (
+            <GlobeLock className="h-6 w-6 text-accent-orange" />
+          )}
+        </div>
       </div>
 
       {/* Content */}
@@ -47,16 +61,16 @@ export function PropertyCard({ property, href, className }: PropertyCardProps) {
           {property.province}, {property.district}
         </p>
 
+        {showRoomCount && property.roomCount !== undefined && (
+          <p className="text-xs font-medium">
+            {property.roomCount} {property.roomCount === 1 ? 'room' : 'rooms'}
+          </p>
+        )}
+
         {property.roomCategory && (
           <p className="font-bold text-[10px]">
             THB {property.roomCategory.basePrice}
           </p>
-        )}
-
-        {!property.isActive && (
-          <span className="inline-block mt-1 px-1 py-0.5 text-[8px] bg-red-100 text-red-600 rounded-full">
-            Inactive
-          </span>
         )}
       </div>
     </Link>
