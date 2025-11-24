@@ -402,11 +402,11 @@ export function Step8() {
             <RoomCategoryCard key={room.id} category={room} />
           ))
         ) : (
-          <div className="text-center py-10 border-2 border-dashed rounded-xl">
-            <p className="text-neutral-gray">No room categories yet.</p>
-            <p className="text-sm text-neutral-gray">
-              Click the button below to add your first one.
-            </p>
+          <div className="mx-5 px-6 py-8 border-2 border-dashed border-positive-green rounded-xl">
+            <div className="font-medium text-deep-teal text-lg flex items-center justify-between w-full">
+              <span>Add Room</span>
+              <Plus className="h-6 w-6 text-positive-green" />
+            </div>
           </div>
         )}
       </div>
