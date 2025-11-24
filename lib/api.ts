@@ -182,6 +182,18 @@ export const getPetSizeCategories = (): Promise<PetSizeCategoriesResponse> => {
   })
 }
 
+export const deleteRoomCategory = (
+  propertyId: number,
+  roomCategoryId: number
+): Promise<void> => {
+  return request<void>({
+    endpoint: `api/v1/hosts/properties/${propertyId}/room-categories/${roomCategoryId}`,
+    method: 'DELETE',
+    requiresAuth: true,
+    errorContext: 'Delete Room Category',
+  })
+}
+
 export const createProperty = (data: PropertyFormData) => {
   const formData = new FormData()
 
