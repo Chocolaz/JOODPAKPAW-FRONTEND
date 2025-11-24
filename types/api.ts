@@ -20,6 +20,7 @@ export interface FacilitiesResponse {
 }
 
 export interface PropertyFormData {
+  propertyId?: number
   propertyTypeId: number | null
   latitude: string
   longitude: string
@@ -34,4 +35,20 @@ export interface PropertyFormData {
   facilities: number[]
   images: File[]
   hostId: number
+}
+
+export interface CreatePropertyResponse {
+  data: {
+    id: number
+  }
+}
+
+export interface RoomCategoryFormData {
+  name: string
+  totalRoom: number
+  numberOfPets: number
+  basePrice: number
+  pets: number[]
+  facilities: number[]
+  petSizeCategoryId: number
 }

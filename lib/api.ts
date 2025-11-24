@@ -1,6 +1,7 @@
 // lib/api.ts
 import request from './apiClient'
 import {
+  CreatePropertyResponse,
   FacilitiesResponse,
   ForgotPasswordCredentials,
   HostPropertiesResponse,
@@ -8,6 +9,7 @@ import {
   Property,
   PropertyFormData,
   ResetPasswordCredentials,
+  RoomCategoryFormData,
   SignInCredentials,
   SignInResponse,
   SignUpCredentials,
@@ -174,11 +176,34 @@ export const createProperty = (data: PropertyFormData) => {
     }
   })
 
-  return request({
+  return request<CreatePropertyResponse>({
     endpoint: 'api/v1/hosts/properties',
     method: 'POST',
     body: formData,
     requiresAuth: true,
     errorContext: 'Create Property',
+  })
+}
+
+export const createRoomCategory = (
+  propertyId: number,
+  data: RoomCategoryFormData,
+) => {
+  const formData = new FormData()
+
+  Object.entries(data).forEach(([key, value]) => {
+    if (key === 'pets' || key === 'facilities') {
+      formData.append(key, JSON.stringify(value))
+    } else {
+      formData.append(key, String(value))
+    }
+  })
+
+  return request({
+    endpoint: `api/v1/hosts/properties/${propertyId}/room-categories`,
+    method: 'POST',
+    body: formData,
+    requiresAuth: true,
+    errorContext: 'Create Room Category',
   })
 }

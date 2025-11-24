@@ -36,12 +36,12 @@ export function Step4({
             className="p-6 text-lg w-full"
           />
 
-          <p className="text-sm font-medium text-deep-teal mb-1">Description</p>
+          <p className="font-medium text-deep-teal mb-1">Description</p>
           <Textarea
             placeholder="Property Description"
             value={formData.description}
             onChange={(e) => updateField('description', e.target.value)}
-            className="p-6 text-lg min-h-40 w-full"
+            className="p-6 text-lg min-h-40 w-full resize-none"
           />
         </div>
       </div>

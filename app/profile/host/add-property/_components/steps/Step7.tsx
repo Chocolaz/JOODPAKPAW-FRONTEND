@@ -6,9 +6,10 @@ import { createProperty } from '@/lib/api'
 import { useAddProperty } from '../../_context/AddPropertyContext'
 import { propertyTypes } from '../../_constants'
 import { StepNavigation } from '../StepNavigation'
+import { CreatePropertyResponse } from '@/types'
 
 export function Step7({ onBack }: { onBack: () => void }) {
-  const { formData } = useAddProperty()
+  const { formData, updateField } = useAddProperty()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const router = useRouter()
@@ -16,8 +17,20 @@ export function Step7({ onBack }: { onBack: () => void }) {
   const handleSubmit = async () => {
     setIsSubmitting(true)
     setError(null)
+
     try {
-      await createProperty(formData)
+      const res = (await createProperty(
+        formData
+      )) as CreatePropertyResponse
+
+      const propertyId = res?.data?.id
+
+      if (!propertyId) {
+        throw new Error('Property ID not returned from server')
+      }
+
+      updateField('propertyId', propertyId)
+
       router.push('/profile/host/add-property/8')
     } catch (err: unknown) {
       if (err instanceof Error) {
@@ -35,7 +48,6 @@ export function Step7({ onBack }: { onBack: () => void }) {
   return (
     <>
       <div className="w-full text-left mt-6 pb-24">
-        {/* HEADER */}
         <h1 className="text-3xl font-bold mb-3 text-deep-teal">
           Review your listing
         </h1>
@@ -43,9 +55,7 @@ export function Step7({ onBack }: { onBack: () => void }) {
           Make sure all details below are correct before publishing.
         </p>
 
-        {/* CARD WRAPPER */}
         <div className="space-y-5">
-          {/* Card */}
           <section className="bg-white rounded-xl shadow-sm border border-neutral-200 px-5 py-4">
             <h3 className="text-lg font-semibold mb-3">Basic Information</h3>
             <ReviewItem label="Title" value={formData.title} />
@@ -53,7 +63,7 @@ export function Step7({ onBack }: { onBack: () => void }) {
             <ReviewItem
               label="Property Type"
               value={
-                propertyTypes.find((p) => p.id === formData.propertyTypeId)
+                propertyTypes.find(p => p.id === formData.propertyTypeId)
                   ?.name
               }
             />
@@ -62,8 +72,8 @@ export function Step7({ onBack }: { onBack: () => void }) {
           <section className="bg-white rounded-xl shadow-sm border border-neutral-200 px-5 py-4">
             <h3 className="text-lg font-semibold mb-3">Location</h3>
             <ReviewItem label="Full Address" value={address} />
-            <ReviewItem label="Latitude" value={formData.latitude} />
-            <ReviewItem label="Longitude" value={formData.longitude} />
+            <ReviewItem label="Latitude" value={String(formData.latitude)} />
+            <ReviewItem label="Longitude" value={String(formData.longitude)} />
           </section>
 
           <section className="bg-white rounded-xl shadow-sm border border-neutral-200 px-5 py-4">
@@ -79,7 +89,6 @@ export function Step7({ onBack }: { onBack: () => void }) {
           </section>
         </div>
 
-        {/* Error */}
         {error && (
           <div className="mt-5 p-3 rounded-lg bg-red-50 text-red-600 border border-red-300 text-sm">
             {error}
@@ -87,7 +96,6 @@ export function Step7({ onBack }: { onBack: () => void }) {
         )}
       </div>
 
-      {/* Navigation Buttons */}
       <StepNavigation
         onBack={onBack}
         onNext={handleSubmit}
@@ -97,8 +105,6 @@ export function Step7({ onBack }: { onBack: () => void }) {
     </>
   )
 }
-
-/* -------------------------- COMPONENT -------------------------- */
 
 function ReviewItem({
   label,

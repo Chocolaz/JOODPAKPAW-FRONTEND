@@ -15,6 +15,7 @@ const AddPropertyContext = createContext<AddPropertyContextType | undefined>(und
 export const AddPropertyProvider = ({ children }: { children: ReactNode }) => {
   const { user } = useAuth()
   const [formData, setFormData] = useState<PropertyFormData>({
+    propertyId: undefined,
     propertyTypeId: null,
     latitude: '',
     longitude: '',
