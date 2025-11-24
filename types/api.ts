@@ -34,7 +34,7 @@ export interface PropertyFormData {
   description: string
   facilities: number[]
   images: File[]
-  hostId: number
+
 }
 
 export interface CreatePropertyResponse {
