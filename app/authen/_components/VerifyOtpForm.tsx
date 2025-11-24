@@ -1,11 +1,13 @@
 'use client'
 
+import { useState, useMemo } from 'react'
+import { useRouter } from 'next/navigation'
+import { toast } from 'sonner' // Add this import
+
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { useState, useMemo } from 'react'
 import { verifyOtp, resendOtp } from '@/lib/api'
 import { useCooldown, useEmailFromQuery } from '@/lib/authenUtils'
-import { useRouter } from 'next/navigation'
 import { useAuth } from '@/app/_components/AuthContext'
 
 export default function VerifyOtpForm() {
@@ -36,12 +38,12 @@ export default function VerifyOtpForm() {
         router.push('/')
       } else {
         console.error('OTP verification successful, but no tokens received.')
-        alert('Verification successful! Please log in.')
+        toast.success('Verification successful! Please log in.')
         router.push('/authen/login')
       }
     } catch (error) {
       console.error('OTP verification failed:', error)
-      alert('Invalid or expired OTP. Please try again.')
+      toast.error('Invalid or expired OTP. Please try again.')
     }
   }
 
@@ -49,11 +51,11 @@ export default function VerifyOtpForm() {
     if (cooldown > 0) return
     try {
       await resendOtp({ email })
-      alert('A new OTP has been sent to your email.')
+      toast.success('A new OTP has been sent to your email.')
       startCooldown(60) // 60-second cooldown
     } catch (error) {
       console.error('Resend OTP failed:', error)
-      alert('Failed to resend OTP. Please try again later.')
+      toast.error('Failed to resend OTP. Please try again later.')
     }
   }
 

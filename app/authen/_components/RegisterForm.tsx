@@ -1,11 +1,13 @@
 'use client'
 import { useState, useMemo } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
+import { toast } from 'sonner' // Add this import
+
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { signUp } from '@/lib/api'
 import { getApiErrorMessages } from '@/lib/errorHandling'
-import { useRouter } from 'next/navigation'
 import clsx from 'clsx'
 
 export default function RegisterForm() {
@@ -85,13 +87,13 @@ export default function RegisterForm() {
           } else if (apiError.field === 'phone') {
             setPhoneError(apiError.message)
           } else {
-            // General error, if any, can be handled here or with an alert
-            alert(apiError.message)
+            // General error, if any, can be handled here or with a toast
+            toast.error(apiError.message)
           }
         })
       } else {
         // Handle other errors, e.g., show a generic error message
-        alert('An unexpected error occurred. Please try again.')
+        toast.error('An unexpected error occurred. Please try again.')
       }
       // Clear any errors not present in the new error list
       if (!apiErrors?.some((e) => e.field === 'email')) setEmailError('')
