@@ -9,6 +9,7 @@ import { Step5 } from '../_components/steps/Step5'
 import { Step6 } from '../_components/steps/Step6'
 import { Step7 } from '../_components/steps/Step7'
 import { Step8 } from '../_components/steps/Step8'
+import { Step9 } from '../_components/steps/Step9'
 
 export default function AddPropertyDynamicStepsPage() {
   const params = useParams()
@@ -32,6 +33,7 @@ export default function AddPropertyDynamicStepsPage() {
     <Step6 key="step-6" onNext={handleNext} onBack={handleBack} />,
     <Step7 key="step-7" onBack={handleBack} />,
     <Step8 key="step-8" />,
+    <Step9 key="step-9" />,
   ]
 
   const renderStep = () => {

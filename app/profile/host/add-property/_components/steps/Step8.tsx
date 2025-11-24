@@ -122,8 +122,9 @@ export function Step8() {
       <StepNavigation
         onBack={() => router.push('/profile/host')}
         backText="Later"
-        onNext={() => router.push('/profile/host')}
+        onNext={() => router.push('/profile/host/add-property/9')}
         nextText="Continue"
+        isNextDisabled={rooms.length === 0}
       />
     </div>
   )

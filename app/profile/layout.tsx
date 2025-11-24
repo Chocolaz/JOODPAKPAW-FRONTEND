@@ -22,16 +22,6 @@ function LayoutContent({ children }: { children: ReactNode }) {
   // Determine header properties based on the current path
   const getHeaderProps = () => {
     if (pathname.startsWith('/profile/host/add-property')) {
-      const stepId = parseInt(pathname.split('/').pop() || '', 10)
-      if (!isNaN(stepId)) {
-        if (stepId === 1) {
-          return { title: 'Host', backPath: '/profile/host/add-property' }
-        }
-        return {
-          title: 'Host',
-          backPath: `/profile/host/add-property/${stepId - 1}`,
-        }
-      }
       return { title: 'Host', backPath: '/profile/host' }
     }
     if (
@@ -58,7 +48,7 @@ function LayoutContent({ children }: { children: ReactNode }) {
     if (pathname.startsWith('/profile/host/add-property')) {
       const stepId = parseInt(pathname.split('/').pop() || '', 10)
       if (!isNaN(stepId)) {
-        return <HostBanner currentStep={stepId} totalSteps={8} />
+        return <HostBanner currentStep={stepId} totalSteps={9} />
       }
       return null
     }
