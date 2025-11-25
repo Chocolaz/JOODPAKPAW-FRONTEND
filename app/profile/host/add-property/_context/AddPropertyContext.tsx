@@ -20,6 +20,7 @@ interface AddPropertyContextType {
   highestStepReached: number
   setHighestStepReached: (step: number) => void
   isLoading: boolean
+  clearAddPropertySession: () => void
 }
 
 const AddPropertyContext = createContext<AddPropertyContextType | undefined>(
@@ -52,7 +53,7 @@ export const AddPropertyProvider = ({ children }: { children: ReactNode }) => {
     try {
       const storedData = sessionStorage.getItem('addPropertyFormData')
       if (storedData) {
-        setFormData(JSON.parse(storedData))
+        setFormData((prev) => ({ ...prev, ...JSON.parse(storedData) }))
       }
       const storedStep = sessionStorage.getItem('highestStepReached')
       if (storedStep) {
@@ -67,7 +68,8 @@ export const AddPropertyProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     if (!isLoading) {
-      sessionStorage.setItem('addPropertyFormData', JSON.stringify(formData))
+      const { images, ...dataToStore } = formData
+      sessionStorage.setItem('addPropertyFormData', JSON.stringify(dataToStore))
     }
   }, [formData, isLoading])
 
@@ -91,6 +93,11 @@ export const AddPropertyProvider = ({ children }: { children: ReactNode }) => {
     })
   }
 
+  const clearAddPropertySession = () => {
+    sessionStorage.removeItem('addPropertyFormData')
+    sessionStorage.removeItem('highestStepReached')
+  }
+
   const value = {
     formData,
     setFormData,
@@ -98,6 +105,7 @@ export const AddPropertyProvider = ({ children }: { children: ReactNode }) => {
     highestStepReached,
     setHighestStepReached,
     isLoading,
+    clearAddPropertySession,
   }
 
   return (

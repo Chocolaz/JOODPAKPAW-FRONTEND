@@ -28,7 +28,11 @@ import { StepNavigation } from '../StepNavigation'
 
 export function Step8() {
   const router = useRouter()
-  const { formData: propertyContextData } = useAddProperty()
+  const {
+    formData: propertyContextData,
+    setHighestStepReached,
+    clearAddPropertySession,
+  } = useAddProperty()
   const propertyId = propertyContextData.propertyId
 
   const [rooms, setRooms] = useState<RoomCategory[]>([])
@@ -62,6 +66,11 @@ export function Step8() {
   const handleAddSuccess = () => {
     fetchRooms()
     setIsDrawerOpen(false)
+  }
+
+  const handleNext = () => {
+    setHighestStepReached(8)
+    router.push('/profile/host/add-property/9')
   }
 
   if (loading) {
@@ -120,9 +129,12 @@ export function Step8() {
       </Drawer>
 
       <StepNavigation
-        onBack={() => router.push('/profile/host')}
+        onBack={() => {
+          clearAddPropertySession()
+          router.push('/profile/host')
+        }}
         backText="Later"
-        onNext={() => router.push('/profile/host/add-property/9')}
+        onNext={handleNext}
         nextText="Continue"
         isNextDisabled={rooms.length === 0}
       />

@@ -72,13 +72,12 @@ export function Step6({
                 key={index}
                 className="relative w-full aspect-square rounded-xl overflow-hidden shadow-sm border border-gray-200"
               >
-                <Image
+                <img
                   src={URL.createObjectURL(file)}
-                  alt={`preview ${index}`}
-                  fill
-                  className="object-cover"
+                  alt={`preview-${index}`}
+                  className="object-cover w-full h-full"
                 />
-                {/* Delete button */}
+
                 <button
                   type="button"
                   onClick={() => handleRemoveImage(index)}

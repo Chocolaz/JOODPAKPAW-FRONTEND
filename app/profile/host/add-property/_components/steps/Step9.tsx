@@ -11,7 +11,7 @@ import { StepNavigation } from '../StepNavigation'
 
 export function Step9() {
   const router = useRouter()
-  const { formData } = useAddProperty()
+  const { formData, clearAddPropertySession } = useAddProperty()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [selectedOption, setSelectedOption] = useState<
     'publish' | 'later' | null
@@ -27,6 +27,7 @@ export function Step9() {
     try {
       await updateHostPropertyIsActive(String(formData.propertyId), true)
       toast.success('Your property has been published successfully!')
+      clearAddPropertySession()
       router.push('/profile/host')
     } catch (error) {
       toast.error(
@@ -39,7 +40,10 @@ export function Step9() {
 
   const savePropertyLater = () => {
     toast.info('Your property is saved as a draft.')
-    router.push('/profile/host')
+    clearAddPropertySession()
+    setTimeout(() => {
+      router.push('/profile/host')
+    }, 100)
   }
 
   const handleNext = async () => {

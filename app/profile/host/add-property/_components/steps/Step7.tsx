@@ -9,7 +9,7 @@ import { StepNavigation } from '../StepNavigation'
 import { CreatePropertyResponse } from '@/types'
 
 export function Step7({ onBack }: { onBack: () => void }) {
-  const { formData, updateField } = useAddProperty()
+  const { formData, updateField, setHighestStepReached } = useAddProperty()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const router = useRouter()
@@ -28,6 +28,7 @@ export function Step7({ onBack }: { onBack: () => void }) {
       }
 
       updateField('propertyId', propertyId)
+      setHighestStepReached(7)
 
       router.push('/profile/host/add-property/8')
     } catch (err: unknown) {
