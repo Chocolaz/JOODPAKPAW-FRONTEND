@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# flow: frontend deploy script
 set -e
 
 cd "$(dirname "$0")"
