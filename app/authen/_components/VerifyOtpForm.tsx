@@ -70,7 +70,7 @@ export default function VerifyOtpForm() {
       <Input
         type="text"
         placeholder="OTP"
-        className="w-full py-6 text-center tracking-[1rem]"
+        className="w-full text-center tracking-[1rem]"
         value={otp}
         onChange={(e) => setOtp(e.target.value.replace(/[^0-9]/g, ''))}
         maxLength={6}

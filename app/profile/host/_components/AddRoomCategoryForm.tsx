@@ -22,6 +22,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { FacilityCard } from './FacilityCard'
 
 const initialRoomState: RoomCategoryFormData = {
   name: '',
@@ -206,19 +207,12 @@ export function AddRoomCategoryForm({
         {facilitiesLoading && <Spinner />}
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
           {roomFacilities.map((f) => (
-            <button
+            <FacilityCard
               key={f.id}
-              type="button"
-              onClick={() => toggleMulti('facilities', f.id)}
-              className={cn(
-                'flex items-center p-4 rounded-xl border shadow-sm transition',
-                roomData.facilities.includes(f.id)
-                  ? 'bg-teal-50 border-positive-green'
-                  : 'bg-white hover:border-deep-teal/40'
-              )}
-            >
-              <span className="font-medium">{f.name}</span>
-            </button>
+              facility={f}
+              selected={roomData.facilities.includes(f.id)}
+              onToggle={(id) => toggleMulti('facilities', id)}
+            />
           ))}
         </div>
       </div>
@@ -246,25 +240,32 @@ export function AddRoomCategoryForm({
       </div>
 
       {/* 6. Base price per night */}
-      <div className="space-y-1">
-        <Label htmlFor="basePrice" className="text-sm text-deep-teal">
-          Base price per night
-        </Label>
-        <Input
-          id="basePrice"
-          name="basePrice"
-          type="number"
-          placeholder="1500"
-          value={roomData.basePrice}
-          onChange={handleChange}
-        />
-      </div>
-
-      {/* Submit */}
-      <div className="pt-4">
-        <Button type="submit" disabled={isSubmitting} className="w-full">
-          {isSubmitting ? <Spinner /> : 'Save Room Category'}
-        </Button>
+      <div className="space-y-1 w-36">
+        <label className="text-sm text-deep-teal">Base price per night</label>
+        <div
+          contentEditable
+          suppressContentEditableWarning
+          onInput={(e) => {
+            const el = e.currentTarget
+            const onlyNumbers = el.textContent?.replace(/\D/g, '') || '0'
+            el.textContent = onlyNumbers
+            setRoomData((prev) => ({
+              ...prev,
+              basePrice: parseInt(onlyNumbers, 10),
+            }))
+          }}
+          className="
+      text-3xl font-semibold
+      border-b border-gray-400
+      focus:border-deep-teal
+      focus:outline-none
+      w-max
+      min-w-[50px]
+      pb-1
+    "
+        >
+          {roomData.basePrice ? roomData.basePrice : '000'}
+        </div>
       </div>
     </form>
   )

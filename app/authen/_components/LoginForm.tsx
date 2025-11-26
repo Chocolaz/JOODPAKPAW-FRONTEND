@@ -23,8 +23,8 @@ export default function LoginForm() {
 
   // Memoized values
   const isButtonDisabled = useMemo(() => {
-    return !email || !password || password.length < 8;
-  }, [email, password]);
+    return !email || !password || password.length < 8
+  }, [email, password])
 
   // Handlers
   const handleSignIn = async (e: React.FormEvent) => {
@@ -66,7 +66,7 @@ export default function LoginForm() {
           <Input
             type="email"
             placeholder="Email"
-            className={clsx('w-full py-6', {
+            className={clsx('w-full', {
               'border-red-500': isEmailError,
             })}
             value={email}
@@ -81,7 +81,7 @@ export default function LoginForm() {
           <Input
             type="password"
             placeholder="Password"
-            className={clsx('w-full py-6', {
+            className={clsx('w-full', {
               'border-red-500': error && !isEmailError,
             })}
             value={password}
@@ -91,7 +91,9 @@ export default function LoginForm() {
               setIsEmailError(false)
             }}
           />
-          {error && <p className="text-red-500 text-left text-sm mt-1">{error}</p>}
+          {error && (
+            <p className="text-red-500 text-left text-sm mt-1">{error}</p>
+          )}
           <div className="text-right mt-2">
             <Link
               href="/authen/forgot-password"

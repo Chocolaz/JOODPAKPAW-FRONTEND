@@ -14,13 +14,13 @@ import { StepNavigation } from '../StepNavigation'
 const libraries: 'places'[] = ['places']
 
 interface AddressComponents {
-  country?: string;
-  province?: string;
-  district?: string;
-  subdistrict?: string;
-  route?: string;
-  street_number?: string;
-  zipcode?: string;
+  country?: string
+  province?: string
+  district?: string
+  subdistrict?: string
+  route?: string
+  street_number?: string
+  zipcode?: string
 }
 
 export function Step2({
@@ -51,53 +51,57 @@ export function Step2({
   // -------------------------------
   // 3) Reverse Geocoding
   // -------------------------------
-  const reverseGeocode = useCallback((lat: number, lng: number) => {
-    if (!window.google || !window.google.maps) return
+  const reverseGeocode = useCallback(
+    (lat: number, lng: number) => {
+      if (!window.google || !window.google.maps) return
 
-    const geocoder = new window.google.maps.Geocoder()
-    geocoder.geocode(
-      { location: { lat, lng }, language: 'en' },
-      (results, status) => {
-        if (status === 'OK' && results && results.length > 0) {
-          const place = results[0]
-          const components: AddressComponents = {}
+      const geocoder = new window.google.maps.Geocoder()
+      geocoder.geocode(
+        { location: { lat, lng }, language: 'en' },
+        (results, status) => {
+          if (status === 'OK' && results && results.length > 0) {
+            const place = results[0]
+            const components: AddressComponents = {}
 
-          place.address_components.forEach((c) => {
-            const types = c.types
-            if (types.includes('country')) components.country = 'Thailand' // lock country
-            if (types.includes('administrative_area_level_1')) {
-              let prov = c.long_name
-              if (/krung\s*thep/i.test(prov)) prov = 'Bangkok'
-              components.province = prov
-            }
-            if (types.includes('administrative_area_level_2'))
-              components.district = c.long_name
-            if (
-              types.includes('sublocality_level_1') ||
-              types.includes('locality')
+            place.address_components.forEach((c) => {
+              const types = c.types
+              if (types.includes('country')) components.country = 'Thailand' // lock country
+              if (types.includes('administrative_area_level_1')) {
+                let prov = c.long_name
+                if (/krung\s*thep/i.test(prov)) prov = 'Bangkok'
+                components.province = prov
+              }
+              if (types.includes('administrative_area_level_2'))
+                components.district = c.long_name
+              if (
+                types.includes('sublocality_level_1') ||
+                types.includes('locality')
+              )
+                components.subdistrict = c.long_name
+              if (types.includes('route')) components.route = c.long_name
+              if (types.includes('street_number'))
+                components.street_number = c.long_name
+              if (types.includes('postal_code'))
+                components.zipcode = c.long_name
+            })
+
+            updateField('country', components.country || 'Thailand')
+            updateField('province', components.province || '')
+            updateField('district', components.district || '')
+            updateField('subdistrict', components.subdistrict || '')
+            updateField(
+              'address',
+              `${components.street_number || ''} ${components.route || ''}`.trim()
             )
-              components.subdistrict = c.long_name
-            if (types.includes('route')) components.route = c.long_name
-            if (types.includes('street_number'))
-              components.street_number = c.long_name
-            if (types.includes('postal_code')) components.zipcode = c.long_name
-          })
+            updateField('zipcode', components.zipcode || '')
 
-          updateField('country', components.country || 'Thailand')
-          updateField('province', components.province || '')
-          updateField('district', components.district || '')
-          updateField('subdistrict', components.subdistrict || '')
-          updateField(
-            'address',
-            `${components.street_number || ''} ${components.route || ''}`.trim()
-          )
-          updateField('zipcode', components.zipcode || '')
-
-          setAddress(place.formatted_address || '')
+            setAddress(place.formatted_address || '')
+          }
         }
-      }
-    )
-  }, [updateField])
+      )
+    },
+    [updateField]
+  )
 
   // -------------------------------
   // 2) Use user's location if not set
@@ -112,8 +116,8 @@ export function Step2({
 
     if (!formData.latitude && !formData.longitude) {
       if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-          (pos) => handleLocation(pos.coords.latitude, pos.coords.longitude)
+        navigator.geolocation.getCurrentPosition((pos) =>
+          handleLocation(pos.coords.latitude, pos.coords.longitude)
         )
       }
     }
@@ -171,7 +175,7 @@ export function Step2({
             placeholder="Search location..."
             value={address}
             onChange={(e) => setAddress(e.target.value)}
-            className="w-full p-4 mb-3 text-base shadow-sm rounded-xl"
+            className="w-full mb-3"
           />
         </StandaloneSearchBox>
 

@@ -61,7 +61,7 @@ export function Step3({
 
   return (
     <>
-      <div className="w-full text-center mt-10">
+      <div className="w-full text-center mt-10 pb-24">
         <h3 className="text-deep-teal">Confirm your address</h3>
         <p className="mb-6 text-neutral-gray text-sm">
           We’ve auto-filled your address based on the location you picked.
@@ -72,11 +72,7 @@ export function Step3({
           {/* Country */}
           <div>
             <p className="text-sm font-medium text-deep-teal mb-1">Country</p>
-            <Input
-              value="Thailand"
-              disabled
-              className="p-6 text-lg bg-gray-100 cursor-not-allowed"
-            />
+            <Input value="Thailand" disabled className="cursor-not-allowed" />
           </div>
 
           {/* Province */}
@@ -85,7 +81,7 @@ export function Step3({
             <Input
               value={formData.province || ''}
               disabled
-              className="p-6 text-lg bg-gray-100 cursor-not-allowed"
+              className="cursor-not-allowed"
             />
           </div>
 
@@ -97,7 +93,6 @@ export function Step3({
               placeholder="District"
               value={formData.district}
               onChange={handleChange}
-              className="p-6 text-lg"
             />
           </div>
 
@@ -111,7 +106,6 @@ export function Step3({
               placeholder="Subdistrict"
               value={formData.subdistrict}
               onChange={handleChange}
-              className="p-6 text-lg"
             />
           </div>
 
@@ -123,7 +117,6 @@ export function Step3({
               placeholder="Address"
               value={formData.address}
               onChange={handleChange}
-              className="p-6 text-lg"
             />
           </div>
 
@@ -135,7 +128,6 @@ export function Step3({
               placeholder="Zipcode"
               value={formData.zipcode}
               onChange={handleChange}
-              className="p-6 text-lg"
             />
           </div>
         </div>

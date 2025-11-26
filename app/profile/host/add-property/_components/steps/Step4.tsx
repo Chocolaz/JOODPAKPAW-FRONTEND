@@ -33,7 +33,7 @@ export function Step4({
             placeholder="Property Title"
             value={formData.title}
             onChange={(e) => updateField('title', e.target.value)}
-            className="p-6 text-lg w-full"
+            className="w-full"
           />
 
           <p className="font-medium text-deep-teal mb-1">Description</p>

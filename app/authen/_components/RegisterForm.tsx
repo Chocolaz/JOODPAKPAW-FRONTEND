@@ -110,7 +110,7 @@ export default function RegisterForm() {
           <Input
             type="text"
             placeholder="First Name"
-            className="w-full py-6"
+            className="w-full"
             value={firstname}
             onChange={(e) => setFirstname(e.target.value)}
           />
@@ -119,7 +119,7 @@ export default function RegisterForm() {
           <Input
             type="text"
             placeholder="Last Name"
-            className="w-full py-6"
+            className="w-full"
             value={lastname}
             onChange={(e) => setLastname(e.target.value)}
           />
@@ -128,7 +128,7 @@ export default function RegisterForm() {
           <Input
             type="tel"
             placeholder="Phone Number"
-            className={clsx('w-full py-6', {
+            className={clsx('w-full', {
               'border-red-500': phoneError,
             })}
             value={phone}
@@ -147,7 +147,7 @@ export default function RegisterForm() {
           <Input
             type="email"
             placeholder="Email"
-            className={clsx('w-full py-6', {
+            className={clsx('w-full', {
               'border-red-500': emailError,
             })}
             value={email}
@@ -164,7 +164,7 @@ export default function RegisterForm() {
           <Input
             type="password"
             placeholder="Password"
-            className={clsx('w-full py-6', {
+            className={clsx('w-full', {
               'border-red-500': passwordMismatchError || passwordApiError,
             })}
             value={password}
@@ -184,7 +184,7 @@ export default function RegisterForm() {
           <Input
             type="password"
             placeholder="Confirm Password"
-            className={clsx('w-full py-6', {
+            className={clsx('w-full', {
               'border-red-500': passwordMismatchError,
             })}
             value={confirmPassword}

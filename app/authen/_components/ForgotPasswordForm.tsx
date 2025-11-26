@@ -28,13 +28,13 @@ export default function ForgotPasswordForm({
     } catch (err) {
       console.error('Forgot password failed:', err)
       const errorResponse = getApiErrorMessages(err)
-      const emailError = errorResponse?.find(e => e.field === 'email');
-      const generalError = errorResponse?.find(e => e.field === 'general');
+      const emailError = errorResponse?.find((e) => e.field === 'email')
+      const generalError = errorResponse?.find((e) => e.field === 'general')
 
       if (emailError) {
-        setError(emailError.message);
+        setError(emailError.message)
       } else if (generalError) {
-        setError(generalError.message);
+        setError(generalError.message)
       } else {
         setError(
           'Failed to send password reset email. Please check the email address and try again.'
@@ -53,7 +53,7 @@ export default function ForgotPasswordForm({
           <Input
             type="email"
             placeholder="Email"
-            className={clsx('w-full py-6', {
+            className={clsx('w-full', {
               'border-red-500': error,
             })}
             value={email}

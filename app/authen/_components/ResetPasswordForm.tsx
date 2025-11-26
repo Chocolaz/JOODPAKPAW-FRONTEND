@@ -26,34 +26,38 @@ function ResetPasswordFormComponent({
   const [generalError, setGeneralError] = useState<string | null>(null)
 
   const initialPayload = searchParams.get('payload')
-  const { email: initialEmail, token: initialToken, error: initialError } =
-    (() => {
-      if (initialPayload) {
-        try {
-          const decodedPayload = atob(initialPayload)
-          const { email, resetPasswordToken } = JSON.parse(decodedPayload)
-          if (email && resetPasswordToken) {
-            return { email, token: resetPasswordToken, error: null }
-          } else {
-            return { email: null, token: null, error: 'Invalid payload in URL.' }
-          }
-        } catch (e) {
-          console.error('Failed to decode payload:', e)
-          return {
-            email: null,
-            token: null,
-            error: 'Invalid or corrupted payload in URL.',
-          }
+  const {
+    email: initialEmail,
+    token: initialToken,
+    error: initialError,
+  } = (() => {
+    if (initialPayload) {
+      try {
+        const decodedPayload = atob(initialPayload)
+        const { email, resetPasswordToken } = JSON.parse(decodedPayload)
+        if (email && resetPasswordToken) {
+          return { email, token: resetPasswordToken, error: null }
+        } else {
+          return { email: null, token: null, error: 'Invalid payload in URL.' }
         }
-      } else {
-        return { email: null, token: null, error: 'No payload found in URL.' }
+      } catch (e) {
+        console.error('Failed to decode payload:', e)
+        return {
+          email: null,
+          token: null,
+          error: 'Invalid or corrupted payload in URL.',
+        }
       }
-    })()
+    } else {
+      return { email: null, token: null, error: 'No payload found in URL.' }
+    }
+  })()
 
   const [token] = useState<string | null>(initialToken)
   const [email] = useState<string | null>(initialEmail)
-  const [formGeneralError, setFormGeneralError] =
-    useState<string | null>(initialError)
+  const [formGeneralError, setFormGeneralError] = useState<string | null>(
+    initialError
+  )
 
   // Handlers
   const handleResetPassword = async (e: React.FormEvent) => {
@@ -116,7 +120,7 @@ function ResetPasswordFormComponent({
           <Input
             type="password"
             placeholder="New Password"
-            className={clsx('w-full py-6', {
+            className={clsx('w-full', {
               'border-red-500': passwordError,
             })}
             value={password}
@@ -136,7 +140,7 @@ function ResetPasswordFormComponent({
           <Input
             type="password"
             placeholder="Confirm New Password"
-            className={clsx('w-full py-6', {
+            className={clsx('w-full', {
               'border-red-500': confirmPasswordError || generalError,
             })}
             value={confirmPassword}
