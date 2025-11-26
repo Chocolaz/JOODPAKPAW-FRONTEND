@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
+import { Dog, Cat } from 'lucide-react'
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
 import {
@@ -9,11 +10,7 @@ import {
   getPetSizeCategories,
 } from '@/lib/api'
 import { useFacilities } from '../add-property/_hooks/useFacilities'
-import {
-  RoomCategoryFormData,
-  Pet,
-  PetSizeCategory,
-} from '@/types'
+import { RoomCategoryFormData, Pet, PetSizeCategory } from '@/types'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Spinner } from '@/components/ui/spinner'
@@ -25,7 +22,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { DrawerFooter } from '@/components/ui/drawer'
 
 const initialRoomState: RoomCategoryFormData = {
   name: '',
@@ -44,11 +40,8 @@ export function AddRoomCategoryForm({
   propertyId: number
   onAddSuccess: () => void
 }) {
-  const {
-    facilities: allFacilities,
-    loading: facilitiesLoading,
-    error: facilitiesError,
-  } = useFacilities()
+  const { facilities: allFacilities, loading: facilitiesLoading } =
+    useFacilities()
   const [roomData, setRoomData] =
     useState<RoomCategoryFormData>(initialRoomState)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -60,29 +53,29 @@ export function AddRoomCategoryForm({
   const [loadingPetData, setLoadingPetData] = useState(true)
 
   useEffect(() => {
-    async function fetchPetData() {
+    async function loadPets() {
       try {
         setLoadingPetData(true)
-        const [petsRes, sizesRes] = await Promise.all([
+        const [petRes, sizeRes] = await Promise.all([
           getPetTypes(),
           getPetSizeCategories(),
         ])
-        setPetTypes(petsRes.pets)
-        setPetSizeCategories(sizesRes.petSizeCategories)
-        if (sizesRes.petSizeCategories.length > 0) {
+        setPetTypes(petRes.pets)
+        setPetSizeCategories(sizeRes.petSizeCategories)
+
+        if (sizeRes.petSizeCategories.length > 0) {
           setRoomData((prev) => ({
             ...prev,
-            petSizeCategoryId: sizesRes.petSizeCategories[0].id,
+            petSizeCategoryId: sizeRes.petSizeCategories[0].id,
           }))
         }
-      } catch (error) {
-        toast.error('Failed to load pet data.')
-        console.error(error)
+      } catch (err) {
+        toast.error('Failed to load pet data')
       } finally {
         setLoadingPetData(false)
       }
     }
-    fetchPetData()
+    loadPets()
   }, [])
 
   const roomFacilities = allFacilities.filter(
@@ -93,28 +86,17 @@ export function AddRoomCategoryForm({
     const { name, value, type } = e.target
     setRoomData((prev) => ({
       ...prev,
-      [name]: type === 'number' ? Number(value) || 0 : value,
+      [name]: type === 'number' ? Number(value) : value,
     }))
   }
 
-  const handleSelectChange = (name: string, value: string) => {
+  const toggleMulti = (key: 'pets' | 'facilities', id: number) => {
     setRoomData((prev) => ({
       ...prev,
-      [name]: Number(value),
+      [key]: prev[key].includes(id)
+        ? prev[key].filter((v) => v !== id)
+        : [...prev[key], id],
     }))
-  }
-
-  const handleMultiSelectToggle = (
-    listName: 'pets' | 'facilities',
-    value: number
-  ) => {
-    setRoomData((prev) => {
-      const list = prev[listName]
-      const updatedList = list.includes(value)
-        ? list.filter((id) => id !== value)
-        : [...list, value]
-      return { ...prev, [listName]: updatedList }
-    })
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -122,207 +104,168 @@ export function AddRoomCategoryForm({
     setIsSubmitting(true)
     try {
       await createRoomCategory(propertyId, roomData)
-      toast.success('Room category added successfully!')
+      toast.success('Room category added!')
       onAddSuccess()
     } catch (err) {
-      toast.error(
-        err instanceof Error ? err.message : 'Failed to add room category.'
-      )
+      toast.error('Failed to add room category.')
     } finally {
       setIsSubmitting(false)
     }
   }
 
   return (
-    <form onSubmit={handleSubmit} className="p-4 overflow-y-auto max-h-[80vh]">
-      <div className="space-y-8">
-        <section>
-          <h3 className="font-semibold text-lg text-neutral-dark mb-4">
-            Basic Details
-          </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <Label htmlFor="name" className="text-deep-teal">
-                Room Name
-              </Label>
-              <Input
-                id="name"
-                name="name"
-                placeholder="e.g., Deluxe Double Room"
-                value={roomData.name}
-                onChange={handleChange}
-                required
-                className="p-6 text-base"
-              />
-            </div>
-            <div>
-              <Label htmlFor="basePrice" className="text-deep-teal">
-                Price per Night (THB)
-              </Label>
-              <Input
-                id="basePrice"
-                name="basePrice"
-                type="number"
-                placeholder="e.g., 1500"
-                value={roomData.basePrice}
-                onChange={handleChange}
-                required
-                className="p-6 text-base"
-              />
-            </div>
-            <div>
-              <Label htmlFor="totalRoom" className="text-deep-teal">
-                Total Rooms of this Category
-              </Label>
-              <Input
-                id="totalRoom"
-                name="totalRoom"
-                type="number"
-                placeholder="e.g., 5"
-                value={roomData.totalRoom}
-                onChange={handleChange}
-                required
-                className="p-6 text-base"
-              />
-            </div>
-            <div>
-              <Label htmlFor="numberOfPets" className="text-deep-teal">
-                Pet Capacity per Room
-              </Label>
-              <Input
-                id="numberOfPets"
-                name="numberOfPets"
-                type="number"
-                placeholder="e.g., 2"
-                value={roomData.numberOfPets}
-                onChange={handleChange}
-                required
-                className="p-6 text-base"
-              />
-            </div>
-          </div>
-        </section>
+    <form
+      className="py-4 px-10 space-y-8 overflow-y-auto max-h-[80vh]"
+      onSubmit={handleSubmit}
+    >
+      {/* 1. Title */}
+      <div className="space-y-1">
+        <Label htmlFor="name" className="text-deep-teal">
+          Title
+        </Label>
+        <Input
+          id="name"
+          name="name"
+          placeholder="Room name"
+          value={roomData.name}
+          onChange={handleChange}
+          required
+        />
+      </div>
 
-        <section>
-          <h3 className="font-semibold text-lg text-neutral-dark mb-4">
-            Pet Details
-          </h3>
-          {loadingPetData ? (
-            <Spinner />
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
-              <div>
-                <Label className="text-deep-teal mb-2 block">
-                  Allowed Pet Types
-                </Label>
-                <div className="grid grid-cols-2 gap-4 p-4 border rounded-lg bg-white">
-                  {petTypes.map((petType) => (
-                    <button
-                      key={petType.id}
-                      type="button"
-                      onClick={() =>
-                        handleMultiSelectToggle('pets', petType.id)
-                      }
-                      className={cn(
-                        'flex items-center p-2 rounded-md text-left transition-colors text-sm',
-                        roomData.pets.includes(petType.id)
-                          ? 'bg-teal-50'
-                          : 'hover:bg-gray-50'
-                      )}
-                    >
-                      <div
-                        className={cn(
-                          'w-4 h-4 rounded mr-2 shrink-0 border flex items-center justify-center',
-                          roomData.pets.includes(petType.id)
-                            ? 'border-positive-green bg-positive-green'
-                            : 'border-gray-300 bg-white'
-                        )}
-                      >
-                        {roomData.pets.includes(petType.id) && (
-                          <div className="w-2 h-2 bg-white rounded-full" />
-                        )}
-                      </div>
-                      <span className="font-medium text-neutral-dark">
-                        {petType.name}
-                      </span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-              <div>
-                <Label htmlFor="petSizeCategoryId" className="text-deep-teal">
-                  Max Pet Size
-                </Label>
-                <Select
-                  value={String(roomData.petSizeCategoryId)}
-                  onValueChange={(value) =>
-                    handleSelectChange('petSizeCategoryId', value)
-                  }
-                >
-                  <SelectTrigger className="p-6 text-base">
-                    <SelectValue placeholder="Select max pet size" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {petSizeCategories.map((size) => (
-                      <SelectItem key={size.id} value={String(size.id)}>
-                        {size.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-          )}
-        </section>
-
-        <section>
-          <h3 className="font-semibold text-lg text-neutral-dark mb-4">
-            In-Room Facilities
-          </h3>
-          {facilitiesLoading && <Spinner />}
-          {facilitiesError && (
-            <p className="text-red-500">{facilitiesError}</p>
-          )}
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-            {roomFacilities.map((facility) => (
+      {/* 2. Species Allowed */}
+      <div className="space-y-2">
+        <Label className="text-deep-teal">Species Allowed</Label>
+        {loadingPetData ? (
+          <Spinner />
+        ) : (
+          <div className="grid grid-cols-2 gap-4">
+            {petTypes.map((pet) => (
               <button
-                key={facility.id}
+                key={pet.id}
                 type="button"
-                onClick={() =>
-                  handleMultiSelectToggle('facilities', facility.id)
-                }
+                onClick={() => toggleMulti('pets', pet.id)}
                 className={cn(
-                  'flex items-center p-4 rounded-lg border text-left transition-colors',
-                  roomData.facilities.includes(facility.id)
-                    ? 'border-positive-green bg-teal-50'
-                    : 'bg-white hover:border-deep-teal/50'
+                  'flex items-center p-4 rounded-xl border shadow-sm transition',
+                  roomData.pets.includes(pet.id)
+                    ? 'bg-teal-50 border-positive-green'
+                    : 'bg-white hover:border-deep-teal/40'
                 )}
               >
-                <div
-                  className={cn(
-                    'w-5 h-5 rounded-full mr-3 shrink-0 border flex items-center justify-center',
-                    roomData.facilities.includes(facility.id)
-                      ? 'border-positive-green bg-positive-green'
-                      : 'border-gray-300 bg-white'
-                  )}
-                >
-                  {roomData.facilities.includes(facility.id) && (
-                    <div className="w-2.5 h-2.5 bg-white rounded-full" />
-                  )}
-                </div>
-                <span className="font-medium text-sm text-neutral-dark">
-                  {facility.name}
-                </span>
+                {pet.name.toLowerCase() === 'dog' ? (
+                  <Dog className="mr-3 h-7 w-7" />
+                ) : (
+                  <Cat className="mr-3 h-7 w-7" />
+                )}
+                <span className="font-medium">{pet.name}</span>
               </button>
             ))}
           </div>
-        </section>
+        )}
       </div>
-      <DrawerFooter className="pt-8">
-        <Button type="submit" disabled={isSubmitting}>
+
+      {/* 3. Size */}
+      <div className="space-y-2">
+        <Label className="text-deep-teal">Size</Label>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {petSizeCategories.map((size) => {
+            const description =
+              size.max === 14
+                ? 'under 14kg'
+                : size.min === 14 && size.max === 25
+                  ? '14-25kg'
+                  : 'over 25kg'
+            return (
+              <button
+                key={size.id}
+                type="button"
+                onClick={() =>
+                  setRoomData((prev) => ({
+                    ...prev,
+                    petSizeCategoryId: size.id,
+                  }))
+                }
+                className={cn(
+                  'p-4 rounded-xl border shadow-sm text-left transition',
+                  roomData.petSizeCategoryId === size.id
+                    ? 'bg-teal-50 border-positive-green'
+                    : 'bg-white hover:border-deep-teal/40'
+                )}
+              >
+                <span className="font-medium">{size.name}</span>
+                <p className="text-xs text-gray-500">{description}</p>
+              </button>
+            )
+          })}
+        </div>
+      </div>
+
+      {/* 4. Room Facilities */}
+      <div className="space-y-2">
+        <Label className="text-deep-teal">Room Facilities</Label>
+        {facilitiesLoading && <Spinner />}
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+          {roomFacilities.map((f) => (
+            <button
+              key={f.id}
+              type="button"
+              onClick={() => toggleMulti('facilities', f.id)}
+              className={cn(
+                'flex items-center p-4 rounded-xl border shadow-sm transition',
+                roomData.facilities.includes(f.id)
+                  ? 'bg-teal-50 border-positive-green'
+                  : 'bg-white hover:border-deep-teal/40'
+              )}
+            >
+              <span className="font-medium">{f.name}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* 5. Max pets allowed */}
+      <div className="space-y-1">
+        <Label className="text-deep-teal">Max pets allowed</Label>
+        <Select
+          value={String(roomData.numberOfPets)}
+          onValueChange={(v) =>
+            setRoomData((prev) => ({ ...prev, numberOfPets: Number(v) }))
+          }
+        >
+          <SelectTrigger className="p-4 text-base">
+            <SelectValue placeholder="Select number" />
+          </SelectTrigger>
+          <SelectContent>
+            {[1, 2, 3, 4, 5].map((num) => (
+              <SelectItem key={num} value={String(num)}>
+                {num}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      {/* 6. Base price per night */}
+      <div className="space-y-1">
+        <Label htmlFor="basePrice" className="text-sm text-deep-teal">
+          Base price per night
+        </Label>
+        <Input
+          id="basePrice"
+          name="basePrice"
+          type="number"
+          placeholder="1500"
+          value={roomData.basePrice}
+          onChange={handleChange}
+        />
+      </div>
+
+      {/* Submit */}
+      <div className="pt-4">
+        <Button type="submit" disabled={isSubmitting} className="w-full">
           {isSubmitting ? <Spinner /> : 'Save Room Category'}
         </Button>
-      </DrawerFooter>
+      </div>
     </form>
   )
 }
