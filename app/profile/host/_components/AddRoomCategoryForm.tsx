@@ -70,7 +70,7 @@ export function AddRoomCategoryForm({
 
   const toggleMulti = (key: 'pets' | 'facilities', id: number) => {
     updateRoom(
-      key,
+      key as keyof RoomCategoryFormData,
       roomData[key].includes(id)
         ? roomData[key].filter((v) => v !== id)
         : [...roomData[key], id]
@@ -135,7 +135,11 @@ export function AddRoomCategoryForm({
         setPetSizeCategories(sizeRes.petSizeCategories)
 
         if (sizeRes.petSizeCategories.length > 0) {
-          updateRoom('petSizeCategoryId', sizeRes.petSizeCategories[0].id)
+          updateRoom(
+            'petSizeCategoryId',
+            sizeRes.petSizeCategories[0]
+              .id as RoomCategoryFormData['petSizeCategoryId']
+          )
         }
       } catch (err: unknown) {
         toast.error(
@@ -157,8 +161,11 @@ export function AddRoomCategoryForm({
    -------------------------- */
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type } = e.target
-    if (name !== 'basePrice') {
-      updateRoom(name, type === 'number' ? Number(value) : value)
+    if (name !== 'basePrice' && name in roomData) {
+      updateRoom(
+        name as keyof RoomCategoryFormData,
+        type === 'number' ? Number(value) : value
+      )
     }
   }
 
@@ -166,7 +173,7 @@ export function AddRoomCategoryForm({
     const raw = e.target.value.replace(/\D/g, '')
     if (raw.length <= 6) {
       const numeric = raw ? parseInt(raw, 10) : 0
-      updateRoom('basePrice', numeric)
+      updateRoom('basePrice', numeric as RoomCategoryFormData['basePrice'])
       setDisplayPrice(raw ? formatPrice(numeric) : '')
     }
   }

@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
-import { Plus, ArrowLeft } from 'lucide-react'
+import { Plus, ChevronLeft } from 'lucide-react'
 
 import { RoomCategoryCard } from '../RoomCategoryCard'
 
@@ -111,17 +111,21 @@ export function Step8() {
         </div>
 
         <DrawerContent>
-          <DrawerHeader className="relative">
-            <DrawerTitle className="text-center">Add Room Category</DrawerTitle>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="absolute left-2 top-2"
-              onClick={() => setIsDrawerOpen(false)}
-            >
-              <ArrowLeft className="h-4 w-4" />
-            </Button>
+          <DrawerHeader>
+            <DrawerTitle>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setIsDrawerOpen(false)}
+                  className="p-1 rounded-md hover:bg-neutral-100 transition"
+                >
+                  <ChevronLeft className="h-5 w-5 text-neutral-gray" />
+                </button>
+                <span>Add Room Category</span>
+              </div>
+            </DrawerTitle>
           </DrawerHeader>
+
           {propertyId && (
             <AddRoomCategoryForm
               propertyId={propertyId}
