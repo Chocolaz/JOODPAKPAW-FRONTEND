@@ -1,4 +1,3 @@
-import { Pet } from './pet'
 import { Facility } from './api'
 
 export interface PropertyImage {
@@ -47,8 +46,7 @@ export interface Property {
   hostId: number
   propertyTypeId: number
   images: PropertyImage[]
-  roomCategory: RoomCategory
-  pets: Pet[]
+  roomCategories: RoomCategory[]
   createdAt: string
   updatedAt: string
   reviewCount?: number

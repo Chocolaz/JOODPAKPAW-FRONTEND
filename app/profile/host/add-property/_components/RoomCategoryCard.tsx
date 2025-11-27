@@ -10,12 +10,14 @@ interface RoomCategoryCardProps {
   category: RoomCategory
   propertyId: number
   onDeleteSuccess: () => void
+  showDeleteButton?: boolean // Add this prop
 }
 
 export function RoomCategoryCard({
   category,
   propertyId,
   onDeleteSuccess,
+  showDeleteButton = true, // Default to true
 }: RoomCategoryCardProps) {
   const [isDeleting, setIsDeleting] = useState(false)
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -48,10 +50,11 @@ export function RoomCategoryCard({
     <>
       <div className="relative mx-5 rounded-2xl border border-neutral-200 bg-white shadow-sm hover:shadow-md transition">
         {/* Delete Button */}
-        <button
-          onClick={handleDeleteClick}
-          disabled={isDeleting}
-          className="
+        {showDeleteButton && ( // Conditionally render
+          <button
+            onClick={handleDeleteClick}
+            disabled={isDeleting}
+            className="
     absolute -top-4 -right-2 z-10 
     p-2 rounded-full
     bg-white/80 border border-neutral-300 
@@ -60,14 +63,15 @@ export function RoomCategoryCard({
     active:scale-95 
     transition-all
   "
-          aria-label="Delete room category"
-        >
-          {isDeleting ? (
-            <Spinner className="h-4 w-4" />
-          ) : (
-            <Minus className="h-5 w-5" />
-          )}
-        </button>
+            aria-label="Delete room category"
+          >
+            {isDeleting ? (
+              <Spinner className="h-4 w-4" />
+            ) : (
+              <Minus className="h-5 w-5" />
+            )}
+          </button>
+        )}
 
         {/* Content */}
         <div className="p-5 flex flex-col gap-4">
