@@ -46,6 +46,7 @@ export function AddRoomCategoryForm({
 }) {
   const { facilities: allFacilities, loading: facilitiesLoading } =
     useFacilities()
+
   const [roomData, setRoomData] =
     useState<RoomCategoryFormData>(initialRoomState)
   const [displayPrice, setDisplayPrice] = useState('')
@@ -57,6 +58,67 @@ export function AddRoomCategoryForm({
   )
   const [loadingPetData, setLoadingPetData] = useState(true)
 
+  /** -------------------------
+   *  Helpers
+   -------------------------- */
+  const updateRoom = (key: string, value: any) => {
+    setRoomData((prev) => ({ ...prev, [key]: value }))
+  }
+
+  const toggleMulti = (key: 'pets' | 'facilities', id: number) => {
+    updateRoom(
+      key,
+      roomData[key].includes(id)
+        ? roomData[key].filter((v) => v !== id)
+        : [...roomData[key], id]
+    )
+  }
+
+  const formatPrice = (value: number) =>
+    new Intl.NumberFormat('en-US').format(value)
+
+  const renderPetIcon = (pet: Pet, selected: boolean) => {
+    const Icon = pet.name.toLowerCase() === 'dog' ? Dog : Cat
+    return (
+      <div
+        className={cn(
+          'flex items-center justify-center rounded-full w-10 h-10',
+          selected ? 'bg-teal-50' : 'bg-[#EFF1F4]'
+        )}
+      >
+        <Icon className={cn('h-7 w-7', selected && 'text-positive-green')} />
+      </div>
+    )
+  }
+
+  const renderSizeIcon = (name: string, selected: boolean) => {
+    const Icon =
+      name.toLowerCase() === 'small'
+        ? SmallIcon
+        : name.toLowerCase() === 'medium'
+          ? MediumIcon
+          : LargeIcon
+
+    return (
+      <div
+        className={cn(
+          'flex items-center justify-center rounded-full w-10 h-10',
+          selected ? 'bg-teal-50' : 'bg-[#EFF1F4]'
+        )}
+      >
+        <Icon
+          className={cn(
+            'h-5 w-5',
+            selected ? 'text-positive-green' : 'text-gray-500'
+          )}
+        />
+      </div>
+    )
+  }
+
+  /** -------------------------
+   *  Load Pets
+   -------------------------- */
   useEffect(() => {
     async function loadPets() {
       try {
@@ -65,14 +127,12 @@ export function AddRoomCategoryForm({
           getPetTypes(),
           getPetSizeCategories(),
         ])
+
         setPetTypes(petRes.pets)
         setPetSizeCategories(sizeRes.petSizeCategories)
 
         if (sizeRes.petSizeCategories.length > 0) {
-          setRoomData((prev) => ({
-            ...prev,
-            petSizeCategoryId: sizeRes.petSizeCategories[0].id,
-          }))
+          updateRoom('petSizeCategoryId', sizeRes.petSizeCategories[0].id)
         }
       } catch (err) {
         toast.error('Failed to load pet data')
@@ -87,35 +147,28 @@ export function AddRoomCategoryForm({
     (f) => f.category.name === 'indoor'
   )
 
+  /** -------------------------
+   *  Input Handlers
+   -------------------------- */
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type } = e.target
-    if (name === 'basePrice') return
-    setRoomData((prev) => ({
-      ...prev,
-      [name]: type === 'number' ? Number(value) : value,
-    }))
-  }
-
-  const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value.replace(/\D/g, '')
-    if (value === '' || value.length <= 6) {
-      const numericValue = value === '' ? 0 : parseInt(value, 10)
-      setRoomData((prev) => ({ ...prev, basePrice: numericValue }))
-      setDisplayPrice(
-        value === '' ? '' : new Intl.NumberFormat('en-US').format(numericValue)
-      )
+    if (name !== 'basePrice') {
+      updateRoom(name, type === 'number' ? Number(value) : value)
     }
   }
 
-  const toggleMulti = (key: 'pets' | 'facilities', id: number) => {
-    setRoomData((prev) => ({
-      ...prev,
-      [key]: prev[key].includes(id)
-        ? prev[key].filter((v) => v !== id)
-        : [...prev[key], id],
-    }))
+  const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const raw = e.target.value.replace(/\D/g, '')
+    if (raw.length <= 6) {
+      const numeric = raw ? parseInt(raw, 10) : 0
+      updateRoom('basePrice', numeric)
+      setDisplayPrice(raw ? formatPrice(numeric) : '')
+    }
   }
 
+  /** -------------------------
+   *  Submit
+   -------------------------- */
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsSubmitting(true)
@@ -123,21 +176,24 @@ export function AddRoomCategoryForm({
       await createRoomCategory(propertyId, roomData)
       toast.success('Room category added!')
       onAddSuccess()
-    } catch (err) {
+    } catch {
       toast.error('Failed to add room category.')
     } finally {
       setIsSubmitting(false)
     }
   }
 
+  /** -------------------------
+   *  UI
+   -------------------------- */
   return (
     <form
       className="py-4 px-10 space-y-4 overflow-y-auto max-h-[80vh] relative"
       onSubmit={handleSubmit}
     >
-      {/* 1. Title */}
-      <div className="space-y-2">
-        <Label htmlFor="name" className="text-deep-teal">
+      {/* Title */}
+      <div>
+        <Label htmlFor="name" className="text-deep-teal block mb-2">
           Title
         </Label>
         <Input
@@ -150,74 +206,42 @@ export function AddRoomCategoryForm({
         />
       </div>
 
-      {/* 2. Species Allowed */}
-      <div className="space-y-3">
-        <Label className="text-deep-teal">Species Allowed</Label>
+      {/* Species */}
+      <div>
+        <Label className="text-deep-teal block mb-2">Species Allowed</Label>
         {loadingPetData ? (
           <Spinner />
         ) : (
           <div className="flex justify-center items-center gap-6">
-            {petTypes.map((pet) => (
-              <button
-                key={pet.id}
-                type="button"
-                onClick={() => toggleMulti('pets', pet.id)}
-                className={cn(
-                  'flex flex-col items-center justify-center rounded-xl border shadow-sm transition aspect-square w-24 h-24 space-y-2',
-                  roomData.pets.includes(pet.id)
-                    ? 'border-positive-green'
-                    : 'bg-white hover:border-deep-teal/40'
-                )}
-              >
-                {pet.name.toLowerCase() === 'dog' ? (
-                  <div
-                    className={cn(
-                      'flex items-center justify-center rounded-full w-10 h-10',
-                      roomData.pets.includes(pet.id)
-                        ? 'bg-teal-50'
-                        : 'bg-[#EFF1F4]'
-                    )}
-                  >
-                    <Dog
-                      className={cn(
-                        'h-7 w-7',
-                        roomData.pets.includes(pet.id)
-                          ? 'text-positive-green'
-                          : ''
-                      )}
-                    />
-                  </div>
-                ) : (
-                  <div
-                    className={cn(
-                      'flex items-center justify-center rounded-full w-10 h-10',
-                      roomData.pets.includes(pet.id)
-                        ? 'bg-teal-50'
-                        : 'bg-[#EFF1F4]'
-                    )}
-                  >
-                    <Cat
-                      className={cn(
-                        'h-7 w-7',
-                        roomData.pets.includes(pet.id)
-                          ? 'text-positive-green'
-                          : ''
-                      )}
-                    />
-                  </div>
-                )}
-                <span className="font-medium text-sm">{pet.name}</span>
-              </button>
-            ))}
+            {petTypes.map((pet) => {
+              const selected = roomData.pets.includes(pet.id)
+              return (
+                <button
+                  key={pet.id}
+                  type="button"
+                  onClick={() => toggleMulti('pets', pet.id)}
+                  className={cn(
+                    'flex flex-col items-center justify-center rounded-xl border shadow-sm transition aspect-square w-24 h-24 space-y-2',
+                    selected
+                      ? 'border-positive-green'
+                      : 'bg-white hover:border-deep-teal/40'
+                  )}
+                >
+                  {renderPetIcon(pet, selected)}
+                  <span className="font-medium text-sm">{pet.name}</span>
+                </button>
+              )
+            })}
           </div>
         )}
       </div>
 
-      {/* 3. Size */}
-      <div className="space-y-3">
-        <Label className="text-deep-teal">Size</Label>
+      {/* Pet Size */}
+      <div>
+        <Label className="text-deep-teal block mb-2">Size</Label>
         <div className="flex justify-center items-center gap-6">
           {petSizeCategories.map((size) => {
+            const selected = roomData.petSizeCategoryId === size.id
             const description =
               size.max === 14
                 ? 'under 14kg'
@@ -225,57 +249,23 @@ export function AddRoomCategoryForm({
                   ? '14-25kg'
                   : 'over 25kg'
 
-            const getSizeIcon = (sizeName: string, isSelected: boolean) => {
-              let IconComponent
-              if (sizeName.toLowerCase() === 'small') {
-                IconComponent = SmallIcon
-              } else if (sizeName.toLowerCase() === 'medium') {
-                IconComponent = MediumIcon
-              } else {
-                IconComponent = LargeIcon
-              }
-
-              return (
-                <div
-                  className={cn(
-                    'flex items-center justify-center rounded-full w-10 h-10',
-                    isSelected ? 'bg-teal-50' : 'bg-[#EFF1F4]'
-                  )}
-                >
-                  <IconComponent
-                    className={cn(
-                      'h-5 w-5',
-                      isSelected ? 'text-positive-green' : 'text-gray-500'
-                    )}
-                  />
-                </div>
-              )
-            }
-
             return (
               <button
                 key={size.id}
                 type="button"
-                onClick={() =>
-                  setRoomData((prev) => ({
-                    ...prev,
-                    petSizeCategoryId: size.id,
-                  }))
-                }
+                onClick={() => updateRoom('petSizeCategoryId', size.id)}
                 className={cn(
                   'flex flex-col items-center justify-center p-4 rounded-xl border shadow-sm transition w-[100px] h-[125px] space-y-1',
-                  roomData.petSizeCategoryId === size.id
+                  selected
                     ? 'border-positive-green'
                     : 'bg-white hover:border-deep-teal/40'
                 )}
               >
-                {getSizeIcon(size.name, roomData.petSizeCategoryId === size.id)}
+                {renderSizeIcon(size.name, selected)}
                 <span
                   className={cn(
                     'font-medium',
-                    roomData.petSizeCategoryId === size.id
-                      ? 'text-positive-green'
-                      : ''
+                    selected && 'text-positive-green'
                   )}
                 >
                   {size.name}
@@ -287,9 +277,9 @@ export function AddRoomCategoryForm({
         </div>
       </div>
 
-      {/* 4. Room Facilities */}
-      <div className="space-y-3">
-        <Label className="text-deep-teal">Room Facilities</Label>
+      {/* Facilities */}
+      <div>
+        <Label className="text-deep-teal block mb-2">Room Facilities</Label>
         {facilitiesLoading && <Spinner />}
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
           {roomFacilities.map((f) => (
@@ -303,15 +293,13 @@ export function AddRoomCategoryForm({
         </div>
       </div>
 
-      {/* 5. Max pets allowed */}
-      <div className="space-y-2">
-        <Label className="text-deep-teal">Max pets allowed</Label>
+      {/* Max pets */}
+      <div>
+        <Label className="text-deep-teal block mb-2">Max pets allowed</Label>
         <div className="flex justify-center">
           <Select
             value={String(roomData.numberOfPets)}
-            onValueChange={(v) =>
-              setRoomData((prev) => ({ ...prev, numberOfPets: Number(v) }))
-            }
+            onValueChange={(v) => updateRoom('numberOfPets', Number(v))}
           >
             <SelectTrigger className="py-5 px-4 text-lg w-max">
               <SelectValue placeholder="Select number" />
@@ -327,9 +315,9 @@ export function AddRoomCategoryForm({
         </div>
       </div>
 
-      {/* 6. Base price per night */}
-      <div className="space-y-2">
-        <Label htmlFor="basePrice" className="text-sm text-deep-teal">
+      {/* Price */}
+      <div>
+        <Label htmlFor="basePrice" className="text-deep-teal block mb-2">
           Base price per night
         </Label>
         <div className="flex justify-center">
@@ -345,6 +333,7 @@ export function AddRoomCategoryForm({
         </div>
       </div>
 
+      {/* Submit */}
       <div className="sticky bottom-0 left-0 right-0 p-4">
         <Button
           type="submit"
