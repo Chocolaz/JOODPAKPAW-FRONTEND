@@ -47,15 +47,15 @@ export function HostBanner({ currentStep, totalSteps }: HostBannerProps) {
   }
 
   return (
-    <div className="sticky top-14 z-9 bg-off-white p-10 rounded-bl-xl rounded-br-xl shadow-sm w-full">
+    <div className="sticky top-14 z-9 bg-off-white p-10 rounded-bl-4xl rounded-br-4xl shadow-sm border-b w-full">
       {currentStep && totalSteps ? (
-        <div className="min-h-[80px]">
+        <div className="min-h-20">
           {/* Row หลัก: Step อยู่ขวาสุด, Title อยู่กลาง */}
           <div className="relative flex items-center justify-center">
             {/* Title & Subtitle ตรงกลางจริง ๆ */}
             <div className="text-center mb-2">
-              <p className="text-lg text-deep-teal">{getStepTitle(currentStep)}</p>
-              <p className="text-base text-deep-teal">
+              <h5 className="text-deep-teal">{getStepTitle(currentStep)}</h5>
+              <p className="text-base text-neutral-gray">
                 {getStepSubtitle(currentStep)}
               </p>
             </div>
@@ -74,7 +74,7 @@ export function HostBanner({ currentStep, totalSteps }: HostBannerProps) {
           <Progress value={(currentStep / totalSteps) * 100} className="mt-3" />
         </div>
       ) : (
-        <div className="min-h-[60px] text-center">
+        <div className="min-h-[60px] text-start">
           <p className="text-lg text-accent-orange">
             Hello {user?.firstName} {user?.lastName}
           </p>
