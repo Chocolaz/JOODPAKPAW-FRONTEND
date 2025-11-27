@@ -48,7 +48,7 @@ export function RoomCategoryCard({
 
   return (
     <>
-      <div className="relative mx-5 rounded-2xl border border-neutral-200 bg-white shadow-sm hover:shadow-md transition">
+      <div className="relative rounded-2xl border border-neutral-200 bg-white shadow-sm hover:shadow-md transition">
         {/* Delete Button */}
         {showDeleteButton && ( // Conditionally render
           <button

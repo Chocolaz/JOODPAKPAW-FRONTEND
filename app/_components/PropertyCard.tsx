@@ -4,7 +4,7 @@ import { Property } from '@/types'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useState } from 'react'
-import { cn } from '@/lib/utils'
+import { cn, getLowestPrice } from '@/lib/utils'
 import { Globe, GlobeLock } from 'lucide-react'
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL
@@ -29,6 +29,8 @@ export function PropertyCard({
   )
 
   const finalHref = href || `/${property.id}`
+
+  const lowestPrice = getLowestPrice(property.roomCategories)
 
   return (
     <Link href={finalHref} className={cn('block', className)}>
@@ -63,14 +65,13 @@ export function PropertyCard({
 
         {showRoomCount && property.roomCount !== undefined && (
           <p className="text-xs font-medium">
-            {property.roomCount} {property.roomCount === 1 ? 'room' : 'rooms'}
+            {property.roomCount} Room{' '}
+            {property.roomCount === 1 ? 'Type' : 'Types'}
           </p>
         )}
 
-        {property.roomCategory && (
-          <p className="font-bold text-[10px]">
-            THB {property.roomCategory.basePrice}
-          </p>
+        {lowestPrice !== null && (
+          <p className="font-bold text-[10px]">THB {lowestPrice}</p>
         )}
       </div>
     </Link>

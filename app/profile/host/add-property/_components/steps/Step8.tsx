@@ -87,11 +87,11 @@ export function Step8() {
       </p>
 
       <Drawer open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
-        <div className="space-y-4 text-left max-w-2xl mx-auto">
+        <div className="space-y-4 text-left max-w-2xl mx-auto px-4">
           {error && <p className="text-red-500 text-center">{error}</p>}
 
           <DrawerTrigger asChild>
-            <div className="mx-5 px-6 py-8 border-2 border-dashed border-positive-green rounded-xl cursor-pointer hover:bg-green-50/50 transition-colors">
+            <div className="px-6 py-8 border-2 border-dashed border-positive-green rounded-xl cursor-pointer hover:bg-green-50/50 transition-colors">
               <div className="font-medium text-deep-teal text-lg flex items-center justify-between w-full">
                 <span>Add Room</span>
                 <Plus className="h-6 w-6 text-positive-green" />

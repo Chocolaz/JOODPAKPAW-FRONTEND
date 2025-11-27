@@ -129,38 +129,6 @@ export default function HostPropertyDetailPage() {
           showDeleteButton={false}
         />
         <PropertyLocation property={property} />
-
-        {/* Host-specific content */}
-        <div className="border-t pt-8 mt-10">
-          <h2 className="text-xl font-semibold mb-3 text-gray-900">
-            Host Information
-          </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-            <div className="p-4 border rounded-xl shadow-sm bg-white">
-              <p className="text-gray-500 text-sm">Base Price</p>
-              <p className="text-xl font-semibold text-emerald-700">
-                THB {property.roomCategories?.[0]?.basePrice || 'N/A'} / night
-              </p>
-            </div>
-
-            <div className="p-4 border rounded-xl shadow-sm bg-white">
-              <p className="text-gray-500 text-sm">Property Type</p>
-              <p className="text-lg font-medium mt-1 capitalize">
-                {property.propertyType?.name.replace(/_/g, ' ')}
-              </p>
-            </div>
-
-            <div className="p-4 border rounded-xl shadow-sm bg-white">
-              <p className="text-gray-500 text-sm">Created At</p>
-              <p className="text-lg mt-1">{property.createdAt}</p>
-            </div>
-
-            <div className="p-4 border rounded-xl shadow-sm bg-white">
-              <p className="text-gray-500 text-sm">Host ID</p>
-              <p className="text-lg mt-1">{property.hostId}</p>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   )

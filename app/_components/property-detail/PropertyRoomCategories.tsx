@@ -22,9 +22,7 @@ export function PropertyRoomCategories({
 
   return (
     <div className="border-t pt-8 mt-10">
-      <h2 className="text-xl font-semibold mb-3 text-gray-900">
-        Room Categories
-      </h2>
+      <h3 className="mb-3 text-deep-teal">Room Categories</h3>
       <div className="space-y-4">
         {roomCategories.map((category) => (
           <RoomCategoryCard
