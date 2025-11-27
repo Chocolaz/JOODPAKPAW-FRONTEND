@@ -111,18 +111,17 @@ export function Step8() {
         </div>
 
         <DrawerContent>
-          <DrawerHeader>
-            <DrawerTitle>
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => setIsDrawerOpen(false)}
-                  className="p-1 rounded-md hover:bg-neutral-100 transition"
-                >
-                  <ChevronLeft className="h-5 w-5 text-neutral-gray" />
-                </button>
-                <span>Add Room Category</span>
-              </div>
+          <DrawerHeader className="relative">
+            <DrawerTitle className="flex items-center gap-2">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="-ml-2"
+                onClick={() => setIsDrawerOpen(false)}
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </Button>
+              <span>Add Room Category</span>
             </DrawerTitle>
           </DrawerHeader>
 

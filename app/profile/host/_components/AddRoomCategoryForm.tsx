@@ -313,7 +313,33 @@ export function AddRoomCategoryForm({
         <div className="flex justify-center">
           <Select
             value={String(roomData.numberOfPets)}
-            onValueChange={(v) => updateRoom('numberOfPets', Number(v))}
+            onValueChange={(v) =>
+              updateRoom('numberOfPets', Number(v) as RoomCategoryFormData['numberOfPets'])
+            }
+          >
+            <SelectTrigger className="py-5 px-4 text-lg w-max">
+              <SelectValue placeholder="Select number" />
+            </SelectTrigger>
+            <SelectContent>
+              {[1, 2, 3, 4, 5].map((num) => (
+                <SelectItem key={num} value={String(num)}>
+                  {num}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+
+      {/* Total Room */}
+      <div>
+        <Label className="text-deep-teal block mb-2">Total Room</Label>
+        <div className="flex justify-center">
+          <Select
+            value={String(roomData.totalRoom)}
+            onValueChange={(v) =>
+              updateRoom('totalRoom', Number(v) as RoomCategoryFormData['totalRoom'])
+            }
           >
             <SelectTrigger className="py-5 px-4 text-lg w-max">
               <SelectValue placeholder="Select number" />
