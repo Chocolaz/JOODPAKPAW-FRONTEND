@@ -93,7 +93,10 @@ export function RoomCategoryCard({
             <div className="flex items-center gap-6">
               <div className="flex items-center gap-2">
                 <BedDouble className="w-4 h-4 text-accent-orange" />
-                <span>{category.totalRoom} rooms</span>
+                <span>
+                  {category.totalRoom}{' '}
+                  {category.totalRoom === 1 ? 'room' : 'rooms'}
+                </span>
               </div>
 
               <div className="flex items-center gap-2">
