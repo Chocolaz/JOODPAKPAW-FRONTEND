@@ -1,8 +1,8 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
-import { Plus } from 'lucide-react'
+import { Plus, ArrowLeft } from 'lucide-react'
 
 import { RoomCategoryCard } from '../RoomCategoryCard'
 
@@ -19,7 +19,6 @@ import {
   DrawerContent,
   DrawerHeader,
   DrawerTitle,
-  DrawerDescription,
   DrawerTrigger,
 } from '@/components/ui/drawer'
 
@@ -39,7 +38,7 @@ export function Step8() {
   const [error, setError] = useState<string | null>(null)
   const [isDrawerOpen, setIsDrawerOpen] = useState(false)
 
-  const fetchRooms = async () => {
+  const fetchRooms = useCallback(async () => {
     if (!propertyId) {
       setLoading(false)
       setError('Property ID not found.')
@@ -56,11 +55,11 @@ export function Step8() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [propertyId])
 
   useEffect(() => {
     fetchRooms()
-  }, [propertyId])
+  }, [propertyId, fetchRooms])
 
   const handleAddSuccess = () => {
     fetchRooms()
@@ -112,11 +111,16 @@ export function Step8() {
         </div>
 
         <DrawerContent>
-          <DrawerHeader>
-            <DrawerTitle>Add a New Room Category</DrawerTitle>
-            <DrawerDescription>
-              Fill in the details for the new room category.
-            </DrawerDescription>
+          <DrawerHeader className="relative">
+            <DrawerTitle className="text-center">Add Room Category</DrawerTitle>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="absolute left-2 top-2"
+              onClick={() => setIsDrawerOpen(false)}
+            >
+              <ArrowLeft className="h-4 w-4" />
+            </Button>
           </DrawerHeader>
           {propertyId && (
             <AddRoomCategoryForm

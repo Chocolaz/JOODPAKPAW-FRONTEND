@@ -4,7 +4,7 @@ import { cn } from '@/lib/utils'
 import { Facility } from '@/types'
 
 interface FacilityCardProps {
-  facility: { id: number; name: string }
+  facility: Facility
   selected: boolean
   onToggle: (id: number) => void
 }

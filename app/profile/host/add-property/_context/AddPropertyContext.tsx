@@ -68,7 +68,8 @@ export const AddPropertyProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     if (!isLoading) {
-      const { images, ...dataToStore } = formData
+      const { images: _images, ...dataToStore } = formData
+      void _images;
       sessionStorage.setItem('addPropertyFormData', JSON.stringify(dataToStore))
     }
   }, [formData, isLoading])

@@ -61,7 +61,10 @@ export function AddRoomCategoryForm({
   /** -------------------------
    *  Helpers
    -------------------------- */
-  const updateRoom = (key: string, value: any) => {
+  const updateRoom = <K extends keyof RoomCategoryFormData>(
+    key: K,
+    value: RoomCategoryFormData[K]
+  ) => {
     setRoomData((prev) => ({ ...prev, [key]: value }))
   }
 
@@ -134,8 +137,10 @@ export function AddRoomCategoryForm({
         if (sizeRes.petSizeCategories.length > 0) {
           updateRoom('petSizeCategoryId', sizeRes.petSizeCategories[0].id)
         }
-      } catch (err) {
-        toast.error('Failed to load pet data')
+      } catch (err: unknown) {
+        toast.error(
+          err instanceof Error ? err.message : 'Failed to load pet data'
+        )
       } finally {
         setLoadingPetData(false)
       }
@@ -176,8 +181,10 @@ export function AddRoomCategoryForm({
       await createRoomCategory(propertyId, roomData)
       toast.success('Room category added!')
       onAddSuccess()
-    } catch {
-      toast.error('Failed to add room category.')
+    } catch (err: unknown) {
+      toast.error(
+        err instanceof Error ? err.message : 'Failed to add room category.'
+      )
     } finally {
       setIsSubmitting(false)
     }

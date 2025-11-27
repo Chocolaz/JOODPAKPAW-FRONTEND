@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import { Property } from '@/types'
 import { getStaticMapUrl } from '@/lib/mapUtils'
 
@@ -30,12 +31,14 @@ export function PropertyLocation({ property }: PropertyLocationProps) {
         href={googleMapsUrl}
         target="_blank"
         rel="noopener noreferrer"
-        className="block w-full"
+        className="block w-full h-[200px] relative"
       >
-        <img
+        <Image
           src={mapUrl}
           alt="Map of property location"
-          className="w-full h-auto rounded-xl shadow cursor-pointer hover:opacity-90 transition"
+          fill
+          unoptimized
+          className="object-cover rounded-xl shadow cursor-pointer hover:opacity-90 transition"
         />
       </a>
     </div>

@@ -5,7 +5,6 @@ import { useFacilities } from '../../_hooks/useFacilities'
 import { Facility } from '@/types'
 import { FacilityCard } from '../../../_components/FacilityCard'
 import { StepNavigation } from '../StepNavigation'
-import { cn } from '@/lib/utils'
 import { Spinner } from '@/components/ui/spinner'
 
 export function Step5({

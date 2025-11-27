@@ -72,10 +72,12 @@ export function Step6({
                 key={index}
                 className="relative w-full aspect-square rounded-xl overflow-hidden shadow-sm border border-gray-200"
               >
-                <img
+                <Image
                   src={URL.createObjectURL(file)}
                   alt={`preview-${index}`}
-                  className="object-cover w-full h-full"
+                  fill
+                  unoptimized
+                  className="object-cover"
                 />
 
                 <button
