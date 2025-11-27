@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input'
 import { useAddProperty } from '../../_context/AddPropertyContext'
 import { StepNavigation } from '../StepNavigation'
 import { X } from 'lucide-react'
+import { toast } from 'sonner' // Import toast
 
 export function Step6({
   onNext,
@@ -15,11 +16,58 @@ export function Step6({
 }) {
   const { formData, updateField } = useAddProperty()
 
+  const MAX_FILES = 10
+  const MAX_TOTAL_MB = 20
+
+  const ALLOWED_TYPES = [
+    'image/jpeg',
+    'image/jpg',
+    'image/png',
+    'image/webp',
+    'image/heic', // iPhone
+    'image/heif', // iPhone
+  ]
+
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      const files = Array.from(e.target.files)
-      updateField('images', [...formData.images, ...files])
+    if (!e.target.files) return
+
+    const incomingFiles = Array.from(e.target.files)
+
+    // 1) Check total count limit
+    if (formData.images.length + incomingFiles.length > MAX_FILES) {
+      toast.error(`You can upload up to ${MAX_FILES} photos.`)
+      return
     }
+
+    let validated: File[] = []
+
+    for (const file of incomingFiles) {
+      // 2) File type check
+      if (!ALLOWED_TYPES.includes(file.type)) {
+        toast.error(`Some files are not supported image formats.`)
+        return
+      }
+
+      validated.push(file)
+    }
+
+    // 3) Check total size limit (existing + new)
+    const totalSize =
+      formData.images.reduce((acc, f) => acc + f.size, 0) +
+      validated.reduce((acc, f) => acc + f.size, 0)
+
+    const totalMB = totalSize / (1024 * 1024)
+
+    if (totalMB > MAX_TOTAL_MB) {
+      toast.error(
+        `Total file size cannot exceed ${MAX_TOTAL_MB} MB (current: ${totalMB.toFixed(
+          1
+        )} MB).`
+      )
+      return
+    }
+
+    updateField('images', [...formData.images, ...validated])
   }
 
   const handleRemoveImage = (index: number) => {
@@ -33,7 +81,7 @@ export function Step6({
         <h3 className="text-deep-teal text-2xl font-semibold">
           Upload photos of your property
         </h3>
-        <p className="mb-6 text-neutral-gray text-sm">
+        <p className="mb-4 text-neutral-gray text-sm">
           Add clear photos that help pet parents understand your space
         </p>
 
@@ -90,6 +138,13 @@ export function Step6({
               </div>
             ))}
           </div>
+        )}
+
+        {/* Image count */}
+        {formData.images.length > 0 && (
+          <p className="text-sm text-neutral-gray mt-4">
+            {formData.images.length} out of {MAX_FILES} images uploaded
+          </p>
         )}
       </div>
 

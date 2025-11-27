@@ -51,6 +51,7 @@ export function AddRoomCategoryForm({
     useState<RoomCategoryFormData>(initialRoomState)
   const [displayPrice, setDisplayPrice] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [errorMessage, setErrorMessage] = useState('')
 
   const [petTypes, setPetTypes] = useState<Pet[]>([])
   const [petSizeCategories, setPetSizeCategories] = useState<PetSizeCategory[]>(
@@ -58,9 +59,6 @@ export function AddRoomCategoryForm({
   )
   const [loadingPetData, setLoadingPetData] = useState(true)
 
-  /** -------------------------
-   *  Helpers
-   -------------------------- */
   const updateRoom = <K extends keyof RoomCategoryFormData>(
     key: K,
     value: RoomCategoryFormData[K]
@@ -119,9 +117,6 @@ export function AddRoomCategoryForm({
     )
   }
 
-  /** -------------------------
-   *  Load Pets
-   -------------------------- */
   useEffect(() => {
     async function loadPets() {
       try {
@@ -160,12 +155,9 @@ export function AddRoomCategoryForm({
    *  Input Handlers
    -------------------------- */
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value, type } = e.target
-    if (name !== 'basePrice' && name in roomData) {
-      updateRoom(
-        name as keyof RoomCategoryFormData,
-        type === 'number' ? Number(value) : value
-      )
+    const { name, value } = e.target
+    if (name === 'name') {
+      if (value.length <= 50) updateRoom(name as any, value)
     }
   }
 
@@ -179,10 +171,41 @@ export function AddRoomCategoryForm({
   }
 
   /** -------------------------
-   *  Submit
+   *  Validation
    -------------------------- */
+  const validateRoom = () => {
+    if (!roomData.name.trim()) {
+      setErrorMessage('Room title is required (max 50 chars).')
+      return false
+    }
+    if (roomData.basePrice <= 0) {
+      setErrorMessage('Base price must be greater than 0.')
+      return false
+    }
+    if (roomData.totalRoom < 1 || roomData.totalRoom > 5) {
+      setErrorMessage('Total room must be between 1 and 5.')
+      return false
+    }
+    if (roomData.numberOfPets < 1 || roomData.numberOfPets > 5) {
+      setErrorMessage('Number of pets must be between 1 and 5.')
+      return false
+    }
+    if (roomData.pets.length === 0) {
+      setErrorMessage('Please select at least one species allowed.')
+      return false
+    }
+    if (roomData.facilities.length === 0) {
+      setErrorMessage('Please select at least one facility.')
+      return false
+    }
+    setErrorMessage('')
+    return true
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (!validateRoom()) return
+
     setIsSubmitting(true)
     try {
       await createRoomCategory(propertyId, roomData)
@@ -205,6 +228,11 @@ export function AddRoomCategoryForm({
       className="py-4 px-10 space-y-4 overflow-y-auto max-h-[80vh] relative"
       onSubmit={handleSubmit}
     >
+      {/* Error message */}
+      {errorMessage && (
+        <p className="text-red-500 text-sm mb-2">{errorMessage}</p>
+      )}
+
       {/* Title */}
       <div>
         <Label htmlFor="name" className="text-deep-teal block mb-2">
@@ -314,7 +342,10 @@ export function AddRoomCategoryForm({
           <Select
             value={String(roomData.numberOfPets)}
             onValueChange={(v) =>
-              updateRoom('numberOfPets', Number(v) as RoomCategoryFormData['numberOfPets'])
+              updateRoom(
+                'numberOfPets',
+                Number(v) as RoomCategoryFormData['numberOfPets']
+              )
             }
           >
             <SelectTrigger className="py-5 px-4 text-lg w-max">
@@ -338,7 +369,10 @@ export function AddRoomCategoryForm({
           <Select
             value={String(roomData.totalRoom)}
             onValueChange={(v) =>
-              updateRoom('totalRoom', Number(v) as RoomCategoryFormData['totalRoom'])
+              updateRoom(
+                'totalRoom',
+                Number(v) as RoomCategoryFormData['totalRoom']
+              )
             }
           >
             <SelectTrigger className="py-5 px-4 text-lg w-max">

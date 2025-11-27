@@ -14,7 +14,7 @@ export function Step3({
 }) {
   const { formData, updateField } = useAddProperty()
 
-  // Auto fill triggered on step load
+  // Auto fill on load
   React.useEffect(() => {
     if (formData.latitude && formData.longitude) {
       updateField('country', 'Thailand')
@@ -22,13 +22,10 @@ export function Step3({
 
       let districtToSet = formData.district || ''
       if (!districtToSet && formData.subdistrict) {
-        // In Thai, เขต (Khet) means district. When Google Maps doesn't find a
-        // district, it sometimes puts the district name in the subdistrict
-        // field with "Khet". This logic corrects that.
         districtToSet = formData.subdistrict.replace(/Khet/gi, '').trim()
       }
-      updateField('district', districtToSet)
 
+      updateField('district', districtToSet)
       updateField('subdistrict', formData.subdistrict || '')
       updateField('address', formData.address || '')
       updateField('zipcode', formData.zipcode || '')
@@ -45,7 +42,16 @@ export function Step3({
   ])
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    updateField(e.target.name as keyof typeof formData, e.target.value)
+    const { name, value } = e.target
+
+    // Allow only numbers for zipcode
+    if (name === 'zipcode') {
+      const numeric = value.replace(/\D/g, '') // remove non-digits
+      updateField('zipcode', numeric.slice(0, 5)) // limit to 5 digits
+      return
+    }
+
+    updateField(name as keyof typeof formData, value)
   }
 
   const isFormValid = () => {
@@ -55,7 +61,7 @@ export function Step3({
       formData.district.trim() !== '' &&
       formData.subdistrict.trim() !== '' &&
       formData.address.trim() !== '' &&
-      formData.zipcode.trim() !== ''
+      formData.zipcode.trim().length === 5
     )
   }
 
@@ -92,6 +98,7 @@ export function Step3({
               name="district"
               placeholder="District"
               value={formData.district}
+              maxLength={50}
               onChange={handleChange}
             />
           </div>
@@ -105,6 +112,7 @@ export function Step3({
               name="subdistrict"
               placeholder="Subdistrict"
               value={formData.subdistrict}
+              maxLength={50}
               onChange={handleChange}
             />
           </div>
@@ -116,6 +124,7 @@ export function Step3({
               name="address"
               placeholder="Address"
               value={formData.address}
+              maxLength={120}
               onChange={handleChange}
             />
           </div>
@@ -127,6 +136,8 @@ export function Step3({
               name="zipcode"
               placeholder="Zipcode"
               value={formData.zipcode}
+              inputMode="numeric"
+              maxLength={5}
               onChange={handleChange}
             />
           </div>

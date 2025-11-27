@@ -50,7 +50,7 @@ export function Step5({
           Select all the facilities available for pets
         </p>
 
-        <div className="max-h-[60vh] overflow-y-auto pr-2 space-y-10 mb-20">
+        <div className="max-h-[57vh] overflow-y-auto pr-2 space-y-10 mb-20">
           {Object.entries(groupedFacilities).map(([category, facilities]) => (
             <div key={category}>
               <h4 className="text-left text-neutral-dark font-semibold capitalize mb-4">
