@@ -6,12 +6,28 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-export function getLowestPrice(roomCategories: RoomCategory[]): number | null {
-  if (!roomCategories || roomCategories.length === 0) {
+export function getLowestPrice(roomCategories: any): number | null {
+  if (!roomCategories) {
     return null
   }
 
-  return roomCategories.reduce((minPrice, category) => {
-    return category.basePrice < minPrice ? category.basePrice : minPrice
-  }, Infinity)
+  if (Array.isArray(roomCategories)) {
+    if (roomCategories.length === 0) {
+      return null
+    }
+    return roomCategories.reduce((minPrice, category) => {
+      const price = category.basePrice
+      return price < minPrice ? price : minPrice
+    }, Infinity)
+  }
+
+  if (
+    typeof roomCategories === 'object' &&
+    !Array.isArray(roomCategories) &&
+    roomCategories.basePrice !== undefined
+  ) {
+    return roomCategories.basePrice
+  }
+
+  return null
 }
