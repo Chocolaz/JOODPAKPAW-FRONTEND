@@ -10,6 +10,7 @@ import { FacilityCard } from './FacilityCard'
 import { ImageManager } from './ImageManager'
 import { TitleDescriptionForm } from './TitleDescriptionForm'
 import { FormSubmitButton } from './FormSubmitButton'
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 
 interface EditPropertyFormProps {
   property: Property
@@ -72,37 +73,30 @@ export function EditPropertyForm({
   }
 
   return (
-    <form className="px-4 h-[80vh] flex flex-col" onSubmit={handleSubmit}>
-      {/* Tabs */}
-      <div className="flex border-b mb-4">
-        <button
-          type="button"
-          onClick={() => setActiveTab('property')}
-          className={`py-2 px-4 ${
-            activeTab === 'property'
-              ? 'border-b-2 border-deep-teal text-deep-teal'
-              : 'text-gray-500'
-          }`}
-        >
-          Property
-        </button>
-        <button
-          type="button"
-          onClick={() => setActiveTab('facilities')}
-          className={`py-2 px-4 ${
-            activeTab === 'facilities'
-              ? 'border-b-2 border-deep-teal text-deep-teal'
-              : 'text-gray-500'
-          }`}
-        >
-          Facilities
-        </button>
-      </div>
+    <form className="px-5 h-[80vh] flex flex-col" onSubmit={handleSubmit}>
+      <Tabs
+        value={activeTab}
+        onValueChange={(value) => setActiveTab(value as Tab)}
+        className="flex flex-col grow"
+      >
+        <TabsList className="flex border-b mb-4 bg-transparent p-0 justify-start">
+          <TabsTrigger
+            value="property"
+            className="py-2 px-4 rounded-none border-b-2 border-transparent text-neutral-gray data-[state=active]:border-deep-teal data-[state=active]:text-deep-teal data-[state=active]:bg-transparent"
+          >
+            Property
+          </TabsTrigger>
+          <TabsTrigger
+            value="facilities"
+            className="py-2 px-4 rounded-none border-b-2 border-transparent text-neutral-gray data-[state=active]:border-deep-teal data-[state=active]:text-deep-teal data-[state=active]:bg-transparent"
+          >
+            Facilities
+          </TabsTrigger>
+        </TabsList>
 
-      {/* Scrollable Tab Content */}
-      <div className="flex-1 overflow-y-auto space-y-4">
-        {activeTab === 'property' && (
-          <>
+        {/* Scrollable Tab Content */}
+        <div className="flex-1 overflow-y-auto space-y-4">
+          <TabsContent value="property">
             <TitleDescriptionForm
               title={title}
               description={description}
@@ -121,39 +115,39 @@ export function EditPropertyForm({
                 renderAsGridAddButton={true}
               />
             </div>
-          </>
-        )}
+          </TabsContent>
 
-        {activeTab === 'facilities' && (
-          <div className="space-y-8 pb-20">
-            {facilitiesLoading ? (
-              <Spinner />
-            ) : error ? (
-              <p className="text-red-500">{error}</p>
-            ) : (
-              Object.entries(groupedFacilities).map(
-                ([category, facilities]) => (
-                  <div key={category}>
-                    <h4 className="text-left text-neutral-dark font-semibold capitalize mb-4">
-                      {category}
-                    </h4>
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                      {facilities.map((facility) => (
-                        <FacilityCard
-                          key={facility.id}
-                          facility={facility}
-                          selected={selectedFacilities.includes(facility.id)}
-                          onToggle={toggleFacility}
-                        />
-                      ))}
+          <TabsContent value="facilities">
+            <div className="space-y-8 pb-20">
+              {facilitiesLoading ? (
+                <Spinner />
+              ) : error ? (
+                <p className="text-red-500">{error}</p>
+              ) : (
+                Object.entries(groupedFacilities).map(
+                  ([category, facilities]) => (
+                    <div key={category}>
+                      <h4 className="text-left text-neutral-dark font-semibold capitalize mb-4">
+                        {category}
+                      </h4>
+                      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                        {facilities.map((facility) => (
+                          <FacilityCard
+                            key={facility.id}
+                            facility={facility}
+                            selected={selectedFacilities.includes(facility.id)}
+                            onToggle={toggleFacility}
+                          />
+                        ))}
+                      </div>
                     </div>
-                  </div>
+                  )
                 )
-              )
-            )}
-          </div>
-        )}
-      </div>
+              )}
+            </div>
+          </TabsContent>
+        </div>
+      </Tabs>
 
       {/* Sticky Submit Button */}
       <div className="sticky bottom-0 bg-white p-4 border-t">

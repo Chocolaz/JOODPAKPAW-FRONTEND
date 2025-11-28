@@ -17,7 +17,7 @@ export function TitleDescriptionForm({
   onDescriptionChange,
 }: TitleDescriptionFormProps) {
   return (
-    <div className="space-y-4 text-left">
+    <div className="space-y-4 px-1 text-left">
       {/* Title */}
       <div>
         <label className="text-sm font-medium text-deep-teal mb-1 block">
