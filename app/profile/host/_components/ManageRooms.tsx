@@ -6,7 +6,6 @@ import { getRoomCategories } from '@/lib/api'
 import { RoomCategory } from '@/types'
 import { RoomCategoryCard } from '@/app/profile/host/add-property/_components/RoomCategoryCard'
 import { AddRoomCategoryForm } from './AddRoomCategoryForm'
-import { Button } from '@/components/ui/button'
 import { Spinner } from '@/components/ui/spinner'
 import {
   Drawer,
@@ -18,7 +17,7 @@ import {
 
 interface ManageRoomsProps {
   propertyId: number
-  onRoomsUpdate: () => void
+  onRoomsUpdate?: () => void
 }
 
 export function ManageRooms({ propertyId, onRoomsUpdate }: ManageRoomsProps) {
@@ -52,13 +51,13 @@ export function ManageRooms({ propertyId, onRoomsUpdate }: ManageRoomsProps) {
 
   const handleAddSuccess = () => {
     fetchRooms()
-    onRoomsUpdate()
+    onRoomsUpdate?.()
     setIsAddDrawerOpen(false)
   }
 
   const handleDeleteSuccess = () => {
     fetchRooms()
-    onRoomsUpdate()
+    onRoomsUpdate?.()
   }
 
   if (loading) {

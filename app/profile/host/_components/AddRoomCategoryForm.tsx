@@ -157,7 +157,7 @@ export function AddRoomCategoryForm({
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
     if (name === 'name') {
-      if (value.length <= 50) updateRoom(name as any, value)
+      if (value.length <= 50) updateRoom('name', value)
     }
   }
 

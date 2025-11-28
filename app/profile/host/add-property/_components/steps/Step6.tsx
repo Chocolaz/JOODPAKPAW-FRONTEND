@@ -18,7 +18,8 @@ export function Step6({
     updateField('images', files)
   }
 
-  const handleExistingImagesChange = (images: PropertyImage[]) => {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const handleExistingImagesChange = (_images: PropertyImage[]) => {
     // Not used in Step 6 as we only have new files
   }
 

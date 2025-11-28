@@ -1,5 +1,6 @@
 'use client'
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { useState } from 'react'
 import Image from 'next/image'
 import { Input } from '@/components/ui/input'

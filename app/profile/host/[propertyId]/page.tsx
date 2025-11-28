@@ -18,6 +18,7 @@ import { toast } from 'sonner'
 import { useState } from 'react'
 import { ConfirmationModal } from '@/app/_components/ConfirmationModal'
 import { PropertyRoomCategories } from '@/app/_components/property-detail/PropertyRoomCategories'
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { Property } from '@/types'
 
 export default function HostPropertyDetailPage() {
@@ -38,7 +39,7 @@ export default function HostPropertyDetailPage() {
           text: `Check out this property: ${property.title}`,
           url: publicUrl,
         })
-      } catch (err) {
+      } catch (err: unknown) {
         console.error('Error sharing:', err)
       }
     } else {
@@ -57,8 +58,10 @@ export default function HostPropertyDetailPage() {
         `Property successfully ${newStatus ? 'published' : 'unpublished'}.`
       )
       refreshProperty()
-    } catch (err) {
-      toast.error('Failed to update property status. Please try again.')
+    } catch (err: unknown) {
+      toast.error(
+        err instanceof Error ? err.message : 'Failed to update property status. Please try again.'
+      )
     } finally {
       setIsUpdatingStatus(false)
     }
@@ -81,8 +84,10 @@ export default function HostPropertyDetailPage() {
       await deleteProperty(property.id.toString())
       toast.success('Property deleted successfully.')
       router.push('/profile/host')
-    } catch (err) {
-      toast.error('Failed to delete property. Please try again.')
+    } catch (err: unknown) {
+      toast.error(
+        err instanceof Error ? err.message : 'Failed to delete property. Please try again.'
+      )
     } finally {
       setIsDeleting(false)
     }

@@ -5,13 +5,13 @@ import { ChevronLeft, Share2, Globe, GlobeLock } from 'lucide-react'
 import { HostActionMenu } from '@/app/profile/host/_components/HostActionMenu'
 
 interface PageHeaderButtonsProps {
-  property: Property
+  property?: Property
   onBackClick: () => void
   onShareClick: () => void
   onDeleteClick?: () => void
   onGlobeClick?: () => void
   isPropertyActive?: boolean
-  onDataChange: () => void
+  onDataChange?: () => void
 }
 
 export function PageHeaderButtons({
@@ -51,11 +51,13 @@ export function PageHeaderButtons({
             )}
           </button>
         )}
-        <HostActionMenu
-          property={property}
-          onDeleteClick={onDeleteClick}
-          onDataChange={onDataChange}
-        />
+        {property && onDataChange && (
+          <HostActionMenu
+            property={property}
+            onDeleteClick={onDeleteClick}
+            onDataChange={onDataChange}
+          />
+        )}
       </div>
     </>
   )

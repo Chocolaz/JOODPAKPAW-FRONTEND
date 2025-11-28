@@ -15,9 +15,9 @@ import { EditPropertyForm } from './EditPropertyForm'
 import { ManageRooms } from './ManageRooms'
 
 interface HostActionMenuProps {
-  property: Property
+  property?: Property
   onDeleteClick?: () => void
-  onDataChange: () => void
+  onDataChange?: () => void
 }
 
 export function HostActionMenu({
@@ -36,9 +36,13 @@ export function HostActionMenu({
   }
 
   const handleSuccess = () => {
-    onDataChange()
+    onDataChange?.()
     setIsOpen(false) // Close drawer on success
     setView('menu')
+  }
+
+  if (!property) {
+    return null
   }
 
   return (
