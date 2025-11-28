@@ -18,6 +18,7 @@ import {
   SignUpCredentials,
   VerifyOtpCredentials,
 } from '@/types'
+import type { PropertiesResponse } from '@/types/property'
 
 // --- Auth Functions ---
 export const signIn = (
@@ -100,12 +101,15 @@ export const updateUserProfile = (userId: string, formData: FormData) => {
 }
 
 // --- Property Functions ---
-export const getProperties = (page: number, limit: number) => {
+export const getProperties = (
+  page: number,
+  limit: number
+): Promise<PropertiesResponse> => {
   const params = new URLSearchParams({
     page: String(page),
     limit: String(limit),
   })
-  return request({
+  return request<PropertiesResponse>({
     endpoint: `api/v1/properties?${params.toString()}`,
     method: 'GET',
     errorContext: 'Get Properties',

@@ -51,10 +51,18 @@ export function EditPropertyForm({
     e.preventDefault()
     setIsSubmitting(true)
 
+    const initialImageIds = property.images?.map((img) => img.id) || []
+    const finalImageIds = new Set(existingImages.map((img) => img.id))
+    const deleteImageIds = initialImageIds.filter(
+      (id) => !finalImageIds.has(id)
+    )
+
     const formData = new FormData()
     formData.append('title', title)
     formData.append('description', description)
     formData.append('facilities', JSON.stringify(selectedFacilities))
+    formData.append('deleteImageIds', JSON.stringify(deleteImageIds))
+
     newFiles.forEach((file) => {
       formData.append('images', file)
     })
