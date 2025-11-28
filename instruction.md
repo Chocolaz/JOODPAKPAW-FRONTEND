@@ -8,14 +8,17 @@ Joodpakpaw is a web application built with Next.js, designed as a platform for b
 
 ## Tech Stack
 
-- **Framework:** [Next.js](https://nextjs.org/) (v16) with App Router
+- **Framework:** [Next.js](https://nextjs.org/) (v14) with App Router
 - **Language:** [TypeScript](https://www.typescriptlang.org/)
 - **Styling:** [Tailwind CSS](https://tailwindcss.com/)
 - **UI Components:**
   - [shadcn/ui](https://ui.shadcn.com/): A collection of re-usable components built on Radix UI (e.g., `carousel`, `button`, `input`, `card`, `dialog`, `spinner`).
   - [Lucide React](https://lucide.dev/): For icons.
   - [Sonner](https://sonner.emilkowal.ski/): For toast notifications.
-- **Maps Integration:** [Google Maps API](https://developers.google.com/maps) is used for displaying property locations and for place autocompletion.
+- **Maps Integration:**
+  - [react-leaflet](https://react-leaflet.js.org/): For displaying property locations on an interactive map.
+  - [Google Maps Static API](https://developers.google.com/maps/documentation/maps-static/overview): Used to display a static image of the property's location.
+  - [Google Maps API](https://developers.google.com/maps): Used for the place autocompletion feature in search fields.
 - **Linting & Formatting:**
   - [ESLint](https://eslint.org/)
   - [Prettier](https://prettier.io/)
@@ -41,13 +44,15 @@ npm install
 
 ### 2. Environment Variables
 
-The project requires a Google Maps API key to function correctly. Create a `.env.local` file in the root of the project and add your API key:
+The project requires a few environment variables to function correctly. Create a `.env.local` file in the root of the project and add the following:
 
 ```
+# The base URL of the backend API
+NEXT_PUBLIC_API_BASE_URL=http://your-api-backend-url.com
+
+# Your Google Maps API key, required for the place autocomplete feature
 NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=YOUR_GOOGLE_MAPS_API_KEY
 ```
-
-**Note:** The backend API base URL is configured in `lib/apiClient.ts`. You may need to change it depending on where the backend is running.
 
 ### 3. Running the Development Server
 
@@ -66,10 +71,10 @@ The project follows the standard Next.js App Router structure. Here are some of 
 - `/app`: Contains all the routes and UI of the application.
   - `/_components`: Global reusable components like the `BottomNav` and `AuthContext`.
   - `/(route-group)`: Different route groups for different sections of the app (e.g., `authen`, `profile`).
-  - `/lib`: Contains utility functions, API communication logic, and other core functionalities.
-  - `/components/ui`: Houses the `shadcn/ui` components.
-  - `/types`: Contains all TypeScript type definitions for the application, organized by feature.
-  - `/public`: For static assets like images and icons.
+- `/lib`: Contains utility functions, API communication logic, and other core functionalities.
+- `/components/ui`: Houses the `shadcn/ui` components.
+- `/types`: Contains all TypeScript type definitions for the application, organized by feature.
+- `/public`: For static assets like images and icons.
 
 ## Key Features
 
@@ -79,6 +84,7 @@ The project follows the standard Next.js App Router structure. Here are some of 
 - **OTP Verification:** Email verification using a one-time password.
 - **Password Management:** Includes forgot and reset password functionality.
 - **Auth Context:** The `app/_components/AuthContext.tsx` provides authentication state to the entire application.
+- **Automatic Token Refresh:** The API client automatically handles refreshing expired JWTs, providing a seamless session management experience.
 
 ### Property Browsing
 

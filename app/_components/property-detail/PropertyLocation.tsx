@@ -1,8 +1,8 @@
 'use client'
 
-import Image from 'next/image'
+import { useMemo } from 'react'
 import { Property } from '@/types'
-import { getStaticMapUrl } from '@/lib/mapUtils'
+import dynamic from 'next/dynamic'
 
 interface PropertyLocationProps {
   property: Pick<Property, 'latitude' | 'longitude' | 'district' | 'province'>
@@ -13,11 +13,16 @@ export function PropertyLocation({ property }: PropertyLocationProps) {
     return null
   }
 
-  const mapUrl = getStaticMapUrl({
-    latitude: property.latitude,
-    longitude: property.longitude,
-  })
-  const googleMapsUrl = `https://www.google.com/maps?q=${property.latitude},${property.longitude}`
+  const lat = Number(property.latitude)
+  const lng = Number(property.longitude)
+
+  const Map = useMemo(
+    () =>
+      dynamic(() => import('@/app/_components/Map'), {
+        ssr: false,
+      }),
+    []
+  )
 
   return (
     <div className="mt-10 border-t pt-8">
@@ -27,20 +32,9 @@ export function PropertyLocation({ property }: PropertyLocationProps) {
           {property.district}, {property.province}
         </p>
       </div>
-      <a
-        href={googleMapsUrl}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="block w-full aspect-square relative"
-      >
-        <Image
-          src={mapUrl}
-          alt="Map of property location"
-          fill
-          unoptimized
-          className="object-cover rounded-xl shadow cursor-pointer hover:opacity-90 transition"
-        />
-      </a>
+      <div className="w-full aspect-square relative">
+        <Map lat={lat} lng={lng} />
+      </div>
     </div>
   )
 }

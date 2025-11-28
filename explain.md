@@ -33,7 +33,7 @@ The project effectively abstracts common logic into a dedicated "library" layer,
 
 - **Evidence:**
     - **Reusable API Handlers:** The `lib/api.ts` file centralizes all functions responsible for making backend API calls (e.g., `signIn`, `getProperties`, `createProperty`). These functions use a shared `request` client from `lib/apiClient.ts`, which standardizes error handling, authentication headers, and API endpoint construction.
-    - **Reusable Utilities:** The project contains various utility files for specific concerns, such as `lib/mapUtils.ts` for Google Maps logic and `lib/authenUtils.ts` for authentication-related helpers.
+    - **Reusable Utilities:** The project contains various utility files for specific concerns, such as `lib/mapUtils.ts` for map-related logic (including Leaflet and Google Maps), and `lib/authenUtils.ts` for authentication-related helpers.
 
 - **Benefits:**
     - **Avoids Duplicated Logic:** Instead of writing `fetch` calls in multiple components, we call a single, well-defined function (e.g., `getProfile()`).
@@ -83,31 +83,35 @@ PropertyDetailPage (Page)
 ├── PropertyHeader (Molecule)
 ├── PropertyFacilities (Organism)
 └── PropertyLocation (Organism)
-    └── GoogleMap (Vendor Component)
+    └── InteractiveMap (Molecule, using Leaflet)
 ```
 
 ### Data Flow
 
 Data flows unidirectionally from parent to child components via props.
-1.  The `PropertyDetailPage` fetches the `property` object using the `usePropertyLoader` hook.
-2.  The `property` object is then passed down as a prop to child components.
+1.  The `PropertyDetailPage` uses the `usePropertyLoader` custom hook, which abstracts the logic for fetching data. This hook takes a fetcher function (e.g., `getPropertyById`) as an argument.
+2.  Inside the hook, a `useEffect` triggers the fetcher function, which calls the API and retrieves the `property` object.
+3.  The hook manages the `loading`, `error`, and `data` states. The fetched `property` object is returned from the hook.
+4.  The `PropertyDetailPage` then passes the `property` object down as a prop to its child components:
     - `PropertyImageGallery` receives `property.images`.
     - `PropertyHeader` receives the full `property` object.
     - `PropertyFacilities` receives `property.facilities`.
 
-### Component API Example (`PropertyCard.tsx`)
-
-
 ```typescript
 // types/property.ts
 export interface Property {
-  id: string;
+  id: number;
   title: string;
+  description: string;
   province: string;
-  district:string;
+  district: string;
+  latitude: string;
+  longitude: string;
+  isActive: boolean;
+  avgRating: number;
   images: { filePath: string }[];
-  roomCategory?: { basePrice: number };
-  // ... other fields
+  roomCategories?: RoomCategories | RoomCategories[];
+  // ... and other fields like country, zipcode, etc.
 }
 
 // app/_components/PropertyCard.tsx
@@ -116,7 +120,7 @@ interface PropertyCardProps {
 }
 
 export function PropertyCard({ property }: PropertyCardProps) {
-  // ... implementation
+  // ... implementation uses property.title, property.images, etc.
 }
 ```
 This demonstrates a well-defined contract: the `PropertyCard` requires a `property` object conforming to the `Property` type.
