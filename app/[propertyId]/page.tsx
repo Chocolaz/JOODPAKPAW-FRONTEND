@@ -10,9 +10,11 @@ import { PropertyFacilities } from '@/app/_components/property-detail/PropertyFa
 import { PropertyLocation } from '@/app/_components/property-detail/PropertyLocation'
 import { useRouter } from 'next/navigation'
 import { PageHeaderButtons } from '@/app/_components/property-detail/PageHeaderButtons'
+import { PropertyRoomCategories } from '@/app/_components/property-detail/PropertyRoomCategories'
 
 export default function PropertyDetailPage() {
-  const { property, loading, error } = usePropertyLoader(getPropertyById)
+  const { property, loading, error, refreshProperty } =
+    usePropertyLoader(getPropertyById)
   const router = useRouter()
 
   const handleShare = async () => {
@@ -61,6 +63,11 @@ export default function PropertyDetailPage() {
         <PropertyFacilities
           facilities={property.facilities}
           description={property.description}
+        />
+        <PropertyRoomCategories
+          propertyId={property.id}
+          onDeleteSuccess={refreshProperty}
+          showDeleteButton={false}
         />
         <PropertyLocation property={property} />
       </div>
