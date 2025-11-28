@@ -1,8 +1,7 @@
 'use client'
 
 import { useAddProperty } from '../../_context/AddPropertyContext'
-import { useFacilities } from '../../_hooks/useFacilities'
-import { Facility } from '@/types'
+import { useGroupedFacilities } from '../../../_hooks/useGroupedFacilities'
 import { FacilityCard } from '../../../_components/FacilityCard'
 import { StepNavigation } from '../StepNavigation'
 import { Spinner } from '@/components/ui/spinner'
@@ -15,7 +14,7 @@ export function Step5({
   onBack: () => void
 }) {
   const { formData, updateField } = useAddProperty()
-  const { facilities, loading, error } = useFacilities()
+  const { groupedFacilities, loading, error } = useGroupedFacilities()
 
   const handleToggle = (facilityId: number) => {
     const updated = formData.facilities.includes(facilityId)
@@ -24,18 +23,6 @@ export function Step5({
 
     updateField('facilities', updated)
   }
-
-  const groupedFacilities = facilities
-    .filter((facility) => facility.category.name !== 'indoor')
-    .reduce(
-      (acc, facility) => {
-        const category = facility.category.name
-        if (!acc[category]) acc[category] = []
-        acc[category].push(facility)
-        return acc
-      },
-      {} as Record<string, Facility[]>
-    )
 
   if (loading) return <Spinner className="mt-20" />
   if (error) return <div className="text-red-500 mt-20">{error}</div>

@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { Property } from '@/types'
-import { useFacilities } from '../add-property/_hooks/useFacilities'
+import { useGroupedFacilities } from '../_hooks/useGroupedFacilities'
 import { updateProperty } from '@/lib/api'
 import { toast } from 'sonner'
 import { Spinner } from '@/components/ui/spinner'
@@ -34,8 +34,11 @@ export function EditPropertyForm({
     property.facilities?.map((f) => f.id) || []
   )
 
-  const { facilities: allFacilities, loading: facilitiesLoading } =
-    useFacilities()
+  const {
+    groupedFacilities,
+    loading: facilitiesLoading,
+    error,
+  } = useGroupedFacilities()
 
   const toggleFacility = (id: number) => {
     setSelectedFacilities((prev) =>
@@ -107,7 +110,7 @@ export function EditPropertyForm({
               onDescriptionChange={setDescription}
             />
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block font-medium text-deep-teal mb-2">
                 Images
               </label>
               <ImageManager
@@ -122,20 +125,31 @@ export function EditPropertyForm({
         )}
 
         {activeTab === 'facilities' && (
-          <div>
+          <div className="space-y-8 pb-20">
             {facilitiesLoading ? (
               <Spinner />
+            ) : error ? (
+              <p className="text-red-500">{error}</p>
             ) : (
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                {allFacilities.map((facility) => (
-                  <FacilityCard
-                    key={facility.id}
-                    facility={facility}
-                    selected={selectedFacilities.includes(facility.id)}
-                    onToggle={toggleFacility}
-                  />
-                ))}
-              </div>
+              Object.entries(groupedFacilities).map(
+                ([category, facilities]) => (
+                  <div key={category}>
+                    <h4 className="text-left text-neutral-dark font-semibold capitalize mb-4">
+                      {category}
+                    </h4>
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                      {facilities.map((facility) => (
+                        <FacilityCard
+                          key={facility.id}
+                          facility={facility}
+                          selected={selectedFacilities.includes(facility.id)}
+                          onToggle={toggleFacility}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                )
+              )
             )}
           </div>
         )}
