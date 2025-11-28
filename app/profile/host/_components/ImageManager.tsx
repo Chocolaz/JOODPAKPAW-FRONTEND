@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import Image from 'next/image'
 import { Input } from '@/components/ui/input'
-import { X } from 'lucide-react'
+import { X, Plus } from 'lucide-react'
 import { toast } from 'sonner'
 import { PropertyImage } from '@/types'
 
@@ -23,6 +23,7 @@ interface ImageManagerProps {
   newFiles: File[]
   onExistingImagesChange: (images: PropertyImage[]) => void
   onNewFilesChange: (files: File[]) => void
+  renderAsGridAddButton?: boolean // New prop
 }
 
 export function ImageManager({
@@ -30,6 +31,7 @@ export function ImageManager({
   newFiles,
   onExistingImagesChange,
   onNewFilesChange,
+  renderAsGridAddButton = false, // Default to false
 }: ImageManagerProps) {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return
@@ -51,14 +53,20 @@ export function ImageManager({
       validatedFiles.push(file)
     }
 
-    const existingSize = existingImages.reduce((acc, img) => acc + (img.fileSize || 0), 0)
+    const existingSize = existingImages.reduce(
+      (acc, img) => acc + (img.fileSize || 0),
+      0
+    )
     const newFilesSize = newFiles.reduce((acc, file) => acc + file.size, 0)
-    const incomingSize = validatedFiles.reduce((acc, file) => acc + file.size, 0)
+    const incomingSize = validatedFiles.reduce(
+      (acc, file) => acc + file.size,
+      0
+    )
     const totalSize = existingSize + newFilesSize + incomingSize
 
     if (totalSize / (1024 * 1024) > MAX_TOTAL_MB) {
-        toast.error(`Total image size cannot exceed ${MAX_TOTAL_MB}MB.`)
-        return
+      toast.error(`Total image size cannot exceed ${MAX_TOTAL_MB}MB.`)
+      return
     }
 
     onNewFilesChange([...newFiles, ...validatedFiles])
@@ -74,40 +82,45 @@ export function ImageManager({
 
   const totalImages = existingImages.length + newFiles.length
 
+  const fileInput = (
+    <Input
+      id="file-upload"
+      type="file"
+      multiple
+      accept="image/*"
+      onChange={handleFileChange}
+      className="hidden"
+    />
+  )
+
   return (
     <div className="w-full text-center">
-      {/* Upload Card */}
-      <div className="flex justify-center mb-6">
-        <label
-          htmlFor="file-upload"
-          className="flex flex-col items-center justify-center w-full max-w-xs aspect-square border-2 border-dashed border-gray-300 rounded-2xl cursor-pointer hover:border-deep-teal/50 transition-colors bg-white"
-        >
-          <Image
-            src="/graphics/steps/add-photo.svg"
-            alt="Add photo icon"
-            width={190}
-            height={190}
-            className="mb-4"
-          />
-          <span className="text-deep-teal font-medium">Click to upload</span>
-          <Input
-            id="file-upload"
-            type="file"
-            multiple
-            accept="image/*"
-            onChange={handleFileChange}
-            className="hidden"
-          />
-        </label>
-      </div>
+      {!renderAsGridAddButton && (
+        <div className="flex justify-center mb-6">
+          <label
+            htmlFor="file-upload"
+            className="flex flex-col items-center justify-center w-full max-w-xs aspect-square border-2 border-dashed border-gray-300 rounded-2xl cursor-pointer hover:border-deep-teal/50 transition-colors bg-white"
+          >
+            <Image
+              src="/graphics/steps/add-photo.svg"
+              alt="Add photo icon"
+              width={190}
+              height={190}
+              className="mb-4"
+            />
+            <span className="text-deep-teal font-medium">Click to upload</span>
+            {fileInput}
+          </label>
+        </div>
+      )}
 
       {/* Preview Grid */}
-      {totalImages > 0 && (
-        <div className="grid grid-cols-3 gap-4 pb-4 max-h-[50vh] overflow-y-auto">
+      {(totalImages > 0 || renderAsGridAddButton) && (
+        <div className="flex gap-4 pb-4 overflow-x-auto hide-scrollbar">
           {existingImages.map((image) => (
             <div
               key={`existing-${image.id}`}
-              className="relative w-full aspect-square rounded-xl overflow-hidden shadow-sm border"
+              className="relative flex-none w-[100px] aspect-square rounded-xl overflow-hidden shadow-sm border"
             >
               <Image
                 src={image.filePath}
@@ -128,7 +141,7 @@ export function ImageManager({
           {newFiles.map((file, index) => (
             <div
               key={`new-${index}`}
-              className="relative w-full aspect-square rounded-xl overflow-hidden shadow-sm border"
+              className="relative flex-none w-[100px] aspect-square rounded-xl overflow-hidden shadow-sm border"
             >
               <Image
                 src={URL.createObjectURL(file)}
@@ -146,6 +159,17 @@ export function ImageManager({
               </button>
             </div>
           ))}
+
+          {renderAsGridAddButton && totalImages < MAX_FILES && (
+            <label
+              htmlFor="file-upload"
+              className="flex-none w-[100px] flex flex-col items-center justify-center aspect-square border-2 border-dashed border-gray-300 rounded-2xl cursor-pointer hover:border-deep-teal/50 transition-colors bg-white"
+            >
+              <Plus className="w-10 h-10 text-gray-400" />
+              <span className="font-medium text-sm">Add More</span>
+              {fileInput}
+            </label>
+          )}
         </div>
       )}
 

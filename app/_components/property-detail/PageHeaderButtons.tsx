@@ -2,7 +2,7 @@
 
 import { Property } from '@/types'
 import { ChevronLeft, Share2, Globe, GlobeLock } from 'lucide-react'
-import { HostActionMenu } from './HostActionMenu'
+import { HostActionMenu } from '@/app/profile/host/_components/HostActionMenu'
 
 interface PageHeaderButtonsProps {
   property: Property

@@ -2,15 +2,14 @@
 
 import { useState } from 'react'
 import { Property } from '@/types'
-import { useFacilities } from '@/app/profile/host/add-property/_hooks/useFacilities'
+import { useFacilities } from '../add-property/_hooks/useFacilities'
 import { updateProperty } from '@/lib/api'
 import { toast } from 'sonner'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
 import { Spinner } from '@/components/ui/spinner'
-import { FacilityCard } from '@/app/profile/host/_components/FacilityCard'
-import { ImageManager } from '@/app/_components/ImageManager'
+import { FacilityCard } from './FacilityCard'
+import { ImageManager } from './ImageManager'
+import { TitleDescriptionForm } from './TitleDescriptionForm'
+import { FormSubmitButton } from './FormSubmitButton'
 
 interface EditPropertyFormProps {
   property: Property
@@ -75,7 +74,7 @@ export function EditPropertyForm({
   }
 
   return (
-    <form onSubmit={handleSubmit} className="p-4 max-h-[70vh] overflow-y-auto">
+    <form onSubmit={handleSubmit} className="px-4 pb-20 overflow-y-auto">
       {/* Tabs */}
       <div className="flex border-b mb-4">
         <button
@@ -98,21 +97,22 @@ export function EditPropertyForm({
       <div className="space-y-4">
         {activeTab === 'property' && (
           <>
+            <TitleDescriptionForm
+              title={title}
+              description={description}
+              onTitleChange={setTitle}
+              onDescriptionChange={setDescription}
+            />
             <div>
-              <label htmlFor="title" className="block text-sm font-medium text-gray-700">Title</label>
-              <Input id="title" value={title} onChange={(e) => setTitle(e.target.value)} required />
-            </div>
-            <div>
-              <label htmlFor="description" className="block text-sm font-medium text-gray-700">Description</label>
-              <Textarea id="description" value={description} onChange={(e) => setDescription(e.target.value)} required />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Images</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Images
+              </label>
               <ImageManager
                 existingImages={existingImages}
                 newFiles={newFiles}
                 onExistingImagesChange={setExistingImages}
                 onNewFilesChange={setNewFiles}
+                renderAsGridAddButton={true}
               />
             </div>
           </>
@@ -120,7 +120,9 @@ export function EditPropertyForm({
 
         {activeTab === 'facilities' && (
           <div>
-            {facilitiesLoading ? <Spinner /> : (
+            {facilitiesLoading ? (
+              <Spinner />
+            ) : (
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                 {allFacilities.map((facility) => (
                   <FacilityCard
@@ -136,12 +138,7 @@ export function EditPropertyForm({
         )}
       </div>
 
-      {/* Submit Button */}
-      <div className="sticky bottom-0 bg-white pt-4 mt-6">
-        <Button type="submit" disabled={isSubmitting} className="w-full">
-          {isSubmitting ? <Spinner /> : 'Save Changes'}
-        </Button>
-      </div>
+      <FormSubmitButton isSubmitting={isSubmitting} buttonText="Save Changes" />
     </form>
   )
 }

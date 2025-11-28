@@ -11,7 +11,7 @@ import {
 } from '@/components/ui/drawer'
 import { Menu, Pencil, Trash2, ChevronLeft } from 'lucide-react'
 import { Property } from '@/types'
-import { EditPropertyForm } from './EditPropertyForm'
+import { EditPropertyForm } from '@/app/profile/host/_components/EditPropertyForm'
 
 interface HostActionMenuProps {
   property: Property
