@@ -12,7 +12,7 @@ Joodpakpaw is a web application built with Next.js, designed as a platform for b
 - **Language:** [TypeScript](https://www.typescriptlang.org/)
 - **Styling:** [Tailwind CSS](https://tailwindcss.com/)
 - **UI Components:**
-  - [shadcn/ui](https://ui.shadcn.com/): A collection of re-usable components built on Radix UI.
+  - [shadcn/ui](https://ui.shadcn.com/): A collection of re-usable components built on Radix UI (e.g., `carousel`, `button`, `input`, `card`, `dialog`, `spinner`).
   - [Lucide React](https://lucide.dev/): For icons.
   - [Sonner](https://sonner.emilkowal.ski/): For toast notifications.
 - **Maps Integration:** [Google Maps API](https://developers.google.com/maps) is used for displaying property locations and for place autocompletion.

@@ -20,7 +20,7 @@ The component architecture of this project is grounded in several established de
 - **Faster Future Development:** A well-documented library of reusable components significantly accelerates the development process. Developers can quickly build new interfaces by composing existing elements, rather than writing them from scratch. This adheres to the **DRY (Don't Repeat Yourself)** principle, minimizing code duplication.
 - **Separation of Concerns:** This principle is applied at multiple levels. Components separate the UI from the business logic. Within a component, JSX/TSX handles the structure, Tailwind CSS handles the styling, and hooks or event handlers manage the logic. This makes the code easier to understand, debug, and modify.
 - **Atomic Design:** The project's structure loosely follows the principles of Atomic Design.
-    - **Atoms:** Base elements are defined in `/components/ui/` (e.g., `button.tsx`, `input.tsx`, `label.tsx`). These are the indivisible building blocks of our UI.
+    - **Atoms:** Base elements are defined in `/components/ui/` (e.g., `button.tsx`, `input.tsx`, `label.tsx`, `carousel.tsx`). These are the indivisible building blocks of our UI.
     - **Molecules:** More complex components that combine atoms are found in `/app/_components/` (e.g., `PropertyCard.tsx`, which combines `Image`, text paragraphs, and a `Link`).
     - **Organisms:** Larger sections of the UI, composed of molecules and/or atoms, are also in `/app/_components/` or are defined within pages themselves (e.g., `PropertyList.tsx`, which maps over `PropertyCard` components).
     - **Templates/Pages:** The final pages, such as `app/[propertyId]/page.tsx`, compose multiple organisms to form a complete view.
