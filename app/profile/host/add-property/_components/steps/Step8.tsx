@@ -10,7 +10,7 @@ import { AddRoomCategoryForm } from '../../../_components/AddRoomCategoryForm'
 
 import { useAddProperty } from '../../_context/AddPropertyContext'
 import { getRoomCategories } from '@/lib/api'
-import { RoomCategory } from '@/types'
+import { RoomCategories } from '@/types'
 
 import { Button } from '@/components/ui/button'
 import { Spinner } from '@/components/ui/spinner'
@@ -33,7 +33,7 @@ export function Step8() {
   } = useAddProperty()
   const propertyId = propertyContextData.propertyId
 
-  const [rooms, setRooms] = useState<RoomCategory[]>([])
+  const [rooms, setRooms] = useState<RoomCategories[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [isDrawerOpen, setIsDrawerOpen] = useState(false)

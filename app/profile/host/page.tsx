@@ -21,7 +21,7 @@ export default function HostPage() {
         setLoading(true)
         const response = await getHostProperties()
         const sortedProperties = (response.properties || []).sort(
-          (a, b) => a.id - b.id
+          (a: Property, b: Property) => a.id - b.id
         )
         setProperties(sortedProperties)
         setError(null)

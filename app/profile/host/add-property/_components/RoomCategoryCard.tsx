@@ -1,5 +1,5 @@
 import { BedDouble, Dog, Minus } from 'lucide-react'
-import { RoomCategory } from '@/types'
+import { RoomCategories } from '@/types'
 import { useState } from 'react'
 import { deleteRoomCategory } from '@/lib/api'
 import { toast } from 'sonner'
@@ -7,7 +7,7 @@ import { Spinner } from '@/components/ui/spinner'
 import { ConfirmationModal } from '@/app/_components/ConfirmationModal'
 
 interface RoomCategoryCardProps {
-  category: RoomCategory
+  category: RoomCategories
   propertyId: number
   onDeleteSuccess: () => void
   showDeleteButton?: boolean // Add this prop

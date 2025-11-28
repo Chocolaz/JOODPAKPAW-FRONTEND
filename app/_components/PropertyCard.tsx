@@ -63,10 +63,10 @@ export function PropertyCard({
           {property.province}, {property.district}
         </p>
 
-        {showRoomCount && property.roomCount !== undefined && (
+        {showRoomCount && property.totalRoomCategories !== undefined && (
           <p className="text-xs font-medium">
-            {property.roomCount} Room{' '}
-            {property.roomCount === 1 ? 'Type' : 'Types'}
+            {property.totalRoomCategories} Room{' '}
+            {property.totalRoomCategories === 1 ? 'Type' : 'Types'}
           </p>
         )}
 

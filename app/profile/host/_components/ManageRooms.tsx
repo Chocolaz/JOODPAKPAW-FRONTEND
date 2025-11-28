@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { Plus, ChevronLeft } from 'lucide-react'
 import { getRoomCategories } from '@/lib/api'
-import { RoomCategory } from '@/types'
+import { RoomCategories } from '@/types'
 import { RoomCategoryCard } from '@/app/profile/host/add-property/_components/RoomCategoryCard'
 import { AddRoomCategoryForm } from './AddRoomCategoryForm'
 import { Spinner } from '@/components/ui/spinner'
@@ -21,7 +21,7 @@ interface ManageRoomsProps {
 }
 
 export function ManageRooms({ propertyId, onRoomsUpdate }: ManageRoomsProps) {
-  const [rooms, setRooms] = useState<RoomCategory[]>([])
+  const [rooms, setRooms] = useState<RoomCategories[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [isAddDrawerOpen, setIsAddDrawerOpen] = useState(false)

@@ -69,7 +69,7 @@ export default function HostPropertyDetailPage() {
     }
   }
 
-  const roomCategoryCount =
+  const roomCategoriesCount =
     property && property.roomCategories
       ? Array.isArray(property.roomCategories)
         ? property.roomCategories.length
@@ -80,7 +80,7 @@ export default function HostPropertyDetailPage() {
     if (!property) return
 
     // Only check when trying to publish (isActive is false)
-    if (!property.isActive && roomCategoryCount === 0) {
+    if (!property.isActive && roomCategoriesCount === 0) {
       toast.error('Please add a room category first.')
       return
     }
@@ -139,7 +139,7 @@ export default function HostPropertyDetailPage() {
         onDeleteClick={handleDelete}
         onGlobeClick={handleGlobeClick}
         isPropertyActive={property.isActive}
-        disablePublish={!property.isActive && roomCategoryCount === 0}
+        disablePublish={!property.isActive && roomCategoriesCount === 0}
         onDataChange={refreshProperty}
       />
 
@@ -176,7 +176,6 @@ export default function HostPropertyDetailPage() {
           description={property.description}
         />
         <PropertyRoomCategories
-          roomCategories={property.roomCategories}
           propertyId={property.id}
           onDeleteSuccess={refreshProperty}
           showDeleteButton={false}

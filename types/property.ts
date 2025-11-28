@@ -9,7 +9,7 @@ export interface PropertyImage {
   fileSize: number
 }
 
-export interface RoomCategory {
+export interface RoomCategories {
   id: number
   name: string
   totalRoom: number
@@ -18,7 +18,7 @@ export interface RoomCategory {
   propertyId: number
   pets: {
     id: number
-    name: string
+    name:string
   }[]
   facilities: {
     id: number
@@ -46,13 +46,13 @@ export interface Property {
   hostId: number
   propertyTypeId: number
   images: PropertyImage[]
-  roomCategories: RoomCategory[]
+  roomCategories: RoomCategories[]
   createdAt: string
   updatedAt: string
   reviewCount?: number
   propertyType?: PropertyType
   facilities?: Facility[]
-  roomCount?: number
+  totalRoomCategories?: number
 }
 
 export interface PropertiesResponse {
@@ -70,5 +70,6 @@ export interface HostPropertiesResponse {
 }
 
 export interface RoomCategoriesResponse {
-  roomCategories: RoomCategory[]
+  roomCategories: RoomCategories[]
 }
+
