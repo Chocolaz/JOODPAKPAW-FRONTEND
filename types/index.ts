@@ -1,4 +1,4 @@
-export type { PropertyImage, RoomCategories, Property } from './property'
+export type { PropertyImage, RoomCategories, Property, HostPropertiesResponse, RoomCategoriesResponse } from './property'
 export * from './authen'
 export * from './pet'
 export * from './user'

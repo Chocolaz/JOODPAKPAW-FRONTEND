@@ -6,9 +6,20 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-export function getLowestPrice(roomCategories: RoomCategories[]): number | null {
-  if (!Array.isArray(roomCategories) || roomCategories.length === 0) {
+export function getLowestPrice(
+  roomCategories: RoomCategories | RoomCategories[] | undefined
+): number | null {
+  if (!roomCategories) {
     return null
   }
-  return Math.min(...roomCategories.map((rc) => rc.basePrice))
+
+  if (Array.isArray(roomCategories)) {
+    if (roomCategories.length === 0) {
+      return null
+    }
+    return Math.min(...roomCategories.map((rc) => rc.basePrice))
+  }
+
+  // It's a single object
+  return roomCategories.basePrice
 }

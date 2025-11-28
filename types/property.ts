@@ -46,7 +46,7 @@ export interface Property {
   hostId: number
   propertyTypeId: number
   images: PropertyImage[]
-  roomCategories: RoomCategories[]
+  roomCategories?: RoomCategories | RoomCategories[]
   createdAt: string
   updatedAt: string
   reviewCount?: number

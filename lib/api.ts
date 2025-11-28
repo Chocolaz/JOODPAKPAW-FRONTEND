@@ -239,7 +239,7 @@ export const deleteProperty = (propertyId: string): Promise<void> => {
 
 export const createRoomCategory = (
   propertyId: number,
-  data: RoomCategoryFormData,
+  data: RoomCategoryFormData
 ) => {
   const formData = new FormData()
 

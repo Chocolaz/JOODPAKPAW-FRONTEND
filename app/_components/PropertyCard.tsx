@@ -59,7 +59,7 @@ export function PropertyCard({
           {property.title}
         </p>
 
-        <p className="text-xs text-gray-500 truncate">
+        <p className="text-xs text-neutral-gray truncate">
           {property.province}, {property.district}
         </p>
 
