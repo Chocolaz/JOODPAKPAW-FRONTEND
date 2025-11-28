@@ -117,7 +117,7 @@ export default function HostPropertyDetailPage() {
         onDeleteClick={handleDelete}
         onGlobeClick={handleGlobeClick}
         isPropertyActive={property.isActive}
-        onEditSuccess={refreshProperty}
+        onDataChange={refreshProperty}
       />
 
       {/* Publish/Unpublish Confirmation Modal */}

@@ -74,31 +74,38 @@ export function EditPropertyForm({
 
   return (
     <form
-      className="px-5 h-[80vh] flex flex-col overflow-y-scroll"
+      className="px-5 h-[80vh] max-w-[500px] flex flex-col overflow-y-scroll hide-scrollbar"
       onSubmit={handleSubmit}
     >
-      <Tabs
-        value={activeTab}
-        onValueChange={(value) => setActiveTab(value as Tab)}
-        className="flex flex-col grow"
-      >
-        <TabsList className="flex mb-4 bg-transparent p-0 justify-center">
-          <TabsTrigger
-            value="property"
-            className="py-2 px-4 rounded-none border-b-2 border-transparent text-neutral-gray data-[state=active]:border-accent-orange data-[state=active]:text-accent-orange data-[state=active]:bg-transparent"
-          >
-            Property
-          </TabsTrigger>
-          <TabsTrigger
-            value="facilities"
-            className="py-2 px-4 rounded-none border-b-2 border-transparent text-neutral-gray data-[state=active]:border-accent-orange data-[state=active]:text-accent-orange data-[state=active]:bg-transparent"
-          >
-            Facilities
-          </TabsTrigger>
-        </TabsList>
+      {/* Sticky Tabs Header */}
+      <div className="sticky top-0 bg-white z-10 pb-3">
+        <Tabs
+          value={activeTab}
+          onValueChange={(value) => setActiveTab(value as Tab)}
+          className="w-full"
+        >
+          <TabsList className="flex bg-transparent p-0 justify-center">
+            <TabsTrigger
+              value="property"
+              className="py-2 px-4 rounded-none border-b-2 border-transparent text-neutral-gray 
+              data-[state=active]:border-accent-orange data-[state=active]:text-accent-orange"
+            >
+              Property
+            </TabsTrigger>
+            <TabsTrigger
+              value="facilities"
+              className="py-2 px-4 rounded-none border-b-2 border-transparent text-neutral-gray 
+              data-[state=active]:border-accent-orange data-[state=active]:text-accent-orange"
+            >
+              Facilities
+            </TabsTrigger>
+          </TabsList>
+        </Tabs>
+      </div>
 
-        {/* Scrollable Tab Content */}
-        <div className="flex-1 overflow-y-auto space-y-4">
+      {/* Scrollable Content */}
+      <div className="flex-1 overflow-y-auto hide-scrollbar space-y-4">
+        <Tabs value={activeTab}>
           <TabsContent value="property">
             <TitleDescriptionForm
               title={title}
@@ -106,6 +113,7 @@ export function EditPropertyForm({
               onTitleChange={setTitle}
               onDescriptionChange={setDescription}
             />
+
             <div>
               <label className="block font-medium text-deep-teal mb-2">
                 Images
@@ -133,6 +141,7 @@ export function EditPropertyForm({
                       <h5 className="text-left text-deep-teal capitalize mb-4">
                         {category}
                       </h5>
+
                       <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                         {facilities.map((facility) => (
                           <FacilityCard
@@ -149,10 +158,10 @@ export function EditPropertyForm({
               )}
             </div>
           </TabsContent>
-        </div>
-      </Tabs>
+        </Tabs>
+      </div>
 
-      {/* Sticky Submit Button */}
+      {/* Sticky Bottom Button */}
       <div className="sticky bottom-0 bg-white p-4 border-t">
         <FormSubmitButton
           isSubmitting={isSubmitting}

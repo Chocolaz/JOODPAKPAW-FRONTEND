@@ -11,7 +11,7 @@ interface PageHeaderButtonsProps {
   onDeleteClick?: () => void
   onGlobeClick?: () => void
   isPropertyActive?: boolean
-  onEditSuccess: () => void
+  onDataChange: () => void
 }
 
 export function PageHeaderButtons({
@@ -21,7 +21,7 @@ export function PageHeaderButtons({
   onDeleteClick,
   onGlobeClick,
   isPropertyActive,
-  onEditSuccess,
+  onDataChange,
 }: PageHeaderButtonsProps) {
   return (
     <>
@@ -54,7 +54,7 @@ export function PageHeaderButtons({
         <HostActionMenu
           property={property}
           onDeleteClick={onDeleteClick}
-          onEditSuccess={onEditSuccess}
+          onDataChange={onDataChange}
         />
       </div>
     </>
