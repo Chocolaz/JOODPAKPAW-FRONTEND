@@ -18,6 +18,7 @@ import { toast } from 'sonner'
 import { useState } from 'react'
 import { ConfirmationModal } from '@/app/_components/ConfirmationModal'
 import { PropertyRoomCategories } from '@/app/_components/property-detail/PropertyRoomCategories'
+import { Property } from '@/types'
 
 export default function HostPropertyDetailPage() {
   const { property, loading, error, refreshProperty } =
@@ -68,11 +69,6 @@ export default function HostPropertyDetailPage() {
     setShowPublishModal(true)
   }
 
-  const handleEdit = () => {
-    if (!property) return
-    router.push(`/profile/host/add-property/1?propertyId=${property.id}`)
-  }
-
   const handleDelete = () => {
     setShowDeleteModal(true)
   }
@@ -115,12 +111,13 @@ export default function HostPropertyDetailPage() {
   return (
     <div className="max-w-4xl mx-auto pb-24 relative">
       <PageHeaderButtons
+        property={property}
         onBackClick={handleBack}
         onShareClick={handleShare}
-        onEditClick={handleEdit}
         onDeleteClick={handleDelete}
         onGlobeClick={handleGlobeClick}
         isPropertyActive={property.isActive}
+        onEditSuccess={refreshProperty}
       />
 
       {/* Publish/Unpublish Confirmation Modal */}

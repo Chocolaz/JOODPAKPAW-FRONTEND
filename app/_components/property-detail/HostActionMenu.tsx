@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from 'react'
 import {
   Drawer,
   DrawerTrigger,
@@ -9,18 +10,38 @@ import {
   DrawerClose,
 } from '@/components/ui/drawer'
 import { Menu, Pencil, Trash2, ChevronLeft } from 'lucide-react'
+import { Property } from '@/types'
+import { EditPropertyForm } from './EditPropertyForm'
 
 interface HostActionMenuProps {
-  onEditClick?: () => void
+  property: Property
   onDeleteClick?: () => void
+  onEditSuccess: () => void
 }
 
 export function HostActionMenu({
-  onEditClick,
+  property,
   onDeleteClick,
+  onEditSuccess,
 }: HostActionMenuProps) {
+  const [isOpen, setIsOpen] = useState(false)
+  const [view, setView] = useState<'menu' | 'edit'>('menu')
+
+  const handleOpenChange = (open: boolean) => {
+    setIsOpen(open)
+    if (!open) {
+      setView('menu') // Reset view when drawer closes
+    }
+  }
+
+  const handleSuccess = () => {
+    onEditSuccess()
+    setIsOpen(false) // Close drawer on success
+    setView('menu')
+  }
+
   return (
-    <Drawer>
+    <Drawer open={isOpen} onOpenChange={handleOpenChange}>
       <DrawerTrigger asChild>
         <button className="p-2 bg-white/80 backdrop-blur-sm rounded-full shadow hover:bg-gray-100 transition">
           <Menu className="w-5 h-5 text-gray-800" />
@@ -29,35 +50,46 @@ export function HostActionMenu({
       <DrawerContent aria-describedby={undefined}>
         <DrawerHeader>
           <div className="flex items-center">
-            <DrawerTitle className="grow text-start px-2">Menu</DrawerTitle>
+            {view === 'edit' && (
+              <button
+                onClick={() => setView('menu')}
+                className="p-2 rounded-full hover:bg-gray-100 transition-colors duration-200 ease-in-out"
+              >
+                <ChevronLeft className="w-6 h-6 text-neutral-gray" />
+              </button>
+            )}
+            <DrawerTitle className="grow text-start">
+              {view === 'menu' ? 'Menu' : 'Edit Property'}
+            </DrawerTitle>
           </div>
         </DrawerHeader>
-        <div className="px-4">
-          <div className="flex flex-col space-y-2 mb-4">
-            {onEditClick && (
-              <DrawerClose asChild>
-                <button
-                  onClick={onEditClick}
-                  className="flex items-center gap-3 p-2 rounded-lg border-b hover:bg-gray-100 transition text-left"
-                >
-                  <Pencil className="w-5 h-5 text-gray-700" />
-                  <span>Edit</span>
-                </button>
-              </DrawerClose>
-            )}
-            {onDeleteClick && (
-              <DrawerClose asChild>
-                <button
-                  onClick={onDeleteClick}
-                  className="flex items-center gap-3 p-2 rounded-lg hover:bg-red-100/50 transition text-left"
-                >
-                  <Trash2 className="w-5 h-5 text-red-500" />
-                  <span className="text-red-500">Delete</span>
-                </button>
-              </DrawerClose>
-            )}
+
+        {view === 'menu' ? (
+          <div className="px-4">
+            <div className="flex flex-col space-y-2 mb-4">
+              <button
+                onClick={() => setView('edit')}
+                className="flex items-center gap-3 p-2 rounded-lg border-b hover:bg-gray-100 transition text-left"
+              >
+                <Pencil className="w-5 h-5 text-gray-700" />
+                <span>Edit</span>
+              </button>
+              {onDeleteClick && (
+                <DrawerClose asChild>
+                  <button
+                    onClick={onDeleteClick}
+                    className="flex items-center gap-3 p-2 rounded-lg hover:bg-red-100/50 transition text-left"
+                  >
+                    <Trash2 className="w-5 h-5 text-red-500" />
+                    <span className="text-red-500">Delete</span>
+                  </button>
+                </DrawerClose>
+              )}
+            </div>
           </div>
-        </div>
+        ) : (
+          <EditPropertyForm property={property} onSuccess={handleSuccess} />
+        )}
       </DrawerContent>
     </Drawer>
   )

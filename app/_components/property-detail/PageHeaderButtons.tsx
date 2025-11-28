@@ -1,24 +1,27 @@
 'use client'
 
+import { Property } from '@/types'
 import { ChevronLeft, Share2, Globe, GlobeLock } from 'lucide-react'
 import { HostActionMenu } from './HostActionMenu'
 
 interface PageHeaderButtonsProps {
+  property: Property
   onBackClick: () => void
   onShareClick: () => void
-  onEditClick?: () => void
   onDeleteClick?: () => void
   onGlobeClick?: () => void
   isPropertyActive?: boolean
+  onEditSuccess: () => void
 }
 
 export function PageHeaderButtons({
+  property,
   onBackClick,
   onShareClick,
-  onEditClick,
   onDeleteClick,
   onGlobeClick,
   isPropertyActive,
+  onEditSuccess,
 }: PageHeaderButtonsProps) {
   return (
     <>
@@ -48,12 +51,11 @@ export function PageHeaderButtons({
             )}
           </button>
         )}
-        {(onEditClick || onDeleteClick) && (
-          <HostActionMenu
-            onEditClick={onEditClick}
-            onDeleteClick={onDeleteClick}
-          />
-        )}
+        <HostActionMenu
+          property={property}
+          onDeleteClick={onDeleteClick}
+          onEditSuccess={onEditSuccess}
+        />
       </div>
     </>
   )

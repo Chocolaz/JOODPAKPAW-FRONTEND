@@ -3,6 +3,14 @@ import type { RuleSetRule } from 'webpack'
 
 const nextConfig: NextConfig = {
   images: {
+    remotePatterns: [
+      {
+        protocol: 'http',
+        hostname: 'cp25nk2.sit.kmutt.ac.th',
+        port: '',
+        pathname: '**',
+      },
+    ],
   },
 
   webpack(config) {

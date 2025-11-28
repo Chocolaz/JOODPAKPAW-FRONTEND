@@ -218,6 +218,16 @@ export const createProperty = (data: PropertyFormData) => {
   })
 }
 
+export const updateProperty = (propertyId: string, data: FormData) => {
+  return request({
+    endpoint: `api/v1/hosts/properties/${propertyId}`,
+    method: 'PUT',
+    body: data,
+    requiresAuth: true,
+    errorContext: 'Update Property',
+  })
+}
+
 export const deleteProperty = (propertyId: string): Promise<void> => {
   return request<void>({
     endpoint: `api/v1/hosts/properties/${propertyId}`,
