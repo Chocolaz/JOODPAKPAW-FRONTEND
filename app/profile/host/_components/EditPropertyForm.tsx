@@ -51,11 +51,6 @@ export function EditPropertyForm({
     formData.append('title', title)
     formData.append('description', description)
     formData.append('facilities', JSON.stringify(selectedFacilities))
-
-    // TODO: This needs a more robust way to handle deleted images.
-    // The backend would need an array of image IDs to keep, e.g., `existingImageIds`.
-    // formData.append('existingImageIds', JSON.stringify(existingImages.map(img => img.id)));
-
     newFiles.forEach((file) => {
       formData.append('images', file)
     })
@@ -74,27 +69,35 @@ export function EditPropertyForm({
   }
 
   return (
-    <form onSubmit={handleSubmit} className="px-4 pb-20 overflow-y-auto">
+    <form className="px-4 h-[80vh] flex flex-col" onSubmit={handleSubmit}>
       {/* Tabs */}
       <div className="flex border-b mb-4">
         <button
           type="button"
           onClick={() => setActiveTab('property')}
-          className={`py-2 px-4 ${activeTab === 'property' ? 'border-b-2 border-deep-teal text-deep-teal' : 'text-gray-500'}`}
+          className={`py-2 px-4 ${
+            activeTab === 'property'
+              ? 'border-b-2 border-deep-teal text-deep-teal'
+              : 'text-gray-500'
+          }`}
         >
           Property
         </button>
         <button
           type="button"
           onClick={() => setActiveTab('facilities')}
-          className={`py-2 px-4 ${activeTab === 'facilities' ? 'border-b-2 border-deep-teal text-deep-teal' : 'text-gray-500'}`}
+          className={`py-2 px-4 ${
+            activeTab === 'facilities'
+              ? 'border-b-2 border-deep-teal text-deep-teal'
+              : 'text-gray-500'
+          }`}
         >
           Facilities
         </button>
       </div>
 
-      {/* Tab Content */}
-      <div className="space-y-4">
+      {/* Scrollable Tab Content */}
+      <div className="flex-1 overflow-y-auto space-y-4">
         {activeTab === 'property' && (
           <>
             <TitleDescriptionForm
@@ -138,7 +141,13 @@ export function EditPropertyForm({
         )}
       </div>
 
-      <FormSubmitButton isSubmitting={isSubmitting} buttonText="Save Changes" />
+      {/* Sticky Submit Button */}
+      <div className="sticky bottom-0 bg-white p-4 border-t">
+        <FormSubmitButton
+          isSubmitting={isSubmitting}
+          buttonText="Save Changes"
+        />
+      </div>
     </form>
   )
 }
