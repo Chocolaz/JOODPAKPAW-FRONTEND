@@ -78,6 +78,9 @@ export function PropertyImageGallery({
           finite: images.length <= 1,
           imageFit: 'contain',
         }}
+        controller={{
+          closeOnBackdropClick: true,
+        }}
         styles={{
           root: { '--yarl__color_backdrop': 'rgba(0,0,0,0.8)' },
         }}

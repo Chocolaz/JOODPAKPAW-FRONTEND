@@ -31,7 +31,7 @@ export function PropertyLocation({ property }: PropertyLocationProps) {
         href={googleMapsUrl}
         target="_blank"
         rel="noopener noreferrer"
-        className="block w-full h-[200px] relative"
+        className="block w-full aspect-square relative"
       >
         <Image
           src={mapUrl}
