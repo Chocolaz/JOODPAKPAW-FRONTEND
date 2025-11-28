@@ -20,9 +20,7 @@ export function TitleDescriptionForm({
     <div className="space-y-4 px-1 text-left">
       {/* Title */}
       <div>
-        <label className="text-sm font-medium text-deep-teal mb-1 block">
-          Title
-        </label>
+        <label className="font-medium text-deep-teal mb-1 block">Title</label>
         <Input
           type="text"
           placeholder="Property Title"

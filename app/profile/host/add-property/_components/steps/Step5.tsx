@@ -40,9 +40,9 @@ export function Step5({
         <div className="max-h-[57vh] overflow-y-auto pr-2 space-y-10 mb-20">
           {Object.entries(groupedFacilities).map(([category, facilities]) => (
             <div key={category}>
-              <h4 className="text-left text-neutral-dark font-semibold capitalize mb-4">
+              <h5 className="text-left text-deep-teal capitalize mb-4">
                 {category}
-              </h4>
+              </h5>
 
               <div className="grid grid-cols-2 gap-6">
                 {facilities.map((facility) => (

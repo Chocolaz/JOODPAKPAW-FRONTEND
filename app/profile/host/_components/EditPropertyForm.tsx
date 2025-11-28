@@ -73,22 +73,25 @@ export function EditPropertyForm({
   }
 
   return (
-    <form className="px-5 h-[80vh] flex flex-col" onSubmit={handleSubmit}>
+    <form
+      className="px-5 h-[80vh] flex flex-col overflow-y-scroll"
+      onSubmit={handleSubmit}
+    >
       <Tabs
         value={activeTab}
         onValueChange={(value) => setActiveTab(value as Tab)}
         className="flex flex-col grow"
       >
-        <TabsList className="flex border-b mb-4 bg-transparent p-0 justify-start">
+        <TabsList className="flex mb-4 bg-transparent p-0 justify-center">
           <TabsTrigger
             value="property"
-            className="py-2 px-4 rounded-none border-b-2 border-transparent text-neutral-gray data-[state=active]:border-deep-teal data-[state=active]:text-deep-teal data-[state=active]:bg-transparent"
+            className="py-2 px-4 rounded-none border-b-2 border-transparent text-neutral-gray data-[state=active]:border-accent-orange data-[state=active]:text-accent-orange data-[state=active]:bg-transparent"
           >
             Property
           </TabsTrigger>
           <TabsTrigger
             value="facilities"
-            className="py-2 px-4 rounded-none border-b-2 border-transparent text-neutral-gray data-[state=active]:border-deep-teal data-[state=active]:text-deep-teal data-[state=active]:bg-transparent"
+            className="py-2 px-4 rounded-none border-b-2 border-transparent text-neutral-gray data-[state=active]:border-accent-orange data-[state=active]:text-accent-orange data-[state=active]:bg-transparent"
           >
             Facilities
           </TabsTrigger>
@@ -127,9 +130,9 @@ export function EditPropertyForm({
                 Object.entries(groupedFacilities).map(
                   ([category, facilities]) => (
                     <div key={category}>
-                      <h4 className="text-left text-neutral-dark font-semibold capitalize mb-4">
+                      <h5 className="text-left text-deep-teal capitalize mb-4">
                         {category}
-                      </h4>
+                      </h5>
                       <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                         {facilities.map((facility) => (
                           <FacilityCard
