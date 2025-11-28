@@ -1,6 +1,10 @@
 'use client'
 
-import { getHostPropertyById, updateHostPropertyIsActive } from '@/lib/api'
+import {
+  getHostPropertyById,
+  updateHostPropertyIsActive,
+  deleteProperty,
+} from '@/lib/api'
 import { Spinner } from '@/components/ui/spinner'
 import { ErrorState } from '@/app/profile/_components/ErrorState'
 import { usePropertyLoader } from '@/app/_hooks/usePropertyLoader'
@@ -12,7 +16,7 @@ import { useRouter } from 'next/navigation'
 import { PageHeaderButtons } from '@/app/_components/property-detail/PageHeaderButtons'
 import { toast } from 'sonner'
 import { useState } from 'react'
-import { ConfirmationModal } from '@/app/_components/ConfirmationModal' // New import
+import { ConfirmationModal } from '@/app/_components/ConfirmationModal'
 import { PropertyRoomCategories } from '@/app/_components/property-detail/PropertyRoomCategories'
 
 export default function HostPropertyDetailPage() {
@@ -20,7 +24,9 @@ export default function HostPropertyDetailPage() {
     usePropertyLoader(getHostPropertyById)
   const router = useRouter()
   const [isUpdatingStatus, setIsUpdatingStatus] = useState(false)
-  const [showConfirmationModal, setShowConfirmationModal] = useState(false) // New state for modal
+  const [isDeleting, setIsDeleting] = useState(false)
+  const [showPublishModal, setShowPublishModal] = useState(false)
+  const [showDeleteModal, setShowDeleteModal] = useState(false)
 
   const handleShare = async () => {
     if (navigator.share && property) {
@@ -31,24 +37,17 @@ export default function HostPropertyDetailPage() {
           text: `Check out this property: ${property.title}`,
           url: publicUrl,
         })
-        console.log('Shared successfully')
       } catch (err) {
         console.error('Error sharing:', err)
       }
     } else {
-      const publicUrl = `${window.location.origin}/${property?.id}`
-      console.log(
-        'Web Share API not supported or property data not available. Public URL:',
-        publicUrl
-      )
+      console.log('Web Share API not supported.')
     }
   }
 
-  // New function to handle the actual status update after confirmation
-  const confirmGlobeAction = async () => {
+  const confirmPublishAction = async () => {
     if (!property || isUpdatingStatus) return
-
-    setShowConfirmationModal(false) // Close modal immediately
+    setShowPublishModal(false)
     setIsUpdatingStatus(true)
     try {
       const newStatus = !property.isActive
@@ -56,24 +55,46 @@ export default function HostPropertyDetailPage() {
       toast.success(
         `Property successfully ${newStatus ? 'published' : 'unpublished'}.`
       )
-      refreshProperty() // Re-fetch property data to update UI
+      refreshProperty()
     } catch (err) {
-      console.error('Failed to update property status:', err)
       toast.error('Failed to update property status. Please try again.')
     } finally {
       setIsUpdatingStatus(false)
     }
   }
 
-  // Modified handleGlobeClick to open modal
   const handleGlobeClick = () => {
     if (!property) return
-    setShowConfirmationModal(true)
+    setShowPublishModal(true)
+  }
+
+  const handleEdit = () => {
+    if (!property) return
+    router.push(`/profile/host/add-property/1?propertyId=${property.id}`)
+  }
+
+  const handleDelete = () => {
+    setShowDeleteModal(true)
+  }
+
+  const confirmDelete = async () => {
+    if (!property || isDeleting) return
+    setShowDeleteModal(false)
+    setIsDeleting(true)
+    try {
+      await deleteProperty(property.id.toString())
+      toast.success('Property deleted successfully.')
+      router.push('/profile/host')
+    } catch (err) {
+      toast.error('Failed to delete property. Please try again.')
+    } finally {
+      setIsDeleting(false)
+    }
   }
 
   const handleBack = () => router.push('/profile/host')
 
-  if (loading || isUpdatingStatus) {
+  if (loading || isUpdatingStatus || isDeleting) {
     return (
       <div className="flex justify-center items-center h-64">
         <Spinner />
@@ -84,10 +105,10 @@ export default function HostPropertyDetailPage() {
   if (error) return <ErrorState error={error} />
   if (!property) return <ErrorState error="Property not found." />
 
-  const modalTitle = property.isActive
+  const publishModalTitle = property.isActive
     ? 'Unpublish This Property?'
     : 'Publish This Property?'
-  const modalMessage = property.isActive
+  const publishModalMessage = property.isActive
     ? `Are you sure you want to unpublish "${property.title}"?<br />It will no longer be visible to the public.`
     : `Are you sure you want to publish "${property.title}"?<br />It will become visible to the public.`
 
@@ -96,22 +117,34 @@ export default function HostPropertyDetailPage() {
       <PageHeaderButtons
         onBackClick={handleBack}
         onShareClick={handleShare}
-        onEditClick={() => console.log('Edit clicked')}
+        onEditClick={handleEdit}
+        onDeleteClick={handleDelete}
         onGlobeClick={handleGlobeClick}
         isPropertyActive={property.isActive}
       />
 
-      {/* Confirmation Modal */}
+      {/* Publish/Unpublish Confirmation Modal */}
       <ConfirmationModal
-        isOpen={showConfirmationModal}
-        onClose={() => setShowConfirmationModal(false)}
-        onConfirm={confirmGlobeAction}
-        title={modalTitle}
-        message={modalMessage}
+        isOpen={showPublishModal}
+        onClose={() => setShowPublishModal(false)}
+        onConfirm={confirmPublishAction}
+        title={publishModalTitle}
+        message={publishModalMessage}
         titleClassName="text-deep-teal"
         confirmButtonClassName={
           property.isActive ? 'bg-accent-orange' : 'bg-positive-green'
         }
+      />
+
+      {/* Delete Confirmation Modal */}
+      <ConfirmationModal
+        isOpen={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        onConfirm={confirmDelete}
+        title="Delete This Property?"
+        message={`Are you sure you want to permanently delete "${property.title}"? This action cannot be undone.`}
+        titleClassName="text-red-500"
+        confirmButtonClassName="bg-red-500"
       />
 
       <PropertyImageGallery images={property.images} />

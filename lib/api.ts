@@ -218,6 +218,15 @@ export const createProperty = (data: PropertyFormData) => {
   })
 }
 
+export const deleteProperty = (propertyId: string): Promise<void> => {
+  return request<void>({
+    endpoint: `api/v1/hosts/properties/${propertyId}`,
+    method: 'DELETE',
+    requiresAuth: true,
+    errorContext: 'Delete Property',
+  })
+}
+
 export const createRoomCategory = (
   propertyId: number,
   data: RoomCategoryFormData,
