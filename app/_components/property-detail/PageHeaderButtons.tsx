@@ -11,6 +11,7 @@ interface PageHeaderButtonsProps {
   onDeleteClick?: () => void
   onGlobeClick?: () => void
   isPropertyActive?: boolean
+  disablePublish?: boolean // New prop
   onDataChange?: () => void
 }
 
@@ -21,6 +22,7 @@ export function PageHeaderButtons({
   onDeleteClick,
   onGlobeClick,
   isPropertyActive,
+  disablePublish, // Destructure new prop
   onDataChange,
 }: PageHeaderButtonsProps) {
   return (
@@ -42,7 +44,18 @@ export function PageHeaderButtons({
         {onGlobeClick && (
           <button
             onClick={onGlobeClick}
-            className="p-2 bg-white/80 backdrop-blur-sm rounded-full shadow hover:bg-gray-100 transition"
+            className={`p-2 bg-white/80 backdrop-blur-sm rounded-full shadow transition ${
+              disablePublish
+                ? 'cursor-not-allowed opacity-50'
+                : 'hover:bg-gray-100'
+            }`}
+            title={
+              disablePublish
+                ? 'Cannot publish: At least one room category is required.'
+                : isPropertyActive
+                ? 'Unpublish Property'
+                : 'Publish Property'
+            }
           >
             {isPropertyActive ? (
               <Globe className="w-5 h-5 text-gray-800" />

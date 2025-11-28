@@ -60,15 +60,30 @@ export default function HostPropertyDetailPage() {
       refreshProperty()
     } catch (err: unknown) {
       toast.error(
-        err instanceof Error ? err.message : 'Failed to update property status. Please try again.'
+        err instanceof Error
+          ? err.message
+          : 'Failed to update property status. Please try again.'
       )
     } finally {
       setIsUpdatingStatus(false)
     }
   }
 
+  const roomCategoryCount =
+    property && property.roomCategories
+      ? Array.isArray(property.roomCategories)
+        ? property.roomCategories.length
+        : 1 // If it's not null/undefined and not an array, assume it's a single object
+      : 0
+
   const handleGlobeClick = () => {
     if (!property) return
+
+    // Only check when trying to publish (isActive is false)
+    if (!property.isActive && roomCategoryCount === 0) {
+      toast.error('Please add a room category first.')
+      return
+    }
     setShowPublishModal(true)
   }
 
@@ -86,7 +101,9 @@ export default function HostPropertyDetailPage() {
       router.push('/profile/host')
     } catch (err: unknown) {
       toast.error(
-        err instanceof Error ? err.message : 'Failed to delete property. Please try again.'
+        err instanceof Error
+          ? err.message
+          : 'Failed to delete property. Please try again.'
       )
     } finally {
       setIsDeleting(false)
@@ -122,6 +139,7 @@ export default function HostPropertyDetailPage() {
         onDeleteClick={handleDelete}
         onGlobeClick={handleGlobeClick}
         isPropertyActive={property.isActive}
+        disablePublish={!property.isActive && roomCategoryCount === 0}
         onDataChange={refreshProperty}
       />
 
