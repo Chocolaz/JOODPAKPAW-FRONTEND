@@ -10,18 +10,9 @@ import {
 import { Input } from '@/components/ui/input'
 import { useAddProperty } from '../../_context/AddPropertyContext'
 import { StepNavigation } from '../StepNavigation'
+import { AddressComponents } from '@/types'
 
 const libraries: 'places'[] = ['places']
-
-interface AddressComponents {
-  country?: string
-  province?: string
-  district?: string
-  subdistrict?: string
-  route?: string
-  street_number?: string
-  zipcode?: string
-}
 
 export function Step2({
   onNext,
