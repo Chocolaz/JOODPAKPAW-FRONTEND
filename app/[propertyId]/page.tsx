@@ -84,7 +84,7 @@ export default function PropertyDetailPage() {
             <Calendar className="h-6 w-6 text-accent-orange" />
           </div>
           <div>
-            <h4>Pick your date</h4>
+            <h4 className="leading-none">Pick your date</h4>
             <p className="text-neutral-gray">When is your pet's stay?</p>
           </div>
         </div>
