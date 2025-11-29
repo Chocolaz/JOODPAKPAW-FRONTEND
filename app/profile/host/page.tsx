@@ -52,6 +52,7 @@ export default function HostPage() {
             className="grid grid-cols-2 gap-3 mt-4"
             buildHref={(property) => `/profile/host/${property.id}`}
             showRoomCount={true}
+            showStatusIcon={true}
           />
         ) : (
           <div className="text-center mt-20 text-neutral-gray">

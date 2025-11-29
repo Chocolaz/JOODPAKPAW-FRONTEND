@@ -8,6 +8,7 @@ interface PropertyListProps {
   className?: string
   buildHref?: (property: Property) => string
   showRoomCount?: boolean
+  showStatusIcon?: boolean
 }
 
 export function PropertyList({
@@ -15,6 +16,7 @@ export function PropertyList({
   className = 'grid grid-cols-2 gap-4 px-5',
   buildHref,
   showRoomCount,
+  showStatusIcon,
 }: PropertyListProps) {
   return (
     <div className={className}>
@@ -24,6 +26,7 @@ export function PropertyList({
           property={property}
           href={buildHref ? buildHref(property) : undefined}
           showRoomCount={showRoomCount}
+          showStatusIcon={showStatusIcon}
         />
       ))}
     </div>

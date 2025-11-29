@@ -14,6 +14,7 @@ interface PropertyCardProps {
   href?: string
   className?: string
   showRoomCount?: boolean
+  showStatusIcon?: boolean
 }
 
 export function PropertyCard({
@@ -21,6 +22,7 @@ export function PropertyCard({
   href,
   className,
   showRoomCount,
+  showStatusIcon = false,
 }: PropertyCardProps) {
   const [imgSrc, setImgSrc] = useState(
     property.images.length > 0 && API_BASE_URL
@@ -44,13 +46,15 @@ export function PropertyCard({
           className="object-cover rounded-[20px] shadow-md"
           onError={() => setImgSrc('/graphics/welcome.svg')}
         />
-        <div className="absolute top-2 right-2 p-1 bg-white rounded-full opacity-90">
-          {property.isActive ? (
-            <Globe className="h-6 w-6 text-deep-teal" />
-          ) : (
-            <GlobeLock className="h-6 w-6 text-accent-orange" />
-          )}
-        </div>
+        {showStatusIcon && (
+          <div className="absolute top-2 right-2 p-1 bg-white rounded-full opacity-90">
+            {property.isActive ? (
+              <Globe className="h-6 w-6 text-deep-teal" />
+            ) : (
+              <GlobeLock className="h-6 w-6 text-accent-orange" />
+            )}
+          </div>
+        )}
       </div>
 
       {/* Content */}
