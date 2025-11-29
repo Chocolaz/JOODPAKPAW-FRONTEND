@@ -1,5 +1,5 @@
 import { RoomCategories } from '@/types'
-import { RoomCategoryCard } from '@/app/profile/host/add-property/_components/RoomCategoryCard'
+import { RoomCategoryCard } from '@/app/_components/RoomCategoryCard'
 
 interface PropertyRoomCategoriesProps {
   roomCategories: RoomCategories[]

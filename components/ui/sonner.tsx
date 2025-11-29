@@ -14,6 +14,7 @@ export function Toaster({ ...props }: ToasterProps) {
       theme={theme as ToasterProps['theme']}
       duration={5000}
       toastOptions={{
+        dismissible: true, // Add this explicitly
         style: {
           background: 'white',
           border: '1px solid rgba(0,0,0,0.1)',

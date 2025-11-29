@@ -4,7 +4,7 @@ import React, { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { Plus, ChevronLeft } from 'lucide-react'
 
-import { RoomCategoryCard } from '../RoomCategoryCard'
+import { RoomCategoryCard } from '@/app/_components/RoomCategoryCard'
 
 import { AddRoomCategoryForm } from '../../../_components/AddRoomCategoryForm'
 

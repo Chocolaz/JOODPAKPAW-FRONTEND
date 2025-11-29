@@ -5,22 +5,28 @@ import { deleteRoomCategory } from '@/lib/api'
 import { toast } from 'sonner'
 import { Spinner } from '@/components/ui/spinner'
 import { ConfirmationModal } from '@/app/_components/ConfirmationModal'
+import { cn } from '@/lib/utils'
 
 interface RoomCategoryCardProps {
   category: RoomCategories
-  propertyId: number
-  onDeleteSuccess: () => void
-  showDeleteButton?: boolean // Add this prop
+  propertyId?: number
+  onDeleteSuccess?: () => void
+  showDeleteButton?: boolean
+  className?: string
 }
 
 export function RoomCategoryCard({
   category,
   propertyId,
   onDeleteSuccess,
-  showDeleteButton = true, // Default to true
+  showDeleteButton = false,
+  className,
 }: RoomCategoryCardProps) {
   const [isDeleting, setIsDeleting] = useState(false)
   const [isModalOpen, setIsModalOpen] = useState(false)
+
+  const canDelete =
+    showDeleteButton && propertyId !== undefined && onDeleteSuccess
 
   const handleDeleteClick = (e: React.MouseEvent) => {
     e.stopPropagation()
@@ -29,6 +35,8 @@ export function RoomCategoryCard({
   }
 
   const handleConfirmDelete = async () => {
+    if (!canDelete || !propertyId || !onDeleteSuccess) return
+
     setIsModalOpen(false)
     setIsDeleting(true)
     try {
@@ -48,9 +56,14 @@ export function RoomCategoryCard({
 
   return (
     <>
-      <div className="relative rounded-2xl border border-neutral-200 bg-white shadow-sm hover:shadow-md transition">
+      <div
+        className={cn(
+          'relative rounded-2xl border border-neutral-200 bg-white shadow-sm hover:shadow-md transition',
+          className
+        )}
+      >
         {/* Delete Button */}
-        {showDeleteButton && ( // Conditionally render
+        {canDelete && ( // Conditionally render
           <button
             onClick={handleDeleteClick}
             disabled={isDeleting}
@@ -127,15 +140,17 @@ export function RoomCategoryCard({
           </div>
         </div>
       </div>
-      <ConfirmationModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        onConfirm={handleConfirmDelete}
-        title="Delete Room Category"
-        message={`Are you sure you want to delete the <strong>${category.name}</strong> room category? This action cannot be undone.`}
-        confirmButtonClassName="bg-accent-orange hover:bg-red-700"
-        titleClassName="text-accent-orange"
-      />
+      {canDelete && (
+        <ConfirmationModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          onConfirm={handleConfirmDelete}
+          title="Delete Room Category"
+          message={`Are you sure you want to delete the <strong>${category.name}</strong> room category? This action cannot be undone.`}
+          confirmButtonClassName="bg-accent-orange hover:bg-red-700"
+          titleClassName="text-accent-orange"
+        />
+      )}
     </>
   )
 }

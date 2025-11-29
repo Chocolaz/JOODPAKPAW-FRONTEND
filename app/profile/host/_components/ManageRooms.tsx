@@ -4,7 +4,7 @@ import React, { useState, useEffect, useCallback } from 'react'
 import { Plus, ChevronLeft } from 'lucide-react'
 import { getRoomCategories } from '@/lib/api'
 import { RoomCategories } from '@/types'
-import { RoomCategoryCard } from '@/app/profile/host/add-property/_components/RoomCategoryCard'
+import { RoomCategoryCard } from '@/app/_components/RoomCategoryCard'
 import { AddRoomCategoryForm } from './AddRoomCategoryForm'
 import { Spinner } from '@/components/ui/spinner'
 import {
