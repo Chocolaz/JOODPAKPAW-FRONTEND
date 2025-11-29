@@ -9,6 +9,7 @@ interface PropertyListProps {
   buildHref?: (property: Property) => string
   showRoomCount?: boolean
   showStatusIcon?: boolean
+  showPetPolicyChip?: boolean
 }
 
 export function PropertyList({
@@ -17,6 +18,7 @@ export function PropertyList({
   buildHref,
   showRoomCount,
   showStatusIcon,
+  showPetPolicyChip,
 }: PropertyListProps) {
   return (
     <div className={className}>
@@ -27,6 +29,7 @@ export function PropertyList({
           href={buildHref ? buildHref(property) : undefined}
           showRoomCount={showRoomCount}
           showStatusIcon={showStatusIcon}
+          showPetPolicyChip={showPetPolicyChip}
         />
       ))}
     </div>

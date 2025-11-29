@@ -1,4 +1,5 @@
 import { Facility } from './api'
+import { Pet } from './pet'
 
 export interface PropertyImage {
   id: number
@@ -53,6 +54,7 @@ export interface Property {
   propertyType?: PropertyType
   facilities?: Facility[]
   totalRoomCategories?: number
+  pets?: Pet[]
 }
 
 export interface PropertiesResponse {

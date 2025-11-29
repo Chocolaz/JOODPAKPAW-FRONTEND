@@ -4,7 +4,7 @@ import { Property } from '@/types'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useState } from 'react'
-import { cn, getLowestPrice } from '@/lib/utils'
+import { cn, getLowestPrice, getPetPolicy } from '@/lib/utils'
 import { Globe, GlobeLock } from 'lucide-react'
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL
@@ -15,6 +15,7 @@ interface PropertyCardProps {
   className?: string
   showRoomCount?: boolean
   showStatusIcon?: boolean
+  showPetPolicyChip?: boolean
 }
 
 export function PropertyCard({
@@ -23,6 +24,7 @@ export function PropertyCard({
   className,
   showRoomCount,
   showStatusIcon = false,
+  showPetPolicyChip = false,
 }: PropertyCardProps) {
   const [imgSrc, setImgSrc] = useState(
     property.images.length > 0 && API_BASE_URL
@@ -33,6 +35,7 @@ export function PropertyCard({
   const finalHref = href || `/${property.id}`
 
   const lowestPrice = getLowestPrice(property.roomCategories)
+  const petPolicy = getPetPolicy(property.pets)
 
   return (
     <Link href={finalHref} className={cn('block', className)}>
@@ -46,6 +49,11 @@ export function PropertyCard({
           className="object-cover rounded-[20px] shadow-md"
           onError={() => setImgSrc('/graphics/welcome.svg')}
         />
+        {showPetPolicyChip && petPolicy && (
+          <div className="absolute top-2 left-2 px-2 py-1 bg-white rounded-full opacity-90 text-xs font-semibold text-deep-teal shadow-sm">
+            {petPolicy}
+          </div>
+        )}
         {showStatusIcon && (
           <div className="absolute top-2 right-2 p-1 bg-white rounded-full opacity-90">
             {property.isActive ? (

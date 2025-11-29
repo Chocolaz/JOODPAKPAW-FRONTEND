@@ -1,6 +1,6 @@
 import { type ClassValue, clsx } from 'clsx'
 import { twMerge } from 'tailwind-merge'
-import { RoomCategories } from '@/types'
+import { Pet, RoomCategories } from '@/types'
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -34,5 +34,28 @@ export function normalizeRoomCategories(
     return [roomCategories]
   }
   return []
+}
+
+export function getPetPolicy(pets: Pet[] | undefined): string | null {
+  if (!pets || pets.length === 0) {
+    return null
+  }
+
+  const allowedPets = new Set(pets.map((p) => p.name.toLowerCase()))
+
+  const hasDog = allowedPets.has('dog')
+  const hasCat = allowedPets.has('cat')
+
+  if (hasDog && hasCat) {
+    return 'Cat & Dog'
+  }
+  if (hasDog) {
+    return 'Dog Only'
+  }
+  if (hasCat) {
+    return 'Cat Only'
+  }
+
+  return null
 }
 

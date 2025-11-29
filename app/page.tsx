@@ -43,7 +43,7 @@ export default function Home() {
             <h5 className="text-xl font-medium text-deep-teal mb-4 px-5">
               Properties
             </h5>
-            <PropertyList properties={properties} />
+            <PropertyList properties={properties} showPetPolicyChip={true} />
           </main>
         )}
       </div>
