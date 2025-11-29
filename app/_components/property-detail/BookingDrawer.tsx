@@ -16,8 +16,8 @@ import { getRoomCategories } from '@/lib/api'
 import { RoomCategories } from '@/types'
 import { Spinner } from '@/components/ui/spinner'
 import { toast } from 'sonner'
-import { normalizeRoomCategories, cn } from '@/lib/utils'
-import { RoomCategoryCard } from '@/app/_components/RoomCategoryCard'
+import { normalizeRoomCategories } from '@/lib/utils'
+import { BookingRoomTable } from './BookingRoomTable'
 
 interface BookingDrawerProps {
   propertyId: number
@@ -25,10 +25,26 @@ interface BookingDrawerProps {
 
 export function BookingDrawer({ propertyId }: BookingDrawerProps) {
   const [date, setDate] = React.useState<Date | undefined>(new Date())
-  const [roomCategories, setRoomCategories] = React.useState<RoomCategories[]>([])
+  const [roomCategories, setRoomCategories] = React.useState<RoomCategories[]>(
+    []
+  )
   const [loading, setLoading] = React.useState(true)
   const [error, setError] = React.useState<string | null>(null)
-  const [selectedRoom, setSelectedRoom] = React.useState<number | null>(null)
+  const [selectedRooms, setSelectedRooms] = React.useState<
+    Record<number, number>
+  >({})
+
+  const handleSelectChange = (categoryId: number, value: number) => {
+    setSelectedRooms((prev) => {
+      const newSelectedRooms = { ...prev }
+      if (value === 0) {
+        delete newSelectedRooms[categoryId]
+      } else {
+        newSelectedRooms[categoryId] = value
+      }
+      return newSelectedRooms
+    })
+  }
 
   React.useEffect(() => {
     const fetchRoomCategories = async () => {
@@ -65,57 +81,46 @@ export function BookingDrawer({ propertyId }: BookingDrawerProps) {
           </div>
         </DrawerTrigger>
         <DrawerContent>
-          <div className="mx-auto w-full max-w-sm">
+          <div className="mx-auto w-full max-w-[500px] max-h-[80vh] flex flex-col">
             <DrawerHeader>
               <DrawerTitle>Pick your date</DrawerTitle>
               <DrawerDescription>When is your pet's stay?</DrawerDescription>
             </DrawerHeader>
-            <div className="p-4 pb-0">
-              <Calendar
-                mode="single"
-                selected={date}
-                onSelect={setDate}
-                className="rounded-md border"
-              />
-            </div>
-
-            <div className="p-4">
-              <h3 className="text-lg font-medium text-deep-teal mb-2">
-                Select a Room
-              </h3>
-              {loading && (
-                <div className="flex justify-center">
-                  <Spinner />
+            <div className="overflow-y-auto px-5">
+              {/* Calendar */}
+              <div className="shrink-0">
+                <div className="w-full max-w-[500px] px-10 pb-2 mx-auto">
+                  <Calendar
+                    mode="single"
+                    selected={date} // state ของ selected date
+                    onSelect={setDate} // update state เมื่อ user เลือก
+                    className="rounded-md border text-sm" // compact style
+                    fromDate={new Date()} // disable วันที่ก่อนวันนี้
+                  />
                 </div>
-              )}
-              {error && <p className="text-red-500">{error}</p>}
-              {!loading && !error && (
-                <div className="space-y-2">
-                  {roomCategories.map((room) => (
-                    <label key={room.id} className="cursor-pointer">
-                      <input
-                        type="radio"
-                        name="roomCategory"
-                        value={room.id}
-                        checked={selectedRoom === room.id}
-                        onChange={() => setSelectedRoom(room.id)}
-                        className="sr-only" // Hide the actual radio button
-                      />
-                      <RoomCategoryCard
-                        category={room}
-                        className={cn(
-                          'shadow-none hover:shadow-none',
-                          selectedRoom === room.id
-                            ? 'border-positive-green ring-2 ring-positive-green'
-                            : 'border-neutral-200 hover:border-deep-teal/40'
-                        )}
-                      />
-                    </label>
-                  ))}
-                </div>
-              )}
-            </div>
+              </div>
 
+              {/* Room selection - scrollable */}
+              <div className=" flex-1">
+                <h3 className="text-lg font-medium text-deep-teal mb-2">
+                  Select a Room
+                </h3>
+
+                {loading && (
+                  <div className="flex justify-center">
+                    <Spinner />
+                  </div>
+                )}
+                {error && <p className="text-red-500">{error}</p>}
+                {!loading && !error && (
+                  <BookingRoomTable
+                    categories={roomCategories}
+                    selectedRooms={selectedRooms}
+                    onSelectChange={handleSelectChange}
+                  />
+                )}
+              </div>
+            </div>
             <DrawerFooter>
               <DrawerClose asChild>
                 <Button variant="outline">Cancel</Button>
