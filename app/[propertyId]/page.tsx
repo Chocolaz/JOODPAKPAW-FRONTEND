@@ -12,6 +12,8 @@ import { useRouter } from 'next/navigation'
 import { PageHeaderButtons } from '@/app/_components/property-detail/PageHeaderButtons'
 import { PropertyRoomCategories } from '@/app/_components/property-detail/PropertyRoomCategories'
 import { normalizeRoomCategories } from '@/lib/utils'
+import { Button } from '@/components/ui/button'
+import { Calendar } from 'lucide-react'
 
 export default function PropertyDetailPage() {
   const { property, loading, error, refreshProperty } =
@@ -51,13 +53,13 @@ export default function PropertyDetailPage() {
   }
 
   if (error) return <ErrorState error={error} />
-    if (!property) return <ErrorState error="Property not found." />
-  
-    const roomCategoriesArray = normalizeRoomCategories(property.roomCategories)
-  
-    return (
-      <div className="max-w-4xl mx-auto pb-24 relative">
-        <PageHeaderButtons onBackClick={handleBack} onShareClick={handleShare} />
+  if (!property) return <ErrorState error="Property not found." />
+
+  const roomCategoriesArray = normalizeRoomCategories(property.roomCategories)
+
+  return (
+    <div className="max-w-4xl mx-auto pb-24 relative">
+      <PageHeaderButtons onBackClick={handleBack} onShareClick={handleShare} />
       <PropertyImageGallery images={property.images} />
 
       <div className="px-4 sm:px-0">
@@ -73,6 +75,22 @@ export default function PropertyDetailPage() {
           showDeleteButton={false}
         />
         <PropertyLocation property={property} />
+      </div>
+
+      {/* Sticky Footer */}
+      <div className="fixed bottom-0 left-0 right-0 bg-off-white border-t p-4 flex items-center justify-between z-10 max-w-4xl mx-auto rounded-t-[20px] shadow-lg">
+        <div className="flex items-center gap-3">
+          <div className="p-2 border border-accent-orange rounded-full">
+            <Calendar className="h-6 w-6 text-accent-orange" />
+          </div>
+          <div>
+            <h4>Pick your date</h4>
+            <p className="text-neutral-gray">When is your pet's stay?</p>
+          </div>
+        </div>
+        <Button variant="default" className="p-5 bg-accent-orange">
+          Book Now
+        </Button>
       </div>
     </div>
   )
