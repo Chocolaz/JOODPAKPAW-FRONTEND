@@ -11,6 +11,7 @@ import { PropertyLocation } from '@/app/_components/property-detail/PropertyLoca
 import { useRouter } from 'next/navigation'
 import { PageHeaderButtons } from '@/app/_components/property-detail/PageHeaderButtons'
 import { PropertyRoomCategories } from '@/app/_components/property-detail/PropertyRoomCategories'
+import { normalizeRoomCategories } from '@/lib/utils'
 
 export default function PropertyDetailPage() {
   const { property, loading, error, refreshProperty } =
@@ -50,12 +51,13 @@ export default function PropertyDetailPage() {
   }
 
   if (error) return <ErrorState error={error} />
-  if (!property) return <ErrorState error="Property not found." />
-
-  return (
-    <div className="max-w-4xl mx-auto pb-24 relative">
-      <PageHeaderButtons onBackClick={handleBack} onShareClick={handleShare} />
-
+    if (!property) return <ErrorState error="Property not found." />
+  
+    const roomCategoriesArray = normalizeRoomCategories(property.roomCategories)
+  
+    return (
+      <div className="max-w-4xl mx-auto pb-24 relative">
+        <PageHeaderButtons onBackClick={handleBack} onShareClick={handleShare} />
       <PropertyImageGallery images={property.images} />
 
       <div className="px-4 sm:px-0">
@@ -66,6 +68,7 @@ export default function PropertyDetailPage() {
         />
         <PropertyRoomCategories
           propertyId={property.id}
+          roomCategories={roomCategoriesArray}
           onDeleteSuccess={refreshProperty}
           showDeleteButton={false}
         />

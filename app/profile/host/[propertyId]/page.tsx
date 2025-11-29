@@ -20,6 +20,7 @@ import { ConfirmationModal } from '@/app/_components/ConfirmationModal'
 import { PropertyRoomCategories } from '@/app/_components/property-detail/PropertyRoomCategories'
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { Property } from '@/types'
+import { normalizeRoomCategories } from '@/lib/utils'
 
 export default function HostPropertyDetailPage() {
   const { property, loading, error, refreshProperty } =
@@ -123,6 +124,8 @@ export default function HostPropertyDetailPage() {
   if (error) return <ErrorState error={error} />
   if (!property) return <ErrorState error="Property not found." />
 
+  const roomCategoriesArray = normalizeRoomCategories(property.roomCategories)
+
   const publishModalTitle = property.isActive
     ? 'Unpublish This Property?'
     : 'Publish This Property?'
@@ -177,6 +180,7 @@ export default function HostPropertyDetailPage() {
         />
         <PropertyRoomCategories
           propertyId={property.id}
+          roomCategories={roomCategoriesArray}
           onDeleteSuccess={refreshProperty}
           showDeleteButton={false}
         />

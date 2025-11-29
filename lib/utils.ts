@@ -23,3 +23,16 @@ export function getLowestPrice(
   // It's a single object
   return roomCategories.basePrice
 }
+
+export function normalizeRoomCategories(
+  roomCategories: RoomCategories | RoomCategories[] | undefined
+): RoomCategories[] {
+  if (Array.isArray(roomCategories)) {
+    return roomCategories
+  }
+  if (roomCategories) {
+    return [roomCategories]
+  }
+  return []
+}
+
