@@ -33,7 +33,7 @@ The project effectively abstracts common logic into a dedicated "library" layer,
 
 - **Evidence:**
     - **Reusable API Handlers:** The `lib/api.ts` file centralizes all functions responsible for making backend API calls (e.g., `signIn`, `getProperties`, `createProperty`). These functions use a shared `request` client from `lib/apiClient.ts`, which standardizes error handling, authentication headers, and API endpoint construction.
-    - **Reusable Utilities:** The project contains various utility files for specific concerns, such as `lib/mapUtils.ts` for map-related logic (including Leaflet and Google Maps), and `lib/authenUtils.ts` for authentication-related helpers.
+    - **Reusable Utilities:** The project contains various utility files for specific concerns, such as `lib/mapUtils.ts` for generating static Google Maps image URLs, and `lib/authenUtils.ts` for authentication-related helpers.
 
 - **Benefits:**
     - **Avoids Duplicated Logic:** Instead of writing `fetch` calls in multiple components, we call a single, well-defined function (e.g., `getProfile()`).
@@ -83,7 +83,7 @@ PropertyDetailPage (Page)
 ├── PropertyHeader (Molecule)
 ├── PropertyFacilities (Organism)
 └── PropertyLocation (Organism)
-    └── InteractiveMap (Molecule, using Leaflet)
+    └── StaticMapImage (Atom - a Next.js <Image> component displaying a static map)
 ```
 
 ### Data Flow

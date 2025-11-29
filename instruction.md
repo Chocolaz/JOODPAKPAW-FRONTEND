@@ -16,7 +16,6 @@ Joodpakpaw is a web application built with Next.js, designed as a platform for b
   - [Lucide React](https://lucide.dev/): For icons.
   - [Sonner](https://sonner.emilkowal.ski/): For toast notifications.
 - **Maps Integration:**
-  - [react-leaflet](https://react-leaflet.js.org/): For displaying property locations on an interactive map.
   - [Google Maps Static API](https://developers.google.com/maps/documentation/maps-static/overview): Used to display a static image of the property's location.
   - [Google Maps API](https://developers.google.com/maps): Used for the place autocompletion feature in search fields.
 - **Linting & Formatting:**
