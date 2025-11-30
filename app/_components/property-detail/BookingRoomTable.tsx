@@ -1,8 +1,7 @@
 'use client'
 
-import { getPetPolicy } from '@/lib/utils'
 import { RoomCategories } from '@/types'
-import { Home } from 'lucide-react'
+import { getPetPolicy } from '@/lib/utils'
 import {
   Select,
   SelectTrigger,
@@ -38,7 +37,7 @@ export function BookingRoomTable({
           <TableHead className="py-3 font-medium">Room</TableHead>
           <TableHead className="py-3 font-medium">Pets Allowed</TableHead>
           <TableHead className="py-3 font-medium">Price / night</TableHead>
-          <TableHead className="py-3 font-medium w-[70px]">Rooms</TableHead>
+          <TableHead className="py-3 font-medium">Select</TableHead>
         </TableRow>
       </TableHeader>
 
@@ -47,9 +46,7 @@ export function BookingRoomTable({
           <TableRow key={cat.id}>
             {/* --- COL 1: Room Name --- */}
             <TableCell className="py-4 align-top">
-              <p className="font-semibold text-[15px] capitalize text-[#222]">
-                {cat.name}
-              </p>
+              <p className="font-medium capitalize text-[#222]">{cat.name}</p>
               <div className="flex items-center mt-1 text-sm text-neutral-600 gap-2">
                 {cat.totalRoom} rooms
               </div>
@@ -72,7 +69,7 @@ export function BookingRoomTable({
 
             {/* --- COL 3: Price --- */}
             <TableCell className="py-4 align-top">
-              <p className="font-semibold text-[16px] text-[#111]">
+              <p className=" font-medium">
                 {cat.basePrice.toLocaleString()} THB
               </p>
             </TableCell>
@@ -80,14 +77,18 @@ export function BookingRoomTable({
             {/* --- COL 4: Select --- */}
             <TableCell className="py-4 align-top">
               <Select
-                value={String(selectedRooms[cat.id] ?? 1)}
+                value={String(selectedRooms[cat.id] ?? 0)} // <-- default เป็น 0
                 onValueChange={(v) => onSelectChange(cat.id, Number(v))}
               >
-                <SelectTrigger className="w-[70px]">
-                  <SelectValue />
+                <SelectTrigger>
+                  <SelectValue placeholder="0" />
                 </SelectTrigger>
 
                 <SelectContent>
+                  {/* เพิ่มตัวเลือก 0 */}
+                  <SelectItem value="0">0</SelectItem>
+
+                  {/* 1 → totalRoom */}
                   {Array.from({ length: cat.totalRoom }, (_, index) => {
                     const value = index + 1
                     return (

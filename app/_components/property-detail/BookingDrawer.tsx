@@ -10,7 +10,6 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from '@/components/ui/drawer'
-import { Calendar } from '@/components/ui/calendar'
 import { Button } from '@/components/ui/button'
 import { getRoomCategories } from '@/lib/api'
 import { RoomCategories } from '@/types'
@@ -18,13 +17,13 @@ import { Spinner } from '@/components/ui/spinner'
 import { toast } from 'sonner'
 import { normalizeRoomCategories } from '@/lib/utils'
 import { BookingRoomTable } from './BookingRoomTable'
+import { BookingSearchBar } from './BookingSearchBar'
 
 interface BookingDrawerProps {
   propertyId: number
 }
 
 export function BookingDrawer({ propertyId }: BookingDrawerProps) {
-  const [date, setDate] = React.useState<Date | undefined>(new Date())
   const [roomCategories, setRoomCategories] = React.useState<RoomCategories[]>(
     []
   )
@@ -81,27 +80,18 @@ export function BookingDrawer({ propertyId }: BookingDrawerProps) {
           </div>
         </DrawerTrigger>
         <DrawerContent>
-          <div className="mx-auto w-full max-w-[500px] max-h-[80vh] flex flex-col">
+          <div className="mx-auto w-full max-w-2xl max-h-[90vh] flex flex-col">
             <DrawerHeader>
-              <DrawerTitle>Pick your date</DrawerTitle>
-              <DrawerDescription>When is your pet's stay?</DrawerDescription>
+              <DrawerTitle>Select dates and rooms</DrawerTitle>
+              <DrawerDescription>
+                Find the perfect room for your pet's stay.
+              </DrawerDescription>
             </DrawerHeader>
             <div className="overflow-y-auto px-5">
-              {/* Calendar */}
-              <div className="shrink-0">
-                <div className="w-full max-w-[500px] px-10 pb-2 mx-auto">
-                  <Calendar
-                    mode="single"
-                    selected={date} // state ของ selected date
-                    onSelect={setDate} // update state เมื่อ user เลือก
-                    className="rounded-md border text-sm" // compact style
-                    fromDate={new Date()} // disable วันที่ก่อนวันนี้
-                  />
-                </div>
-              </div>
+              <BookingSearchBar />
 
               {/* Room selection - scrollable */}
-              <div className=" flex-1">
+              <div className="flex-1">
                 <h3 className="text-lg font-medium text-deep-teal mb-2">
                   Select a Room
                 </h3>
