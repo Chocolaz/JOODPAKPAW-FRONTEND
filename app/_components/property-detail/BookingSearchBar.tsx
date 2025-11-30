@@ -1,7 +1,7 @@
 'use client'
 
 import * as React from 'react'
-import { format } from 'date-fns'
+import { format, differenceInDays } from 'date-fns'
 import { Calendar as CalendarIcon, PawPrint, Search } from 'lucide-react'
 import { DateRange } from 'react-day-picker'
 
@@ -30,9 +30,30 @@ interface BookingSearchBarProps {
 
 export function BookingSearchBar({ onSearch }: BookingSearchBarProps) {
   const [date, setDate] = React.useState<DateRange | undefined>()
+  const [selectedDateRange, setSelectedDateRange] = React.useState<
+    DateRange | undefined
+  >(undefined)
   const [numberOfPets, setNumberOfPets] = React.useState<number>(1)
   const [isDateDialogOpen, setIsDateDialogOpen] = React.useState(false)
   const [isPetsDialogOpen, setIsPetsDialogOpen] = React.useState(false)
+
+  React.useEffect(() => {
+    if (isDateDialogOpen) {
+      setSelectedDateRange(date)
+    }
+  }, [isDateDialogOpen, date])
+
+  const handleConfirmDate = () => {
+    if (selectedDateRange?.from && selectedDateRange?.to) {
+      setDate(selectedDateRange)
+      setIsDateDialogOpen(false)
+    }
+  }
+
+  const isConfirmButtonDisabled = React.useMemo(() => {
+    if (!selectedDateRange?.from || !selectedDateRange?.to) return true
+    return differenceInDays(selectedDateRange.to, selectedDateRange.from) < 1
+  }, [selectedDateRange])
 
   const handleSearch = () => {
     onSearch({
@@ -88,20 +109,22 @@ export function BookingSearchBar({ onSearch }: BookingSearchBarProps) {
           <div className="flex justify-center">
             <Calendar
               mode="range"
-              defaultMonth={date?.from}
-              selected={date}
-              onSelect={setDate}
+              defaultMonth={selectedDateRange?.from}
+              selected={selectedDateRange}
+              onSelect={setSelectedDateRange}
               numberOfMonths={2}
               startMonth={new Date()}
               hidden={[{ before: new Date() }]}
               fixedWeeks
+              min={2} // Ensure at least 2 days are selected
               className="min-w-[280px] md:min-w-[400px]"
             />
           </div>
 
           <DialogFooter>
             <Button
-              onClick={() => setIsDateDialogOpen(false)}
+              onClick={handleConfirmDate}
+              disabled={isConfirmButtonDisabled}
               className="bg-positive-green w-full"
             >
               Confirm

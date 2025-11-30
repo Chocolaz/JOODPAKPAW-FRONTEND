@@ -96,9 +96,7 @@ export function BookingDrawer({ propertyId }: BookingDrawerProps) {
             </DrawerHeader>
             <div className="px-5">
               <BookingSearchBar onSearch={handleSearch} />
-              <h3 className="text-lg font-medium text-deep-teal mb-2">
-                Select a Room
-              </h3>
+              <h4 className="text-deep-teal">Select a Room</h4>
             </div>
 
             <div className="flex-1 overflow-y-auto px-5">

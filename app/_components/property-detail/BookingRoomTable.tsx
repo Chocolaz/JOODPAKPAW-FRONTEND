@@ -30,6 +30,8 @@ export function BookingRoomTable({
   selectedRooms,
   onSelectChange,
 }: BookingRoomTableProps) {
+  const availableCategories = categories.filter((cat) => cat.isAvailable)
+
   if (categories.length === 0) {
     return (
       <div className="text-center py-10">
@@ -39,6 +41,17 @@ export function BookingRoomTable({
       </div>
     )
   }
+
+  if (availableCategories.length === 0) {
+    return (
+      <div className="text-center py-10">
+        <p className="text-neutral-500">
+          No rooms available for the selected dates and pets.
+        </p>
+      </div>
+    )
+  }
+
   return (
     <Table>
       <TableHeader>
@@ -51,73 +64,90 @@ export function BookingRoomTable({
       </TableHeader>
 
       <TableBody>
-        {categories.map((cat) => (
-          <TableRow key={cat.id} data-state-disabled={!cat.isAvailable}>
-            {/* --- COL 1: Room Name --- */}
-            <TableCell className="py-4 align-top">
-              <p className="font-medium capitalize text-[#222]">{cat.name}</p>
-              <div className="flex items-center mt-1 text-sm text-neutral-600 gap-2">
-                {cat.totalRoom} rooms
-              </div>
-            </TableCell>
+        {availableCategories.map((cat) => {
+          const totalNights = cat.availability.dates.length
+          const averagePricePerNight =
+            totalNights > 0
+              ? cat.availability.totalPrice / totalNights
+              : cat.basePrice // Fallback to basePrice if no dates
 
-            {/* --- COL 2: Pets Allowed --- */}
-            <TableCell className="py-4 align-top">
-              <div className="flex flex-col gap-1.5 text-sm">
-                {/* Pets summary */}
-                <div className="flex items-center gap-2 font-medium text-sm">
-                  {getPetPolicy(cat.pets)}
+          return (
+            <TableRow key={cat.id}>
+              {/* --- COL 1: Room Name --- */}
+              <TableCell className="py-4 align-top">
+                <p className="font-medium capitalize text-[#222]">
+                  {cat.name}
+                </p>
+                <div className="flex items-center mt-1 text-sm text-neutral-600 gap-2">
+                  {cat.totalRoom} rooms
                 </div>
+              </TableCell>
 
-                {/* Number of pets */}
-                <div className="flex items-center gap-2 text-neutral-600 text-xs">
-                  <span>{cat.numberOfPets} pets / room</span>
+              {/* --- COL 2: Pets Allowed --- */}
+              <TableCell className="py-4 align-top">
+                <div className="flex flex-col gap-1.5 text-sm">
+                  {/* Pets summary */}
+                  <div className="flex items-center gap-2 font-medium text-sm">
+                    {getPetPolicy(cat.pets)}
+                  </div>
+
+                  {/* Number of pets */}
+                  <div className="flex items-center gap-2 text-neutral-600 text-xs">
+                    <span>{cat.numberOfPets} pets / room</span>
+                  </div>
                 </div>
-              </div>
-            </TableCell>
+              </TableCell>
 
-            {/* --- COL 3: Price --- */}
-            <TableCell className="py-4 align-top">
-              <p className=" font-medium">
-                {cat.availability.totalPrice.toLocaleString()} THB
-              </p>
-            </TableCell>
+              {/* --- COL 3: Price --- */}
+              <TableCell className="py-4 align-top">
+                <p className=" font-medium">
+                  {cat.availability.totalPrice.toLocaleString()} THB
+                </p>
+                {totalNights > 0 && (
+                  <p className="text-neutral-600 text-xs mt-1">
+                    {averagePricePerNight.toLocaleString()} THB / night
+                  </p>
+                )}
+              </TableCell>
 
-            {/* --- COL 4: Select --- */}
-            <TableCell className="py-4 align-top">
-              {!cat.isAvailable ? (
-                <p className="text-sm text-red-500">Not available</p>
-              ) : (
+              {/* --- COL 4: Select --- */}
+              <TableCell className="py-4 align-top">
                 <Select
                   value={String(selectedRooms[cat.id] ?? 0)}
                   onValueChange={(v) => onSelectChange(cat.id, Number(v))}
-                  disabled={!cat.isAvailable}
+                  // disabled={isRowDisabled} // Removed this line
                 >
-                  <SelectTrigger>
-                    <SelectValue placeholder="0" />
+                  <SelectTrigger className="w-[70px]">
+                    <SelectValue>
+                      {selectedRooms[cat.id] ?? 0}
+                    </SelectValue>
                   </SelectTrigger>
 
                   <SelectContent>
-                    <SelectItem value="0">0</SelectItem>
                     {Array.from(
-                      {
-                        length: cat.availability.availableRooms,
-                      },
-                      (_, index) => {
-                        const value = index + 1
+                      { length: cat.availability.availableRooms + 1 },
+                      (_, i) => {
+                        const num = i
+                        const roomsNeeded = cat.availability.roomsNeeded
+                        const isDisabled =
+                          roomsNeeded > 0 ? num > 0 && num < roomsNeeded : false
                         return (
-                          <SelectItem key={value} value={String(value)}>
-                            {value}
+                          <SelectItem
+                            key={num}
+                            value={String(num)}
+                            disabled={isDisabled}
+                          >
+                            {num}
                           </SelectItem>
                         )
                       }
                     )}
                   </SelectContent>
                 </Select>
-              )}
-            </TableCell>
-          </TableRow>
-        ))}
+              </TableCell>
+            </TableRow>
+          )
+        })}
       </TableBody>
     </Table>
   )

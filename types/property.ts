@@ -21,6 +21,7 @@ export interface RoomCategories {
   isCapacityInsufficient: boolean
   isBooked: boolean
   availability: {
+    roomsNeeded: number
     availableRooms: number
     totalPrice: number
     dates: {
