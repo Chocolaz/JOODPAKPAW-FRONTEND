@@ -55,7 +55,13 @@ export function Step7({ onBack }: { onBack: () => void }) {
         </p>
 
         <div className="space-y-5">
-          <section className="bg-white rounded-xl shadow-sm border border-neutral-200 px-5 py-4">
+          <section
+            className="bg-white rounded-xl shadow-sm border border-neutral-200 px-5 py-4 cursor-pointer hover:bg-neutral-50 transition-colors"
+            onClick={() => {
+              setHighestStepReached(1)
+              router.push('/profile/host/add-property/1')
+            }}
+          >
             <h3 className="mb-3">Basic Information</h3>
             <ReviewItem label="Title" value={formData.title} />
             <ReviewItem label="Description" value={formData.description} />
@@ -68,14 +74,26 @@ export function Step7({ onBack }: { onBack: () => void }) {
             />
           </section>
 
-          <section className="bg-white rounded-xl shadow-sm border border-neutral-200 px-5 py-4">
+          <section
+            className="bg-white rounded-xl shadow-sm border border-neutral-200 px-5 py-4 cursor-pointer hover:bg-neutral-50 transition-colors"
+            onClick={() => {
+              setHighestStepReached(2)
+              router.push('/profile/host/add-property/2')
+            }}
+          >
             <h3 className="text-lg font-semibold mb-3">Location</h3>
             <ReviewItem label="Full Address" value={address} />
             <ReviewItem label="Latitude" value={String(formData.latitude)} />
             <ReviewItem label="Longitude" value={String(formData.longitude)} />
           </section>
 
-          <section className="bg-white rounded-xl shadow-sm border border-neutral-200 px-5 py-4">
+          <section
+            className="bg-white rounded-xl shadow-sm border border-neutral-200 px-5 py-4 cursor-pointer hover:bg-neutral-50 transition-colors"
+            onClick={() => {
+              setHighestStepReached(3)
+              router.push('/profile/host/add-property/3')
+            }}
+          >
             <h3 className="text-lg font-semibold mb-3">Facilities & Media</h3>
             <ReviewItem
               label="Facilities"
