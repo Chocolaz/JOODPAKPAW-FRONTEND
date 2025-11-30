@@ -57,7 +57,7 @@ export function BookingRoomTable({
       <TableHeader>
         <TableRow className="text-neutral-600 text-sm">
           <TableHead className="py-3 font-medium">Room</TableHead>
-          <TableHead className="py-3 font-medium">Pets Allowed</TableHead>
+          <TableHead className="py-3 font-medium">Allowed</TableHead>
           <TableHead className="py-3 font-medium">Total Price</TableHead>
           <TableHead className="py-3 font-medium">Select</TableHead>
         </TableRow>
@@ -68,18 +68,23 @@ export function BookingRoomTable({
           const totalNights = cat.availability.dates.length
           const averagePricePerNight =
             totalNights > 0
-              ? cat.availability.totalPrice / totalNights
-              : cat.basePrice // Fallback to basePrice if no dates
+              ? Math.round(cat.availability.totalPrice / totalNights)
+              : 0 // Use 0 as fallback
 
           return (
             <TableRow key={cat.id}>
               {/* --- COL 1: Room Name --- */}
               <TableCell className="py-4 align-top">
-                <p className="font-medium capitalize text-[#222]">
-                  {cat.name}
-                </p>
-                <div className="flex items-center mt-1 text-sm text-neutral-600 gap-2">
-                  {cat.totalRoom} rooms
+                <p className="font-medium capitalize text-[#222]">{cat.name}</p>
+                <div className="flex flex-wrap gap-2 mt-3">
+                  {cat.facilities.map((facility) => (
+                    <div
+                      key={facility.id}
+                      className="bg-gray-200 rounded-full px-2.5 py-1 text-xs"
+                    >
+                      {facility.name}
+                    </div>
+                  ))}
                 </div>
               </TableCell>
 
@@ -118,9 +123,7 @@ export function BookingRoomTable({
                   // disabled={isRowDisabled} // Removed this line
                 >
                   <SelectTrigger className="w-[70px]">
-                    <SelectValue>
-                      {selectedRooms[cat.id] ?? 0}
-                    </SelectValue>
+                    <SelectValue>{selectedRooms[cat.id] ?? 0}</SelectValue>
                   </SelectTrigger>
 
                   <SelectContent>

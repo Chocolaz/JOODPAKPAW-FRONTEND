@@ -18,6 +18,8 @@ import { toast } from 'sonner'
 import { normalizeRoomCategories } from '@/lib/utils'
 import { BookingRoomTable } from './BookingRoomTable'
 import { BookingSearchBar, SearchParams } from './BookingSearchBar'
+import { DateRange } from 'react-day-picker'
+import { differenceInDays } from 'date-fns'
 
 interface BookingDrawerProps {
   propertyId: number
@@ -32,6 +34,9 @@ export function BookingDrawer({ propertyId }: BookingDrawerProps) {
   const [selectedRooms, setSelectedRooms] = React.useState<
     Record<number, number>
   >({})
+  const [date, setDate] = React.useState<DateRange | undefined>()
+  const [searchedNumberOfNights, setSearchedNumberOfNights] = React.useState(0)
+  const [numberOfPets, setNumberOfPets] = React.useState<number>(1)
 
   const handleSelectChange = (categoryId: number, value: number) => {
     setSelectedRooms((prev) => {
@@ -64,6 +69,13 @@ export function BookingDrawer({ propertyId }: BookingDrawerProps) {
         response.roomCategories
       )
       setRoomCategories(normalizedCategories)
+
+      // Update searchedNumberOfNights after successful search
+      if (date?.from && date?.to) {
+        setSearchedNumberOfNights(differenceInDays(date.to, date.from))
+      } else {
+        setSearchedNumberOfNights(0)
+      }
     } catch (err) {
       setError('Failed to search for rooms.')
       toast.error('Failed to search for rooms.')
@@ -95,8 +107,20 @@ export function BookingDrawer({ propertyId }: BookingDrawerProps) {
               </DrawerDescription>
             </DrawerHeader>
             <div className="px-5">
-              <BookingSearchBar onSearch={handleSearch} />
-              <h4 className="text-deep-teal">Select a Room</h4>
+              <BookingSearchBar
+                onSearch={handleSearch}
+                date={date}
+                setDate={setDate}
+                numberOfPets={numberOfPets}
+                setNumberOfPets={setNumberOfPets}
+              />
+              <h4 className="text-deep-teal">
+                Select a Room{' '}
+                {searchedNumberOfNights > 0 &&
+                  `for ${searchedNumberOfNights} night${
+                    searchedNumberOfNights > 1 ? 's' : ''
+                  }`}
+              </h4>
             </div>
 
             <div className="flex-1 overflow-y-auto px-5">

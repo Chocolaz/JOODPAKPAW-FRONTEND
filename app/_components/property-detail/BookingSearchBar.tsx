@@ -26,14 +26,22 @@ export interface SearchParams {
 
 interface BookingSearchBarProps {
   onSearch: (params: SearchParams) => void
+  date: DateRange | undefined
+  setDate: React.Dispatch<React.SetStateAction<DateRange | undefined>>
+  numberOfPets: number
+  setNumberOfPets: React.Dispatch<React.SetStateAction<number>>
 }
 
-export function BookingSearchBar({ onSearch }: BookingSearchBarProps) {
-  const [date, setDate] = React.useState<DateRange | undefined>()
+export function BookingSearchBar({
+  onSearch,
+  date,
+  setDate,
+  numberOfPets,
+  setNumberOfPets,
+}: BookingSearchBarProps) {
   const [selectedDateRange, setSelectedDateRange] = React.useState<
     DateRange | undefined
   >(undefined)
-  const [numberOfPets, setNumberOfPets] = React.useState<number>(1)
   const [isDateDialogOpen, setIsDateDialogOpen] = React.useState(false)
   const [isPetsDialogOpen, setIsPetsDialogOpen] = React.useState(false)
 
