@@ -51,13 +51,15 @@ export function ManageRooms({ propertyId, onRoomsUpdate }: ManageRoomsProps) {
 
   const handleAddSuccess = () => {
     fetchRooms()
-    onRoomsUpdate?.()
-    setIsAddDrawerOpen(false)
+    // onRoomsUpdate?.()
+    setIsAddDrawerOpen(false) // Removed this line
   }
 
-  const handleDeleteSuccess = () => {
-    fetchRooms()
-    onRoomsUpdate?.()
+  const handleDeleteSuccess = (deletedCategoryId: number) => {
+    setRooms((prevRooms) =>
+      prevRooms.filter((room) => room.id !== deletedCategoryId)
+    )
+    // onRoomsUpdate?.()
   }
 
   if (loading) {
@@ -92,6 +94,8 @@ export function ManageRooms({ propertyId, onRoomsUpdate }: ManageRoomsProps) {
                 category={room}
                 propertyId={propertyId}
                 onDeleteSuccess={handleDeleteSuccess}
+                showDeleteButton={true}
+                isOnlyRoom={rooms.length === 1} // Added this line
               />
             ))}
         </div>

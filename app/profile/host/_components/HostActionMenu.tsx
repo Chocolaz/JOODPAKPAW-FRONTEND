@@ -31,6 +31,9 @@ export function HostActionMenu({
   const handleOpenChange = (open: boolean) => {
     setIsOpen(open)
     if (!open) {
+      if (view === 'edit' || view === 'rooms') {
+        onDataChange?.()
+      }
       setView('menu') // Reset view when drawer closes
     }
   }

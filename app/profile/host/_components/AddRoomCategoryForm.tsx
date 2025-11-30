@@ -59,6 +59,18 @@ export function AddRoomCategoryForm({
   )
   const [loadingPetData, setLoadingPetData] = useState(true)
 
+  const isFormValid = React.useMemo(() => {
+    return (
+      roomData.name.trim() !== '' &&
+      roomData.basePrice > 0 &&
+      roomData.totalRoom >= 1 &&
+      roomData.numberOfPets >= 1 &&
+      roomData.pets.length > 0 &&
+      roomData.facilities.length > 0 &&
+      roomData.petSizeCategoryId !== null
+    )
+  }, [roomData])
+
   const updateRoom = <K extends keyof RoomCategoryFormData>(
     key: K,
     value: RoomCategoryFormData[K]
@@ -411,7 +423,7 @@ export function AddRoomCategoryForm({
       <div className="sticky bottom-0 left-0 right-0 p-4">
         <Button
           type="submit"
-          disabled={isSubmitting}
+          disabled={!isFormValid || isSubmitting}
           className="w-full py-6 text-lg bg-positive-green shadow-xl"
         >
           {isSubmitting ? <Spinner /> : 'Create Room Category'}

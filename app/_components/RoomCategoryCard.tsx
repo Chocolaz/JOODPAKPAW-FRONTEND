@@ -10,9 +10,10 @@ import { cn } from '@/lib/utils'
 interface RoomCategoryCardProps {
   category: RoomCategories
   propertyId?: number
-  onDeleteSuccess?: () => void
+  onDeleteSuccess?: (deletedCategoryId: number) => void
   showDeleteButton?: boolean
   className?: string
+  isOnlyRoom?: boolean
 }
 
 export function RoomCategoryCard({
@@ -21,12 +22,13 @@ export function RoomCategoryCard({
   onDeleteSuccess,
   showDeleteButton = false,
   className,
+  isOnlyRoom = false,
 }: RoomCategoryCardProps) {
   const [isDeleting, setIsDeleting] = useState(false)
   const [isModalOpen, setIsModalOpen] = useState(false)
 
   const canDelete =
-    showDeleteButton && propertyId !== undefined && onDeleteSuccess
+    showDeleteButton && propertyId !== undefined && onDeleteSuccess && !isOnlyRoom
 
   const handleDeleteClick = (e: React.MouseEvent) => {
     e.stopPropagation()
@@ -42,7 +44,7 @@ export function RoomCategoryCard({
     try {
       await deleteRoomCategory(propertyId, category.id)
       toast.success('Room Category Deleted')
-      onDeleteSuccess()
+      onDeleteSuccess(category.id) // Pass the ID here
     } catch (error) {
       toast.error(
         error instanceof Error

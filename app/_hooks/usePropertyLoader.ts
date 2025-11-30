@@ -11,7 +11,8 @@ export function usePropertyLoader(fetcher: FetcherFunc) {
   const propertyId = params.propertyId as string
 
   const [property, setProperty] = useState<Property | null>(null)
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(true) // For initial page load
+  const [isRefreshing, setIsRefreshing] = useState(false) // For background refreshes
   const [error, setError] = useState<string | null>(null)
   const [refreshTrigger, setRefreshTrigger] = useState(0)
 
@@ -27,8 +28,13 @@ export function usePropertyLoader(fetcher: FetcherFunc) {
     }
 
     const fetchProperty = async () => {
+      const isInitialLoad = property === null
       try {
-        setLoading(true)
+        if (isInitialLoad) {
+          setLoading(true)
+        } else {
+          setIsRefreshing(true)
+        }
         const response = await fetcher(propertyId)
         setProperty(response.property)
         setError(null)
@@ -36,12 +42,16 @@ export function usePropertyLoader(fetcher: FetcherFunc) {
         setError('Failed to fetch property details. Please try again later.')
         console.error(err)
       } finally {
-        setLoading(false)
+        if (isInitialLoad) {
+          setLoading(false)
+        } else {
+          setIsRefreshing(false)
+        }
       }
     }
 
     fetchProperty()
   }, [propertyId, fetcher, refreshTrigger])
 
-  return { property, loading, error, refreshProperty }
+  return { property, loading, isRefreshing, error, refreshProperty }
 }
