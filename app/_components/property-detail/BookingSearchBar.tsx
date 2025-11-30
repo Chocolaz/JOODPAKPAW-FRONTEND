@@ -9,16 +9,19 @@ import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Calendar } from '@/components/ui/calendar'
 import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover'
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogDescription,
+} from '@/components/ui/dialog'
 
 export function BookingSearchBar() {
   const [date, setDate] = React.useState<DateRange | undefined>()
   const [numberOfPets, setNumberOfPets] = React.useState<number>(1)
-  const [isDatePopoverOpen, setIsDatePopoverOpen] = React.useState(false)
-  const [isPetsPopoverOpen, setIsPetsPopoverOpen] = React.useState(false)
+  const [isDateDialogOpen, setIsDateDialogOpen] = React.useState(false)
+  const [isPetsDialogOpen, setIsPetsDialogOpen] = React.useState(false)
 
   const handleSearch = () => {
     console.log({
@@ -31,8 +34,8 @@ export function BookingSearchBar() {
   return (
     <div className="flex items-center gap-2 p-2 rounded-full border shadow-lg bg-neutral-100 mb-4">
       {/* --- Date Range Picker --- */}
-      <Popover open={isDatePopoverOpen} onOpenChange={setIsDatePopoverOpen}>
-        <PopoverTrigger asChild>
+      <Dialog open={isDateDialogOpen} onOpenChange={setIsDateDialogOpen}>
+        <DialogTrigger asChild>
           <Button
             id="date"
             variant={'ghost'}
@@ -58,22 +61,32 @@ export function BookingSearchBar() {
               )}
             </div>
           </Button>
-        </PopoverTrigger>
-        <PopoverContent className="w-auto p-0" align="start">
+        </DialogTrigger>
+        <DialogContent className="w-auto p-6">
+          <DialogHeader className="text-left">
+            <DialogTitle className="text-accent-orange">
+              Select Dates
+            </DialogTitle>
+            <DialogDescription>
+              Choose your check-in and check-out dates.
+            </DialogDescription>
+          </DialogHeader>
           <Calendar
             mode="range"
             defaultMonth={date?.from}
             selected={date}
             onSelect={setDate}
             numberOfMonths={2}
-            fromDate={new Date()}
+            startMonth={new Date()}
+            hidden={[{ before: new Date() }]}
+            className="min-w-[280px] md:min-w-[500px]"
           />
-        </PopoverContent>
-      </Popover>
+        </DialogContent>
+      </Dialog>
 
       {/* --- Pets Selector --- */}
-      <Popover open={isPetsPopoverOpen} onOpenChange={setIsPetsPopoverOpen}>
-        <PopoverTrigger asChild>
+      <Dialog open={isPetsDialogOpen} onOpenChange={setIsPetsDialogOpen}>
+        <DialogTrigger asChild>
           <Button
             variant={'ghost'}
             className="flex-1 justify-start text-left font-normal rounded-full h-14 px-6 text-base hover:bg-neutral-200"
@@ -86,9 +99,15 @@ export function BookingSearchBar() {
               </span>
             </div>
           </Button>
-        </PopoverTrigger>
-        <PopoverContent className="w-56 p-4">
-          <div className="flex items-center justify-between">
+        </DialogTrigger>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader className="text-left">
+            <DialogTitle>Number of pets</DialogTitle>
+            <DialogDescription>
+              How many pets are you bringing?
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex items-center justify-between p-4">
             <span className="font-medium">Pets</span>
             <div className="flex items-center gap-4">
               <Button
@@ -112,8 +131,8 @@ export function BookingSearchBar() {
               </Button>
             </div>
           </div>
-        </PopoverContent>
-      </Popover>
+        </DialogContent>
+      </Dialog>
 
       {/* --- Search Button --- */}
       <div className="p-1">
