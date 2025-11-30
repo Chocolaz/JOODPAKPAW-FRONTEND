@@ -1,5 +1,6 @@
 'use client'
 
+import { getPetPolicy } from '@/lib/utils'
 import { RoomCategories } from '@/types'
 import { Home } from 'lucide-react'
 import {
@@ -50,8 +51,7 @@ export function BookingRoomTable({
                 {cat.name}
               </p>
               <div className="flex items-center mt-1 text-sm text-neutral-600 gap-2">
-                <Home size={15} />
-                {cat.totalRoom} rooms available
+                {cat.totalRoom} rooms
               </div>
             </TableCell>
 
@@ -60,14 +60,7 @@ export function BookingRoomTable({
               <div className="flex flex-col gap-1.5 text-sm">
                 {/* Pets summary */}
                 <div className="flex items-center gap-2 font-medium text-sm">
-                  {(() => {
-                    const petNames = cat.pets.map((p) => p.name)
-                    if (petNames.includes('Dog') && petNames.includes('Cat'))
-                      return 'Dog & Cat'
-                    if (petNames.includes('Dog')) return 'Dog Only'
-                    if (petNames.includes('Cat')) return 'Cat Only'
-                    return 'No pets'
-                  })()}
+                  {getPetPolicy(cat.pets)}
                 </div>
 
                 {/* Number of pets */}
