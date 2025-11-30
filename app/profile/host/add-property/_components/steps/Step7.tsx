@@ -58,8 +58,8 @@ export function Step7({ onBack }: { onBack: () => void }) {
           <section
             className="bg-white rounded-xl shadow-sm border border-neutral-200 px-5 py-4 cursor-pointer hover:bg-neutral-50 transition-colors"
             onClick={() => {
-              setHighestStepReached(1)
-              router.push('/profile/host/add-property/1')
+              setHighestStepReached(4)
+              router.push('/profile/host/add-property/4')
             }}
           >
             <h3 className="mb-3">Basic Information</h3>
@@ -91,7 +91,7 @@ export function Step7({ onBack }: { onBack: () => void }) {
             className="bg-white rounded-xl shadow-sm border border-neutral-200 px-5 py-4 cursor-pointer hover:bg-neutral-50 transition-colors"
             onClick={() => {
               setHighestStepReached(3)
-              router.push('/profile/host/add-property/3')
+              router.push('/profile/host/add-property/5')
             }}
           >
             <h3 className="text-lg font-semibold mb-3">Facilities & Media</h3>
