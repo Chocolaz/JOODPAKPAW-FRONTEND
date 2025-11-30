@@ -178,12 +178,19 @@ export default function HostPropertyDetailPage() {
           facilities={property.facilities}
           description={property.description}
         />
-        <PropertyRoomCategories
-          propertyId={property.id}
-          roomCategories={roomCategoriesArray}
-          onDeleteSuccess={refreshProperty}
-          showDeleteButton={false}
-        />
+        {roomCategoriesArray.length > 0 ? (
+          <PropertyRoomCategories
+            propertyId={property.id}
+            roomCategories={roomCategoriesArray}
+            onDeleteSuccess={refreshProperty}
+            showDeleteButton={false}
+          />
+        ) : (
+          <div className="border-t pt-8 mt-10">
+            <h3 className="mb-3 text-deep-teal">Room Categories</h3>
+            <p className="text-neutral-gray">No room categories added yet.</p>
+          </div>
+        )}
         <PropertyLocation property={property} />
       </div>
     </div>
