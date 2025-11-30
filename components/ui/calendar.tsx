@@ -185,6 +185,10 @@ function CalendarDayButton({
     if (modifiers.focused) ref.current?.focus()
   }, [modifiers.focused])
 
+  if (modifiers.outside) {
+    props.disabled = true
+  }
+
   return (
     <Button
       ref={ref}
