@@ -11,77 +11,48 @@ import {
   DrawerTrigger,
 } from '@/components/ui/drawer'
 import { Button } from '@/components/ui/button'
-import { searchRoomCategories } from '@/lib/api'
-import { RoomCategories } from '@/types'
 import { Spinner } from '@/components/ui/spinner'
-import { toast } from 'sonner'
-import { normalizeRoomCategories } from '@/lib/utils'
 import { BookingRoomTable } from './BookingRoomTable'
 import { BookingSearchBar, SearchParams } from './BookingSearchBar'
-import { DateRange } from 'react-day-picker'
-import { differenceInDays } from 'date-fns'
+import { useBooking } from '@/app/_context/BookingContext'
+import { toast } from 'sonner'
 
 interface BookingDrawerProps {
   propertyId: number
 }
 
 export function BookingDrawer({ propertyId }: BookingDrawerProps) {
-  const [roomCategories, setRoomCategories] = React.useState<RoomCategories[]>(
-    []
-  )
-  const [loading, setLoading] = React.useState(false)
-  const [error, setError] = React.useState<string | null>(null)
-  const [selectedRooms, setSelectedRooms] = React.useState<
-    Record<number, number>
-  >({})
-  const [date, setDate] = React.useState<DateRange | undefined>()
-  const [searchedNumberOfNights, setSearchedNumberOfNights] = React.useState(0)
-  const [numberOfPets, setNumberOfPets] = React.useState<number>(1)
+  const {
+    loading,
+    error,
+    date,
+    setDate,
+    numberOfPets,
+    setNumberOfPets,
+    handleSelectChange,
+    handleSearch,
+    currentPropertyData,
+  } = useBooking()
 
-  const handleSelectChange = (categoryId: number, value: number) => {
-    setSelectedRooms((prev) => {
-      const newSelectedRooms = { ...prev }
-      if (value === 0) {
-        delete newSelectedRooms[categoryId]
-      } else {
-        newSelectedRooms[categoryId] = value
-      }
-      return newSelectedRooms
-    })
-  }
+  // Extract property-specific data with defaults
+  const {
+    roomCategories = [],
+    selectedRooms = {},
+    searchedNumberOfNights = 0,
+  } = currentPropertyData
 
-  const handleSearch = async (params: SearchParams) => {
+  const onSearch = (params: SearchParams) => {
     if (!params.checkInDate || !params.checkOutDate) {
       toast.error('Please select check-in and check-out dates.')
       return
     }
 
-    try {
-      setLoading(true)
-      setError(null)
-      const response = await searchRoomCategories(
-        propertyId,
-        params.checkInDate,
-        params.checkOutDate,
-        params.numberOfPets
-      )
-      const normalizedCategories = normalizeRoomCategories(
-        response.roomCategories
-      )
-      setRoomCategories(normalizedCategories)
-
-      // Update searchedNumberOfNights after successful search
-      if (date?.from && date?.to) {
-        setSearchedNumberOfNights(differenceInDays(date.to, date.from))
-      } else {
-        setSearchedNumberOfNights(0)
-      }
-    } catch (err) {
-      setError('Failed to search for rooms.')
-      toast.error('Failed to search for rooms.')
-    } finally {
-      setLoading(false)
-    }
+    handleSearch(
+      propertyId,
+      params.checkInDate,
+      params.checkOutDate,
+      params.numberOfPets
+    )
   }
 
   return (
@@ -108,7 +79,7 @@ export function BookingDrawer({ propertyId }: BookingDrawerProps) {
             </DrawerHeader>
             <div className="px-5">
               <BookingSearchBar
-                onSearch={handleSearch}
+                onSearch={onSearch}
                 date={date}
                 setDate={setDate}
                 numberOfPets={numberOfPets}
