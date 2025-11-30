@@ -51,7 +51,7 @@ export function usePropertyLoader(fetcher: FetcherFunc) {
     }
 
     fetchProperty()
-  }, [propertyId, fetcher, refreshTrigger])
+  }, [propertyId, fetcher, refreshTrigger]) // eslint-disable-line react-hooks/exhaustive-deps
 
   return { property, loading, isRefreshing, error, refreshProperty }
 }

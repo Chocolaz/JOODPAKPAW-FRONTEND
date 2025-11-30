@@ -76,7 +76,7 @@ export function BookingDrawer({ propertyId }: BookingDrawerProps) {
               <p className="text-neutral-gray">
                 {numberOfPets > 0
                   ? `${numberOfPets} pet${numberOfPets > 1 ? 's' : ''}`
-                  : "When is your pet's stay?"}
+                  : "When is your pet&apos;s stay?"}
               </p>
             </div>
           </div>
@@ -86,7 +86,7 @@ export function BookingDrawer({ propertyId }: BookingDrawerProps) {
             <DrawerHeader>
               <DrawerTitle>Select Dates And Rooms</DrawerTitle>
               <DrawerDescription>
-                Find the perfect room for your pet's stay.
+                Find the perfect room for your pet&apos;s stay.
               </DrawerDescription>
             </DrawerHeader>
             <div className="px-5">

@@ -17,10 +17,9 @@ import {
 
 interface ManageRoomsProps {
   propertyId: number
-  onRoomsUpdate?: () => void
 }
 
-export function ManageRooms({ propertyId, onRoomsUpdate }: ManageRoomsProps) {
+export function ManageRooms({ propertyId }: ManageRoomsProps) {
   const [rooms, setRooms] = useState<RoomCategories[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)

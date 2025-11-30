@@ -43,12 +43,6 @@ const BookingContext = React.createContext<BookingContextType | undefined>(
   undefined
 )
 
-const initialData: BookingData = {
-  roomCategories: [],
-  selectedRooms: {},
-  searchedNumberOfNights: 0,
-}
-
 export function BookingProvider({ children }: { children: React.ReactNode }) {
   // Shared state across all properties
   const [date, setDate] = React.useState<DateRange | undefined>()
@@ -139,7 +133,7 @@ export function BookingProvider({ children }: { children: React.ReactNode }) {
         }
       }))
 
-    } catch (err) {
+    } catch { // Modified from 'catch (_err)' to 'catch'
       setError('Failed to search for rooms.')
       toast.error('Failed to search for rooms.')
     } finally {

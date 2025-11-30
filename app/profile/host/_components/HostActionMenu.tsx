@@ -113,7 +113,7 @@ export function HostActionMenu({
         )}
 
         {view === 'rooms' && (
-          <ManageRooms propertyId={property.id} onRoomsUpdate={onDataChange} />
+          <ManageRooms propertyId={property.id} />
         )}
       </DrawerContent>
     </Drawer>
