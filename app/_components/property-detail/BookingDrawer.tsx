@@ -72,7 +72,7 @@ export function BookingDrawer({ propertyId }: BookingDrawerProps) {
         <DrawerContent>
           <div className="mx-auto w-full max-w-2xl h-[80vh] flex flex-col">
             <DrawerHeader>
-              <DrawerTitle>Select dates and rooms</DrawerTitle>
+              <DrawerTitle>Select Dates And Rooms</DrawerTitle>
               <DrawerDescription>
                 Find the perfect room for your pet's stay.
               </DrawerDescription>

@@ -124,7 +124,6 @@ export function BookingSearchBar({
               startMonth={new Date()}
               hidden={[{ before: new Date() }]}
               fixedWeeks
-              min={2} // Ensure at least 2 days are selected
               className="min-w-[280px] md:min-w-[400px]"
             />
           </div>
