@@ -9,10 +9,17 @@ import HostIcon from '@/public/icons/Host.svg'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/app/_components/AuthContext'
 import clsx from 'clsx'
+import { useEffect } from 'react'
 
 export default function ProfilePage() {
-  const router = useRouter()
   const { user, isAuthenticated, loading: authLoading } = useAuth()
+  const router = useRouter()
+
+
+
+  if (authLoading) {
+    return null // Or a loading spinner
+  }
 
   // Function to check authentication and redirect
   const checkAuthAndRedirect = (authenticatedPath: string) => {
@@ -71,7 +78,9 @@ export default function ProfilePage() {
         </h3>
         <p className="text-sm text-neutral-gray">
           {isAuthenticated && user
-            ? user.role?.[0]?.name || ''
+            ? user.role?.some((roleItem) => roleItem.name === 'host')
+              ? 'Host'
+              : user.role?.[0]?.name || ''
             : 'Welcome to JoodPakPaw!'}
         </p>
       </CardContent>

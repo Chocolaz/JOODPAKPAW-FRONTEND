@@ -26,7 +26,9 @@ async function request<T>({
       token = await refreshAccessToken()
       if (!token) {
         clearTokens()
-        throw new Error('No access token. Please login.')
+        if (typeof window !== 'undefined') {
+          window.location.href = '/authen'
+        }
       }
     }
     headers.set('Authorization', `Bearer ${token}`)
@@ -54,6 +56,9 @@ async function request<T>({
         response = await fetch(`${BASE_URL}${endpoint}`, config)
       } else {
         clearTokens()
+        if (typeof window !== 'undefined') {
+          window.location.href = '/authen'
+        }
         throw new Error('Session expired. Please login again.')
       }
     }

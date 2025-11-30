@@ -38,10 +38,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     refreshAuth() // Trigger user reload
   }
 
-  const logout = () => {
+  const logout = useCallback(() => {
     clearTokens()
     setUser(null)
-  }
+    if (
+      typeof window !== 'undefined' &&
+      window.location.pathname !== '/authen'
+    ) {
+      // Hard reload เพื่อ remount component
+      window.location.href = '/authen'
+    }
+  }, [])
 
   useEffect(() => {
     const loadUser = async () => {
@@ -54,7 +61,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
 
         if (!token) {
-          // ถ้า refresh ไม่ได้ logout
+          // ถ้า refresh ไม่ได้ logout → reload หน้าใหม่
           logout()
           return
         }
