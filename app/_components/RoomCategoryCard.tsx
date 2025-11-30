@@ -69,15 +69,16 @@ export function RoomCategoryCard({
                       onClick={handleDeleteClick}
                       disabled={isOnlyRoom || isDeleting}
                       title={isOnlyRoom ? 'Cannot delete the only room' : 'Delete room category'}
-                      className="
-              absolute -top-4 -right-2 z-10
-              p-2 rounded-full
-              bg-white/80 border border-neutral-300
-              shadow-sm
-             text-red-600
-              active:scale-95
-              transition-all
-            "            aria-label="Delete room category"
+                                  className="
+                          absolute -top-4 -right-2 z-10
+                          p-2 rounded-full
+                          bg-white/80 border border-neutral-300
+                          shadow-sm
+                         text-red-600
+                          active:scale-95
+                          transition-all
+                          disabled:opacity-50
+                        "            aria-label="Delete room category"
           >
             {isDeleting ? (
               <Spinner className="h-4 w-4" />
