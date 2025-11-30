@@ -105,7 +105,9 @@ export function Step8() {
                 key={room.id}
                 category={room}
                 propertyId={propertyId!}
+                showDeleteButton={true}
                 onDeleteSuccess={fetchRooms}
+                isOnlyRoom={rooms.length === 1}
               />
             ))}
         </div>
