@@ -9,6 +9,7 @@ export interface User {
   id: number
   lastName: string
   role: Role[]
+  avatar?: string
 }
 
 export interface UserProfile {

@@ -47,8 +47,16 @@ export default function ProfilePage() {
       >
         <Avatar className="w-14 h-14 border-4 border-none">
           <AvatarImage
-            src="/graphics/guest.jpg"
-            alt={user ? `${user.firstName} ${user.lastName}` : 'Guest'}
+            src={
+              isAuthenticated && user?.avatar
+                ? user.avatar
+                : '/graphics/guest.jpg'
+            }
+            alt={
+              isAuthenticated && user
+                ? `${user.firstName} ${user.lastName}`
+                : 'Guest'
+            }
           />
           <AvatarFallback className="text-3xl">
             {user
@@ -57,10 +65,14 @@ export default function ProfilePage() {
           </AvatarFallback>
         </Avatar>
         <h3 className="mt-4 text-[22px] font-semibold">
-          {user ? `${user.firstName} ${user.lastName}` : 'Guest'}
+          {isAuthenticated && user
+            ? `${user.firstName} ${user.lastName}`
+            : 'Guest'}
         </h3>
         <p className="text-sm text-neutral-gray">
-          {user ? user.role?.[0]?.name || '' : 'Welcome to JoodPakPaw!'}
+          {isAuthenticated && user
+            ? user.role?.[0]?.name || ''
+            : 'Welcome to JoodPakPaw!'}
         </p>
       </CardContent>
     </Card>

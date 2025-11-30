@@ -35,7 +35,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = (accessToken: string, refreshToken: string) => {
     saveTokens(accessToken, refreshToken)
-    refreshAuth() // Trigger a refresh to fetch user data
+    refreshAuth() // Trigger user reload
   }
 
   const logout = () => {
@@ -44,40 +44,33 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   useEffect(() => {
-    const initializeAuth = async () => {
+    const loadUser = async () => {
       setLoading(true)
       try {
-        const accessToken = getAccessToken()
-        if (accessToken) {
-          const profileResponse = await getProfile()
-          setUser(profileResponse.data)
-        } else {
-          const newAccessToken = await refreshAccessToken()
-          if (newAccessToken) {
-            const profileResponse = await getProfile()
-            setUser(profileResponse.data)
-          } else {
-            logout()
-          }
+        let token = getAccessToken()
+        if (!token) {
+          // ถ้า access token ไม่มี ให้ลอง refresh
+          token = await refreshAccessToken()
         }
+
+        if (!token) {
+          // ถ้า refresh ไม่ได้ logout
+          logout()
+          return
+        }
+
+        const profile = await getProfile()
+        setUser(profile.data)
       } catch (e) {
-        console.error('Failed to initialize auth:', e)
+        console.error('Failed to load user:', e)
         logout()
       } finally {
         setLoading(false)
       }
     }
-    initializeAuth()
-  }, [refreshTrigger])
 
-  useEffect(() => {
-    // When the user focuses on the window (e.g., switches back to the tab),
-    // we re-validate their authentication state.
-    window.addEventListener('focus', refreshAuth)
-    return () => {
-      window.removeEventListener('focus', refreshAuth)
-    }
-  }, [refreshAuth])
+    loadUser()
+  }, [refreshTrigger])
 
   const isAuthenticated = !!user
 
@@ -92,7 +85,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
 export function useAuth() {
   const context = useContext(AuthContext)
-  if (context === undefined) {
+  if (!context) {
     throw new Error('useAuth must be used within an AuthProvider')
   }
   return context

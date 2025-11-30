@@ -1,7 +1,5 @@
-// lib/apiClient.ts
 import { ApiError } from './errorHandling'
 import { getAccessToken, refreshAccessToken, clearTokens } from './authenUtils'
-
 const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL
 
 interface RequestOptions extends Omit<RequestInit, 'body'> {
@@ -23,15 +21,18 @@ async function request<T>({
   const headers = new Headers(customHeaders)
 
   if (requiresAuth) {
-    const token = getAccessToken()
-    if (token) {
-      headers.set('Authorization', `Bearer ${token}`)
+    let token = getAccessToken()
+    if (!token) {
+      token = await refreshAccessToken()
+      if (!token) {
+        clearTokens()
+        throw new Error('No access token. Please login.')
+      }
     }
+    headers.set('Authorization', `Bearer ${token}`)
   }
 
-  if (body instanceof FormData) {
-    // Let the browser set the Content-Type for FormData
-  } else if (body) {
+  if (body && !(body instanceof FormData)) {
     headers.set('Content-Type', 'application/json')
   }
 
@@ -50,14 +51,10 @@ async function request<T>({
       if (newAccessToken) {
         headers.set('Authorization', `Bearer ${newAccessToken}`)
         config.headers = headers
-        response = await fetch(`${BASE_URL}${endpoint}`, config) // Retry
+        response = await fetch(`${BASE_URL}${endpoint}`, config)
       } else {
         clearTokens()
-        if (typeof window !== 'undefined') {
-          // Redirect to login page
-          window.location.href = '/authen'
-        }
-        throw new Error('Session expired. Redirecting to login.')
+        throw new Error('Session expired. Please login again.')
       }
     }
 

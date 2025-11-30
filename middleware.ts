@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
-// The matcher configures which paths the middleware will run on.
 export const config = {
   matcher: '/profile/:path*',
 }
@@ -10,20 +9,21 @@ export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
   // Allow access to the main /profile page for all users.
-  // The client-side component will handle what to display.
   if (pathname === '/profile') {
     return NextResponse.next()
   }
 
-  // For all deeper routes under /profile/, enforce authentication.
-  const token = request.cookies.get('accessToken')
+  // Check tokens in cookies
+  const accessToken = request.cookies.get('accessToken')
+  const refreshToken = request.cookies.get('refreshToken')
 
-  // If there's no token, redirect to the authentication page.
-  if (!token) {
-    const authenUrl = new URL('/authen', request.url)
-    return NextResponse.redirect(authenUrl)
+  // If neither access nor refresh token exists → redirect to /authen
+  if (!accessToken && !refreshToken) {
+    return NextResponse.redirect(new URL('/authen', request.url))
   }
 
-  // If the token exists, allow the request to proceed.
+  // Optional: If only accessToken is missing but refreshToken exists,
+  // let the client handle refresh. So middleware still allows access.
+  // Otherwise, deny access if you want stricter check.
   return NextResponse.next()
 }

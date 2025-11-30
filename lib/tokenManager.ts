@@ -4,18 +4,25 @@ import Cookies from 'js-cookie'
 // Note: When setting cookies, the path defaults to the current path.
 // Setting path: '/' makes the cookie available across the entire site.
 
+const ACCESS_TOKEN_EXPIRY_MINUTES = parseInt(
+  process.env.NEXT_PUBLIC_ACCESS_TOKEN_EXPIRY_MINUTES || '30',
+  10
+)
+const REFRESH_TOKEN_EXPIRY_DAYS = parseInt(
+  process.env.NEXT_PUBLIC_REFRESH_TOKEN_EXPIRY_DAYS || '7',
+  10
+)
+
 export const saveTokens = (accessToken: string, refreshToken: string) => {
-  // Access token, typically short-lived
   Cookies.set('accessToken', accessToken, {
-    expires: 1 / 96, // 15 minutes
+    expires: ACCESS_TOKEN_EXPIRY_MINUTES / (24 * 60), // convert minutes → days
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'lax',
     path: '/',
   })
 
-  // Refresh token, typically long-lived
   Cookies.set('refreshToken', refreshToken, {
-    expires: 7, // 7 days
+    expires: REFRESH_TOKEN_EXPIRY_DAYS,
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'lax',
     path: '/',
