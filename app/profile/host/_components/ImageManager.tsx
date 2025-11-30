@@ -56,7 +56,7 @@ export function ImageManager({
 
     const existingSize = existingImages.reduce(
       (acc, img) => acc + (img.fileSize || 0),
-      0,
+      0
     )
     const newFilesSize = newFiles.reduce((acc, file) => acc + file.size, 0)
     const incomingSize = validatedFiles.reduce(

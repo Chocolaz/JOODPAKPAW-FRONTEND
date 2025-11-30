@@ -69,7 +69,7 @@ export const AddPropertyProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     if (!isLoading) {
       const { images: _images, ...dataToStore } = formData
-      void _images;
+      void _images
       sessionStorage.setItem('addPropertyFormData', JSON.stringify(dataToStore))
     }
   }, [formData, isLoading])
@@ -81,7 +81,10 @@ export const AddPropertyProvider = ({ children }: { children: ReactNode }) => {
   }, [highestStepReached, isLoading])
 
   const updateField = useCallback(
-    <K extends keyof PropertyFormData>(field: K, value: PropertyFormData[K]) => {
+    <K extends keyof PropertyFormData>(
+      field: K,
+      value: PropertyFormData[K]
+    ) => {
       setFormData((prev) => ({ ...prev, [field]: value }))
     },
     []

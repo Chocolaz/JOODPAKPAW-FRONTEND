@@ -22,10 +22,7 @@ export interface ForgotPasswordCredentials {
   email: string
 }
 
-
-
 export interface ResetPasswordCredentials {
-
   email: string
 
   password: string
@@ -33,27 +30,19 @@ export interface ResetPasswordCredentials {
   confirmPassword: string
 
   resetPasswordToken: string
-
 }
 
-
-
 export interface ChangePasswordCredentials {
-
   oldPassword: string
 
   newPassword: string
 
   confirmPassword: string
-
 }
-
-
 
 // --- Response Interfaces ---
 
 export interface SignInResponse {
-
   accessToken: string
 
   refreshToken: string
@@ -65,7 +54,4 @@ export interface SignInResponse {
   message: string
 
   tokenType: string
-
 }
-
-

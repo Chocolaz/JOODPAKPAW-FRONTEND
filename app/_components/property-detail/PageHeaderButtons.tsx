@@ -53,8 +53,8 @@ export function PageHeaderButtons({
               disablePublish
                 ? 'Cannot publish: At least one room category is required.'
                 : isPropertyActive
-                ? 'Unpublish Property'
-                : 'Publish Property'
+                  ? 'Unpublish Property'
+                  : 'Publish Property'
             }
           >
             {isPropertyActive ? (

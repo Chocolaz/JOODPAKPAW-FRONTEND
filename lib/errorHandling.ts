@@ -29,7 +29,9 @@ const errorMessages: { [key: string]: string } = {
 
 export function getApiErrorMessages(
   error: unknown
-): { field: 'email' | 'password' | 'general' | 'phone'; message: string }[] | null {
+):
+  | { field: 'email' | 'password' | 'general' | 'phone'; message: string }[]
+  | null {
   if (error instanceof ApiError) {
     if (error.code === 'T-2007' && error.errors && error.errors.length > 0) {
       return error.errors.map((err) => {

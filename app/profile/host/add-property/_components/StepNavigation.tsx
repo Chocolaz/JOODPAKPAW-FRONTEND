@@ -32,7 +32,7 @@ export function StepNavigation({
           {backText}
         </Button>
       ) : (
-        <div /> 
+        <div />
       )}
 
       {onNext && (

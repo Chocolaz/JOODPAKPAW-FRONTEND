@@ -19,7 +19,7 @@ export interface RoomCategories {
   propertyId: number
   pets: {
     id: number
-    name:string
+    name: string
   }[]
   facilities: {
     id: number
@@ -74,4 +74,3 @@ export interface HostPropertiesResponse {
 export interface RoomCategoriesResponse {
   roomCategories: RoomCategories[]
 }
-

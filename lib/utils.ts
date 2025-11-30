@@ -58,4 +58,3 @@ export function getPetPolicy(pets: Pet[] | undefined): string | null {
 
   return null
 }
-
