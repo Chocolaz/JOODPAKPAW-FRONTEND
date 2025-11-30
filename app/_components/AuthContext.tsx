@@ -41,13 +41,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const logout = useCallback(() => {
     clearTokens()
     setUser(null)
-    if (
-      typeof window !== 'undefined' &&
-      window.location.pathname !== '/authen'
-    ) {
-      // Hard reload เพื่อ remount component
-      window.location.href = '/authen'
-    }
   }, [])
 
   useEffect(() => {
