@@ -211,8 +211,8 @@ function CalendarDayButton({
         '[&:not([data-range-start=true]):not([data-range-end=true])]:text-deep-teal [&:not([data-range-start=true]):not([data-range-end=true])]:font-medium',
 
         // selected single day
-        'data-[selected-single=true]:bg-primary',
-        'data-[selected-single=true]:text-primary-foreground',
+        'data-[selected-single=true]:bg-positive-green',
+        'data-[selected-single=true]:text-foreground',
 
         // range middle
         'data-[range-middle=true]:bg-accent',

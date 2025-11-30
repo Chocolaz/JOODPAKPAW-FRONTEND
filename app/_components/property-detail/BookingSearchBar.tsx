@@ -15,6 +15,7 @@ import {
   DialogTitle,
   DialogTrigger,
   DialogDescription,
+  DialogFooter,
 } from '@/components/ui/dialog'
 
 export function BookingSearchBar() {
@@ -32,37 +33,38 @@ export function BookingSearchBar() {
   }
 
   return (
-    <div className="flex items-center gap-2 p-2 rounded-full border shadow-lg bg-neutral-100 mb-4">
+    <div className="flex items-center gap-2 p-2 rounded-full border bg-off-white shadow-sm mb-4">
       {/* --- Date Range Picker --- */}
       <Dialog open={isDateDialogOpen} onOpenChange={setIsDateDialogOpen}>
         <DialogTrigger asChild>
           <Button
             id="date"
-            variant={'ghost'}
+            variant="ghost"
             className={cn(
               'flex-1 justify-start text-left font-normal rounded-full h-14 px-6 text-base hover:bg-neutral-200',
               !date && 'text-muted-foreground'
             )}
           >
             <div className="flex flex-col items-start">
-              <span className="font-semibold text-xs">Dates</span>
+              <span className="font-semibold text-sm text-deep-teal">
+                Dates
+              </span>
               {date?.from ? (
                 date.to ? (
-                  <span className="text-sm">
+                  <span>
                     {format(date.from, 'LLL dd')} - {format(date.to, 'LLL dd')}
                   </span>
                 ) : (
-                  <span className="text-sm">
-                    {format(date.from, 'LLL dd, y')}
-                  </span>
+                  <span>{format(date.from, 'LLL dd, y')}</span>
                 )
               ) : (
-                <span className="text-sm">Add dates</span>
+                <span>Add dates</span>
               )}
             </div>
           </Button>
         </DialogTrigger>
-        <DialogContent className="w-auto p-6">
+
+        <DialogContent className="w-auto max-h-[90vh] p-6 flex flex-col gap-2 overflow-y-auto">
           <DialogHeader className="text-left">
             <DialogTitle className="text-accent-orange">
               Select Dates
@@ -71,16 +73,30 @@ export function BookingSearchBar() {
               Choose your check-in and check-out dates.
             </DialogDescription>
           </DialogHeader>
-          <Calendar
-            mode="range"
-            defaultMonth={date?.from}
-            selected={date}
-            onSelect={setDate}
-            numberOfMonths={2}
-            startMonth={new Date()}
-            hidden={[{ before: new Date() }]}
-            className="min-w-[280px] md:min-w-[500px]"
-          />
+
+          {/* Calendar wrapper */}
+          <div className="flex justify-center">
+            <Calendar
+              mode="range"
+              defaultMonth={date?.from}
+              selected={date}
+              onSelect={setDate}
+              numberOfMonths={2}
+              startMonth={new Date()}
+              hidden={[{ before: new Date() }]}
+              fixedWeeks
+              className="min-w-[280px] md:min-w-[400px]"
+            />
+          </div>
+
+          <DialogFooter>
+            <Button
+              onClick={() => setIsDateDialogOpen(false)}
+              className="bg-positive-green w-full"
+            >
+              Confirm
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
 
@@ -92,8 +108,8 @@ export function BookingSearchBar() {
             className="flex-1 justify-start text-left font-normal rounded-full h-14 px-6 text-base hover:bg-neutral-200"
           >
             <div className="flex flex-col items-start">
-              <span className="font-semibold text-xs">Pets</span>
-              <span className="text-sm">
+              <span className="font-semibold text-sm text-deep-teal">Pets</span>
+              <span>
                 {numberOfPets} pet
                 {numberOfPets > 1 || numberOfPets === 0 ? 's' : ''}
               </span>
@@ -102,13 +118,15 @@ export function BookingSearchBar() {
         </DialogTrigger>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader className="text-left">
-            <DialogTitle>Number of pets</DialogTitle>
+            <DialogTitle className="text-accent-orange">
+              Number of pets
+            </DialogTitle>
             <DialogDescription>
               How many pets are you bringing?
             </DialogDescription>
           </DialogHeader>
           <div className="flex items-center justify-between p-4">
-            <span className="font-medium">Pets</span>
+            <span className="font-medium text-deep-teal">Pets</span>
             <div className="flex items-center gap-4">
               <Button
                 variant="outline"
@@ -140,6 +158,7 @@ export function BookingSearchBar() {
           onClick={handleSearch}
           className="h-12 w-12 rounded-full bg-accent-orange hover:bg-accent-orange/90"
           size="icon"
+          disabled={!date?.from || numberOfPets === 0}
         >
           <Search className="h-6 w-6" />
         </Button>

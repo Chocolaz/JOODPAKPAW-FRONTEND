@@ -80,22 +80,23 @@ export function BookingDrawer({ propertyId }: BookingDrawerProps) {
           </div>
         </DrawerTrigger>
         <DrawerContent>
-          <div className="mx-auto w-full max-w-2xl max-h-[90vh] flex flex-col">
+          <div className="mx-auto w-full max-w-2xl h-[80vh] flex flex-col">
             <DrawerHeader>
               <DrawerTitle>Select dates and rooms</DrawerTitle>
               <DrawerDescription>
                 Find the perfect room for your pet's stay.
               </DrawerDescription>
             </DrawerHeader>
-            <div className="overflow-y-auto px-5">
+            <div className="px-5">
               <BookingSearchBar />
+              <h3 className="text-lg font-medium text-deep-teal mb-2">
+                Select a Room
+              </h3>
+            </div>
 
+            <div className="flex-1 overflow-y-auto px-5">
               {/* Room selection - scrollable */}
-              <div className="flex-1">
-                <h3 className="text-lg font-medium text-deep-teal mb-2">
-                  Select a Room
-                </h3>
-
+              <div>
                 {loading && (
                   <div className="flex justify-center">
                     <Spinner />
@@ -103,17 +104,22 @@ export function BookingDrawer({ propertyId }: BookingDrawerProps) {
                 )}
                 {error && <p className="text-red-500">{error}</p>}
                 {!loading && !error && (
-                  <BookingRoomTable
-                    categories={roomCategories}
-                    selectedRooms={selectedRooms}
-                    onSelectChange={handleSelectChange}
-                  />
+                  <div>
+                    <BookingRoomTable
+                      categories={roomCategories}
+                      selectedRooms={selectedRooms}
+                      onSelectChange={handleSelectChange}
+                    />
+                  </div>
                 )}
               </div>
             </div>
             <DrawerFooter>
               <DrawerClose asChild>
                 <Button variant="outline">Cancel</Button>
+              </DrawerClose>
+              <DrawerClose asChild>
+                <Button className="bg-positive-green">Confirm</Button>
               </DrawerClose>
             </DrawerFooter>
           </div>
