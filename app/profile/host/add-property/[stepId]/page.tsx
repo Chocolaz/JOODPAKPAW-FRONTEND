@@ -13,13 +13,22 @@ import { Step7 } from '../_components/steps/Step7'
 import { Step8 } from '../_components/steps/Step8'
 import { Step9 } from '../_components/steps/Step9'
 import { Spinner } from '@/components/ui/spinner'
+import { useAuth } from '@/app/_components/AuthContext'
 
 export default function AddPropertyDynamicStepsPage() {
   const params = useParams()
   const router = useRouter()
+  const { isAuthenticated, loading: authLoading, logout } = useAuth()
   const stepId = parseInt(params.stepId as string, 10)
   const { highestStepReached, setHighestStepReached, isLoading } =
     useAddProperty()
+
+  useEffect(() => {
+    if (!authLoading && !isAuthenticated) {
+      logout()
+      router.push('/authen')
+    }
+  }, [authLoading, isAuthenticated, router, logout])
 
   useEffect(() => {
     if (!isLoading) {
@@ -28,6 +37,14 @@ export default function AddPropertyDynamicStepsPage() {
       }
     }
   }, [stepId, highestStepReached, isLoading, router])
+
+  if (!authLoading && !isAuthenticated) {
+    return (
+      <div className="flex grow items-center justify-center">
+        <Spinner />
+      </div>
+    )
+  }
 
   const handleNext = () => {
     setHighestStepReached(stepId)
@@ -57,7 +74,7 @@ export default function AddPropertyDynamicStepsPage() {
     return <div>Invalid Step</div>
   }
 
-  if (isLoading || stepId > highestStepReached + 1) {
+  if (isLoading || authLoading || stepId > highestStepReached + 1) {
     return (
       <div className="flex grow items-center justify-center">
         <Spinner />

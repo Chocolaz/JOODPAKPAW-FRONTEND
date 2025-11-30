@@ -53,7 +53,11 @@ async function request<T>({
         response = await fetch(`${BASE_URL}${endpoint}`, config) // Retry
       } else {
         clearTokens()
-        throw new Error('Session expired. Please log in again.')
+        if (typeof window !== 'undefined') {
+          // Redirect to login page
+          window.location.href = '/authen'
+        }
+        throw new Error('Session expired. Redirecting to login.')
       }
     }
 

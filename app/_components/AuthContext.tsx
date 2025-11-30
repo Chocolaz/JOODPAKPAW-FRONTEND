@@ -70,6 +70,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     initializeAuth()
   }, [refreshTrigger])
 
+  useEffect(() => {
+    // When the user focuses on the window (e.g., switches back to the tab),
+    // we re-validate their authentication state.
+    window.addEventListener('focus', refreshAuth)
+    return () => {
+      window.removeEventListener('focus', refreshAuth)
+    }
+  }, [refreshAuth])
+
   const isAuthenticated = !!user
 
   return (

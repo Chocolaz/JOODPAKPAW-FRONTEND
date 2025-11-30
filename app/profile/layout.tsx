@@ -6,6 +6,7 @@ import { ProfileHeader } from './_components/ProfileHeader'
 import { HostBanner } from './_components/HostBanner'
 import { ProfileProvider, useProfileContext } from './ProfileContext'
 import { useAuth } from '@/app/_components/AuthContext'
+import { Spinner } from '@/components/ui/spinner'
 
 function LayoutContent({ children }: { children: ReactNode }) {
   const pathname = usePathname()
@@ -17,7 +18,15 @@ function LayoutContent({ children }: { children: ReactNode }) {
     if (!authLoading && !isAuthenticated && pathname !== '/profile') {
       router.replace('/authen')
     }
-  }, [isAuthenticated, authLoading, pathname, router])
+  }, [isAuthenticated, authLoading, pathname, router]) // Re-added pathname to deps
+
+  if (authLoading || (!isAuthenticated && pathname !== '/profile')) { // Added pathname condition
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <Spinner />
+      </div>
+    )
+  }
 
   // Determine header properties based on the current path
   const getHeaderProps = () => {
