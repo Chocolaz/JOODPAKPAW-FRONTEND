@@ -2,6 +2,9 @@
 
 import { RoomCategories } from '@/types'
 import { getPetPolicy } from '@/lib/utils'
+import Image from 'next/image'
+import SearchRooms from '@/public/graphics/search-room.png'
+import NoRoom from '@/public/graphics/no-room.png'
 import {
   Select,
   SelectTrigger,
@@ -34,9 +37,10 @@ export function BookingRoomTable({
 
   if (categories.length === 0) {
     return (
-      <div className="text-center py-10">
+      <div className="flex flex-col items-center justify-center py-10">
+        <Image src={SearchRooms} alt="Search Rooms" width={200} height={200} />{' '}
         <p className="text-neutral-500">
-          Please select dates and number of pets to see available rooms.
+          Select dates & pets to see available rooms
         </p>
       </div>
     )
@@ -44,9 +48,10 @@ export function BookingRoomTable({
 
   if (availableCategories.length === 0) {
     return (
-      <div className="text-center py-10">
-        <p className="text-neutral-500">
-          No rooms available for the selected dates and pets.
+      <div className="flex flex-col items-center justify-center py-10">
+        <Image src={NoRoom} alt="No Rooms" width={200} height={200} />{' '}
+        <p className="text-neutral-500 mt-4">
+          No rooms are available for the selected dates and pets
         </p>
       </div>
     )
@@ -76,7 +81,7 @@ export function BookingRoomTable({
               {/* --- COL 1: Room Name --- */}
               <TableCell className="py-4 align-top">
                 <p className="font-medium capitalize text-[#222]">{cat.name}</p>
-                <div className="flex flex-wrap gap-2 mt-3">
+                <div className="flex flex-wrap gap-2">
                   {(cat.facilities || []).map((facility) => (
                     <div
                       key={facility.id}
@@ -90,7 +95,7 @@ export function BookingRoomTable({
 
               {/* --- COL 2: Pets Allowed --- */}
               <TableCell className="py-4 align-top">
-                <div className="flex flex-col gap-1.5 text-sm">
+                <div className="flex flex-col gap-1 text-sm">
                   {/* Pets summary */}
                   <div className="flex items-center gap-2 font-medium text-sm">
                     {getPetPolicy(cat.pets)}
@@ -105,14 +110,16 @@ export function BookingRoomTable({
 
               {/* --- COL 3: Price --- */}
               <TableCell className="py-4 align-top">
-                <p className=" font-medium">
-                  {cat.availability.totalPrice.toLocaleString()} THB
-                </p>
-                {totalNights > 0 && (
-                  <p className="text-neutral-600 text-xs mt-1">
-                    {averagePricePerNight.toLocaleString()} THB / night
+                <div className="flex flex-col gap-1 text-sm">
+                  <p className=" font-medium">
+                    {cat.availability.totalPrice.toLocaleString()} THB
                   </p>
-                )}
+                  {totalNights > 0 && (
+                    <p className="text-neutral-600 text-xs">
+                      {averagePricePerNight.toLocaleString()} THB / night
+                    </p>
+                  )}
+                </div>
               </TableCell>
 
               {/* --- COL 4: Select --- */}
