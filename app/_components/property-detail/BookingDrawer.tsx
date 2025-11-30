@@ -16,6 +16,7 @@ import { BookingRoomTable } from './BookingRoomTable'
 import { BookingSearchBar, SearchParams } from './BookingSearchBar'
 import { useBooking } from '@/app/_context/BookingContext'
 import { toast } from 'sonner'
+import { format } from 'date-fns' // Import format
 
 interface BookingDrawerProps {
   propertyId: number
@@ -64,8 +65,19 @@ export function BookingDrawer({ propertyId }: BookingDrawerProps) {
               <CalendarIcon className="h-6 w-6 text-accent-orange" />
             </div>
             <div>
-              <h4 className="leading-none">Pick your date</h4>
-              <p className="text-neutral-gray">When is your pet's stay?</p>
+              <h4 className="leading-none">
+                {date?.from && date?.to
+                  ? `${format(date.from, 'MMM dd')} - ${format(
+                      date.to,
+                      'MMM dd'
+                    )}`
+                  : 'Pick your date'}
+              </h4>
+              <p className="text-neutral-gray">
+                {numberOfPets > 0
+                  ? `${numberOfPets} pet${numberOfPets > 1 ? 's' : ''}`
+                  : "When is your pet's stay?"}
+              </p>
             </div>
           </div>
         </DrawerTrigger>

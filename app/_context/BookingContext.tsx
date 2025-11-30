@@ -52,7 +52,7 @@ const initialData: BookingData = {
 export function BookingProvider({ children }: { children: React.ReactNode }) {
   // Shared state across all properties
   const [date, setDate] = React.useState<DateRange | undefined>()
-  const [numberOfPets, setNumberOfPets] = React.useState<number>(1)
+  const [numberOfPets, setNumberOfPets] = React.useState<number>(0)
   
   // Per-property state
   const [bookingData, setBookingData] = React.useState<
@@ -69,7 +69,7 @@ export function BookingProvider({ children }: { children: React.ReactNode }) {
   const clearBookingState = () => {
     setBookingData({})
     setDate(undefined)
-    setNumberOfPets(1)
+    setNumberOfPets(0)
     setError(null)
   }
 

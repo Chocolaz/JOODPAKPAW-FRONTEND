@@ -77,7 +77,7 @@ export function BookingRoomTable({
               <TableCell className="py-4 align-top">
                 <p className="font-medium capitalize text-[#222]">{cat.name}</p>
                 <div className="flex flex-wrap gap-2 mt-3">
-                  {cat.facilities.map((facility) => (
+                  {(cat.facilities || []).map((facility) => (
                     <div
                       key={facility.id}
                       className="bg-gray-200 rounded-full px-2.5 py-1 text-xs"

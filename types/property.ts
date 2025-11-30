@@ -35,7 +35,7 @@ export interface RoomCategories {
     id: number
     name: string
   }[]
-  facilities: {
+  facilities?: {
     id: number
     name: string
   }[]

@@ -97,7 +97,7 @@ export function BookingSearchBar({
                   <span>{format(date.from, 'LLL dd, y')}</span>
                 )
               ) : (
-                <span>Add dates</span>
+                <span className="text-neutral-gray">Add dates</span>
               )}
             </div>
           </Button>
@@ -145,13 +145,17 @@ export function BookingSearchBar({
         <DialogTrigger asChild>
           <Button
             variant={'ghost'}
-            className="flex-1 justify-start text-left font-normal rounded-full h-14 px-6 text-base hover:bg-neutral-200"
+            className={cn(
+              'flex-1 justify-start text-left font-normal rounded-full h-14 px-6 text-base hover:bg-neutral-200',
+              numberOfPets === 0 && 'text-neutral-gray'
+            )}
           >
             <div className="flex flex-col items-start">
               <span className="font-semibold text-sm text-deep-teal">Pets</span>
               <span>
-                {numberOfPets} pet
-                {numberOfPets > 1 || numberOfPets === 0 ? 's' : ''}
+                {numberOfPets === 0
+                  ? 'No. of pets'
+                  : `${numberOfPets} pet${numberOfPets > 1 ? 's' : ''}`}
               </span>
             </div>
           </Button>
