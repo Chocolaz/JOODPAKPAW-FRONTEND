@@ -18,16 +18,26 @@ import {
   DialogFooter,
 } from '@/components/ui/dialog'
 
-export function BookingSearchBar() {
+export interface SearchParams {
+  checkInDate: string | undefined
+  checkOutDate: string | undefined
+  numberOfPets: number
+}
+
+interface BookingSearchBarProps {
+  onSearch: (params: SearchParams) => void
+}
+
+export function BookingSearchBar({ onSearch }: BookingSearchBarProps) {
   const [date, setDate] = React.useState<DateRange | undefined>()
   const [numberOfPets, setNumberOfPets] = React.useState<number>(1)
   const [isDateDialogOpen, setIsDateDialogOpen] = React.useState(false)
   const [isPetsDialogOpen, setIsPetsDialogOpen] = React.useState(false)
 
   const handleSearch = () => {
-    console.log({
-      checkInDate: date?.from,
-      checkOutDate: date?.to,
+    onSearch({
+      checkInDate: date?.from ? format(date.from, 'yyyy-MM-dd') : undefined,
+      checkOutDate: date?.to ? format(date.to, 'yyyy-MM-dd') : undefined,
       numberOfPets: numberOfPets,
     })
   }
@@ -158,7 +168,7 @@ export function BookingSearchBar() {
           onClick={handleSearch}
           className="h-12 w-12 rounded-full bg-accent-orange hover:bg-accent-orange/90"
           size="icon"
-          disabled={!date?.from || numberOfPets === 0}
+          disabled={!date?.from || !date?.to || numberOfPets === 0}
         >
           <Search className="h-6 w-6" />
         </Button>

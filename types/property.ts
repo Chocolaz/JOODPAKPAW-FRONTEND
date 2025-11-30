@@ -17,6 +17,19 @@ export interface RoomCategories {
   numberOfPets: number
   basePrice: number
   propertyId: number
+  isAvailable: boolean
+  isCapacityInsufficient: boolean
+  isBooked: boolean
+  availability: {
+    availableRooms: number
+    totalPrice: number
+    dates: {
+      date: string
+      availableRooms: number
+      priceAdjustment: number
+      finalPrice: number
+    }[]
+  }
   pets: {
     id: number
     name: string

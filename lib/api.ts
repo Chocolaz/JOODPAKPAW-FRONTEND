@@ -274,3 +274,21 @@ export const getRoomCategories = (
     errorContext: 'Get Room Categories',
   })
 }
+
+export const searchRoomCategories = (
+  propertyId: number,
+  checkInDate: string,
+  checkOutDate: string,
+  numberOfPets: number
+): Promise<RoomCategoriesResponse> => {
+  const params = new URLSearchParams({
+    checkInDate,
+    checkOutDate,
+    numberOfPets: String(numberOfPets),
+  })
+  return request<RoomCategoriesResponse>({
+    endpoint: `api/v1/properties/${propertyId}/room-categories/search?${params.toString()}`,
+    method: 'GET',
+    errorContext: 'Search Room Categories',
+  })
+}

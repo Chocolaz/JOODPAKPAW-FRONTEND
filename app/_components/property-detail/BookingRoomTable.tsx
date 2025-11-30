@@ -30,20 +30,29 @@ export function BookingRoomTable({
   selectedRooms,
   onSelectChange,
 }: BookingRoomTableProps) {
+  if (categories.length === 0) {
+    return (
+      <div className="text-center py-10">
+        <p className="text-neutral-500">
+          Please select dates and number of pets to see available rooms.
+        </p>
+      </div>
+    )
+  }
   return (
     <Table>
       <TableHeader>
         <TableRow className="text-neutral-600 text-sm">
           <TableHead className="py-3 font-medium">Room</TableHead>
           <TableHead className="py-3 font-medium">Pets Allowed</TableHead>
-          <TableHead className="py-3 font-medium">Price / night</TableHead>
+          <TableHead className="py-3 font-medium">Total Price</TableHead>
           <TableHead className="py-3 font-medium">Select</TableHead>
         </TableRow>
       </TableHeader>
 
       <TableBody>
         {categories.map((cat) => (
-          <TableRow key={cat.id}>
+          <TableRow key={cat.id} data-state-disabled={!cat.isAvailable}>
             {/* --- COL 1: Room Name --- */}
             <TableCell className="py-4 align-top">
               <p className="font-medium capitalize text-[#222]">{cat.name}</p>
@@ -70,35 +79,42 @@ export function BookingRoomTable({
             {/* --- COL 3: Price --- */}
             <TableCell className="py-4 align-top">
               <p className=" font-medium">
-                {cat.basePrice.toLocaleString()} THB
+                {cat.availability.totalPrice.toLocaleString()} THB
               </p>
             </TableCell>
 
             {/* --- COL 4: Select --- */}
             <TableCell className="py-4 align-top">
-              <Select
-                value={String(selectedRooms[cat.id] ?? 0)} // <-- default เป็น 0
-                onValueChange={(v) => onSelectChange(cat.id, Number(v))}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="0" />
-                </SelectTrigger>
+              {!cat.isAvailable ? (
+                <p className="text-sm text-red-500">Not available</p>
+              ) : (
+                <Select
+                  value={String(selectedRooms[cat.id] ?? 0)}
+                  onValueChange={(v) => onSelectChange(cat.id, Number(v))}
+                  disabled={!cat.isAvailable}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="0" />
+                  </SelectTrigger>
 
-                <SelectContent>
-                  {/* เพิ่มตัวเลือก 0 */}
-                  <SelectItem value="0">0</SelectItem>
-
-                  {/* 1 → totalRoom */}
-                  {Array.from({ length: cat.totalRoom }, (_, index) => {
-                    const value = index + 1
-                    return (
-                      <SelectItem key={value} value={String(value)}>
-                        {value}
-                      </SelectItem>
-                    )
-                  })}
-                </SelectContent>
-              </Select>
+                  <SelectContent>
+                    <SelectItem value="0">0</SelectItem>
+                    {Array.from(
+                      {
+                        length: cat.availability.availableRooms,
+                      },
+                      (_, index) => {
+                        const value = index + 1
+                        return (
+                          <SelectItem key={value} value={String(value)}>
+                            {value}
+                          </SelectItem>
+                        )
+                      }
+                    )}
+                  </SelectContent>
+                </Select>
+              )}
             </TableCell>
           </TableRow>
         ))}

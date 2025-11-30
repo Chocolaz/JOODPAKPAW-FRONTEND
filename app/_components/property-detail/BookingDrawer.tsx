@@ -11,13 +11,13 @@ import {
   DrawerTrigger,
 } from '@/components/ui/drawer'
 import { Button } from '@/components/ui/button'
-import { getRoomCategories } from '@/lib/api'
+import { searchRoomCategories } from '@/lib/api'
 import { RoomCategories } from '@/types'
 import { Spinner } from '@/components/ui/spinner'
 import { toast } from 'sonner'
 import { normalizeRoomCategories } from '@/lib/utils'
 import { BookingRoomTable } from './BookingRoomTable'
-import { BookingSearchBar } from './BookingSearchBar'
+import { BookingSearchBar, SearchParams } from './BookingSearchBar'
 
 interface BookingDrawerProps {
   propertyId: number
@@ -27,7 +27,7 @@ export function BookingDrawer({ propertyId }: BookingDrawerProps) {
   const [roomCategories, setRoomCategories] = React.useState<RoomCategories[]>(
     []
   )
-  const [loading, setLoading] = React.useState(true)
+  const [loading, setLoading] = React.useState(false)
   const [error, setError] = React.useState<string | null>(null)
   const [selectedRooms, setSelectedRooms] = React.useState<
     Record<number, number>
@@ -45,25 +45,32 @@ export function BookingDrawer({ propertyId }: BookingDrawerProps) {
     })
   }
 
-  React.useEffect(() => {
-    const fetchRoomCategories = async () => {
-      try {
-        setLoading(true)
-        const response = await getRoomCategories(propertyId)
-        const normalizedCategories = normalizeRoomCategories(
-          response.roomCategories
-        )
-        setRoomCategories(normalizedCategories)
-      } catch (err) {
-        setError('Failed to load room types.')
-        toast.error('Failed to load room types.')
-      } finally {
-        setLoading(false)
-      }
+  const handleSearch = async (params: SearchParams) => {
+    if (!params.checkInDate || !params.checkOutDate) {
+      toast.error('Please select check-in and check-out dates.')
+      return
     }
 
-    fetchRoomCategories()
-  }, [propertyId])
+    try {
+      setLoading(true)
+      setError(null)
+      const response = await searchRoomCategories(
+        propertyId,
+        params.checkInDate,
+        params.checkOutDate,
+        params.numberOfPets
+      )
+      const normalizedCategories = normalizeRoomCategories(
+        response.roomCategories
+      )
+      setRoomCategories(normalizedCategories)
+    } catch (err) {
+      setError('Failed to search for rooms.')
+      toast.error('Failed to search for rooms.')
+    } finally {
+      setLoading(false)
+    }
+  }
 
   return (
     <div className="fixed bottom-0 left-0 right-0 bg-off-white border-t p-4 flex items-center justify-between z-10 max-w-4xl mx-auto rounded-t-[20px] shadow-lg">
@@ -88,7 +95,7 @@ export function BookingDrawer({ propertyId }: BookingDrawerProps) {
               </DrawerDescription>
             </DrawerHeader>
             <div className="px-5">
-              <BookingSearchBar />
+              <BookingSearchBar onSearch={handleSearch} />
               <h3 className="text-lg font-medium text-deep-teal mb-2">
                 Select a Room
               </h3>
