@@ -27,8 +27,7 @@ export function RoomCategoryCard({
   const [isDeleting, setIsDeleting] = useState(false)
   const [isModalOpen, setIsModalOpen] = useState(false)
 
-  const canDelete =
-    showDeleteButton && propertyId !== undefined && onDeleteSuccess && !isOnlyRoom
+  const canDelete = showDeleteButton && propertyId !== undefined && onDeleteSuccess
 
   const handleDeleteClick = (e: React.MouseEvent) => {
     e.stopPropagation()
@@ -66,19 +65,19 @@ export function RoomCategoryCard({
       >
         {/* Delete Button */}
         {canDelete && ( // Conditionally render
-          <button
-            onClick={handleDeleteClick}
-            disabled={isDeleting}
-            className="
-    absolute -top-4 -right-2 z-10 
-    p-2 rounded-full
-    bg-white/80 border border-neutral-300 
-    shadow-sm
-   text-red-600
-    active:scale-95 
-    transition-all
-  "
-            aria-label="Delete room category"
+                    <button
+                      onClick={handleDeleteClick}
+                      disabled={isOnlyRoom || isDeleting}
+                      title={isOnlyRoom ? 'Cannot delete the only room' : 'Delete room category'}
+                      className="
+              absolute -top-4 -right-2 z-10
+              p-2 rounded-full
+              bg-white/80 border border-neutral-300
+              shadow-sm
+             text-red-600
+              active:scale-95
+              transition-all
+            "            aria-label="Delete room category"
           >
             {isDeleting ? (
               <Spinner className="h-4 w-4" />
