@@ -183,7 +183,7 @@ export default function ConfirmBookingPage() {
   return (
     <div className="container mx-auto max-w-[500px] px-5 space-y-6">
       {/* Summary Card */}
-      <div className="bg-white shadow-lg rounded-xl p-6 space-y-6 border border-gray-200 mt-4">
+      <div className="bg-white shadow-sm rounded-xl p-6 space-y-6 border border-gray-200 mt-4">
         {/* Property Info */}
         <div>
           <h3 className="text-deep-teal mb-1 text-lg font-semibold">
@@ -262,10 +262,15 @@ export default function ConfirmBookingPage() {
 
         {/* Price Summary */}
         <div>
-          <h4 className="text-deep-teal mb-1">Price Summary</h4>
-          <div className="space-y-1 text-gray-700">
+          <h4 className="text-deep-teal mb-1">
+            Price Summary for {nights} nights
+          </h4>
+          <div className="space-y-1">
             {priceSummary.breakdown.map((item, index) => (
-              <div key={index} className="flex justify-between">
+              <div
+                key={index}
+                className="flex justify-between text-neutral-gray"
+              >
                 <span>
                   {item.name} x {item.quantity}{' '}
                   {item.quantity > 1 ? 'rooms' : 'room'}
@@ -274,7 +279,7 @@ export default function ConfirmBookingPage() {
               </div>
             ))}
 
-            <div className="flex justify-between font-bold border-t pt-2 mt-2 text-xl">
+            <div className="flex justify-between font-medium border-t pt-2 mt-2 text-xl">
               <span>Total</span>
               <span>฿{priceSummary.total.toLocaleString()}</span>
             </div>
@@ -282,23 +287,17 @@ export default function ConfirmBookingPage() {
         </div>
       </div>
 
-      {/* Buttons */}
-      <div className="sticky bottom-0 bg-white py-4 flex justify-center gap-4 border-t">
-        <Button
-          onClick={() => router.back()}
-          variant="outline"
-          className="px-8 py-3 text-lg rounded-xl"
-        >
-          Go Back
-        </Button>
-
-        <Button
-          onClick={handleConfirmBooking}
-          disabled={isBookingLoading}
-          className="bg-accent-orange px-8 py-3 text-lg text-white rounded-xl"
-        >
-          {isBookingLoading ? <Spinner /> : 'Confirm Booking'}
-        </Button>
+      {/* Fixed Footer Buttons */}
+      <div className="fixed bottom-0 left-0 right-0 bg-off-white border-t rounded-tl-3xl rounded-tr-3xl shadow-xl py-5 z-50">
+        <div className="container mx-auto max-w-[500px] flex justify-center gap-4 px-5">
+          <Button
+            onClick={handleConfirmBooking}
+            disabled={isBookingLoading}
+            className="bg-positive-green h-12 text-lg text-white w-3/4"
+          >
+            {isBookingLoading ? <Spinner /> : 'Confirm'}
+          </Button>
+        </div>
       </div>
     </div>
   )
