@@ -53,7 +53,9 @@ export default function BookingDetailDisplay({
 
   const handlePropertyClick = () => {
     if (bookingDetails.bookingOrders[0]?.property?.id) {
-      router.push(`/${bookingDetails.bookingOrders[0].property.id}`)
+      router.push(
+        `/${bookingDetails.bookingOrders[0].property.id}?fromBookings=true&bookingId=${bookingDetails.id}`
+      )
     }
   }
 
