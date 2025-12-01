@@ -21,7 +21,25 @@ export default function PropertyDetailPage() {
   const searchParams = useSearchParams()
 
   const handleShare = async () => {
-    // ... existing handleShare logic
+    if (navigator.share && property) {
+      try {
+        await navigator.share({
+          title: property.title,
+          text: `Check out this property: ${property.title}`,
+          url: `${window.location.origin}/${property.id}`,
+        })
+        console.log('Shared successfully')
+      } catch (err) {
+        console.error('Error sharing:', err)
+      }
+    } else {
+      // Fallback for browsers that don't support Web Share API
+      console.log(
+        'Web Share API not supported or property data not available. URL:',
+        `${window.location.origin}/${property?.id}`
+      )
+      // Could implement a copy-to-clipboard or custom share modal here
+    }
   }
 
   const handleBack = () => {
