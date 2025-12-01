@@ -15,8 +15,7 @@ const REFRESH_TOKEN_EXPIRY_DAYS = parseInt(
 
 export const saveTokens = (accessToken: string, refreshToken: string) => {
   Cookies.set('accessToken', accessToken, {
-    expires: ACCESS_TOKEN_EXPIRY_MINUTES / (24 * 60), // convert minutes → days
-    secure: process.env.NODE_ENV === 'production',
+    secure: false,
     sameSite: 'lax',
     path: '/',
   })
