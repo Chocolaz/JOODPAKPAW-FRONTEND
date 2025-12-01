@@ -19,7 +19,7 @@ export default function BookingLayout({ children }: { children: ReactNode }) {
       const propertyId = searchParams.get('propertyId')
       if (propertyId) {
         return {
-          title: 'Confirm Your Booking',
+          title: 'Booking',
           backPath: `/${propertyId}?drawer=open`,
         }
       }
