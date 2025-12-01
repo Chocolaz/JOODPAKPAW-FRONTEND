@@ -9,7 +9,6 @@ import HostIcon from '@/public/icons/Host.svg'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/app/_components/AuthContext'
 import clsx from 'clsx'
-import { useEffect } from 'react'
 
 export default function ProfilePage() {
   const { user, isAuthenticated, loading: authLoading } = useAuth()

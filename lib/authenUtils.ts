@@ -10,7 +10,6 @@ import {
   getRefreshToken,
   isAuthenticated,
 } from './tokenManager'
-import { ApiError } from './errorHandling'
 
 export {
   saveTokens,
@@ -45,13 +44,13 @@ export const refreshAccessToken = async (): Promise<string | null> => {
 // --- Custom Hooks ---
 export const useAuthRedirect = (redirectPath: string = '/') => {
   const router = useRouter()
-  const [isAuthent, setIsAuthent] = useState<boolean | null>(null)
+  const isAuthent = isAuthenticated()
 
   useEffect(() => {
-    const authenticated = isAuthenticated()
-    setIsAuthent(authenticated)
-    if (authenticated) router.push(redirectPath)
-  }, [router, redirectPath])
+    if (isAuthent) {
+      router.push(redirectPath)
+    }
+  }, [router, redirectPath, isAuthent])
 
   return isAuthent
 }
@@ -71,16 +70,14 @@ export const useCooldown = (initialCooldown: number = 0) => {
 export const useEmailFromQuery = (fallbackPath: string) => {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const [email, setEmail] = useState('')
+  const email = searchParams.get('email') || ''
 
   useEffect(() => {
-    const emailFromQuery = searchParams.get('email')
-    if (emailFromQuery) setEmail(emailFromQuery)
-    else {
+    if (!email) {
       console.error('Email not found in query parameters')
       router.push(fallbackPath)
     }
-  }, [searchParams, router, fallbackPath])
+  }, [searchParams, router, fallbackPath, email])
 
   return email
 }

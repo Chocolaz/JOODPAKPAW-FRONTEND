@@ -157,7 +157,7 @@ export function BookingDrawer({ propertyId }: BookingDrawerProps) {
   const combinedText = React.useMemo(() => {
     // If both are 0, use the default prompt
     if (numberOfPets === 0 && totalSelectedRooms === 0) {
-      return "When is your pet's stay?"
+      return "When is your pet&apos;s stay?"
     }
     // If pets are selected and rooms are 0, show "X pets • 0 rooms"
     // If rooms are selected and pets are 0, show "0 pets • Y rooms"
@@ -192,7 +192,7 @@ export function BookingDrawer({ propertyId }: BookingDrawerProps) {
             <DrawerHeader>
               <DrawerTitle>Select Dates And Rooms</DrawerTitle>
               <DrawerDescription>
-                Find the perfect room for your pet's stay.
+                Find the perfect room for your pet&apos;s stay.
               </DrawerDescription>
             </DrawerHeader>
 

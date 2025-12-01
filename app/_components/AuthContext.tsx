@@ -70,7 +70,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
 
     loadUser()
-  }, [refreshTrigger])
+  }, [refreshTrigger, logout])
 
   const isAuthenticated = !!user
 

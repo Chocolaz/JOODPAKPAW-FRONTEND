@@ -47,7 +47,7 @@ export default function UserProfilePage() {
   }
 
   if (error) {
-    return <ErrorState error={error} />
+    return <ErrorState message={error} />
   }
 
   if (!profile) {

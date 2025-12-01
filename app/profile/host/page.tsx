@@ -45,7 +45,7 @@ export default function HostPage() {
             <Spinner />
           </div>
         ) : error ? (
-          <ErrorState error={error} />
+          <ErrorState message={error} />
         ) : properties.length > 0 ? (
           <PropertyList
             properties={properties}

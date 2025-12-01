@@ -51,8 +51,8 @@ export default function PropertyDetailPage() {
     )
   }
 
-  if (error) return <ErrorState error={error} />
-  if (!property) return <ErrorState error="Property not found." />
+  if (error) return <ErrorState message={error} />
+  if (!property) return <ErrorState message="Property not found." />
 
   const roomCategoriesArray = normalizeRoomCategories(property.roomCategories)
 

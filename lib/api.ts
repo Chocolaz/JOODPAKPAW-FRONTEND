@@ -20,6 +20,7 @@ import {
   VerifyOtpCredentials,
   BookingResponse,
   BookingsResponse, // Added BookingsResponse
+  FullBookingDetail, // Added FullBookingDetail
 } from '@/types'
 import type { PropertiesResponse } from '@/types/property'
 
@@ -318,3 +319,13 @@ export const getBookings = (): Promise<BookingsResponse> => {
     cache: 'no-store',
   })
 }
+
+export const getBookingById = (bookingId: string): Promise<FullBookingDetail> => {
+  return request<FullBookingDetail>({
+    endpoint: `api/v1/bookings/${bookingId}`,
+    method: 'GET',
+    requiresAuth: true,
+    errorContext: 'Get Booking By Id',
+  })
+}
+

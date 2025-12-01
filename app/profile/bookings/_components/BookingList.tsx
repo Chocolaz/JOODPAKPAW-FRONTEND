@@ -18,8 +18,8 @@ export function BookingList() {
         setLoading(true)
         const response: BookingsResponse = await getBookings()
         setBookings(response.bookings)
-      } catch (err: any) {
-        setError(err.message || 'Failed to fetch bookings')
+      } catch (err: unknown) {
+        setError((err instanceof Error) ? err.message : 'Failed to fetch bookings')
       } finally {
         setLoading(false)
       }
