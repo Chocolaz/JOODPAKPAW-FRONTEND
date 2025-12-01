@@ -1,14 +1,14 @@
 'use client'
 
-import React, { useEffect, useState, useMemo } from 'react' // Import useMemo
+import React, { useEffect, useState, useMemo, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { toast } from 'sonner'
 import { format } from 'date-fns'
 import { Button } from '@/components/ui/button'
 import { Spinner } from '@/components/ui/spinner'
-import { createBooking, searchRoomCategories } from '@/lib/api' // Import searchRoomCategories
+import { createBooking, searchRoomCategories } from '@/lib/api'
 import { useAuth } from '@/app/_components/AuthContext'
-import { RoomCategories } from '@/types' // Import RoomCategories type
+import { RoomCategories } from '@/types'
 import { CalendarCheck, CalendarX, CalendarDays } from 'lucide-react'
 
 interface BookingDetail {
@@ -20,7 +20,7 @@ interface BookingDetail {
   roomNames: { [key: string]: string }
 }
 
-export default function ConfirmBookingPage() {
+function ConfirmBookingContentInner() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const { user, isAuthenticated } = useAuth()
@@ -30,7 +30,7 @@ export default function ConfirmBookingPage() {
   )
   const [fetchedRoomCategories, setFetchedRoomCategories] = useState<
     RoomCategories[]
-  >([]) // New state
+  >([])
   const [loading, setLoading] = useState(true)
   const [isBookingLoading, setIsBookingLoading] = useState(false)
 
@@ -71,7 +71,6 @@ export default function ConfirmBookingPage() {
           roomNames: parsedRoomNames,
         })
 
-        // Fetch room categories with prices
         const response = await searchRoomCategories(
           propertyIdNum,
           start,
@@ -89,7 +88,7 @@ export default function ConfirmBookingPage() {
     }
 
     fetchBookingData()
-  }, [isAuthenticated, searchParams, router]) // Add searchParams and router to dependencies
+  }, [isAuthenticated, searchParams, router])
 
   const handleConfirmBooking = async () => {
     if (!bookingDetails) return
@@ -114,14 +113,13 @@ export default function ConfirmBookingPage() {
       toast.success('Booking confirmed!')
       router.push('/profile/bookings')
     } catch (err) {
-      console.error('Failed to confirm booking:', err) // Log the error for debugging
+      console.error('Failed to confirm booking:', err)
       toast.error('Unable to confirm booking')
     } finally {
       setIsBookingLoading(false)
     }
   }
 
-  // Calculate total price and breakdown
   const priceSummary = useMemo(() => {
     let subtotal = 0
     const breakdown: {
@@ -141,21 +139,19 @@ export default function ConfirmBookingPage() {
             roomCategory &&
             roomCategory.availability?.totalPrice !== undefined
           ) {
-            const pricePerNight = roomCategory.availability.totalPrice // This is actually total price for the stay
-            const roomTotal = pricePerNight * quantity // Assuming totalPrice from API is for one room for the entire stay
+            const pricePerNight = roomCategory.availability.totalPrice
+            const roomTotal = pricePerNight * quantity
             subtotal += roomTotal
             breakdown.push({
               name: bookingDetails.roomNames[roomId] || `Room ${roomId}`,
               quantity,
-              pricePerNight, // This is total price for the duration for one room
+              pricePerNight,
               total: roomTotal,
             })
           }
         }
       )
     }
-    // You can add taxes, service fees here if applicable
-    // For now, let's assume total is just subtotal
     const total = subtotal
 
     return { subtotal, total, breakdown }
@@ -182,9 +178,7 @@ export default function ConfirmBookingPage() {
 
   return (
     <div className="container mx-auto max-w-[500px] px-5 pb-20 pt-6 space-y-8">
-      {/* Summary Card */}
       <div className="bg-white rounded-2xl p-6 shadow-md border border-gray-100 space-y-8">
-        {/* Property Info */}
         <div className="space-y-1">
           <h3 className="text-deep-teal text-xl font-semibold">
             {fetchedRoomCategories[0]?.property?.title || 'Your Trip'}
@@ -197,7 +191,6 @@ export default function ConfirmBookingPage() {
           )}
         </div>
 
-        {/* Check-in / Check-out */}
         <div className="grid grid-cols-2 gap-4">
           <div className="border rounded-xl p-4 bg-off-white flex items-start gap-3 shadow-sm">
             <div className="p-2 bg-white rounded-lg shadow-sm">
@@ -226,12 +219,10 @@ export default function ConfirmBookingPage() {
           </div>
         </div>
 
-        {/* Total nights */}
         <p className="text-gray-700 text-sm -mt-3">
           <span className="font-medium">Total nights:</span> {nights}
         </p>
 
-        {/* Pets */}
         <div className="space-y-1 pt-2">
           <h4 className="text-deep-teal text-sm font-semibold uppercase tracking-wide">
             Pets
@@ -242,7 +233,6 @@ export default function ConfirmBookingPage() {
           </p>
         </div>
 
-        {/* Rooms */}
         <div className="space-y-3">
           <h4 className="text-deep-teal text-sm font-semibold uppercase tracking-wide">
             Selected Rooms
@@ -264,7 +254,6 @@ export default function ConfirmBookingPage() {
           </div>
         </div>
 
-        {/* Price Summary */}
         <div className="space-y-3">
           <h4 className="text-deep-teal text-sm font-semibold uppercase tracking-wide">
             Price Summary ({nights} nights)
@@ -291,7 +280,6 @@ export default function ConfirmBookingPage() {
         </div>
       </div>
 
-      {/* Floating Footer Confirm Button */}
       <div className="fixed bottom-0 left-0 right-0 backdrop-blur-xl bg-white/85 border-t shadow-2xl rounded-t-3xl py-5 px-6 z-50">
         <div className="max-w-[500px] mx-auto">
           <Button
@@ -304,5 +292,13 @@ export default function ConfirmBookingPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function ConfirmBookingPage() {
+  return (
+    <Suspense fallback={<Spinner />}>
+      <ConfirmBookingContentInner />
+    </Suspense>
   )
 }
