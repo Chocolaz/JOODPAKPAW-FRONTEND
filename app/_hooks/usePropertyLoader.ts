@@ -2,7 +2,8 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { Property } from '@/types'
-import { useParams } from 'next/navigation'
+import { ApiError } from '@/lib/errorHandling'
+import { useParams, notFound } from 'next/navigation'
 
 type FetcherFunc = (id: string) => Promise<{ property: Property }>
 
@@ -21,9 +22,9 @@ export function usePropertyLoader(fetcher: FetcherFunc) {
   }, [])
 
   useEffect(() => {
-    if (!propertyId) {
+    if (!propertyId || isNaN(Number(propertyId))) {
       setLoading(false)
-      setError('Property ID is missing.')
+      notFound() // Trigger 404 for invalid ID format
       return
     }
 
@@ -39,6 +40,9 @@ export function usePropertyLoader(fetcher: FetcherFunc) {
         setProperty(response.property)
         setError(null)
       } catch (err) {
+        if (err instanceof ApiError && err.code === 'DB-1001') {
+          notFound() // Trigger Next.js 404 page
+        }
         setError('Failed to fetch property details. Please try again later.')
         console.error(err)
       } finally {

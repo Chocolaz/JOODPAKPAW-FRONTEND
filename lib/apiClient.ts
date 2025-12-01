@@ -61,6 +61,11 @@ async function request<T>({
         }
         throw new Error('Session expired. Please login again.')
       }
+    } else if (response.status === 403) {
+      if (typeof window !== 'undefined') {
+        window.location.href = '/forbidden'
+      }
+      throw new Error('Access forbidden.')
     }
 
     const data = await response.json()
