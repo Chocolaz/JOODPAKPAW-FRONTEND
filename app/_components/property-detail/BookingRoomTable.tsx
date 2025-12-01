@@ -26,12 +26,14 @@ interface BookingRoomTableProps {
   categories: RoomCategories[]
   selectedRooms: Record<number, number> // key = categoryId, value = amount selected
   onSelectChange: (categoryId: number, value: number) => void
+  isSummary?: boolean
 }
 
 export function BookingRoomTable({
   categories,
   selectedRooms,
   onSelectChange,
+  isSummary = false,
 }: BookingRoomTableProps) {
   const availableCategories = categories.filter((cat) => cat.isAvailable)
 
@@ -124,36 +126,41 @@ export function BookingRoomTable({
 
               {/* --- COL 4: Select --- */}
               <TableCell className="py-4 align-top">
-                <Select
-                  value={String(selectedRooms[cat.id] ?? 0)}
-                  onValueChange={(v) => onSelectChange(cat.id, Number(v))}
-                  // disabled={isRowDisabled} // Removed this line
-                >
-                  <SelectTrigger className="w-[70px]">
-                    <SelectValue>{selectedRooms[cat.id] ?? 0}</SelectValue>
-                  </SelectTrigger>
+                {isSummary ? (
+                  <span className="font-medium">{selectedRooms[cat.id]}</span>
+                ) : (
+                  <Select
+                    value={String(selectedRooms[cat.id] ?? 0)}
+                    onValueChange={(v) => onSelectChange(cat.id, Number(v))}
+                  >
+                    <SelectTrigger className="w-[70px]">
+                      <SelectValue>{selectedRooms[cat.id] ?? 0}</SelectValue>
+                    </SelectTrigger>
 
-                  <SelectContent>
-                    {Array.from(
-                      { length: cat.availability.availableRooms + 1 },
-                      (_, i) => {
-                        const num = i
-                        const roomsNeeded = cat.availability.roomsNeeded
-                        const isDisabled =
-                          roomsNeeded > 0 ? num > 0 && num < roomsNeeded : false
-                        return (
-                          <SelectItem
-                            key={num}
-                            value={String(num)}
-                            disabled={isDisabled}
-                          >
-                            {num}
-                          </SelectItem>
-                        )
-                      }
-                    )}
-                  </SelectContent>
-                </Select>
+                    <SelectContent>
+                      {Array.from(
+                        { length: cat.availability.availableRooms + 1 },
+                        (_, i) => {
+                          const num = i
+                          const roomsNeeded = cat.availability.roomsNeeded
+                          const isDisabled =
+                            roomsNeeded > 0
+                              ? num > 0 && num < roomsNeeded
+                              : false
+                          return (
+                            <SelectItem
+                              key={num}
+                              value={String(num)}
+                              disabled={isDisabled}
+                            >
+                              {num}
+                            </SelectItem>
+                          )
+                        }
+                      )}
+                    </SelectContent>
+                  </Select>
+                )}
               </TableCell>
             </TableRow>
           )

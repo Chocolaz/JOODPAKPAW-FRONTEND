@@ -1,6 +1,7 @@
 // lib/api.ts
 import request from './apiClient'
 import {
+  BookingRequestBody,
   CreatePropertyResponse,
   FacilitiesResponse,
   ForgotPasswordCredentials,
@@ -17,6 +18,7 @@ import {
   SignInResponse,
   SignUpCredentials,
   VerifyOtpCredentials,
+  BookingResponse,
 } from '@/types'
 import type { PropertiesResponse } from '@/types/property'
 
@@ -290,5 +292,18 @@ export const searchRoomCategories = (
     endpoint: `api/v1/properties/${propertyId}/room-categories/search?${params.toString()}`,
     method: 'GET',
     errorContext: 'Search Room Categories',
+  })
+}
+
+// --- Booking Functions ---
+export const createBooking = (
+  data: BookingRequestBody
+): Promise<BookingResponse> => {
+  return request<BookingResponse>({
+    endpoint: 'api/v1/bookings',
+    method: 'POST',
+    body: data,
+    requiresAuth: true,
+    errorContext: 'Create Booking',
   })
 }

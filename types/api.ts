@@ -51,3 +51,20 @@ export interface RoomCategoryFormData {
   facilities: number[]
   petSizeCategoryId: number
 }
+
+export interface BookingOrderItem {
+  roomCategoryId: number
+  checkInDate: string
+  checkOutDate: string
+  roomsBooked: number
+}
+
+export interface BookingRequestBody {
+  propertyId: number
+  numberOfPets: number
+  bookingOrders: BookingOrderItem[]
+}
+
+export interface BookingResponse {
+  message: string
+}
