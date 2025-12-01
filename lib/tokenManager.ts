@@ -15,6 +15,7 @@ const REFRESH_TOKEN_EXPIRY_DAYS = parseInt(
 
 export const saveTokens = (accessToken: string, refreshToken: string) => {
   Cookies.set('accessToken', accessToken, {
+    // secure: process.env.NODE_ENV === 'production', กลับมาแก้ตอนเป็น https
     secure: false,
     sameSite: 'lax',
     path: '/',
@@ -22,7 +23,8 @@ export const saveTokens = (accessToken: string, refreshToken: string) => {
 
   Cookies.set('refreshToken', refreshToken, {
     expires: REFRESH_TOKEN_EXPIRY_DAYS,
-    secure: process.env.NODE_ENV === 'production',
+    // secure: process.env.NODE_ENV === 'production', กลับมาแก้ตอนเป็น https
+    secure: false,
     sameSite: 'lax',
     path: '/',
   })
