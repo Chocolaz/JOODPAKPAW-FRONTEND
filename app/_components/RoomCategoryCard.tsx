@@ -1,11 +1,12 @@
 import { BedDouble, Dog, Minus } from 'lucide-react'
 import { RoomCategories } from '@/types'
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { deleteRoomCategory } from '@/lib/api'
 import { toast } from 'sonner'
 import { Spinner } from '@/components/ui/spinner'
 import { ConfirmationModal } from '@/app/_components/ConfirmationModal'
 import { cn } from '@/lib/utils'
+import { getPetPolicy } from '@/lib/utils'
 
 interface RoomCategoryCardProps {
   category: RoomCategories
@@ -27,7 +28,10 @@ export function RoomCategoryCard({
   const [isDeleting, setIsDeleting] = useState(false)
   const [isModalOpen, setIsModalOpen] = useState(false)
 
-  const canDelete = showDeleteButton && propertyId !== undefined && onDeleteSuccess
+  const canDelete =
+    showDeleteButton && propertyId !== undefined && onDeleteSuccess
+
+  const petPolicy = useMemo(() => getPetPolicy(category.pets), [category.pets])
 
   const handleDeleteClick = (e: React.MouseEvent) => {
     e.stopPropagation()
@@ -65,11 +69,15 @@ export function RoomCategoryCard({
       >
         {/* Delete Button */}
         {canDelete && ( // Conditionally render
-                    <button
-                      onClick={handleDeleteClick}
-                      disabled={isOnlyRoom || isDeleting}
-                      title={isOnlyRoom ? 'Cannot delete the only room' : 'Delete room category'}
-                                  className="
+          <button
+            onClick={handleDeleteClick}
+            disabled={isOnlyRoom || isDeleting}
+            title={
+              isOnlyRoom
+                ? 'Cannot delete the only room'
+                : 'Delete room category'
+            }
+            className="
                           absolute -top-4 -right-2 z-10
                           p-2 rounded-full
                           bg-white/80 border border-neutral-300
@@ -78,7 +86,8 @@ export function RoomCategoryCard({
                           active:scale-95
                           transition-all
                           disabled:opacity-50
-                        "            aria-label="Delete room category"
+                        "
+            aria-label="Delete room category"
           >
             {isDeleting ? (
               <Spinner className="h-4 w-4" />
@@ -120,23 +129,28 @@ export function RoomCategoryCard({
 
               <div className="flex items-center gap-2">
                 <Dog className="w-4 h-4 text-accent-orange" />
-                <span>{category.numberOfPets} pets / room</span>
+                <span>{category.numberOfPets} pets max</span>
               </div>
             </div>
 
-            {/* Right side: allowed pets */}
-            {category.pets.length > 0 && (
-              <div className="flex items-center gap-2">
-                <div className="flex flex-wrap gap-2">
-                  {category.pets.map((p) => (
-                    <span
-                      key={p.id}
-                      className="px-2 py-1 text-xs bg-black text-white rounded-full"
-                    >
-                      {p.name}
-                    </span>
-                  ))}
-                </div>
+            {/* Pet Policy Chip */}
+            {petPolicy && (
+              <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs bg-neutral-900 text-white font-medium">
+                {petPolicy}
+              </span>
+            )}
+
+            {/* Facilities */}
+            {(category.facilities || []).length > 0 && (
+              <div className="flex flex-wrap gap-1.5 mt-2">
+                {category.facilities?.map((facility) => (
+                  <span
+                    key={facility.id}
+                    className="inline-flex items-center px-2 py-0.5 rounded-full text-xs bg-neutral-100 text-neutral-700"
+                  >
+                    {facility.name}
+                  </span>
+                ))}
               </div>
             )}
           </div>
