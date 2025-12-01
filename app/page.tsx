@@ -26,7 +26,12 @@ export default function Home() {
           params.search = searchQuery
           params.searchBy = 'title'
         }
-        const response = (await getProperties(1, 10, params.search, params.searchBy)) as PropertiesResponse
+        const response = (await getProperties(
+          1,
+          20,
+          params.search,
+          params.searchBy
+        )) as PropertiesResponse
         setProperties(response.data)
       } catch (error) {
         console.error(error)
