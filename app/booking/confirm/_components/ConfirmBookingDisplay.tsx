@@ -7,6 +7,7 @@ import { format } from 'date-fns'
 import { Button } from '@/components/ui/button'
 import { Spinner } from '@/components/ui/spinner'
 import { createBooking } from '@/lib/api'
+import { ApiError } from '@/lib/errorHandling'
 import { RoomCategories, BookingDetail } from '@/types'
 import { CalendarCheck, CalendarX } from 'lucide-react'
 
@@ -49,7 +50,11 @@ export default function ConfirmBookingDisplay({
       router.push('/profile/bookings')
     } catch (err) {
       console.error('Failed to confirm booking:', err)
-      toast.error('Unable to confirm booking')
+      let errorMessage = 'Unable to confirm booking'
+      if (err instanceof ApiError) {
+        errorMessage = err.message
+      }
+      toast.error(errorMessage)
     } finally {
       setIsBookingLoading(false)
     }
