@@ -19,6 +19,7 @@ import {
   SignUpCredentials,
   VerifyOtpCredentials,
   BookingResponse,
+  BookingsResponse, // Added BookingsResponse
 } from '@/types'
 import type { PropertiesResponse } from '@/types/property'
 
@@ -305,5 +306,15 @@ export const createBooking = (
     body: data,
     requiresAuth: true,
     errorContext: 'Create Booking',
+  })
+}
+
+export const getBookings = (): Promise<BookingsResponse> => {
+  return request<BookingsResponse>({
+    endpoint: 'api/v1/bookings/all',
+    method: 'GET',
+    requiresAuth: true,
+    errorContext: 'Get Bookings',
+    cache: 'no-store',
   })
 }

@@ -20,7 +20,8 @@ function LayoutContent({ children }: { children: ReactNode }) {
     }
   }, [isAuthenticated, authLoading, pathname, router]) // Re-added pathname to deps
 
-  if (authLoading || (!isAuthenticated && pathname !== '/profile')) { // Added pathname condition
+  if (authLoading || (!isAuthenticated && pathname !== '/profile')) {
+    // Added pathname condition
     return (
       <div className="flex h-screen items-center justify-center">
         <Spinner />
@@ -42,6 +43,9 @@ function LayoutContent({ children }: { children: ReactNode }) {
     }
     if (pathname === '/profile/host') {
       return { title: 'Host', backPath: '/profile' }
+    }
+    if (pathname === '/profile/bookings') {
+      return { title: 'Bookings', backPath: '/profile' }
     }
     if (pathname.startsWith('/profile/') && pathname !== '/profile') {
       // This covers /profile/[firstName] and other potential sub-pages

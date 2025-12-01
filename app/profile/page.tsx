@@ -15,8 +15,6 @@ export default function ProfilePage() {
   const { user, isAuthenticated, loading: authLoading } = useAuth()
   const router = useRouter()
 
-
-
   if (authLoading) {
     return null // Or a loading spinner
   }
@@ -113,13 +111,13 @@ export default function ProfilePage() {
 
           <Card
             className="shadow-sm"
-            onClick={() => checkAuthAndRedirect('/profile/history')}
+            onClick={() => checkAuthAndRedirect('/profile/bookings')}
             style={{ cursor: 'pointer' }}
           >
             <CardContent className="flex flex-col items-center justify-center p-6 gap-2">
               <History />
               <span className="font-medium text-deep-teal text-[22px]">
-                History
+                Bookings
               </span>
             </CardContent>
           </Card>
