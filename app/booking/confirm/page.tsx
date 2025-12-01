@@ -180,10 +180,9 @@ export default function ConfirmBookingPage() {
     (1000 * 60 * 60 * 24)
 
   return (
-    <div className="container mx-auto max-w-2xl p-6 space-y-6">
-      <h1 className="text-3xl font-bold text-center mb-4">
-        Confirm Your Booking
-      </h1>
+    <div className="container mx-auto max-w-2xl px-5 space-y-6">
+
+
 
       {/* Summary Card */}
       <div className="bg-white shadow-lg rounded-xl p-6 space-y-6 border border-gray-200">
