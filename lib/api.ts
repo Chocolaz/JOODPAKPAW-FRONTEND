@@ -107,12 +107,22 @@ export const updateUserProfile = (userId: string, formData: FormData) => {
 // --- Property Functions ---
 export const getProperties = (
   page: number,
-  limit: number
+  limit: number,
+  search?: string,
+  searchBy?: string
 ): Promise<PropertiesResponse> => {
   const params = new URLSearchParams({
     page: String(page),
     limit: String(limit),
   })
+
+  if (search) {
+    params.append('search', search)
+  }
+  if (searchBy) {
+    params.append('searchBy', searchBy)
+  }
+
   return request<PropertiesResponse>({
     endpoint: `api/v1/properties?${params.toString()}`,
     method: 'GET',

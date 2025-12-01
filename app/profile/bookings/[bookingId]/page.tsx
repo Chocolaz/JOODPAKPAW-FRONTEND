@@ -7,7 +7,6 @@ import { FullBookingDetail } from '@/types'
 import { Spinner } from '@/components/ui/spinner'
 import { toast } from 'sonner'
 import BookingDetailDisplay from './_components/BookingDetailDisplay'
-import { PageHeader } from '@/app/_components/PageHeader'
 
 export default function BookingDetailPage() {
   const { bookingId } = useParams()

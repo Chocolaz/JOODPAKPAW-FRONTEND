@@ -11,11 +11,22 @@ import { PropertiesResponse, Property } from '@/types'
 export default function Home() {
   const [properties, setProperties] = useState<Property[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const [searchQuery, setSearchQuery] = useState('')
+
+  const handleSearch = (query: string) => {
+    setSearchQuery(query)
+  }
 
   useEffect(() => {
     const fetchProperties = async () => {
       try {
-        const response = (await getProperties(1, 10)) as PropertiesResponse
+        setIsLoading(true)
+        const params: { search?: string; searchBy?: string } = {}
+        if (searchQuery) {
+          params.search = searchQuery
+          params.searchBy = 'title'
+        }
+        const response = (await getProperties(1, 10, params.search, params.searchBy)) as PropertiesResponse
         setProperties(response.data)
       } catch (error) {
         console.error(error)
@@ -25,12 +36,12 @@ export default function Home() {
     }
 
     fetchProperties()
-  }, [])
+  }, [searchQuery])
 
   return (
     <div className="bg-white text-foreground min-h-screen flex flex-col">
       <div className="px-5 ">
-        <SearchBar />
+        <SearchBar onSearch={handleSearch} value={searchQuery} />
         <PageHeader />
       </div>
       <div className="flex-1">
