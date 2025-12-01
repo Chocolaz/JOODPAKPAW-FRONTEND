@@ -47,7 +47,7 @@ export function RoomCategoryCard({
     try {
       await deleteRoomCategory(propertyId, category.id)
       toast.success('Room Category Deleted')
-      onDeleteSuccess(category.id) // Pass the ID here
+      onDeleteSuccess(category.id) 
     } catch (error) {
       toast.error(
         error instanceof Error

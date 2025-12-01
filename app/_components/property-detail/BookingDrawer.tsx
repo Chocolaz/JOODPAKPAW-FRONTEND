@@ -76,7 +76,6 @@ export function BookingDrawer({ propertyId }: BookingDrawerProps) {
     )
   }, [selectedRooms])
 
-  // Determine if the continue button should be disabled
   const isContinueDisabled = React.useMemo(() => {
     return totalSelectedRooms === 0 || !date?.from || !date?.to
   }, [totalSelectedRooms, date])
@@ -96,8 +95,6 @@ export function BookingDrawer({ propertyId }: BookingDrawerProps) {
   }
 
   const handleContinue = () => {
-    // The disable logic on the button will prevent this from being called if no rooms/dates are selected
-    // but keep these checks for robustness or if the button state logic changes.
     if (totalSelectedRooms === 0) {
       toast.error('Please select at least one room.')
       return
@@ -119,7 +116,6 @@ export function BookingDrawer({ propertyId }: BookingDrawerProps) {
       }
     })
 
-    // 👉 Redirect to confirm page
     const currentSearchParams = new URLSearchParams(searchParams.toString())
     if (isDrawerOpen) {
       currentSearchParams.set('drawer', 'open')
@@ -144,24 +140,20 @@ export function BookingDrawer({ propertyId }: BookingDrawerProps) {
     if (numberOfPets > 0) {
       return `${numberOfPets} pet${numberOfPets > 1 ? 's' : ''}`
     }
-    return '0 pets' // Explicitly return "0 pets"
+    return '0 pets' 
   }, [numberOfPets])
 
   const roomCountText = React.useMemo(() => {
     if (totalSelectedRooms > 0) {
       return `${totalSelectedRooms} room${totalSelectedRooms > 1 ? 's' : ''}`
     }
-    return '0 rooms' // Explicitly return "0 rooms"
+    return '0 rooms' 
   }, [totalSelectedRooms])
 
   const combinedText = React.useMemo(() => {
-    // If both are 0, use the default prompt
     if (numberOfPets === 0 && totalSelectedRooms === 0) {
       return "When is your pet&apos;s stay?"
     }
-    // If pets are selected and rooms are 0, show "X pets • 0 rooms"
-    // If rooms are selected and pets are 0, show "0 pets • Y rooms"
-    // If both are selected, show "X pets • Y rooms"
     return `${petCountText} • ${roomCountText}`
   }, [petCountText, roomCountText, numberOfPets, totalSelectedRooms])
 

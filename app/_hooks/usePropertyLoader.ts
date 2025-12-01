@@ -12,8 +12,8 @@ export function usePropertyLoader(fetcher: FetcherFunc) {
   const propertyId = params.propertyId as string
 
   const [property, setProperty] = useState<Property | null>(null)
-  const [loading, setLoading] = useState(true) // For initial page load
-  const [isRefreshing, setIsRefreshing] = useState(false) // For background refreshes
+  const [loading, setLoading] = useState(true) 
+  const [isRefreshing, setIsRefreshing] = useState(false) 
   const [error, setError] = useState<string | null>(null)
   const [refreshTrigger, setRefreshTrigger] = useState(0)
 
@@ -24,7 +24,7 @@ export function usePropertyLoader(fetcher: FetcherFunc) {
   useEffect(() => {
     if (!propertyId || isNaN(Number(propertyId))) {
       setLoading(false)
-      notFound() // Trigger 404 for invalid ID format
+      notFound() 
       return
     }
 
@@ -41,7 +41,7 @@ export function usePropertyLoader(fetcher: FetcherFunc) {
         setError(null)
       } catch (err) {
         if (err instanceof ApiError && err.code === 'DB-1001') {
-          notFound() // Trigger Next.js 404 page
+          notFound() 
         }
         setError('Failed to fetch property details. Please try again later.')
         console.error(err)

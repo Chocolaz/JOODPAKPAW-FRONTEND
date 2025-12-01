@@ -19,9 +19,6 @@ export function PropertyRoomCategories({
   }
 
   const handleDelete = () => {
-    // Since roomCategories are now passed as a prop,
-    // any deletion would need to be handled by re-fetching
-    // in the parent component, which is triggered by onDeleteSuccess.
     if (onDeleteSuccess) {
       onDeleteSuccess()
     }

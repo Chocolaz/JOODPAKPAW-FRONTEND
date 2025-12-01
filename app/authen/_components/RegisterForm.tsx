@@ -2,7 +2,7 @@
 import { useState, useMemo } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { toast } from 'sonner' // Add this import
+import { toast } from 'sonner' 
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -52,7 +52,6 @@ export default function RegisterForm() {
   // Handlers
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault()
-    // Clear previous errors
     setEmailError('')
     setPasswordMismatchError('')
     setPasswordApiError('')
@@ -87,15 +86,12 @@ export default function RegisterForm() {
           } else if (apiError.field === 'phone') {
             setPhoneError(apiError.message)
           } else {
-            // General error, if any, can be handled here or with a toast
             toast.error(apiError.message)
           }
         })
       } else {
-        // Handle other errors, e.g., show a generic error message
         toast.error('An unexpected error occurred. Please try again.')
       }
-      // Clear any errors not present in the new error list
       if (!apiErrors?.some((e) => e.field === 'email')) setEmailError('')
       if (!apiErrors?.some((e) => e.field === 'password'))
         setPasswordApiError('')
@@ -133,7 +129,7 @@ export default function RegisterForm() {
             })}
             value={phone}
             onChange={(e) => {
-              const numericValue = e.target.value.replace(/\D/g, '') // Remove non-digits
+              const numericValue = e.target.value.replace(/\D/g, '') 
               setPhone(numericValue)
               setPhoneError('')
             }}

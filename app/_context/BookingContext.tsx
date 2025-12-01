@@ -50,7 +50,6 @@ export function BookingProvider({ children }: { children: React.ReactNode }) {
       if (savedState) {
         try {
           const parsedState = JSON.parse(savedState);
-          // Ensure Date objects are re-hydrated
           if (parsedState.date?.from) parsedState.date.from = new Date(parsedState.date.from);
           if (parsedState.date?.to) parsedState.date.to = new Date(parsedState.date.to);
           return parsedState;
@@ -163,7 +162,7 @@ export function BookingProvider({ children }: { children: React.ReactNode }) {
         }
       }))
 
-    } catch { // Modified from 'catch (_err)' to 'catch'
+    } catch { 
       setError('Failed to search for rooms.')
       toast.error('Failed to search for rooms.')
     } finally {

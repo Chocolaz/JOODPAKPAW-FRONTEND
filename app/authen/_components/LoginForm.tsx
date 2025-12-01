@@ -29,13 +29,13 @@ export default function LoginForm() {
   // Handlers
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (isButtonDisabled) return // Prevent sign-in if button is disabled
+    if (isButtonDisabled) return 
 
     try {
       const data = await signIn({ email, password })
       console.log('Sign in successful:', data)
       if (data.accessToken && data.refreshToken) {
-        login(data.accessToken, data.refreshToken) // Use login from AuthContext
+        login(data.accessToken, data.refreshToken) 
         router.push('/')
       } else {
         console.error('Sign in successful, but no tokens received.')

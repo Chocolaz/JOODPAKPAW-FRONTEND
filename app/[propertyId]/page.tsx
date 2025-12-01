@@ -33,12 +33,10 @@ export default function PropertyDetailPage() {
         console.error('Error sharing:', err)
       }
     } else {
-      // Fallback for browsers that don't support Web Share API
       console.log(
         'Web Share API not supported or property data not available. URL:',
         `${window.location.origin}/${property?.id}`
       )
-      // Could implement a copy-to-clipboard or custom share modal here
     }
   }
 
@@ -51,7 +49,6 @@ export default function PropertyDetailPage() {
     } else if (fromBookings === 'true') {
       router.push('/profile/bookings')
     } else {
-      // If not explicitly coming from bookings with query params, go to home
       router.push('/')
     }
   }

@@ -35,7 +35,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = (accessToken: string, refreshToken: string) => {
     saveTokens(accessToken, refreshToken)
-    refreshAuth() // Trigger user reload
+    refreshAuth()
   }
 
   const logout = useCallback(() => {

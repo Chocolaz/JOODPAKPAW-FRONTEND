@@ -15,7 +15,7 @@ import {
 
 interface BookingRoomCardProps {
   categories: RoomCategories[]
-  selectedRooms: Record<number, number> // key = categoryId, value = amount selected
+  selectedRooms: Record<number, number> 
   onSelectChange: (categoryId: number, value: number) => void
   isSummary?: boolean
 }

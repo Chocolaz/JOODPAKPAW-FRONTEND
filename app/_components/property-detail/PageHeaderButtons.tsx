@@ -11,7 +11,7 @@ interface PageHeaderButtonsProps {
   onDeleteClick?: () => void
   onGlobeClick?: () => void
   isPropertyActive?: boolean
-  disablePublish?: boolean // New prop
+  disablePublish?: boolean 
   onDataChange?: () => void
 }
 
@@ -22,7 +22,7 @@ export function PageHeaderButtons({
   onDeleteClick,
   onGlobeClick,
   isPropertyActive,
-  disablePublish, // Destructure new prop
+  disablePublish,
   onDataChange,
 }: PageHeaderButtonsProps) {
   return (
