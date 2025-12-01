@@ -13,7 +13,7 @@ export function PageHeader({ title, isHost }: PageHeaderProps) {
       ) : (
         <div className="flex items-center gap-2">
           <h4 className="mt-7 text-deep-teal">
-            Discover Local Pet Hotels & Care Homes Near You GitHub Actions15
+            Discover Local Pet Hotels & Care Homes Near You
           </h4>
           {isHost && (
             <span className="mt-7 rounded-full bg-orange-500 px-3 py-1 text-sm font-semibold text-white">
