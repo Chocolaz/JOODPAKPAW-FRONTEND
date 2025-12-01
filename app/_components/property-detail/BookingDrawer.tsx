@@ -15,7 +15,7 @@ import {
 } from '@/components/ui/drawer'
 import { Button } from '@/components/ui/button'
 import { Spinner } from '@/components/ui/spinner'
-import { BookingRoomTable } from './BookingRoomTable'
+import { BookingRoomCard } from './BookingRoomCard'
 import { BookingSearchBar, SearchParams } from './BookingSearchBar'
 import { useBooking } from '@/app/_context/BookingContext'
 import { toast } from 'sonner'
@@ -198,7 +198,7 @@ export function BookingDrawer({ propertyId }: BookingDrawerProps) {
               {error && <p className="text-red-500">{error}</p>}
 
               {!loading && !error && (
-                <BookingRoomTable
+                <BookingRoomCard
                   categories={roomCategories}
                   selectedRooms={selectedRooms}
                   onSelectChange={handleSelectChange}
