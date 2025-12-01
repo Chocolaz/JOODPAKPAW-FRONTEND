@@ -47,40 +47,39 @@ export function BookingDrawer({ propertyId }: BookingDrawerProps) {
     searchedNumberOfNights = 0,
   } = currentPropertyData
 
-  const [isDrawerOpen, setIsDrawerOpen] = React.useState(false);
+  const [isDrawerOpen, setIsDrawerOpen] = React.useState(false)
 
   React.useEffect(() => {
     if (searchParams.get('drawer') === 'open') {
-      setIsDrawerOpen(true);
+      setIsDrawerOpen(true)
     } else {
-      setIsDrawerOpen(false);
+      setIsDrawerOpen(false)
     }
-  }, [searchParams]);
+  }, [searchParams])
 
   const handleOpenChange = (open: boolean) => {
-    setIsDrawerOpen(open);
-    const newSearchParams = new URLSearchParams(searchParams.toString());
+    setIsDrawerOpen(open)
+    const newSearchParams = new URLSearchParams(searchParams.toString())
     if (open) {
-      newSearchParams.set('drawer', 'open');
+      newSearchParams.set('drawer', 'open')
     } else {
-      newSearchParams.delete('drawer');
+      newSearchParams.delete('drawer')
     }
-    router.replace(`?${newSearchParams.toString()}`, { scroll: false });
-  };
-
+    router.replace(`?${newSearchParams.toString()}`, { scroll: false })
+  }
 
   // Calculate total selected rooms
   const totalSelectedRooms = React.useMemo(() => {
     return Object.values(selectedRooms).reduce(
       (sum: number, count: number) => sum + count,
       0
-    );
-  }, [selectedRooms]);
+    )
+  }, [selectedRooms])
 
   // Determine if the continue button should be disabled
   const isContinueDisabled = React.useMemo(() => {
-    return totalSelectedRooms === 0 || !date?.from || !date?.to;
-  }, [totalSelectedRooms, date]);
+    return totalSelectedRooms === 0 || !date?.from || !date?.to
+  }, [totalSelectedRooms, date])
 
   const onSearch = (params: SearchParams) => {
     if (!params.checkInDate || !params.checkOutDate) {
@@ -110,22 +109,24 @@ export function BookingDrawer({ propertyId }: BookingDrawerProps) {
     }
 
     // Construct roomNames object from selectedRooms and roomCategories
-    const roomNames: { [key: string]: string } = {};
+    const roomNames: { [key: string]: string } = {}
     Object.keys(selectedRooms).forEach((roomId) => {
-      const roomCategory = roomCategories.find((cat) => cat.id.toString() === roomId);
+      const roomCategory = roomCategories.find(
+        (cat) => cat.id.toString() === roomId
+      )
       if (roomCategory) {
-        roomNames[roomId] = roomCategory.name;
+        roomNames[roomId] = roomCategory.name
       }
-    });
+    })
 
     // 👉 Redirect to confirm page
-    const currentSearchParams = new URLSearchParams(searchParams.toString());
+    const currentSearchParams = new URLSearchParams(searchParams.toString())
     if (isDrawerOpen) {
-      currentSearchParams.set('drawer', 'open');
+      currentSearchParams.set('drawer', 'open')
     } else {
-      currentSearchParams.delete('drawer');
+      currentSearchParams.delete('drawer')
     }
-    
+
     router.push(
       `/booking/confirm?propertyId=${propertyId}` +
         `&start=${format(date.from, 'yyyy-MM-dd')}` +
@@ -133,9 +134,36 @@ export function BookingDrawer({ propertyId }: BookingDrawerProps) {
         `&pets=${numberOfPets}` +
         `&rooms=${encodeURIComponent(JSON.stringify(selectedRooms))}` +
         `&roomNames=${encodeURIComponent(JSON.stringify(roomNames))}` + // Add roomNames
-        (currentSearchParams.toString() ? `&${currentSearchParams.toString()}` : '')
+        (currentSearchParams.toString()
+          ? `&${currentSearchParams.toString()}`
+          : '')
     )
   }
+
+  const petCountText = React.useMemo(() => {
+    if (numberOfPets > 0) {
+      return `${numberOfPets} pet${numberOfPets > 1 ? 's' : ''}`
+    }
+    return '0 pets' // Explicitly return "0 pets"
+  }, [numberOfPets])
+
+  const roomCountText = React.useMemo(() => {
+    if (totalSelectedRooms > 0) {
+      return `${totalSelectedRooms} room${totalSelectedRooms > 1 ? 's' : ''}`
+    }
+    return '0 rooms' // Explicitly return "0 rooms"
+  }, [totalSelectedRooms])
+
+  const combinedText = React.useMemo(() => {
+    // If both are 0, use the default prompt
+    if (numberOfPets === 0 && totalSelectedRooms === 0) {
+      return "When is your pet's stay?"
+    }
+    // If pets are selected and rooms are 0, show "X pets • 0 rooms"
+    // If rooms are selected and pets are 0, show "0 pets • Y rooms"
+    // If both are selected, show "X pets • Y rooms"
+    return `${petCountText} • ${roomCountText}`
+  }, [petCountText, roomCountText, numberOfPets, totalSelectedRooms])
 
   return (
     <div className="fixed bottom-0 left-0 right-0 bg-off-white border-t p-4 flex items-center justify-between z-10 max-w-4xl mx-auto rounded-t-[20px] shadow-lg">
@@ -154,11 +182,7 @@ export function BookingDrawer({ propertyId }: BookingDrawerProps) {
                     )}`
                   : 'Pick your date'}
               </h4>
-              <p className="text-neutral-gray">
-                {numberOfPets > 0
-                  ? `${numberOfPets} pet${numberOfPets > 1 ? 's' : ''}`
-                  : "When is your pet's stay?"}
-              </p>
+              <p className="text-neutral-gray">{combinedText}</p>
             </div>
           </div>
         </DrawerTrigger>
@@ -223,7 +247,12 @@ export function BookingDrawer({ propertyId }: BookingDrawerProps) {
         </DrawerContent>
       </Drawer>
 
-      <Button variant="default" className="p-5 bg-accent-orange">
+      <Button
+        variant="default"
+        className="p-5 bg-accent-orange"
+        onClick={handleContinue}
+        disabled={isContinueDisabled}
+      >
         Book Now
       </Button>
     </div>
