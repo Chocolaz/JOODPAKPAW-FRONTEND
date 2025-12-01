@@ -31,6 +31,11 @@ export interface RoomCategories {
       finalPrice: number
     }[]
   }
+  property?: {
+    id: number
+    title: string
+    address: string
+  }
   pets: {
     id: number
     name: string

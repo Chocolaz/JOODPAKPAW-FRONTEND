@@ -9,6 +9,7 @@ import { Spinner } from '@/components/ui/spinner'
 import { createBooking, searchRoomCategories } from '@/lib/api' // Import searchRoomCategories
 import { useAuth } from '@/app/_components/AuthContext'
 import { RoomCategories } from '@/types' // Import RoomCategories type
+import { CalendarCheck, CalendarX, CalendarDays } from 'lucide-react'
 
 interface BookingDetail {
   propertyId: number
@@ -180,39 +181,70 @@ export default function ConfirmBookingPage() {
     (1000 * 60 * 60 * 24)
 
   return (
-    <div className="container mx-auto max-w-2xl px-5 space-y-6">
-
-
-
+    <div className="container mx-auto max-w-[500px] px-5 space-y-6">
       {/* Summary Card */}
-      <div className="bg-white shadow-lg rounded-xl p-6 space-y-6 border border-gray-200">
-        {/* Dates */}
+      <div className="bg-white shadow-lg rounded-xl p-6 space-y-6 border border-gray-200 mt-4">
+        {/* Property Info */}
         <div>
-          <h2 className="text-xl font-semibold mb-2">Your Trip</h2>
-          <div className="space-y-1 text-gray-700">
-            <p>
-              <strong>Check-in:</strong>{' '}
-              {format(new Date(bookingDetails.checkInDate), 'EEE, MMM d')}
+          <h3 className="text-deep-teal mb-1 text-lg font-semibold">
+            {fetchedRoomCategories[0]?.property?.title || 'Your Trip'}
+          </h3>
+
+          {fetchedRoomCategories[0]?.property?.address && (
+            <p className="text-neutral-gray text-sm mb-2">
+              {fetchedRoomCategories[0].property.address}
             </p>
-            <p>
-              <strong>Check-out:</strong>{' '}
-              {format(new Date(bookingDetails.checkOutDate), 'EEE, MMM d')}
-            </p>
-            <p>
-              <strong>Total nights:</strong> {nights}
-            </p>
+          )}
+        </div>
+
+        {/* Check-in / Check-out cards in the same row */}
+        <div className="grid grid-cols-2 gap-4">
+          {/* Check-in Card */}
+          <div className="border rounded-xl p-4 bg-off-white flex items-start gap-3">
+            <div className="p-2 bg-white rounded-lg shadow-sm">
+              <CalendarCheck className="w-5 h-5 text-deep-teal" />
+            </div>
+
+            <div>
+              <p className="text-xs text-neutral-gray">Check-in</p>
+              <p className="text-base font-semibold text-gray-900">
+                {format(new Date(bookingDetails.checkInDate), 'EEE, MMM d')}
+              </p>
+            </div>
+          </div>
+
+          {/* Check-out Card */}
+          <div className="border rounded-xl p-4 bg-off-white flex items-start gap-3">
+            <div className="p-2 bg-white rounded-lg shadow-sm">
+              <CalendarX className="w-5 h-5 text-accent-orange" />
+            </div>
+
+            <div>
+              <p className="text-xs text-neutral-gray">Check-out</p>
+              <p className="text-base font-semibold text-gray-900">
+                {format(new Date(bookingDetails.checkOutDate), 'EEE, MMM d')}
+              </p>
+            </div>
           </div>
         </div>
 
+        {/* Total nights (outside the cards) */}
+        <p className="text-gray-700 text-sm -mt-2">
+          <strong>Total nights:</strong> {nights}
+        </p>
+
         {/* Pets */}
         <div>
-          <h2 className="text-xl font-semibold mb-2">Pets</h2>
-          <p className="text-gray-700">{bookingDetails.numberOfPets} pet(s)</p>
+          <h4 className="text-deep-teal font-semibold mb-1">Pets</h4>
+          <p className="text-gray-700">
+            {bookingDetails.numberOfPets}{' '}
+            {bookingDetails.numberOfPets > 1 ? 'pets' : 'pet'}
+          </p>
         </div>
 
         {/* Rooms */}
         <div>
-          <h2 className="text-xl font-semibold mb-2">Selected Rooms</h2>
+          <h4 className="text-deep-teal mb-1">Selected Rooms</h4>
           <div className="space-y-2">
             {Object.entries(bookingDetails.selectedRooms).map(([id, count]) => (
               <div
@@ -220,7 +252,9 @@ export default function ConfirmBookingPage() {
                 className="flex justify-between border rounded-lg p-3 bg-gray-50"
               >
                 <span>{bookingDetails.roomNames[id] || `Room ${id}`}</span>
-                <span className="font-medium">{count} room(s)</span>
+                <span className="font-medium">
+                  {count} {count > 1 ? 'rooms' : 'room'}
+                </span>
               </div>
             ))}
           </div>
@@ -228,17 +262,19 @@ export default function ConfirmBookingPage() {
 
         {/* Price Summary */}
         <div>
-          <h2 className="text-xl font-semibold mb-2">Price Summary</h2>
+          <h4 className="text-deep-teal mb-1">Price Summary</h4>
           <div className="space-y-1 text-gray-700">
             {priceSummary.breakdown.map((item, index) => (
               <div key={index} className="flex justify-between">
                 <span>
-                  {item.name} x {item.quantity} room(s)
+                  {item.name} x {item.quantity}{' '}
+                  {item.quantity > 1 ? 'rooms' : 'room'}
                 </span>
                 <span>฿{item.total.toLocaleString()}</span>
               </div>
             ))}
-            <div className="flex justify-between font-bold border-t pt-2 mt-2">
+
+            <div className="flex justify-between font-bold border-t pt-2 mt-2 text-xl">
               <span>Total</span>
               <span>฿{priceSummary.total.toLocaleString()}</span>
             </div>
@@ -249,19 +285,19 @@ export default function ConfirmBookingPage() {
       {/* Buttons */}
       <div className="sticky bottom-0 bg-white py-4 flex justify-center gap-4 border-t">
         <Button
-          onClick={handleConfirmBooking}
-          disabled={isBookingLoading}
-          className="bg-accent-orange px-8 py-3 text-lg text-white rounded-xl"
-        >
-          {isBookingLoading ? <Spinner /> : 'Confirm Booking'}
-        </Button>
-
-        <Button
           onClick={() => router.back()}
           variant="outline"
           className="px-8 py-3 text-lg rounded-xl"
         >
           Go Back
+        </Button>
+
+        <Button
+          onClick={handleConfirmBooking}
+          disabled={isBookingLoading}
+          className="bg-accent-orange px-8 py-3 text-lg text-white rounded-xl"
+        >
+          {isBookingLoading ? <Spinner /> : 'Confirm Booking'}
         </Button>
       </div>
     </div>
