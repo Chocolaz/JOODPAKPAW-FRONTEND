@@ -47,6 +47,9 @@ function LayoutContent({ children }: { children: ReactNode }) {
     if (pathname === '/profile/bookings') {
       return { title: 'Bookings', backPath: '/profile' }
     }
+    if (pathname.match(/^\/profile\/bookings\/\d+$/)) {
+      return { title: 'Booking Detail', backPath: '/profile/bookings' }
+    }
     if (pathname.startsWith('/profile/') && pathname !== '/profile') {
       // This covers /profile/[firstName] and other potential sub-pages
       return { title: 'Profile', backPath: '/profile' }

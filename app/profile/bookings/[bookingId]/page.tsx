@@ -45,7 +45,6 @@ export default function BookingDetailPage() {
   if (error) {
     return (
       <div className="text-center text-red-500 mt-10">
-        <PageHeader title="Booking Details" />
         <p>{error}</p>
       </div>
     )
@@ -54,7 +53,6 @@ export default function BookingDetailPage() {
   if (!bookingDetails) {
     return (
       <div className="text-center text-gray-500 mt-10">
-        <PageHeader title="Booking Details" />
         <p>No booking details found.</p>
       </div>
     )
@@ -62,7 +60,6 @@ export default function BookingDetailPage() {
 
   return (
     <>
-      <PageHeader title="Booking Details" />
       <BookingDetailDisplay bookingDetails={bookingDetails} />
     </>
   )
