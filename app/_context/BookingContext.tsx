@@ -44,14 +44,34 @@ const BookingContext = React.createContext<BookingContextType | undefined>(
 )
 
 export function BookingProvider({ children }: { children: React.ReactNode }) {
+  const getInitialBookingState = () => {
+    if (typeof window !== 'undefined') {
+      const savedState = sessionStorage.getItem('booking_state');
+      if (savedState) {
+        try {
+          const parsedState = JSON.parse(savedState);
+          // Ensure Date objects are re-hydrated
+          if (parsedState.date?.from) parsedState.date.from = new Date(parsedState.date.from);
+          if (parsedState.date?.to) parsedState.date.to = new Date(parsedState.date.to);
+          return parsedState;
+        } catch (e) {
+          console.error("Failed to parse saved booking state from localStorage", e);
+        }
+      }
+    }
+    return { date: undefined, numberOfPets: 0, bookingData: {} };
+  };
+
+  const initialState = React.useRef(getInitialBookingState()).current;
+
   // Shared state across all properties
-  const [date, setDate] = React.useState<DateRange | undefined>()
-  const [numberOfPets, setNumberOfPets] = React.useState<number>(0)
+  const [date, setDate] = React.useState<DateRange | undefined>(initialState.date)
+  const [numberOfPets, setNumberOfPets] = React.useState<number>(initialState.numberOfPets)
   
   // Per-property state
   const [bookingData, setBookingData] = React.useState<
     Record<string, Partial<BookingData>>
-  >({})
+  >(initialState.bookingData)
 
   const [loading, setLoading] = React.useState(false)
   const [error, setError] = React.useState<string | null>(null)
@@ -65,6 +85,9 @@ export function BookingProvider({ children }: { children: React.ReactNode }) {
     setDate(undefined)
     setNumberOfPets(0)
     setError(null)
+    if (typeof window !== 'undefined') {
+      sessionStorage.removeItem('booking_state');
+    }
   }
 
   // Effect to clear state on logout
@@ -73,6 +96,13 @@ export function BookingProvider({ children }: { children: React.ReactNode }) {
       clearBookingState()
     }
   }, [isAuthenticated])
+
+  React.useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const stateToSave = { date, numberOfPets, bookingData };
+      sessionStorage.setItem('booking_state', JSON.stringify(stateToSave));
+    }
+  }, [date, numberOfPets, bookingData]);
 
   const handleSelectChange = (categoryId: number, value: number) => {
     if (!currentPropertyId) return
