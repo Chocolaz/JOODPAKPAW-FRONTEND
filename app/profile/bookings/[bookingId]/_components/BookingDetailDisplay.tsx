@@ -11,6 +11,7 @@ import {
   BadgeInfo,
 } from 'lucide-react'
 import { FullBookingDetail } from '@/types'
+import { useRouter } from 'next/navigation' // Import useRouter
 
 interface BookingDetailDisplayProps {
   bookingDetails: FullBookingDetail
@@ -19,6 +20,8 @@ interface BookingDetailDisplayProps {
 export default function BookingDetailDisplay({
   bookingDetails,
 }: BookingDetailDisplayProps) {
+  const router = useRouter() // Initialize useRouter
+
   const priceSummary = useMemo(() => {
     let subtotal = 0
     const breakdown: {
@@ -48,17 +51,25 @@ export default function BookingDetailDisplay({
       new Date(bookingDetails.checkInDate).getTime()) /
     (1000 * 60 * 60 * 24)
 
+  const handlePropertyClick = () => {
+    if (bookingDetails.bookingOrders[0]?.property?.id) {
+      router.push(`/${bookingDetails.bookingOrders[0].property.id}`)
+    }
+  }
+
   return (
     <div className="container mx-auto max-w-[550px] px-6 pb-10 pt-6 space-y-10">
       {/* TITLE */}
       <div className="space-y-1">
-        <h2 className="text-xl font-semibold text-gray-900">
+        <h2
+          className="text-xl font-semibold text-gray-900 cursor-pointer hover:underline" // Add cursor-pointer and hover:underline
+          onClick={handlePropertyClick} // Add onClick handler
+        >
           {bookingDetails.bookingOrders[0]?.property?.title}
         </h2>
         <p className="text-sm text-neutral-gray">
           {bookingDetails.bookingOrders[0]?.property?.address}
         </p>
-        <p className="text-neutral-gray font-medium">Booking Details</p>
       </div>
 
       {/* CONTAINER CARD */}

@@ -41,7 +41,7 @@ export default function PropertyDetailPage() {
     }
   }
 
-  const handleBack = () => router.push('/')
+  const handleBack = () => router.back()
 
   if (loading) {
     return (
