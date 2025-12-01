@@ -62,7 +62,7 @@ export default function BookingDetailDisplay({
       {/* TITLE */}
       <div className="space-y-1">
         <h2
-          className="text-xl font-semibold text-gray-900 cursor-pointer hover:underline" // Add cursor-pointer and hover:underline
+          className="text-xl text-gray-900 cursor-pointer underline" // Add cursor-pointer and hover:underline
           onClick={handlePropertyClick} // Add onClick handler
         >
           {bookingDetails.bookingOrders[0]?.property?.title}
