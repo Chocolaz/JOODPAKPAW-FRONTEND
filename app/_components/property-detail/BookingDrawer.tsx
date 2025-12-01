@@ -204,7 +204,7 @@ export function BookingDrawer({ propertyId }: BookingDrawerProps) {
                 numberOfPets={numberOfPets}
                 setNumberOfPets={setNumberOfPets}
               />
-              <h4 className="text-deep-teal">
+              <h4 className="text-deep-teal mb-2">
                 Select a Room{' '}
                 {searchedNumberOfNights > 0 &&
                   `for ${searchedNumberOfNights} night${
