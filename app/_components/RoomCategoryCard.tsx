@@ -63,31 +63,23 @@ export function RoomCategoryCard({
     <>
       <div
         className={cn(
-          'relative rounded-2xl border border-neutral-200 bg-white shadow-sm hover:shadow-md transition',
+          'relative rounded-2xl border border-neutral-200 bg-white shadow-md/20 hover:shadow-lg/30 transition-all duration-300',
+          'overflow-hidden',
           className
         )}
       >
         {/* Delete Button */}
-        {canDelete && ( // Conditionally render
+        {canDelete && (
           <button
             onClick={handleDeleteClick}
             disabled={isOnlyRoom || isDeleting}
-            title={
-              isOnlyRoom
-                ? 'Cannot delete the only room'
-                : 'Delete room category'
-            }
             className="
-                          absolute -top-4 -right-2 z-10
-                          p-2 rounded-full
-                          bg-white/80 border border-neutral-300
-                          shadow-sm
-                         text-red-600
-                          active:scale-95
-                          transition-all
-                          disabled:opacity-50
-                        "
-            aria-label="Delete room category"
+        absolute -top-3 -right-3 z-10 
+        p-2 rounded-full backdrop-blur-md
+        bg-white/70 border border-neutral-300
+        shadow-md hover:shadow-lg transition
+        text-red-600 active:scale-95 disabled:opacity-40
+      "
           >
             {isDeleting ? (
               <Spinner className="h-4 w-4" />
@@ -98,29 +90,28 @@ export function RoomCategoryCard({
         )}
 
         {/* Content */}
-        <div className="p-5 flex flex-col gap-4">
+        <div className="p-6 flex flex-col gap-4">
           {/* Header */}
-          <div className="flex items-start justify-between">
-            <p className="font-medium text-deep-teal">
-              {category.name.length > 25
-                ? category.name.substring(0, 25) + '...'
-                : category.name}
+          <div className="flex items-center justify-between gap-3 min-w-0">
+            {/* Title */}
+            <p className="font-semibold text-deep-teal text-lg leading-tight truncate">
+              {category.name}
             </p>
 
-            <p className="text-right ">
-              <span className="font-semibold text-neutral-900">
+            {/* Price */}
+            <p className="shrink-0 text-right">
+              <span className="text-xl font-semibold text-neutral-900">
                 {category.basePrice.toLocaleString()}
               </span>
-              <span className="text-neutral-500 ml-1">THB / night</span>
+              <span className="text-neutral-500 ml-1 text-sm">THB / night</span>
             </p>
           </div>
 
-          {/* Middle row: rooms + pets/room + allowed pets (right aligned) */}
-          <div className="flex items-center justify-between flex-wrap gap-y-3 text-sm text-neutral-700">
-            {/* Left side: rooms + pets per room */}
+          {/* Rooms + Pets */}
+          <div className="flex items-start justify-between flex-wrap gap-3 text-sm text-neutral-700">
             <div className="flex items-center gap-6">
               <div className="flex items-center gap-2">
-                <BedDouble className="w-4 h-4 text-accent-orange" />
+                <BedDouble className="w-4 h-4 text-accent-orange/80" />
                 <span>
                   {category.totalRoom}{' '}
                   {category.totalRoom === 1 ? 'room' : 'rooms'}
@@ -128,34 +119,42 @@ export function RoomCategoryCard({
               </div>
 
               <div className="flex items-center gap-2">
-                <Dog className="w-4 h-4 text-accent-orange" />
+                <Dog className="w-4 h-4 text-accent-orange/80" />
                 <span>{category.numberOfPets} pets max</span>
               </div>
             </div>
 
-            {/* Pet Policy Chip */}
             {petPolicy && (
-              <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs bg-neutral-900 text-white font-medium">
+              <span
+                className="
+          inline-flex items-center px-2.5 py-1 rounded-full 
+          text-xs bg-neutral-900 text-white font-medium shadow-sm
+        "
+              >
                 {petPolicy}
               </span>
             )}
-
-            {/* Facilities */}
-            {(category.facilities || []).length > 0 && (
-              <div className="flex flex-wrap gap-1.5 mt-2">
-                {category.facilities?.map((facility) => (
-                  <span
-                    key={facility.id}
-                    className="inline-flex items-center px-2 py-0.5 rounded-full text-xs bg-neutral-100 text-neutral-700"
-                  >
-                    {facility.name}
-                  </span>
-                ))}
-              </div>
-            )}
           </div>
+
+          {/* Facilities */}
+          {(category.facilities || []).length > 0 && (
+            <div className="flex flex-wrap gap-2 mt-1">
+              {category.facilities?.map((facility) => (
+                <span
+                  key={facility.id}
+                  className="
+              inline-flex items-center px-2 py-1 rounded-full 
+              text-xs bg-neutral-100 text-neutral-700 border border-neutral-200
+            "
+                >
+                  {facility.name}
+                </span>
+              ))}
+            </div>
+          )}
         </div>
       </div>
+
       {canDelete && (
         <ConfirmationModal
           isOpen={isModalOpen}
