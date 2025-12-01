@@ -109,6 +109,15 @@ export function BookingDrawer({ propertyId }: BookingDrawerProps) {
       return
     }
 
+    // Construct roomNames object from selectedRooms and roomCategories
+    const roomNames: { [key: string]: string } = {};
+    Object.keys(selectedRooms).forEach((roomId) => {
+      const roomCategory = roomCategories.find((cat) => cat.id.toString() === roomId);
+      if (roomCategory) {
+        roomNames[roomId] = roomCategory.name;
+      }
+    });
+
     // 👉 Redirect to confirm page
     const currentSearchParams = new URLSearchParams(searchParams.toString());
     if (isDrawerOpen) {
@@ -123,6 +132,7 @@ export function BookingDrawer({ propertyId }: BookingDrawerProps) {
         `&end=${format(date.to, 'yyyy-MM-dd')}` +
         `&pets=${numberOfPets}` +
         `&rooms=${encodeURIComponent(JSON.stringify(selectedRooms))}` +
+        `&roomNames=${encodeURIComponent(JSON.stringify(roomNames))}` + // Add roomNames
         (currentSearchParams.toString() ? `&${currentSearchParams.toString()}` : '')
     )
   }

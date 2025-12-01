@@ -125,41 +125,51 @@ export function BookingRoomTable({
               </TableCell>
 
               {/* --- COL 4: Select --- */}
-              <TableCell className="py-4 align-top">
+              <TableCell className="py-4 align-top flex flex-col items-end gap-2">
                 {isSummary ? (
                   <span className="font-medium">{selectedRooms[cat.id]}</span>
                 ) : (
-                  <Select
-                    value={String(selectedRooms[cat.id] ?? 0)}
-                    onValueChange={(v) => onSelectChange(cat.id, Number(v))}
-                  >
-                    <SelectTrigger className="w-[70px]">
-                      <SelectValue>{selectedRooms[cat.id] ?? 0}</SelectValue>
-                    </SelectTrigger>
+                  <>
+                    <Select
+                      value={String(selectedRooms[cat.id] ?? 0)}
+                      onValueChange={(v) => onSelectChange(cat.id, Number(v))}
+                    >
+                      <SelectTrigger className="w-[70px]">
+                        <SelectValue>{selectedRooms[cat.id] ?? 0}</SelectValue>
+                      </SelectTrigger>
 
-                    <SelectContent>
-                      {Array.from(
-                        { length: cat.availability.availableRooms + 1 },
-                        (_, i) => {
-                          const num = i
-                          const roomsNeeded = cat.availability.roomsNeeded
-                          const isDisabled =
-                            roomsNeeded > 0
-                              ? num > 0 && num < roomsNeeded
-                              : false
-                          return (
-                            <SelectItem
-                              key={num}
-                              value={String(num)}
-                              disabled={isDisabled}
-                            >
-                              {num}
-                            </SelectItem>
-                          )
-                        }
-                      )}
-                    </SelectContent>
-                  </Select>
+                      <SelectContent>
+                        {Array.from(
+                          { length: cat.availability.availableRooms + 1 },
+                          (_, i) => {
+                            const num = i
+                            const roomsNeeded = cat.availability.roomsNeeded
+                            const isDisabled =
+                              roomsNeeded > 0
+                                ? num > 0 && num < roomsNeeded
+                                : false
+                            return (
+                              <SelectItem
+                                key={num}
+                                value={String(num)}
+                                disabled={isDisabled}
+                              >
+                                {num}
+                              </SelectItem>
+                            )
+                          }
+                        )}
+                      </SelectContent>
+                    </Select>
+                    {selectedRooms[cat.id] && selectedRooms[cat.id] > 0 && (
+                      <p className="text-neutral-600 text-xs">
+                        {(
+                          cat.availability.totalPrice * selectedRooms[cat.id]
+                        ).toLocaleString()}{' '}
+                        THB
+                      </p>
+                    )}
+                  </>
                 )}
               </TableCell>
             </TableRow>

@@ -1,175 +1,266 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useMemo } from 'react' // Import useMemo
 import { useRouter, useSearchParams } from 'next/navigation'
 import { toast } from 'sonner'
 import { format } from 'date-fns'
 import { Button } from '@/components/ui/button'
 import { Spinner } from '@/components/ui/spinner'
-import { createBooking } from '@/lib/api' // Assuming this is available
-import { useAuth } from '@/app/_components/AuthContext' // Assuming AuthContext is needed
+import { createBooking, searchRoomCategories } from '@/lib/api' // Import searchRoomCategories
+import { useAuth } from '@/app/_components/AuthContext'
+import { RoomCategories } from '@/types' // Import RoomCategories type
 
 interface BookingDetail {
   propertyId: number
   checkInDate: string
   checkOutDate: string
   numberOfPets: number
-  selectedRooms: { [key: string]: number } // { roomId: count }
+  selectedRooms: { [key: string]: number }
+  roomNames: { [key: string]: string }
 }
 
 export default function ConfirmBookingPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const { user, isAuthenticated } = useAuth() // Assuming authentication is required
+  const { user, isAuthenticated } = useAuth()
 
-  const [bookingDetails, setBookingDetails] = useState<BookingDetail | null>(null)
+  const [bookingDetails, setBookingDetails] = useState<BookingDetail | null>(
+    null
+  )
+  const [fetchedRoomCategories, setFetchedRoomCategories] = useState<
+    RoomCategories[]
+  >([]) // New state
   const [loading, setLoading] = useState(true)
   const [isBookingLoading, setIsBookingLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    if (!isAuthenticated) {
-      toast.error('You must be logged in to confirm a booking.')
-      router.push('/authen/login')
-      return
-    }
-
-    const propertyId = searchParams.get('propertyId')
-    const start = searchParams.get('start')
-    const end = searchParams.get('end')
-    const pets = searchParams.get('pets')
-    const rooms = searchParams.get('rooms')
-
-    if (!propertyId || !start || !end || !pets || !rooms) {
-      toast.error('Missing booking details. Please go back and select again.')
-      router.push('/') // Redirect to home or property detail
-      return
-    }
-
-    try {
-      const parsedRooms = JSON.parse(decodeURIComponent(rooms))
-      setBookingDetails({
-        propertyId: parseInt(propertyId),
-        checkInDate: start,
-        checkOutDate: end,
-        numberOfPets: parseInt(pets),
-        selectedRooms: parsedRooms,
-      })
-    } catch (e) {
-      console.error('Failed to parse room data:', e)
-      toast.error('Invalid room data. Please go back and select again.')
-      router.push('/')
-    } finally {
-      setLoading(false)
-    }
-  }, [searchParams, router, isAuthenticated])
-
-  const handleConfirmBooking = async () => {
-    if (!bookingDetails || !user?.id) {
-      toast.error('Cannot confirm booking: missing details or user information.')
-      return
-    }
-
-    setIsBookingLoading(true)
-    setError(null)
-
-    try {
-      // Prepare booking request body
-      const bookingRequestBody = {
-        propertyId: bookingDetails.propertyId,
-        numberOfPets: bookingDetails.numberOfPets,
-        bookingOrders: Object.entries(bookingDetails.selectedRooms).map(([roomId, count]) => ({
-          roomCategoryId: parseInt(roomId),
-          checkInDate: bookingDetails.checkInDate,
-          checkOutDate: bookingDetails.checkOutDate,
-          roomsBooked: count,
-        })),
+    const fetchBookingData = async () => {
+      if (!isAuthenticated) {
+        toast.error('Please login to continue')
+        router.push('/authen')
+        return
       }
 
-      await createBooking(bookingRequestBody)
-      toast.success('Booking confirmed successfully!')
-      router.push('/profile/bookings') // Redirect to a bookings page
-    } catch (err: any) {
-      console.error('Failed to confirm booking:', err)
-      setError(err.message || 'Failed to confirm booking. Please try again.')
-      toast.error(err.message || 'Failed to confirm booking.')
+      const propertyId = searchParams.get('propertyId')
+      const start = searchParams.get('start')
+      const end = searchParams.get('end')
+      const pets = searchParams.get('pets')
+      const rooms = searchParams.get('rooms')
+      const roomNames = searchParams.get('roomNames')
+
+      if (!propertyId || !start || !end || !pets || !rooms || !roomNames) {
+        toast.error('Missing booking details')
+        router.push('/')
+        return
+      }
+
+      try {
+        const parsedRooms = JSON.parse(decodeURIComponent(rooms))
+        const parsedRoomNames = JSON.parse(decodeURIComponent(roomNames))
+
+        const propertyIdNum = Number(propertyId)
+        const petsNum = Number(pets)
+
+        setBookingDetails({
+          propertyId: propertyIdNum,
+          checkInDate: start,
+          checkOutDate: end,
+          numberOfPets: petsNum,
+          selectedRooms: parsedRooms,
+          roomNames: parsedRoomNames,
+        })
+
+        // Fetch room categories with prices
+        const response = await searchRoomCategories(
+          propertyIdNum,
+          start,
+          end,
+          petsNum
+        )
+        setFetchedRoomCategories(response.roomCategories)
+      } catch (err) {
+        console.error('Error fetching booking data or parsing params:', err)
+        toast.error('Invalid booking data or failed to fetch prices.')
+        router.push('/')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchBookingData()
+  }, [isAuthenticated, searchParams, router]) // Add searchParams and router to dependencies
+
+  const handleConfirmBooking = async () => {
+    if (!bookingDetails) return
+
+    setIsBookingLoading(true)
+
+    try {
+      const body = {
+        propertyId: bookingDetails.propertyId,
+        numberOfPets: bookingDetails.numberOfPets,
+        bookingOrders: Object.entries(bookingDetails.selectedRooms).map(
+          ([id, count]) => ({
+            roomCategoryId: Number(id),
+            checkInDate: bookingDetails.checkInDate,
+            checkOutDate: bookingDetails.checkOutDate,
+            roomsBooked: count,
+          })
+        ),
+      }
+
+      await createBooking(body)
+      toast.success('Booking confirmed!')
+      router.push('/profile/bookings')
+    } catch (err) {
+      console.error('Failed to confirm booking:', err) // Log the error for debugging
+      toast.error('Unable to confirm booking')
     } finally {
       setIsBookingLoading(false)
     }
   }
 
-  if (loading) {
+  // Calculate total price and breakdown
+  const priceSummary = useMemo(() => {
+    let subtotal = 0
+    const breakdown: {
+      name: string
+      quantity: number
+      pricePerNight: number
+      total: number
+    }[] = []
+
+    if (bookingDetails && fetchedRoomCategories.length > 0) {
+      Object.entries(bookingDetails.selectedRooms).forEach(
+        ([roomId, quantity]) => {
+          const roomCategory = fetchedRoomCategories.find(
+            (cat) => cat.id.toString() === roomId
+          )
+          if (
+            roomCategory &&
+            roomCategory.availability?.totalPrice !== undefined
+          ) {
+            const pricePerNight = roomCategory.availability.totalPrice // This is actually total price for the stay
+            const roomTotal = pricePerNight * quantity // Assuming totalPrice from API is for one room for the entire stay
+            subtotal += roomTotal
+            breakdown.push({
+              name: bookingDetails.roomNames[roomId] || `Room ${roomId}`,
+              quantity,
+              pricePerNight, // This is total price for the duration for one room
+              total: roomTotal,
+            })
+          }
+        }
+      )
+    }
+    // You can add taxes, service fees here if applicable
+    // For now, let's assume total is just subtotal
+    const total = subtotal
+
+    return { subtotal, total, breakdown }
+  }, [bookingDetails, fetchedRoomCategories])
+
+  if (loading)
     return (
-      <div className="flex justify-center items-center min-h-screen">
+      <div className="min-h-screen flex justify-center items-center">
         <Spinner />
-        <p className="ml-2">Loading booking details...</p>
       </div>
     )
-  }
 
-  if (error) {
+  if (!bookingDetails)
     return (
-      <div className="flex justify-center items-center min-h-screen">
-        <p className="text-red-500">{error}</p>
+      <div className="min-h-screen flex justify-center items-center">
+        <p>No booking data found.</p>
       </div>
     )
-  }
 
-  if (!bookingDetails) {
-    return (
-      <div className="flex justify-center items-center min-h-screen">
-        <p>No booking details to display.</p>
-      </div>
-    )
-  }
-
-  const totalRooms = Object.values(bookingDetails.selectedRooms).reduce(
-    (sum, count) => sum + count,
-    0
-  );
+  const nights =
+    (new Date(bookingDetails.checkOutDate).getTime() -
+      new Date(bookingDetails.checkInDate).getTime()) /
+    (1000 * 60 * 60 * 24)
 
   return (
-    <div className="container mx-auto p-4 max-w-2xl">
-      <h1 className="text-3xl font-bold mb-6 text-center">Confirm Your Booking</h1>
+    <div className="container mx-auto max-w-2xl p-6 space-y-6">
+      <h1 className="text-3xl font-bold text-center mb-4">
+        Confirm Your Booking
+      </h1>
 
-      <div className="bg-white shadow-md rounded-lg p-6 mb-6">
-        <h2 className="text-2xl font-semibold mb-4">Booking Summary</h2>
-        <div className="space-y-2">
-          <p><strong>Property ID:</strong> {bookingDetails.propertyId}</p>
-          <p>
-            <strong>Check-in Date:</strong>{' '}
-            {format(new Date(bookingDetails.checkInDate), 'PPP')}
-          </p>
-          <p>
-            <strong>Check-out Date:</strong>{' '}
-            {format(new Date(bookingDetails.checkOutDate), 'PPP')}
-          </p>
-          <p><strong>Number of Pets:</strong> {bookingDetails.numberOfPets}</p>
-          <p><strong>Selected Rooms:</strong></p>
-          <ul className="list-disc pl-5">
-            {Object.entries(bookingDetails.selectedRooms).map(([roomId, count]) => (
-              <li key={roomId}>
-                Room Category {roomId}: {count}
-              </li>
+      {/* Summary Card */}
+      <div className="bg-white shadow-lg rounded-xl p-6 space-y-6 border border-gray-200">
+        {/* Dates */}
+        <div>
+          <h2 className="text-xl font-semibold mb-2">Your Trip</h2>
+          <div className="space-y-1 text-gray-700">
+            <p>
+              <strong>Check-in:</strong>{' '}
+              {format(new Date(bookingDetails.checkInDate), 'EEE, MMM d')}
+            </p>
+            <p>
+              <strong>Check-out:</strong>{' '}
+              {format(new Date(bookingDetails.checkOutDate), 'EEE, MMM d')}
+            </p>
+            <p>
+              <strong>Total nights:</strong> {nights}
+            </p>
+          </div>
+        </div>
+
+        {/* Pets */}
+        <div>
+          <h2 className="text-xl font-semibold mb-2">Pets</h2>
+          <p className="text-gray-700">{bookingDetails.numberOfPets} pet(s)</p>
+        </div>
+
+        {/* Rooms */}
+        <div>
+          <h2 className="text-xl font-semibold mb-2">Selected Rooms</h2>
+          <div className="space-y-2">
+            {Object.entries(bookingDetails.selectedRooms).map(([id, count]) => (
+              <div
+                key={id}
+                className="flex justify-between border rounded-lg p-3 bg-gray-50"
+              >
+                <span>{bookingDetails.roomNames[id] || `Room ${id}`}</span>
+                <span className="font-medium">{count} room(s)</span>
+              </div>
             ))}
-          </ul>
-          <p><strong>Total Rooms:</strong> {totalRooms}</p>
+          </div>
+        </div>
+
+        {/* Price Summary */}
+        <div>
+          <h2 className="text-xl font-semibold mb-2">Price Summary</h2>
+          <div className="space-y-1 text-gray-700">
+            {priceSummary.breakdown.map((item, index) => (
+              <div key={index} className="flex justify-between">
+                <span>
+                  {item.name} x {item.quantity} room(s)
+                </span>
+                <span>฿{item.total.toLocaleString()}</span>
+              </div>
+            ))}
+            <div className="flex justify-between font-bold border-t pt-2 mt-2">
+              <span>Total</span>
+              <span>฿{priceSummary.total.toLocaleString()}</span>
+            </div>
+          </div>
         </div>
       </div>
 
-      <div className="text-center">
+      {/* Buttons */}
+      <div className="sticky bottom-0 bg-white py-4 flex justify-center gap-4 border-t">
         <Button
           onClick={handleConfirmBooking}
-          className="bg-accent-orange text-white py-2 px-6 rounded-lg text-lg"
           disabled={isBookingLoading}
+          className="bg-accent-orange px-8 py-3 text-lg text-white rounded-xl"
         >
           {isBookingLoading ? <Spinner /> : 'Confirm Booking'}
         </Button>
+
         <Button
           onClick={() => router.back()}
           variant="outline"
-          className="ml-4 py-2 px-6 rounded-lg text-lg"
-          disabled={isBookingLoading}
+          className="px-8 py-3 text-lg rounded-xl"
         >
           Go Back
         </Button>
