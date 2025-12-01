@@ -2,7 +2,14 @@
 
 import React, { useMemo } from 'react'
 import { format } from 'date-fns'
-import { CalendarCheck, CalendarX } from 'lucide-react'
+import {
+  CalendarCheck,
+  CalendarX,
+  User,
+  Mail,
+  Hash,
+  BadgeInfo,
+} from 'lucide-react'
 import { FullBookingDetail } from '@/types'
 
 interface BookingDetailDisplayProps {
@@ -21,22 +28,19 @@ export default function BookingDetailDisplay({
       total: number
     }[] = []
 
-    if (bookingDetails && bookingDetails.bookingOrders.length > 0) {
-      bookingDetails.bookingOrders.forEach((order) => {
-        const pricePerRoom = order.pricePerRoom
-        const roomTotal = pricePerRoom * order.roomsBooked
-        subtotal += roomTotal
-        breakdown.push({
-          name: order.roomCategory.name,
-          quantity: order.roomsBooked,
-          pricePerRoom,
-          total: roomTotal,
-        })
-      })
-    }
-    const total = subtotal
+    bookingDetails.bookingOrders.forEach((order) => {
+      const roomTotal = order.pricePerRoom * order.roomsBooked
+      subtotal += roomTotal
 
-    return { subtotal, total, breakdown }
+      breakdown.push({
+        name: order.roomCategory.name,
+        quantity: order.roomsBooked,
+        pricePerRoom: order.pricePerRoom,
+        total: roomTotal,
+      })
+    })
+
+    return { subtotal, total: subtotal, breakdown }
   }, [bookingDetails])
 
   const nights =
@@ -45,20 +49,68 @@ export default function BookingDetailDisplay({
     (1000 * 60 * 60 * 24)
 
   return (
-    <div className="container mx-auto max-w-[500px] px-5 pb-20 pt-6 space-y-8">
-      <div className="bg-white rounded-2xl p-6 shadow-md border border-gray-100 space-y-8">
-        <div className="space-y-1">
-          <h3 className="text-deep-teal text-xl font-semibold">
-            {bookingDetails.bookingOrders[0]?.property?.title || 'Your Trip'}
-          </h3>
+    <div className="container mx-auto max-w-[550px] px-6 pb-10 pt-6 space-y-10">
+      {/* TITLE */}
+      <div className="space-y-1">
+        <h2 className="text-xl font-semibold text-gray-900">
+          {bookingDetails.bookingOrders[0]?.property?.title}
+        </h2>
+        <p className="text-sm text-neutral-gray">
+          {bookingDetails.bookingOrders[0]?.property?.address}
+        </p>
+        <p className="text-neutral-gray font-medium">Booking Details</p>
+      </div>
 
-          {/* Assuming address is not directly available in FullBookingDetail for now,
-              if it were, it would be accessed like: bookingDetails.property.address */}
-          {/* <p className="text-neutral-gray text-sm">
-            {bookingDetails.property.address}
-          </p> */}
+      {/* CONTAINER CARD */}
+      <div className="bg-white rounded-2xl p-6 shadow-md border border-gray-100 space-y-8">
+        {/* BOOKING INFO */}
+        <div className="space-y-3">
+          <h4 className="text-sm font-semibold text-deep-teal uppercase tracking-wide">
+            Booking Info
+          </h4>
+
+          <div className="space-y-2 text-sm text-gray-700">
+            <p className="flex items-center gap-2">
+              <Hash className="w-4 h-4 text-gray-400" /> Booking ID:{' '}
+              <span className="font-semibold">{bookingDetails.id}</span>
+            </p>
+
+            <p className="flex items-center gap-2">
+              <BadgeInfo className="w-4 h-4 text-gray-400" /> Status:{' '}
+              <span className="capitalize font-semibold text-yellow-600">
+                {bookingDetails.bookingStatus}
+              </span>
+            </p>
+
+            <p className="text-gray-600 text-sm">
+              Booked on:{' '}
+              <span className="font-medium">
+                {format(new Date(bookingDetails.createdAt), 'PPP p')}
+              </span>
+            </p>
+          </div>
         </div>
 
+        {/* GUEST INFO */}
+        <div className="space-y-3">
+          <h4 className="text-sm font-semibold text-deep-teal uppercase tracking-wide">
+            PETS OWNER
+          </h4>
+
+          <div className="space-y-2 text-sm text-gray-700">
+            <p className="flex items-center gap-2">
+              <User className="w-4 h-4 text-gray-400" />
+              {bookingDetails.guest.firstName} {bookingDetails.guest.lastName}
+            </p>
+
+            <p className="flex items-center gap-2">
+              <Mail className="w-4 h-4 text-gray-400" />
+              {bookingDetails.guest.email}
+            </p>
+          </div>
+        </div>
+
+        {/* CHECK-IN / CHECK-OUT */}
         <div className="grid grid-cols-2 gap-4">
           <div className="border rounded-xl p-4 bg-off-white flex items-start gap-3 shadow-sm">
             <div className="p-2 bg-white rounded-lg shadow-sm">
@@ -91,6 +143,7 @@ export default function BookingDetailDisplay({
           <span className="font-medium">Total nights:</span> {nights}
         </p>
 
+        {/* PETS */}
         <div className="space-y-1 pt-2">
           <h4 className="text-deep-teal text-sm font-semibold uppercase tracking-wide">
             Pets
@@ -101,10 +154,12 @@ export default function BookingDetailDisplay({
           </p>
         </div>
 
+        {/* BOOKED ROOMS */}
         <div className="space-y-3">
           <h4 className="text-deep-teal text-sm font-semibold uppercase tracking-wide">
             Booked Rooms
           </h4>
+
           <div className="space-y-3">
             {bookingDetails.bookingOrders.map((order) => (
               <div
@@ -115,14 +170,14 @@ export default function BookingDetailDisplay({
                   {order.roomCategory.name}
                 </span>
                 <span className="font-semibold text-gray-900">
-                  {order.roomsBooked}{' '}
-                  {order.roomsBooked > 1 ? 'rooms' : 'room'}
+                  {order.roomsBooked} {order.roomsBooked > 1 ? 'rooms' : 'room'}
                 </span>
               </div>
             ))}
           </div>
         </div>
 
+        {/* PRICE SUMMARY */}
         <div className="space-y-3">
           <h4 className="text-deep-teal text-sm font-semibold uppercase tracking-wide">
             Price Summary ({nights} nights)
