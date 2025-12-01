@@ -1,4 +1,4 @@
-import { BedDouble, Dog, Minus } from 'lucide-react'
+import { BedDouble, PawPrint, Minus } from 'lucide-react'
 import { RoomCategories } from '@/types'
 import { useState, useMemo } from 'react'
 import { deleteRoomCategory } from '@/lib/api'
@@ -63,18 +63,16 @@ export function RoomCategoryCard({
     <>
       <div
         className={cn(
-          'relative rounded-2xl border border-neutral-200 bg-white shadow-md/20 hover:shadow-lg/30 transition-all duration-300',
-          'overflow-hidden',
+          'relative rounded-2xl border border-neutral-200 bg-white shadow-md/20 hover:shadow-lg/30 transition-all duration-300 overflow-visible', // เพิ่ม overflow-visible
           className
         )}
       >
-        {/* Delete Button */}
         {canDelete && (
           <button
             onClick={handleDeleteClick}
             disabled={isOnlyRoom || isDeleting}
             className="
-        absolute -top-3 -right-3 z-10 
+        absolute -top-3 -right-3 z-20  /* เพิ่ม z-index สูง */
         p-2 rounded-full backdrop-blur-md
         bg-white/70 border border-neutral-300
         shadow-md hover:shadow-lg transition
@@ -119,7 +117,7 @@ export function RoomCategoryCard({
               </div>
 
               <div className="flex items-center gap-2">
-                <Dog className="w-4 h-4 text-accent-orange/80" />
+                <PawPrint className="w-4 h-4 text-accent-orange/80" />
                 <span>{category.numberOfPets} pets max</span>
               </div>
             </div>
