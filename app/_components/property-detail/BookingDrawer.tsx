@@ -236,7 +236,7 @@ export function BookingDrawer({ propertyId }: BookingDrawerProps) {
               </DrawerClose>
 
               <Button
-                className="bg-accent-orange"
+                className="bg-positive-green"
                 onClick={handleContinue}
                 disabled={isContinueDisabled} // Disable button
               >
