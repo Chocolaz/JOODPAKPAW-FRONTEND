@@ -6,9 +6,18 @@ import { Progress } from '@/components/ui/progress' // Import the Progress compo
 interface HostBannerProps {
   currentStep?: number
   totalSteps?: number
+  summary?: {
+    total: number
+    published: number
+    draft: number
+  }
 }
 
-export function HostBanner({ currentStep, totalSteps }: HostBannerProps) {
+export function HostBanner({
+  currentStep,
+  totalSteps,
+  summary,
+}: HostBannerProps) {
   const { user } = useAuth()
 
   const getStepTitle = (step: number) => {
@@ -74,11 +83,30 @@ export function HostBanner({ currentStep, totalSteps }: HostBannerProps) {
           <Progress value={(currentStep / totalSteps) * 100} className="mt-3" />
         </div>
       ) : (
-        <div className="min-h-[60px] text-start">
+        <div className="min-h-[60px]">
           <p className="text-lg text-accent-orange">
             Hello {user?.firstName} {user?.lastName}
           </p>
-          <h4 className="text-deep-teal">Manage your host activities below!</h4>
+          <h4 className="text-deep-teal mb-3">
+            Manage your host activities below!
+          </h4>
+
+          {summary && summary.total > 0 && (
+            <div className="flex gap-4 text-sm text-neutral-gray">
+              <span>
+                <strong className="text-deep-teal">{summary.total}</strong>{' '}
+                total
+              </span>
+              <span>
+                <strong className="text-green-600">{summary.published}</strong>{' '}
+                published
+              </span>
+              <span>
+                <strong className="text-yellow-600">{summary.draft}</strong>{' '}
+                draft
+              </span>
+            </div>
+          )}
         </div>
       )}
     </div>

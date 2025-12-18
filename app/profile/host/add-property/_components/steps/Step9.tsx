@@ -48,7 +48,7 @@ export function Step9() {
 
   const handleNext = async () => {
     if (selectedOption === 'publish') await publishProperty()
-    else if (selectedOption === 'later') savePropertyLater()
+    else if (selectedOption === 'later') await savePropertyLater()
   }
 
   return (

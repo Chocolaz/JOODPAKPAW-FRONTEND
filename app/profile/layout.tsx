@@ -11,7 +11,7 @@ import { Spinner } from '@/components/ui/spinner'
 function LayoutContent({ children }: { children: ReactNode }) {
   const pathname = usePathname()
   const router = useRouter()
-  const { menu } = useProfileContext()
+  const { menu, hostProperties } = useProfileContext()
   const { isAuthenticated, loading: authLoading } = useAuth()
 
   useEffect(() => {
@@ -69,7 +69,24 @@ function LayoutContent({ children }: { children: ReactNode }) {
       return null
     }
     if (pathname === '/profile/host') {
-      return <HostBanner />
+      const { properties, error } = hostProperties
+
+      if (error) {
+        return null // or some error indicator
+      }
+
+      const publishedCount = properties.filter((p) => p.isActive).length
+      const draftCount = properties.length - publishedCount
+
+      return (
+        <HostBanner
+          summary={{
+            total: properties.length,
+            published: publishedCount,
+            draft: draftCount,
+          }}
+        />
+      )
     }
     return null
   }

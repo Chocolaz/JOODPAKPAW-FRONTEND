@@ -3,38 +3,20 @@
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
 import Image from 'next/image'
-import { useEffect, useState } from 'react'
-import { getHostProperties } from '@/lib/api'
-import { Property } from '@/types'
 import { PropertyList } from '@/app/_components/PropertyList'
 import { Spinner } from '@/components/ui/spinner'
 import { ErrorState } from '@/app/profile/_components/ErrorState'
+import { useProfileContext } from '../ProfileContext'
+import { useEffect } from 'react'
 
 export default function HostPage() {
-  const [properties, setProperties] = useState<Property[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const {
+    hostProperties: { properties, loading, error, refetch },
+  } = useProfileContext()
 
   useEffect(() => {
-    const fetchHostProperties = async () => {
-      try {
-        setLoading(true)
-        const response = await getHostProperties()
-        const sortedProperties = (response.properties || []).sort(
-          (a: Property, b: Property) => a.id - b.id
-        )
-        setProperties(sortedProperties)
-        setError(null)
-      } catch (err) {
-        setError('Failed to fetch properties. Please try again later.')
-        console.error(err)
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    fetchHostProperties()
-  }, [])
+    refetch()
+  }, [refetch])
 
   return (
     <div className="flex flex-col px-5">
