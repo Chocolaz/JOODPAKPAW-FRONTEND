@@ -92,19 +92,25 @@ export function HostBanner({
           </h4>
 
           {summary && summary.total > 0 && (
-            <div className="flex gap-4 text-sm text-neutral-gray">
-              <span>
-                <strong className="text-deep-teal">{summary.total}</strong>{' '}
-                total
-              </span>
-              <span>
-                <strong className="text-green-600">{summary.published}</strong>{' '}
-                published
-              </span>
-              <span>
-                <strong className="text-yellow-600">{summary.draft}</strong>{' '}
-                draft
-              </span>
+            <div className="flex flex-wrap gap-2">
+              {/* Total */}
+              <div className="px-3 py-1 rounded-full bg-deep-teal/10 text-deep-teal text-sm font-medium">
+                {summary.total} total
+              </div>
+
+              {/* Published (show only if > 0) */}
+              {summary.published > 0 && (
+                <div className="px-3 py-1 rounded-full bg-green-100 text-green-700 text-sm font-medium">
+                  {summary.published} published
+                </div>
+              )}
+
+              {/* Draft (show only if > 0) */}
+              {summary.draft > 0 && (
+                <div className="px-3 py-1 rounded-full bg-yellow-100 text-yellow-700 text-sm font-medium">
+                  {summary.draft} draft
+                </div>
+              )}
             </div>
           )}
         </div>
