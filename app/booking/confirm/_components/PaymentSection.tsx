@@ -64,10 +64,13 @@ export default function PaymentSection({
         ),
       }
 
-      const bookingResponse = await createBooking(body)
-      const bookingId = bookingResponse.data.id
+      const booking = await createBooking(body)
+      const bookingId = booking.id
 
       await confirmPayment(bookingId)
+
+      // Add a simulated delay to make the loader appear longer
+      await new Promise((resolve) => setTimeout(resolve, 1500))
 
       setPaymentState('success')
       toast.success('Payment successful and booking confirmed!')

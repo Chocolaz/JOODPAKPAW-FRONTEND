@@ -67,7 +67,4 @@ export interface BookingRequestBody {
 
 export interface BookingResponse {
   message: string
-  data: {
-    id: number
-  }
 }

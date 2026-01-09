@@ -18,7 +18,7 @@ import {
   SignInResponse,
   SignUpCredentials,
   VerifyOtpCredentials,
-  BookingResponse,
+  Booking,
   BookingsResponse, // Added BookingsResponse
   FullBookingDetail, // Added FullBookingDetail
 } from '@/types'
@@ -310,8 +310,8 @@ export const searchRoomCategories = (
 // --- Booking Functions ---
 export const createBooking = (
   data: BookingRequestBody
-): Promise<BookingResponse> => {
-  return request<BookingResponse>({
+): Promise<Booking> => {
+  return request<Booking>({
     endpoint: 'api/v1/bookings',
     method: 'POST',
     body: data,
@@ -342,7 +342,7 @@ export const getBookingById = (bookingId: string): Promise<FullBookingDetail> =>
 export const confirmPayment = (bookingId: number): Promise<void> => {
   return request<void>({
     endpoint: `api/v1/bookings/${bookingId}/confirm-payment`,
-    method: 'POST',
+    method: 'PATCH',
     requiresAuth: true,
     errorContext: 'Confirm Payment',
   })
