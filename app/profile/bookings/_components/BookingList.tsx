@@ -43,9 +43,22 @@ export function BookingList() {
     )
   }
 
+  const sortedBookings = [...bookings].sort((a, b) => {
+    const aIsCancelled = a.bookingStatus.toUpperCase() === 'CANCELLED'
+    const bIsCancelled = b.bookingStatus.toUpperCase() === 'CANCELLED'
+
+    if (aIsCancelled && !bIsCancelled) {
+      return 1
+    }
+    if (!aIsCancelled && bIsCancelled) {
+      return -1
+    }
+    return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+  })
+
   return (
     <div className="p-4">
-      {bookings.map((booking) => (
+      {sortedBookings.map((booking) => (
         <BookingCard key={booking.id} booking={booking} />
       ))}
     </div>

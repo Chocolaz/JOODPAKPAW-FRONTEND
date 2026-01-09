@@ -347,3 +347,12 @@ export const confirmPayment = (bookingId: number): Promise<void> => {
     errorContext: 'Confirm Payment',
   })
 }
+
+export const cancelBooking = (bookingId: string): Promise<void> => {
+  return request<void>({
+    endpoint: `api/v1/bookings/${bookingId}/cancel`,
+    method: 'PATCH',
+    requiresAuth: true,
+    errorContext: 'Cancel Booking',
+  })
+}

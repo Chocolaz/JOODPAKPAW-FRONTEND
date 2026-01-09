@@ -5,6 +5,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Calendar, Clock, Home, PawPrint } from 'lucide-react'
 import { format, differenceInDays } from 'date-fns'
 import { useRouter } from 'next/navigation' // Import useRouter
+import { cn } from '@/lib/utils'
 
 interface BookingCardProps {
   booking: Booking
@@ -19,13 +20,13 @@ export function BookingCard({ booking }: BookingCardProps) {
 
   const nights = differenceInDays(
     new Date(booking.checkOutDate),
-    new Date(booking.checkInDate)
+    new Date(booking.checkInDate),
   )
 
   const totalRoomsBooked =
     booking.property.roomCategories?.reduce(
       (sum, c) => sum + (c.roomsBooked || 0),
-      0
+      0,
     ) || 0
 
   const handleCardClick = () => {
@@ -33,7 +34,12 @@ export function BookingCard({ booking }: BookingCardProps) {
   }
 
   return (
-    <div onClick={handleCardClick} className="cursor-pointer"> {/* Add onClick and cursor-pointer */}
+    <div
+      onClick={handleCardClick}
+      className={cn('cursor-pointer', {
+        'opacity-60': booking.bookingStatus.toUpperCase() === 'CANCELLED',
+      })}
+    >
       <Card className="rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-all duration-200 p-5 mb-4 bg-white/70 backdrop-blur-sm">
         {/* Header */}
         <div className="flex items-start justify-between mb-3">
