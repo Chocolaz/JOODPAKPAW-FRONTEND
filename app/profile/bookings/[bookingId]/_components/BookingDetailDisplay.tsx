@@ -12,6 +12,7 @@ import {
 } from 'lucide-react'
 import { FullBookingDetail } from '@/types'
 import { useRouter } from 'next/navigation' // Import useRouter
+import { cn } from '@/lib/utils'
 
 interface BookingDetailDisplayProps {
   bookingDetails: FullBookingDetail
@@ -21,6 +22,19 @@ export default function BookingDetailDisplay({
   bookingDetails,
 }: BookingDetailDisplayProps) {
   const router = useRouter() // Initialize useRouter
+
+  const getStatusColorClass = (status: string) => {
+    switch (status.toUpperCase()) {
+      case 'CONFIRMED':
+        return 'text-green-600'
+      case 'PENDING':
+        return 'text-blue-600'
+      case 'CANCELLED':
+        return 'text-red-600'
+      default:
+        return 'text-gray-600'
+    }
+  }
 
   const priceSummary = useMemo(() => {
     let subtotal = 0
@@ -54,7 +68,7 @@ export default function BookingDetailDisplay({
   const handlePropertyClick = () => {
     if (bookingDetails.bookingOrders[0]?.property?.id) {
       router.push(
-        `/${bookingDetails.bookingOrders[0].property.id}?fromBookings=true&bookingId=${bookingDetails.id}`,
+        `/${bookingDetails.bookingOrders[0].property.id}?fromBookings=true&bookingId=${bookingDetails.id}`
       )
     }
   }
@@ -91,7 +105,12 @@ export default function BookingDetailDisplay({
 
               <p className="flex items-center gap-2">
                 <BadgeInfo className="w-4 h-4 text-gray-400" /> Status:{' '}
-                <span className="capitalize font-semibold text-yellow-600">
+                <span
+                  className={cn(
+                    'capitalize font-semibold',
+                    getStatusColorClass(bookingDetails.bookingStatus)
+                  )}
+                >
                   {bookingDetails.bookingStatus}
                 </span>
               </p>
