@@ -339,3 +339,11 @@ export const getBookingById = (bookingId: string): Promise<FullBookingDetail> =>
   })
 }
 
+export const confirmPayment = (bookingId: number): Promise<void> => {
+  return request<void>({
+    endpoint: `api/v1/bookings/${bookingId}/confirm-payment`,
+    method: 'POST',
+    requiresAuth: true,
+    errorContext: 'Confirm Payment',
+  })
+}

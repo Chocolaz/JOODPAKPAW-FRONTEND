@@ -1,15 +1,10 @@
 'use client'
 
-import React, { useMemo } from 'react'
-import { useRouter } from 'next/navigation'
-import { toast } from 'sonner'
+import React from 'react'
 import { format } from 'date-fns'
-import { Button } from '@/components/ui/button'
-import { Spinner } from '@/components/ui/spinner'
-import { createBooking } from '@/lib/api'
-import { ApiError } from '@/lib/errorHandling'
 import { RoomCategories, BookingDetail } from '@/types'
 import { CalendarCheck, CalendarX } from 'lucide-react'
+import PaymentSection from './PaymentSection'
 
 interface ConfirmBookingDisplayProps {
   bookingDetails: BookingDetail
@@ -24,83 +19,41 @@ export default function ConfirmBookingDisplay({
   isBookingLoading,
   setIsBookingLoading,
 }: ConfirmBookingDisplayProps) {
-  const router = useRouter()
+  const checkInDate = new Date(bookingDetails.checkInDate)
+  const checkOutDate = new Date(bookingDetails.checkOutDate)
 
-  const handleConfirmBooking = async () => {
-    if (!bookingDetails) return
-
-    setIsBookingLoading(true)
-
-    try {
-      const body = {
-        propertyId: bookingDetails.propertyId,
-        numberOfPets: bookingDetails.numberOfPets,
-        bookingOrders: Object.entries(bookingDetails.selectedRooms).map(
-          ([id, count]) => ({
-            roomCategoryId: Number(id),
-            checkInDate: bookingDetails.checkInDate,
-            checkOutDate: bookingDetails.checkOutDate,
-            roomsBooked: count,
-          })
-        ),
-      }
-
-      await createBooking(body)
-      toast.success('Booking confirmed!')
-      router.push('/profile/bookings')
-    } catch (err) {
-      console.error('Failed to confirm booking:', err)
-      let errorMessage = 'Unable to confirm booking'
-      if (err instanceof ApiError) {
-        errorMessage = err.message
-      }
-      toast.error(errorMessage)
-    } finally {
-      setIsBookingLoading(false)
-    }
+  let nights = 0
+  if (
+    checkInDate instanceof Date &&
+    !isNaN(checkInDate.getTime()) &&
+    checkOutDate instanceof Date &&
+    !isNaN(checkOutDate.getTime())
+  ) {
+    nights =
+      (checkOutDate.getTime() - checkInDate.getTime()) / (1000 * 60 * 60 * 24)
   }
 
-  const priceSummary = useMemo(() => {
-    let subtotal = 0
-    const breakdown: {
-      name: string
-      quantity: number
-      pricePerNight: number
-      total: number
-    }[] = []
+  // Ensure nights is a non-negative integer
+  nights = Math.max(0, Math.round(nights))
 
-    if (bookingDetails && fetchedRoomCategories.length > 0) {
-      Object.entries(bookingDetails.selectedRooms).forEach(
-        ([roomId, quantity]) => {
-          const roomCategory = fetchedRoomCategories.find(
-            (cat) => cat.id.toString() === roomId
-          )
-          if (
-            roomCategory &&
-            roomCategory.availability?.totalPrice !== undefined
-          ) {
-            const pricePerNight = roomCategory.availability.totalPrice
-            const roomTotal = pricePerNight * quantity
-            subtotal += roomTotal
-            breakdown.push({
-              name: bookingDetails.roomNames[roomId] || `Room ${roomId}`,
-              quantity,
-              pricePerNight,
-              total: roomTotal,
-            })
-          }
-        }
+  const priceDetails = Object.entries(bookingDetails.selectedRooms).map(
+    ([id, count]) => {
+      const roomCategory = fetchedRoomCategories.find(
+        (rc) => rc.id === Number(id),
       )
-    }
-    const total = subtotal
+      const roomCount = count ?? 0
+      const pricePerRoomForDuration = roomCategory?.availability?.totalPrice ?? 0
+      const price = pricePerRoomForDuration * roomCount
+      return {
+        id,
+        count: roomCount,
+        name: bookingDetails.roomNames[id] || `Room ${id}`,
+        price,
+      }
+    },
+  )
 
-    return { subtotal, total, breakdown }
-  }, [bookingDetails, fetchedRoomCategories])
-
-  const nights =
-    (new Date(bookingDetails.checkOutDate).getTime() -
-      new Date(bookingDetails.checkInDate).getTime()) /
-    (1000 * 60 * 60 * 24)
+  const finalPrice = priceDetails.reduce((acc, detail) => acc + detail.price, 0)
 
   return (
     <div className="container mx-auto max-w-[500px] px-5 pb-20 pt-6 space-y-8">
@@ -184,39 +137,29 @@ export default function ConfirmBookingDisplay({
           <h4 className="text-deep-teal text-sm font-semibold uppercase tracking-wide">
             Price Summary ({nights} nights)
           </h4>
-
           <div className="space-y-2">
-            {priceSummary.breakdown.map((item, index) => (
+            {priceDetails.map((detail) => (
               <div
-                key={index}
-                className="flex justify-between text-gray-600 text-sm"
+                key={detail.id}
+                className="flex justify-between text-gray-700"
               >
-                <span>
-                  {item.name} x {item.quantity}
-                </span>
-                <span>฿{item.total.toLocaleString()}</span>
+                <span>{`${detail.name} (${detail.count}x)`}</span>
+                <span>THB {detail.price.toLocaleString()}</span>
               </div>
             ))}
-
             <div className="border-t pt-3 mt-3 flex justify-between text-xl font-semibold text-gray-900">
               <span>Total</span>
-              <span>฿{priceSummary.total.toLocaleString()}</span>
+              <span>THB {finalPrice.toLocaleString()}</span>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="fixed bottom-0 left-0 right-0 backdrop-blur-xl bg-white/85 border-t shadow-2xl rounded-t-3xl py-5 px-6 z-50">
-        <div className="max-w-[500px] mx-auto">
-          <Button
-            onClick={handleConfirmBooking}
-            disabled={isBookingLoading}
-            className="bg-positive-green h-14 w-full text-lg text-white font-semibold"
-          >
-            {isBookingLoading ? <Spinner /> : 'Confirm Booking'}
-          </Button>
-        </div>
-      </div>
+      <PaymentSection
+        bookingDetails={bookingDetails}
+        isBookingLoading={isBookingLoading}
+        setIsBookingLoading={setIsBookingLoading}
+      />
     </div>
   )
 }
