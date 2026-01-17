@@ -356,3 +356,13 @@ export const cancelBooking = (bookingId: string): Promise<void> => {
     errorContext: 'Cancel Booking',
   })
 }
+
+export const getHostBookings = (): Promise<BookingsResponse> => {
+  return request<BookingsResponse>({
+    endpoint: `api/v1/hosts/bookings/all`,
+    method: 'GET',
+    requiresAuth: true,
+    errorContext: 'Get Host Bookings',
+    cache: 'no-store',
+  })
+}

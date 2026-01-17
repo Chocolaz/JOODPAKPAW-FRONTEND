@@ -110,7 +110,7 @@ export default function BookingDetailPage() {
         onClose={() => setIsCancelModalOpen(false)}
         onConfirm={handleCancelBooking}
         title="Cancel Booking"
-        message="Are you sure you want to cancel this booking? This action cannot be undone."
+        message="Are you sure you want to cancel this booking? <p/> This action cannot be undone."
         titleClassName="text-destructive"
         confirmButtonClassName="bg-destructive hover:bg-destructive/90"
       />
