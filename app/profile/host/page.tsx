@@ -10,18 +10,22 @@ import { useProfileContext } from '../ProfileContext'
 import { useEffect } from 'react'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 import { HostBookingList } from './_components/HostBookingList'
+import { useSearchParams } from 'next/navigation'
 
 export default function HostPage() {
   const {
     hostProperties: { properties, loading, error, refetch },
   } = useProfileContext()
+  const searchParams = useSearchParams()
+  const tabParam = searchParams.get('tab')
+  const defaultTab = tabParam === 'bookings' ? 'bookings' : 'properties'
 
   useEffect(() => {
     refetch()
   }, [refetch])
 
   return (
-    <Tabs defaultValue="properties" className="w-full mt-2">
+    <Tabs defaultValue={defaultTab} className="w-full mt-2">
       <TabsList className="grid w-full grid-cols-2">
         <TabsTrigger value="properties">Properties</TabsTrigger>
         <TabsTrigger value="bookings">Bookings</TabsTrigger>

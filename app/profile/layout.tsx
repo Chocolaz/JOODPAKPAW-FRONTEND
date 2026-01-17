@@ -32,10 +32,13 @@ function LayoutContent({ children }: { children: ReactNode }) {
   // Determine header properties based on the current path
   const getHeaderProps = () => {
     if (pathname.startsWith('/profile/host/add-property')) {
-      return { title: 'Host', backPath: '/profile/host' }
+      return { title: 'Host', backPath: '/profile/host?tab=properties' }
     }
     if (pathname.match(/^\/profile\/host\/booking\/\d+$/)) {
-      return { title: 'Guest Booking Detail', backPath: '/profile/host' }
+      return {
+        title: 'Booking Detail(Host)',
+        backPath: '/profile/host?tab=bookings',
+      }
     }
     if (
       pathname.startsWith('/profile/host/') &&

@@ -99,7 +99,7 @@ export default function HostPropertyDetailPage() {
     try {
       await deleteProperty(property.id.toString())
       toast.success('Property deleted successfully.')
-      router.push('/profile/host')
+      router.push('/profile/host?tab=properties')
     } catch (err: unknown) {
       toast.error(
         err instanceof Error
@@ -111,7 +111,7 @@ export default function HostPropertyDetailPage() {
     }
   }
 
-  const handleBack = () => router.push('/profile/host')
+  const handleBack = () => router.push('/profile/host?tab=properties')
 
   if (loading || isUpdatingStatus || isDeleting) {
     return (
