@@ -34,6 +34,9 @@ function LayoutContent({ children }: { children: ReactNode }) {
     if (pathname.startsWith('/profile/host/add-property')) {
       return { title: 'Host', backPath: '/profile/host' }
     }
+    if (pathname.match(/^\/profile\/host\/booking\/\d+$/)) {
+      return { title: 'Booking Detail(Host)', backPath: '/profile/host' }
+    }
     if (
       pathname.startsWith('/profile/host/') &&
       pathname.split('/').length === 4
