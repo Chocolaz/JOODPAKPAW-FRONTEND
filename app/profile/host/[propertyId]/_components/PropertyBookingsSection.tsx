@@ -10,9 +10,10 @@ import { useRouter } from 'next/navigation'
 
 interface PropertyBookingsSectionProps {
   propertyId: number
+  propertyTitle: string
 }
 
-export function PropertyBookingsSection({ propertyId }: PropertyBookingsSectionProps) {
+export function PropertyBookingsSection({ propertyId, propertyTitle }: PropertyBookingsSectionProps) {
   const [bookings, setBookings] = useState<Booking[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -71,13 +72,20 @@ export function PropertyBookingsSection({ propertyId }: PropertyBookingsSectionP
     <div className="border-t pt-8 mt-10">
       <h3 className="mb-4 text-deep-teal font-semibold">Bookings ({bookings.length})</h3>
       <div className="space-y-4">
-        {sortedBookings.map((booking) => (
+        {sortedBookings.map((booking) => {
+          // Inject property title if missing (because API might omit it for nested property bookings)
+          const bookingWithProperty = {
+             ...booking,
+             property: booking.property || { title: propertyTitle, roomCategories: [] }
+          }
+          
+          return (
           <BookingCard
             key={booking.id}
-            booking={booking}
+            booking={bookingWithProperty}
             onClick={(id) => router.push(`/profile/host/booking/${id}`)}
           />
-        ))}
+        )})}
       </div>
     </div>
   )

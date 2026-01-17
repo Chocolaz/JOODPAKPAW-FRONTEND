@@ -1,6 +1,6 @@
 'use client'
 
-import { Booking } from '@/types/booking'
+import { Booking, BookingOrder } from '@/types/booking'
 import { Card, CardContent } from '@/components/ui/card'
 import { Calendar, Clock, Home, PawPrint } from 'lucide-react'
 import { format, differenceInDays } from 'date-fns'
@@ -24,11 +24,27 @@ export function BookingCard({ booking, onClick }: BookingCardProps) {
     new Date(booking.checkInDate),
   )
 
-  const totalRoomsBooked =
-    booking.property.roomCategories?.reduce(
+  let totalRoomsBooked = 0
+  
+  // Try to calculate from property.roomCategories (standard API response)
+  if (booking.property?.roomCategories) {
+    totalRoomsBooked = booking.property.roomCategories.reduce(
       (sum, c) => sum + (c.roomsBooked || 0),
       0,
-    ) || 0
+    )
+  } 
+  // Fallback: Try to calculate from bookingOrders if available (Host API response might have this)
+  else if ('bookingOrders' in booking) {
+    const orders = (booking as unknown as { bookingOrders: BookingOrder[] }).bookingOrders
+    if (Array.isArray(orders)) {
+      totalRoomsBooked = orders.reduce(
+        (sum, order) => sum + (order.roomsBooked || 0),
+        0
+      )
+    }
+  }
+
+  const propertyTitle = booking.property?.title || 'Unknown Property'
 
   const handleCardClick = () => {
     if (onClick) {
@@ -49,7 +65,7 @@ export function BookingCard({ booking, onClick }: BookingCardProps) {
         {/* Header */}
         <div className="flex items-start justify-between mb-3">
           <h4 className="leading-tight text-deep-teal">
-            {booking.property.title}
+            {propertyTitle}
           </h4>
         </div>
 
