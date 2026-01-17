@@ -28,7 +28,7 @@ export default function Home() {
         }
         const response = (await getProperties(
           1,
-          20,
+          1000,
           params.search,
           params.searchBy
         )) as PropertiesResponse

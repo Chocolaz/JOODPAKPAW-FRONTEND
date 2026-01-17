@@ -9,9 +9,10 @@ import { cn } from '@/lib/utils'
 
 interface BookingCardProps {
   booking: Booking
+  onClick?: (bookingId: number) => void
 }
 
-export function BookingCard({ booking }: BookingCardProps) {
+export function BookingCard({ booking, onClick }: BookingCardProps) {
   const router = useRouter() // Initialize useRouter
 
   const checkInDate = format(new Date(booking.checkInDate), 'MMM dd, yyyy')
@@ -30,7 +31,11 @@ export function BookingCard({ booking }: BookingCardProps) {
     ) || 0
 
   const handleCardClick = () => {
-    router.push(`/profile/bookings/${booking.id}`)
+    if (onClick) {
+      onClick(booking.id)
+    } else {
+      router.push(`/profile/bookings/${booking.id}`)
+    }
   }
 
   return (

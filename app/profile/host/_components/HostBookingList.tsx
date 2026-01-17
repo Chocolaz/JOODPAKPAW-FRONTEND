@@ -6,11 +6,13 @@ import { Booking, BookingsResponse } from '@/types/booking'
 import { BookingCard } from '@/app/profile/bookings/_components/BookingCard'
 import { LoadingState } from '@/app/profile/_components/LoadingState'
 import { ErrorState } from '@/app/profile/_components/ErrorState'
+import { useRouter } from 'next/navigation'
 
 export function HostBookingList() {
   const [bookings, setBookings] = useState<Booking[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const router = useRouter()
 
   useEffect(() => {
     const fetchBookings = async () => {
@@ -63,7 +65,11 @@ export function HostBookingList() {
   return (
     <div className="p-4">
       {sortedBookings.map((booking) => (
-        <BookingCard key={booking.id} booking={booking} />
+        <BookingCard
+          key={booking.id}
+          booking={booking}
+          onClick={(id) => router.push(`/profile/host/booking/${id}`)}
+        />
       ))}
     </div>
   )

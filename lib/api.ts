@@ -21,6 +21,7 @@ import {
   Booking,
   BookingsResponse, // Added BookingsResponse
   FullBookingDetail, // Added FullBookingDetail
+  HostBookingDetail,
 } from '@/types'
 import type { PropertiesResponse } from '@/types/property'
 
@@ -364,5 +365,14 @@ export const getHostBookings = (): Promise<BookingsResponse> => {
     requiresAuth: true,
     errorContext: 'Get Host Bookings',
     cache: 'no-store',
+  })
+}
+
+export const getHostBookingById = (bookingId: string): Promise<HostBookingDetail> => {
+  return request<HostBookingDetail>({
+    endpoint: `api/v1/hosts/bookings/${bookingId}`,
+    method: 'GET',
+    requiresAuth: true,
+    errorContext: 'Get Host Booking By Id',
   })
 }

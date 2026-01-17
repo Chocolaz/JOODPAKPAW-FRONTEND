@@ -78,3 +78,25 @@ export interface FullBookingDetail {
   createdAt: string
   updatedAt: string
 }
+
+export interface HostGuest {
+  userId: number
+  firstName: string
+  lastName: string
+  email: string
+  phone: string
+}
+
+export interface HostBookingDetail {
+  id: number
+  checkInDate: string
+  checkOutDate: string
+  numberOfPets: number
+  totalPrice: number
+  bookingStatus: string
+  confirmedAt: string
+  guest: HostGuest
+  bookingOrders: BookingOrder[]
+  createdAt: string
+  updatedAt: string
+}

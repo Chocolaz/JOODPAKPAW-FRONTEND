@@ -21,7 +21,7 @@ export default function HostPage() {
   }, [refetch])
 
   return (
-    <Tabs defaultValue="properties" className="w-full">
+    <Tabs defaultValue="properties" className="w-full mt-2">
       <TabsList className="grid w-full grid-cols-2">
         <TabsTrigger value="properties">Properties</TabsTrigger>
         <TabsTrigger value="bookings">Bookings</TabsTrigger>
