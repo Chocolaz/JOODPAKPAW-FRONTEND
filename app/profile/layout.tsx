@@ -35,7 +35,7 @@ function LayoutContent({ children }: { children: ReactNode }) {
       return { title: 'Host', backPath: '/profile/host' }
     }
     if (pathname.match(/^\/profile\/host\/booking\/\d+$/)) {
-      return { title: 'Booking Detail(Host)', backPath: '/profile/host' }
+      return { title: 'Guest Booking Detail', backPath: '/profile/host' }
     }
     if (
       pathname.startsWith('/profile/host/') &&
