@@ -97,13 +97,13 @@ export default function HostBookingDetailDisplay({
     const checkOutDate = new Date(bookingDetails.checkOutDate)
     // Set time to 12:00 PM (noon)
     checkOutDate.setHours(12, 0, 0, 0)
-    
+
     const now = new Date()
-    
+
     if (now < checkOutDate) {
-      return { 
-        allowed: false, 
-        reason: `Available after 12:00 PM on ${format(new Date(bookingDetails.checkOutDate), 'MMM d')}` 
+      return {
+        allowed: false,
+        reason: `Available after 12:00 PM on ${format(new Date(bookingDetails.checkOutDate), 'MMM d')}`,
       }
     }
 
@@ -119,9 +119,7 @@ export default function HostBookingDetailDisplay({
       refreshBooking()
     } catch (err: unknown) {
       toast.error(
-        err instanceof Error
-           ? err.message 
-           : 'Failed to complete booking.'
+        err instanceof Error ? err.message : 'Failed to complete booking.'
       )
     } finally {
       setIsCompleting(false)
@@ -173,7 +171,12 @@ export default function HostBookingDetailDisplay({
               <p className="text-gray-600 text-sm">
                 Confirmed at:{' '}
                 <span className="font-medium">
-                  {format(new Date(bookingDetails.confirmedAt || bookingDetails.createdAt), 'PPP p')}
+                  {format(
+                    new Date(
+                      bookingDetails.confirmedAt || bookingDetails.createdAt
+                    ),
+                    'PPP p'
+                  )}
                 </span>
               </p>
             </div>
@@ -233,7 +236,8 @@ export default function HostBookingDetailDisplay({
           </div>
 
           <p className="text-gray-700 text-sm -mt-3">
-            <span className="font-medium">Total nights:</span> {Math.max(1, Math.ceil(nights))}
+            <span className="font-medium">Total nights:</span>{' '}
+            {Math.max(1, Math.ceil(nights))}
           </p>
 
           {/* PETS */}
@@ -296,26 +300,29 @@ export default function HostBookingDetailDisplay({
               </div>
             </div>
           </div>
-
-          {/* ACTION BUTTON */}
-          {bookingDetails.bookingStatus.toUpperCase() === 'CONFIRMED' && (
-             <div className="pt-4">
-              <Button 
-                className="w-full h-12 text-lg"
-                disabled={!canComplete.allowed || isCompleting}
-                onClick={() => setIsModalOpen(true)}
-              >
-                {isCompleting ? <Spinner className="size-5 mr-2" /> : <CheckCircle className="size-5 mr-2" />}
-                Mark as Completed
-              </Button>
-              {!canComplete.allowed && (
-                <p className="text-center text-xs text-neutral-gray mt-2">
-                  {canComplete.reason}
-                </p>
-              )}
-             </div>
-          )}
         </div>
+        {/* ACTION BUTTON */}
+        {bookingDetails.bookingStatus.toUpperCase() === 'CONFIRMED' && (
+          <div className="pt-4">
+            <Button
+              className="w-full h-12 text-lg"
+              disabled={!canComplete.allowed || isCompleting}
+              onClick={() => setIsModalOpen(true)}
+            >
+              {isCompleting ? (
+                <Spinner className="size-5 mr-2" />
+              ) : (
+                <CheckCircle className="size-5 mr-2" />
+              )}
+              Mark as Completed
+            </Button>
+            {!canComplete.allowed && (
+              <p className="text-center text-xs text-neutral-gray mt-2">
+                {canComplete.reason}
+              </p>
+            )}
+          </div>
+        )}
       </div>
 
       <ConfirmationModal
