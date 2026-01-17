@@ -10,23 +10,36 @@ import {
   Hash,
   BadgeInfo,
   Phone,
+  CheckCircle,
 } from 'lucide-react'
 import { HostBookingDetail } from '@/types'
+import { completeBooking } from '@/lib/api'
 import { useRouter } from 'next/navigation'
 import { cn } from '@/lib/utils'
+import { Button } from '@/components/ui/button'
+import { ConfirmationModal } from '@/app/_components/ConfirmationModal'
+import { toast } from 'sonner'
+import { useState } from 'react'
+import { Spinner } from '@/components/ui/spinner'
 
 interface HostBookingDetailDisplayProps {
   bookingDetails: HostBookingDetail
+  refreshBooking: () => void
 }
 
 export default function HostBookingDetailDisplay({
   bookingDetails,
+  refreshBooking,
 }: HostBookingDetailDisplayProps) {
   const router = useRouter()
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [isCompleting, setIsCompleting] = useState(false)
 
   const getStatusColorClass = (status: string) => {
     switch (status.toUpperCase()) {
       case 'CONFIRMED':
+        return 'text-green-600'
+      case 'COMPLETED':
         return 'text-green-600'
       case 'PENDING':
         return 'text-blue-600'
@@ -73,6 +86,45 @@ export default function HostBookingDetailDisplay({
       router.push(
         `/profile/host/${bookingDetails.bookingOrders[0].property.id}`
       )
+    }
+  }
+
+  const canComplete = useMemo(() => {
+    if (bookingDetails.bookingStatus.toUpperCase() !== 'CONFIRMED') {
+      return { allowed: false, reason: 'Booking is not confirmed' }
+    }
+
+    const checkOutDate = new Date(bookingDetails.checkOutDate)
+    // Set time to 12:00 PM (noon)
+    checkOutDate.setHours(12, 0, 0, 0)
+    
+    const now = new Date()
+    
+    if (now < checkOutDate) {
+      return { 
+        allowed: false, 
+        reason: `Available after 12:00 PM on ${format(new Date(bookingDetails.checkOutDate), 'MMM d')}` 
+      }
+    }
+
+    return { allowed: true, reason: '' }
+  }, [bookingDetails])
+
+  const handleCompleteBooking = async () => {
+    setIsCompleting(true)
+    try {
+      await completeBooking(bookingDetails.id)
+      toast.success('Booking marked as completed successfully.')
+      setIsModalOpen(false)
+      refreshBooking()
+    } catch (err: unknown) {
+      toast.error(
+        err instanceof Error
+           ? err.message 
+           : 'Failed to complete booking.'
+      )
+    } finally {
+      setIsCompleting(false)
     }
   }
 
@@ -244,8 +296,37 @@ export default function HostBookingDetailDisplay({
               </div>
             </div>
           </div>
+
+          {/* ACTION BUTTON */}
+          {bookingDetails.bookingStatus.toUpperCase() === 'CONFIRMED' && (
+             <div className="pt-4">
+              <Button 
+                className="w-full h-12 text-lg"
+                disabled={!canComplete.allowed || isCompleting}
+                onClick={() => setIsModalOpen(true)}
+              >
+                {isCompleting ? <Spinner className="size-5 mr-2" /> : <CheckCircle className="size-5 mr-2" />}
+                Mark as Completed
+              </Button>
+              {!canComplete.allowed && (
+                <p className="text-center text-xs text-neutral-gray mt-2">
+                  {canComplete.reason}
+                </p>
+              )}
+             </div>
+          )}
         </div>
       </div>
+
+      <ConfirmationModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onConfirm={handleCompleteBooking}
+        title="Complete Booking"
+        message="Are you sure you want to mark this booking as completed? This action cannot be undone."
+        titleClassName="text-deep-teal"
+        confirmButtonClassName="bg-deep-teal hover:bg-deep-teal/90"
+      />
     </>
   )
 }

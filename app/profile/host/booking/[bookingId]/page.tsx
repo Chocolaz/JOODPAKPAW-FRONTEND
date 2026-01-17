@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useCallback } from 'react'
 import { useParams } from 'next/navigation'
 import { getHostBookingById } from '@/lib/api'
 import { HostBookingDetail } from '@/types'
@@ -15,24 +15,24 @@ export default function HostBookingDetailPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  useEffect(() => {
-    if (bookingId) {
-      const fetchBookingDetails = async () => {
-        try {
-          setIsLoading(true)
-          const data = await getHostBookingById(bookingId as string)
-          setBookingDetails(data)
-        } catch (err) {
-          console.error('Failed to fetch booking details:', err)
-          setError('Failed to load booking details.')
-          toast.error('Failed to load booking details.')
-        } finally {
-          setIsLoading(false)
-        }
-      }
-      fetchBookingDetails()
+  const fetchBookingDetails = useCallback(async () => {
+    if (!bookingId) return
+    try {
+      setIsLoading(true)
+      const data = await getHostBookingById(bookingId as string)
+      setBookingDetails(data)
+    } catch (err) {
+      console.error('Failed to fetch booking details:', err)
+      setError('Failed to load booking details.')
+      toast.error('Failed to load booking details.')
+    } finally {
+      setIsLoading(false)
     }
   }, [bookingId])
+
+  useEffect(() => {
+    fetchBookingDetails()
+  }, [fetchBookingDetails])
 
   if (isLoading) {
     return (
@@ -60,7 +60,10 @@ export default function HostBookingDetailPage() {
 
   return (
     <>
-      <HostBookingDetailDisplay bookingDetails={bookingDetails} />
+      <HostBookingDetailDisplay 
+        bookingDetails={bookingDetails} 
+        refreshBooking={fetchBookingDetails} 
+      />
     </>
   )
 }
