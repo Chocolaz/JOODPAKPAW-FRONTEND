@@ -21,6 +21,7 @@ import { PropertyRoomCategories } from '@/app/_components/property-detail/Proper
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { Property } from '@/types'
 import { normalizeRoomCategories } from '@/lib/utils'
+import { PropertyBookingsSection } from './_components/PropertyBookingsSection'
 
 export default function HostPropertyDetailPage() {
   const { property, loading, error, refreshProperty } =
@@ -192,6 +193,8 @@ export default function HostPropertyDetailPage() {
           </div>
         )}
         <PropertyLocation property={property} />
+        
+        <PropertyBookingsSection propertyId={property.id} />
       </div>
     </div>
   )

@@ -385,3 +385,13 @@ export const getHostBookingById = (bookingId: string): Promise<HostBookingDetail
     errorContext: 'Get Host Booking By Id',
   })
 }
+
+export const getHostPropertyBookings = (propertyId: string): Promise<BookingsResponse> => {
+  return request<BookingsResponse>({
+    endpoint: `api/v1/hosts/properties/${propertyId}/bookings/all`,
+    method: 'GET',
+    requiresAuth: true,
+    errorContext: 'Get Host Property Bookings',
+    cache: 'no-store',
+  })
+}
