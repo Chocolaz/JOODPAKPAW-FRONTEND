@@ -13,7 +13,10 @@ interface PropertyBookingsSectionProps {
   propertyTitle: string
 }
 
-export function PropertyBookingsSection({ propertyId, propertyTitle }: PropertyBookingsSectionProps) {
+export function PropertyBookingsSection({
+  propertyId,
+  propertyTitle,
+}: PropertyBookingsSectionProps) {
   const [bookings, setBookings] = useState<Booking[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -29,7 +32,7 @@ export function PropertyBookingsSection({ propertyId, propertyTitle }: PropertyB
         setError(
           err instanceof Error
             ? err.message
-            : 'Failed to fetch property bookings',
+            : 'Failed to fetch property bookings'
         )
       } finally {
         setLoading(false)
@@ -50,7 +53,9 @@ export function PropertyBookingsSection({ propertyId, propertyTitle }: PropertyB
     return (
       <div className="border-t pt-8 mt-10">
         <h3 className="mb-3 text-deep-teal font-semibold">Bookings</h3>
-        <p className="text-neutral-gray">No bookings found for this property.</p>
+        <p className="text-neutral-gray">
+          No bookings found for this property.
+        </p>
       </div>
     )
   }
@@ -70,22 +75,28 @@ export function PropertyBookingsSection({ propertyId, propertyTitle }: PropertyB
 
   return (
     <div className="border-t pt-8 mt-10">
-      <h3 className="mb-4 text-deep-teal font-semibold">Bookings ({bookings.length})</h3>
+      <h3 className="mb-4 text-deep-teal font-semibold">
+        Bookings ({bookings.length})
+      </h3>
       <div className="space-y-4">
         {sortedBookings.map((booking) => {
           // Inject property title if missing (because API might omit it for nested property bookings)
           const bookingWithProperty = {
-             ...booking,
-             property: booking.property || { title: propertyTitle, roomCategories: [] }
+            ...booking,
+            property: booking.property || {
+              title: propertyTitle,
+              roomCategories: [],
+            },
           }
-          
+
           return (
-          <BookingCard
-            key={booking.id}
-            booking={bookingWithProperty}
-            onClick={(id) => router.push(`/profile/host/booking/${id}`)}
-          />
-        )})}
+            <BookingCard
+              key={booking.id}
+              booking={bookingWithProperty}
+              onClick={(id) => router.push(`/profile/host/booking/${id}`)}
+            />
+          )
+        })}
       </div>
     </div>
   )

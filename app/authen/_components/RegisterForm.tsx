@@ -2,7 +2,7 @@
 import { useState, useMemo } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { toast } from 'sonner' 
+import { toast } from 'sonner'
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -129,7 +129,7 @@ export default function RegisterForm() {
             })}
             value={phone}
             onChange={(e) => {
-              const numericValue = e.target.value.replace(/\D/g, '') 
+              const numericValue = e.target.value.replace(/\D/g, '')
               setPhone(numericValue)
               setPhoneError('')
             }}

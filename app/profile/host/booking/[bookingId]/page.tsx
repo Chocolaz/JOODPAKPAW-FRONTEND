@@ -60,9 +60,9 @@ export default function HostBookingDetailPage() {
 
   return (
     <>
-      <HostBookingDetailDisplay 
-        bookingDetails={bookingDetails} 
-        refreshBooking={fetchBookingDetails} 
+      <HostBookingDetailDisplay
+        bookingDetails={bookingDetails}
+        refreshBooking={fetchBookingDetails}
       />
     </>
   )

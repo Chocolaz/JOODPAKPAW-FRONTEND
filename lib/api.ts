@@ -309,9 +309,7 @@ export const searchRoomCategories = (
 }
 
 // --- Booking Functions ---
-export const createBooking = (
-  data: BookingRequestBody
-): Promise<Booking> => {
+export const createBooking = (data: BookingRequestBody): Promise<Booking> => {
   return request<Booking>({
     endpoint: 'api/v1/bookings',
     method: 'POST',
@@ -331,7 +329,9 @@ export const getBookings = (): Promise<BookingsResponse> => {
   })
 }
 
-export const getBookingById = (bookingId: string): Promise<FullBookingDetail> => {
+export const getBookingById = (
+  bookingId: string
+): Promise<FullBookingDetail> => {
   return request<FullBookingDetail>({
     endpoint: `api/v1/bookings/${bookingId}`,
     method: 'GET',
@@ -377,7 +377,9 @@ export const completeBooking = (bookingId: number): Promise<void> => {
   })
 }
 
-export const getHostBookingById = (bookingId: string): Promise<HostBookingDetail> => {
+export const getHostBookingById = (
+  bookingId: string
+): Promise<HostBookingDetail> => {
   return request<HostBookingDetail>({
     endpoint: `api/v1/hosts/bookings/${bookingId}`,
     method: 'GET',
@@ -386,7 +388,9 @@ export const getHostBookingById = (bookingId: string): Promise<HostBookingDetail
   })
 }
 
-export const getHostPropertyBookings = (propertyId: string): Promise<BookingsResponse> => {
+export const getHostPropertyBookings = (
+  propertyId: string
+): Promise<BookingsResponse> => {
   return request<BookingsResponse>({
     endpoint: `api/v1/hosts/properties/${propertyId}/bookings/all`,
     method: 'GET',

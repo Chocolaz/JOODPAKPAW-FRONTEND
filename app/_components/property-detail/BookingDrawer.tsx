@@ -140,19 +140,19 @@ export function BookingDrawer({ propertyId }: BookingDrawerProps) {
     if (numberOfPets > 0) {
       return `${numberOfPets} pet${numberOfPets > 1 ? 's' : ''}`
     }
-    return '0 pets' 
+    return '0 pets'
   }, [numberOfPets])
 
   const roomCountText = React.useMemo(() => {
     if (totalSelectedRooms > 0) {
       return `${totalSelectedRooms} room${totalSelectedRooms > 1 ? 's' : ''}`
     }
-    return '0 rooms' 
+    return '0 rooms'
   }, [totalSelectedRooms])
 
   const combinedText = React.useMemo(() => {
     if (numberOfPets === 0 && totalSelectedRooms === 0) {
-      return "When is your pet&apos;s stay?"
+      return 'When is your pet&apos;s stay?'
     }
     return `${petCountText} • ${roomCountText}`
   }, [petCountText, roomCountText, numberOfPets, totalSelectedRooms])

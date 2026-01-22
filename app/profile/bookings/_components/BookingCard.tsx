@@ -21,21 +21,22 @@ export function BookingCard({ booking, onClick }: BookingCardProps) {
 
   const nights = differenceInDays(
     new Date(booking.checkOutDate),
-    new Date(booking.checkInDate),
+    new Date(booking.checkInDate)
   )
 
   let totalRoomsBooked = 0
-  
+
   // Try to calculate from property.roomCategories (standard API response)
   if (booking.property?.roomCategories) {
     totalRoomsBooked = booking.property.roomCategories.reduce(
       (sum, c) => sum + (c.roomsBooked || 0),
-      0,
+      0
     )
-  } 
+  }
   // Fallback: Try to calculate from bookingOrders if available (Host API response might have this)
   else if ('bookingOrders' in booking) {
-    const orders = (booking as unknown as { bookingOrders: BookingOrder[] }).bookingOrders
+    const orders = (booking as unknown as { bookingOrders: BookingOrder[] })
+      .bookingOrders
     if (Array.isArray(orders)) {
       totalRoomsBooked = orders.reduce(
         (sum, order) => sum + (order.roomsBooked || 0),
@@ -64,9 +65,7 @@ export function BookingCard({ booking, onClick }: BookingCardProps) {
       <Card className="rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-all duration-200 p-5 mb-4 bg-white/70 backdrop-blur-sm">
         {/* Header */}
         <div className="flex items-start justify-between mb-3">
-          <h4 className="leading-tight text-deep-teal">
-            {propertyTitle}
-          </h4>
+          <h4 className="leading-tight text-deep-teal">{propertyTitle}</h4>
         </div>
 
         {/* Info Row */}

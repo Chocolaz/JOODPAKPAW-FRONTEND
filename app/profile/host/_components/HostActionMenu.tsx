@@ -112,9 +112,7 @@ export function HostActionMenu({
           <EditPropertyForm property={property} onSuccess={handleSuccess} />
         )}
 
-        {view === 'rooms' && (
-          <ManageRooms propertyId={property.id} />
-        )}
+        {view === 'rooms' && <ManageRooms propertyId={property.id} />}
       </DrawerContent>
     </Drawer>
   )

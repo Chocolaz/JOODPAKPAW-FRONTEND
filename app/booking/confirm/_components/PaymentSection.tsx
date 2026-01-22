@@ -60,7 +60,7 @@ export default function PaymentSection({
             checkInDate: bookingDetails.checkInDate,
             checkOutDate: bookingDetails.checkOutDate,
             roomsBooked: count,
-          }),
+          })
         ),
       }
 
@@ -144,7 +144,7 @@ export default function PaymentSection({
                       selectedCard === card.id,
                     'border-gray-200 hover:border-gray-300 hover:shadow-md':
                       selectedCard !== card.id,
-                  },
+                  }
                 )}
               >
                 <div className="flex justify-between items-start">

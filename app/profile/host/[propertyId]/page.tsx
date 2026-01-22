@@ -193,8 +193,11 @@ export default function HostPropertyDetailPage() {
           </div>
         )}
         <PropertyLocation property={property} />
-        
-        <PropertyBookingsSection propertyId={property.id} propertyTitle={property.title} />
+
+        <PropertyBookingsSection
+          propertyId={property.id}
+          propertyTitle={property.title}
+        />
       </div>
     </div>
   )

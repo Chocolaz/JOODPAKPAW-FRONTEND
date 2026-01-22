@@ -46,27 +46,36 @@ const BookingContext = React.createContext<BookingContextType | undefined>(
 export function BookingProvider({ children }: { children: React.ReactNode }) {
   const getInitialBookingState = () => {
     if (typeof window !== 'undefined') {
-      const savedState = sessionStorage.getItem('booking_state');
+      const savedState = sessionStorage.getItem('booking_state')
       if (savedState) {
         try {
-          const parsedState = JSON.parse(savedState);
-          if (parsedState.date?.from) parsedState.date.from = new Date(parsedState.date.from);
-          if (parsedState.date?.to) parsedState.date.to = new Date(parsedState.date.to);
-          return parsedState;
+          const parsedState = JSON.parse(savedState)
+          if (parsedState.date?.from)
+            parsedState.date.from = new Date(parsedState.date.from)
+          if (parsedState.date?.to)
+            parsedState.date.to = new Date(parsedState.date.to)
+          return parsedState
         } catch (e) {
-          console.error("Failed to parse saved booking state from localStorage", e);
+          console.error(
+            'Failed to parse saved booking state from localStorage',
+            e
+          )
         }
       }
     }
-    return { date: undefined, numberOfPets: 0, bookingData: {} };
-  };
+    return { date: undefined, numberOfPets: 0, bookingData: {} }
+  }
 
-  const initialState = React.useRef(getInitialBookingState()).current;
+  const initialState = React.useRef(getInitialBookingState()).current
 
   // Shared state across all properties
-  const [date, setDate] = React.useState<DateRange | undefined>(initialState.date)
-  const [numberOfPets, setNumberOfPets] = React.useState<number>(initialState.numberOfPets)
-  
+  const [date, setDate] = React.useState<DateRange | undefined>(
+    initialState.date
+  )
+  const [numberOfPets, setNumberOfPets] = React.useState<number>(
+    initialState.numberOfPets
+  )
+
   // Per-property state
   const [bookingData, setBookingData] = React.useState<
     Record<string, Partial<BookingData>>
@@ -85,7 +94,7 @@ export function BookingProvider({ children }: { children: React.ReactNode }) {
     setNumberOfPets(0)
     setError(null)
     if (typeof window !== 'undefined') {
-      sessionStorage.removeItem('booking_state');
+      sessionStorage.removeItem('booking_state')
     }
   }
 
@@ -98,18 +107,19 @@ export function BookingProvider({ children }: { children: React.ReactNode }) {
 
   React.useEffect(() => {
     if (typeof window !== 'undefined') {
-      const stateToSave = { date, numberOfPets, bookingData };
-      sessionStorage.setItem('booking_state', JSON.stringify(stateToSave));
+      const stateToSave = { date, numberOfPets, bookingData }
+      sessionStorage.setItem('booking_state', JSON.stringify(stateToSave))
     }
-  }, [date, numberOfPets, bookingData]);
+  }, [date, numberOfPets, bookingData])
 
   const handleSelectChange = (categoryId: number, value: number) => {
     if (!currentPropertyId) return
 
     setBookingData((prev) => {
       const currentPropertyBookingData = prev[currentPropertyId] ?? {}
-      const currentSelectedRooms = currentPropertyBookingData.selectedRooms ?? {}
-      
+      const currentSelectedRooms =
+        currentPropertyBookingData.selectedRooms ?? {}
+
       const newSelectedRooms = { ...currentSelectedRooms }
       if (value === 0) {
         delete newSelectedRooms[categoryId]
@@ -150,19 +160,19 @@ export function BookingProvider({ children }: { children: React.ReactNode }) {
       const normalizedCategories = normalizeRoomCategories(
         response.roomCategories
       )
-      
-      const nights = date?.from && date?.to ? differenceInDays(date.to, date.from) : 0
 
-      setBookingData(prev => ({
+      const nights =
+        date?.from && date?.to ? differenceInDays(date.to, date.from) : 0
+
+      setBookingData((prev) => ({
         ...prev,
         [searchPropertyId]: {
           ...prev[searchPropertyId],
           roomCategories: normalizedCategories,
           searchedNumberOfNights: nights,
-        }
+        },
       }))
-
-    } catch { 
+    } catch {
       setError('Failed to search for rooms.')
       toast.error('Failed to search for rooms.')
     } finally {
@@ -175,7 +185,9 @@ export function BookingProvider({ children }: { children: React.ReactNode }) {
     numberOfPets,
     loading,
     error,
-    currentPropertyData: currentPropertyId ? bookingData[currentPropertyId] ?? {} : {},
+    currentPropertyData: currentPropertyId
+      ? (bookingData[currentPropertyId] ?? {})
+      : {},
     setDate,
     setNumberOfPets,
     handleSelectChange,

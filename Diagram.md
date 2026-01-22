@@ -22,6 +22,7 @@ The following notation is used in the Mermaid diagram to classify components:
 ### Component Classification and Analysis
 
 #### Page-level Components
+
 - **`[P] Home (/app/page.tsx)`**: The main landing page.
   - **Responsibility**: Displays a list of properties that users can search and browse.
   - **Data/Props**: Manages `properties` state, `isLoading` flag, and `searchQuery`.
@@ -33,12 +34,14 @@ The following notation is used in the Mermaid diagram to classify components:
   - **Dependencies**: Composes the view using multiple feature-specific components: `[F] PageHeaderButtons`, `[F] PropertyImageGallery`, `[F] PropertyHeader`, `[F] PropertyFacilities`, `[F] PropertyRoomCategories`, `[F] PropertyLocation`, and `[F] BookingDrawer`.
 
 #### Layout Components
+
 - **`[L] RootLayout (/app/layout.tsx)`**: The root layout for the entire application.
   - **Responsibility**: Provides the basic HTML document structure and wraps all pages with global providers and UI elements.
   - **Data/Props**: Receives `children` (the current page).
   - **Dependencies**: Uses `[H] AuthWrapper` to provide authentication context and `[S] BottomNav` for global navigation. It also includes `BookingProvider`.
 
 #### Shared/Reusable Components
+
 - **`[S] BottomNav (/app/_components/BottomNav.tsx)`**: The main navigation bar at the bottom of the screen.
   - **Responsibility**: Provides consistent, app-wide navigation links. It conditionally renders based on the current route.
   - **Data/Props**: None. It internally uses the `usePathname` hook.
@@ -65,6 +68,7 @@ The following notation is used in the Mermaid diagram to classify components:
   - **Dependencies**: None.
 
 #### Feature-specific Components (Property Detail)
+
 - **`[F] PropertyImageGallery`**: Displays a gallery of property images.
 - **`[F] PropertyHeader`**: Shows the property's title, address, and rating.
 - **`[F] PropertyFacilities`**: Lists available facilities.
@@ -74,6 +78,7 @@ The following notation is used in the Mermaid diagram to classify components:
 - **`[F] PageHeaderButtons`**: Navigation buttons (back, share) for the page header.
 
 #### Higher-Order/Wrapper Components
+
 - **`[H] AuthWrapper (/app/_components/AuthWrapper.tsx)`**: Wraps the app to provide authentication context.
   - **Responsibility**: Ensures that the `AuthProvider` is available to the entire component tree.
   - **Data/Props**: `children`.
@@ -153,23 +158,23 @@ The project effectively utilizes shared components to maintain consistency and r
 
 ### Shared Components
 
-| Component | Reusability Rationale | Consumers | How It Improves Quality |
-|---|---|---|---|
-| **`BottomNav`** | Provides a global, consistent navigation experience required on multiple top-level pages. | `RootLayout` | **Consistency & Maintainability**: Ensures all pages share the exact same primary navigation structure. Changes are made in one place. |
-| **`PageHeader`** | Offers a standardized page heading format that can be used on any page needing a prominent title or banner. | `Home` | **Consistency**: Enforces a uniform look and feel for page titles. |
-| **`SearchBar`** | Encapsulates the UI and state logic for a search input, making it easy to add search functionality anywhere. | `Home` | **Separation of Concerns**: The parent page does not need to know about the internal state of the input field, only the final search query. |
-| **`PropertyList`** | Abstracts the logic of rendering a grid of properties. It can be reused on any page that needs to display a list of properties (e.g., search results, favorites). | `Home` | **Reuse & Flexibility**: Decouples the list layout from the data source. Can be configured with different props to alter its display. |
-| **`PropertyCard`** | Represents a single, self-contained unit of UI for a property. It is the fundamental building block for any property listing. | `PropertyList` | **Modularity & Reuse**: The most reused component in property-centric views. Encapsulates all presentation logic for a property summary. |
-| **`AuthWrapper`, `AuthProvider`** | Provides a centralized system for managing global authentication state, accessible from any component in the tree. | `RootLayout` | **Centralized State Management**: Prevents prop-drilling and provides a single source of truth for user authentication, simplifying state logic across the app. |
+| Component                         | Reusability Rationale                                                                                                                                             | Consumers      | How It Improves Quality                                                                                                                                         |
+| --------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **`BottomNav`**                   | Provides a global, consistent navigation experience required on multiple top-level pages.                                                                         | `RootLayout`   | **Consistency & Maintainability**: Ensures all pages share the exact same primary navigation structure. Changes are made in one place.                          |
+| **`PageHeader`**                  | Offers a standardized page heading format that can be used on any page needing a prominent title or banner.                                                       | `Home`         | **Consistency**: Enforces a uniform look and feel for page titles.                                                                                              |
+| **`SearchBar`**                   | Encapsulates the UI and state logic for a search input, making it easy to add search functionality anywhere.                                                      | `Home`         | **Separation of Concerns**: The parent page does not need to know about the internal state of the input field, only the final search query.                     |
+| **`PropertyList`**                | Abstracts the logic of rendering a grid of properties. It can be reused on any page that needs to display a list of properties (e.g., search results, favorites). | `Home`         | **Reuse & Flexibility**: Decouples the list layout from the data source. Can be configured with different props to alter its display.                           |
+| **`PropertyCard`**                | Represents a single, self-contained unit of UI for a property. It is the fundamental building block for any property listing.                                     | `PropertyList` | **Modularity & Reuse**: The most reused component in property-centric views. Encapsulates all presentation logic for a property summary.                        |
+| **`AuthWrapper`, `AuthProvider`** | Provides a centralized system for managing global authentication state, accessible from any component in the tree.                                                | `RootLayout`   | **Centralized State Management**: Prevents prop-drilling and provides a single source of truth for user authentication, simplifying state logic across the app. |
 
 ### Consumer Components
 
-| Component | Consumed Shared Components | Purpose |
-|---|---|---|
-| **`RootLayout`** | `BottomNav`, `AuthWrapper` | Establishes the global application shell and context. |
-| **`Home`** | `PageHeader`, `SearchBar`, `PropertyList` | Composes the main landing page from reusable blocks. |
-| **`PropertyList`** | `PropertyCard` | Builds a grid view by repeatedly rendering the `PropertyCard` for each item in its data set. |
-| **`PropertyDetailPage`** | (Consumes Feature-Specific components) | Assembles a detailed view by composing multiple specialized components. |
+| Component                | Consumed Shared Components                | Purpose                                                                                      |
+| ------------------------ | ----------------------------------------- | -------------------------------------------------------------------------------------------- |
+| **`RootLayout`**         | `BottomNav`, `AuthWrapper`                | Establishes the global application shell and context.                                        |
+| **`Home`**               | `PageHeader`, `SearchBar`, `PropertyList` | Composes the main landing page from reusable blocks.                                         |
+| **`PropertyList`**       | `PropertyCard`                            | Builds a grid view by repeatedly rendering the `PropertyCard` for each item in its data set. |
+| **`PropertyDetailPage`** | (Consumes Feature-Specific components)    | Assembles a detailed view by composing multiple specialized components.                      |
 
 ---
 
@@ -187,20 +192,20 @@ The primary mechanism for externalizing configuration is through environment var
   - **`lib/apiClient.ts`**: A generic `request` function uses `process.env.NEXT_PUBLIC_API_BASE_URL` to prefix all outgoing API calls. This allows the application to target a local development server (`http://localhost:8000`) and a production API (`https://api.example.com`) without any code changes.
     ```typescript
     // In lib/apiClient.ts
-    const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+    const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL
     // ...
-    let response = await fetch(`${BASE_URL}${endpoint}`, config);
+    let response = await fetch(`${BASE_URL}${endpoint}`, config)
     ```
   - **`app/_components/PropertyCard.tsx`**: The component constructs full image URLs using the same base URL, ensuring that images are correctly fetched from the backend's storage.
     ```typescript
     // In app/_components/PropertyCard.tsx
-    const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+    const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL
     // ...
     const [imgSrc, setImgSrc] = useState(
       // ...
       new URL(property.images[0].filePath, API_BASE_URL).toString()
       // ...
-    );
+    )
     ```
 
 ### Next.js Configuration (`next.config.ts`)
@@ -223,7 +228,7 @@ Build-time and server-level configurations are managed in `next.config.ts`.
         ],
       },
       // ...
-    };
+    }
     ```
   - **Custom Build Steps**: The `webpack` function is modified to add a custom loader (`@svgr/webpack`) for handling SVG files as React components, demonstrating how the build process itself can be configured.
 

@@ -39,10 +39,11 @@ export default function ConfirmBookingDisplay({
   const priceDetails = Object.entries(bookingDetails.selectedRooms).map(
     ([id, count]) => {
       const roomCategory = fetchedRoomCategories.find(
-        (rc) => rc.id === Number(id),
+        (rc) => rc.id === Number(id)
       )
       const roomCount = count ?? 0
-      const pricePerRoomForDuration = roomCategory?.availability?.totalPrice ?? 0
+      const pricePerRoomForDuration =
+        roomCategory?.availability?.totalPrice ?? 0
       const price = pricePerRoomForDuration * roomCount
       return {
         id,
@@ -50,7 +51,7 @@ export default function ConfirmBookingDisplay({
         name: bookingDetails.roomNames[id] || `Room ${id}`,
         price,
       }
-    },
+    }
   )
 
   const finalPrice = priceDetails.reduce((acc, detail) => acc + detail.price, 0)

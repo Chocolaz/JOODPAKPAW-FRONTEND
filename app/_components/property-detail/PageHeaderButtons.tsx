@@ -11,7 +11,7 @@ interface PageHeaderButtonsProps {
   onDeleteClick?: () => void
   onGlobeClick?: () => void
   isPropertyActive?: boolean
-  disablePublish?: boolean 
+  disablePublish?: boolean
   onDataChange?: () => void
 }
 
