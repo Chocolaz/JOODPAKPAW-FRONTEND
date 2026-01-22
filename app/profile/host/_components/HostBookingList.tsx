@@ -104,7 +104,7 @@ export function HostBookingList() {
         </div>
       </div>
 
-      <div className="flex-grow overflow-y-auto p-4">
+      <div className="grow overflow-y-auto p-4">
         {filteredBookings.length > 0 ? (
           <div className="space-y-4">
             {filteredBookings.map((booking) => (
