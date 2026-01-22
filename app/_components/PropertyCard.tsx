@@ -5,7 +5,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useState } from 'react'
 import { cn, getLowestPrice, getPetPolicy } from '@/lib/utils'
-import { Globe, GlobeLock } from 'lucide-react'
+import { Globe, GlobeLock, Heart } from 'lucide-react'
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL
 
@@ -16,6 +16,7 @@ interface PropertyCardProps {
   showRoomCount?: boolean
   showStatusIcon?: boolean
   showPetPolicyChip?: boolean
+  showHeartIcon?: boolean
 }
 
 export function PropertyCard({
@@ -25,17 +26,25 @@ export function PropertyCard({
   showRoomCount,
   showStatusIcon = false,
   showPetPolicyChip = false,
+  showHeartIcon = false,
 }: PropertyCardProps) {
   const [imgSrc, setImgSrc] = useState(
     property.images.length > 0 && API_BASE_URL
       ? new URL(property.images[0].filePath, API_BASE_URL).toString()
       : '/graphics/welcome.svg'
   )
+  const [isHeartClicked, setIsHeartClicked] = useState(false)
 
   const finalHref = href || `/${property.id}`
 
   const lowestPrice = getLowestPrice(property.roomCategories)
   const petPolicy = getPetPolicy(property.pets)
+
+  const handleHeartClick = (e: React.MouseEvent) => {
+    e.preventDefault() // Prevent navigating to property detail
+    e.stopPropagation() // Stop event propagation
+    setIsHeartClicked((prev) => !prev)
+  }
 
   return (
     <Link href={finalHref} className={cn('block', className)}>
@@ -61,6 +70,21 @@ export function PropertyCard({
             ) : (
               <GlobeLock className="h-6 w-6 text-accent-orange" />
             )}
+          </div>
+        )}
+        {showHeartIcon && (
+          <div
+            className="absolute top-2 right-2 p-1 rounded-full cursor-pointer"
+            onClick={handleHeartClick}
+          >
+            <Heart
+              className={cn(
+                'h-6 w-6',
+                isHeartClicked
+                  ? 'text-white fill-red-400'
+                  : 'text-white fill-black/40'
+              )}
+            />
           </div>
         )}
       </div>
