@@ -5,11 +5,11 @@ import {
   DrawerContent,
   DrawerHeader,
   DrawerTitle,
-  DrawerTrigger,
+  DrawerDescription,
 } from '@/components/ui/drawer'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Heart, Folder, Plus, Loader2 } from 'lucide-react'
+import { Folder, Plus, Loader2 } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { getFavoriteFolders, addFavorite } from '@/lib/favoriteApi'
 import { FavoriteFolder } from '@/types/favorite'
@@ -42,7 +42,7 @@ export function FavoriteDrawer({
         try {
           const response = await getFavoriteFolders()
           setFolders(response.favoriteFolders)
-        } catch (err) {
+        } catch (_err) {
           setError('Failed to fetch folders.')
           toast.error('Failed to fetch folders.')
         } finally {
@@ -57,11 +57,11 @@ export function FavoriteDrawer({
     setIsPosting(true)
     try {
       await addFavorite({ propertyId, folderId })
-      toast.success('Saved to folder!')
+      toast.success('Moved to folder!')
       onOpenChange(false)
       onSuccess?.()
-    } catch (err) {
-      toast.error('Failed to save to folder.')
+    } catch (_err) {
+      toast.error('Failed to move to folder.')
     } finally {
       setIsPosting(false)
     }
@@ -79,22 +79,8 @@ export function FavoriteDrawer({
       setNewFolderName('')
       onOpenChange(false)
       onSuccess?.()
-    } catch (err) {
+    } catch (_err) {
       toast.error('Failed to create and save.')
-    } finally {
-      setIsPosting(false)
-    }
-  }
-
-  const handleSaveToDefault = async () => {
-    setIsPosting(true)
-    try {
-      await addFavorite({ propertyId })
-      toast.success('Saved to default wishlist!')
-      onOpenChange(false)
-      onSuccess?.()
-    } catch (err) {
-      toast.error('Failed to save to default wishlist.')
     } finally {
       setIsPosting(false)
     }
@@ -105,7 +91,8 @@ export function FavoriteDrawer({
       <DrawerContent>
         <div className="mx-auto w-full max-w-sm">
           <DrawerHeader>
-            <DrawerTitle>Save to wishlist</DrawerTitle>
+            <DrawerTitle>Organize your favorite</DrawerTitle>
+            <DrawerDescription>Saved to My Wishlist</DrawerDescription>
           </DrawerHeader>
           <div className="p-4 pb-0">
             {isLoading ? (
@@ -141,14 +128,6 @@ export function FavoriteDrawer({
                     <Plus className="mr-2 h-4 w-4" /> Create & Save
                   </Button>
                 </div>
-
-                <Button
-                  className="w-full"
-                  onClick={handleSaveToDefault}
-                  disabled={isPosting}
-                >
-                  Save to default wishlist
-                </Button>
               </div>
             )}
           </div>

@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { PageHeader } from './_components/PageHeader'
 import { PropertyList } from './_components/PropertyList'
-import { SearchBar } from './_components/SearchBar'
+import { SearchBar } from '@/app/_components/SearchBar'
 import { Spinner } from '@/components/ui/spinner'
 import { getProperties } from '@/lib/api'
 import { PropertiesResponse, Property } from '@/types'
