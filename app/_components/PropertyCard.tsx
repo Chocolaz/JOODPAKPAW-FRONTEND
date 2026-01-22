@@ -52,7 +52,7 @@ export function PropertyCard({
         <>
           <button
             type="button"
-            className="absolute top-1 right-1 z-20 p-2 rounded-full backdrop-blur cursor-pointer"
+            className="absolute top-0 right-0 z-20 p-2 rounded-full cursor-pointer"
             onClick={(e) => {
               e.stopPropagation()
               setIsDrawerOpen(true)
@@ -63,7 +63,7 @@ export function PropertyCard({
                 'h-7 w-7',
                 isHeartClicked
                   ? 'text-white fill-red-400'
-                  : 'text-white fill-black/10'
+                  : 'text-white fill-black/40'
               )}
             />
           </button>
