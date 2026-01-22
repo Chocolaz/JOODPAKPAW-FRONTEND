@@ -80,7 +80,7 @@ export function PropertyCard({
       toast.error('Failed to add to favorites.')
     }
   }
-  
+
   return (
     <div className={cn('block', className)}>
       {/* Image Box — Square Responsive */}
