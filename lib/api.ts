@@ -22,7 +22,9 @@ import {
   BookingsResponse, // Added BookingsResponse
   FullBookingDetail, // Added FullBookingDetail
   HostBookingDetail,
+  FavoriteFoldersResponse, // Added FavoriteFoldersResponse
 } from '@/types'
+import { FavoriteFolderDetail } from '@/types/favorite'
 import type { PropertiesResponse } from '@/types/property'
 
 // --- Auth Functions ---
@@ -397,5 +399,96 @@ export const getHostPropertyBookings = (
     requiresAuth: true,
     errorContext: 'Get Host Property Bookings',
     cache: 'no-store',
+  })
+}
+
+// --- Favorite Functions ---
+export const getFavoriteFolders = (): Promise<FavoriteFoldersResponse> => {
+  return request<FavoriteFoldersResponse>({
+    endpoint: 'api/v1/favorite-folders/all',
+    method: 'GET',
+    requiresAuth: true,
+    errorContext: 'Get Favorite Folders',
+  })
+}
+
+
+export const getFavoriteFolderById = async (
+  folderId: string,
+): Promise<FavoriteFolderDetail> => {
+  // Define local types for the raw API response to avoid conflicts
+  interface ApiFavoriteProperty {
+    id: number
+    title: string
+    province: string
+    firstImage: string
+  }
+
+  interface ApiFavoriteFolderDetail {
+    id: number
+    name: string
+    propertyCount: number
+    createdAt: string
+    properties: ApiFavoriteProperty[]
+  }
+
+  const response = await request<ApiFavoriteFolderDetail>({
+    endpoint: `api/v1/favorite-folders/${folderId}`,
+    method: 'GET',
+    requiresAuth: true,
+    errorContext: 'Get Favorite Folder By Id',
+  })
+
+  // Transform the simplified properties into full Property objects
+  const transformedProperties: Property[] = response.properties.map(
+    (favProperty) => ({
+      id: favProperty.id,
+      title: favProperty.title,
+      province: favProperty.province,
+      images: favProperty.firstImage
+        ? [
+            {
+              id: 0,
+              filePath: favProperty.firstImage,
+              fileName: '',
+              fileContentType: '',
+              fileExtensionName: '',
+              fileSize: 0,
+            },
+          ]
+        : [],
+      // Add default values for other required fields
+      description: '',
+      district: '',
+      country: '',
+      latitude: '0',
+      longitude: '0',
+      zipcode: '',
+      isActive: true,
+      avgRating: 0,
+      hostId: 0,
+      propertyTypeId: 0,
+      createdAt: '',
+      updatedAt: '',
+    }),
+  )
+
+  return {
+    ...response,
+    properties: transformedProperties,
+  }
+}
+
+export const addFavorite = (data: {
+  propertyId: number
+  folderId?: number
+  folderName?: string
+}): Promise<void> => {
+  return request<void>({
+    endpoint: 'api/v1/favorite-folders',
+    method: 'POST',
+    body: data,
+    requiresAuth: true,
+    errorContext: 'Add Favorite',
   })
 }

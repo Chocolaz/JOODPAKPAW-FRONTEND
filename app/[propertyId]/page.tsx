@@ -43,11 +43,17 @@ export default function PropertyDetailPage() {
   const handleBack = () => {
     const fromBookings = searchParams.get('fromBookings')
     const bookingId = searchParams.get('bookingId')
+    const fromFavorites = searchParams.get('fromFavorites')
+    const folderId = searchParams.get('folderId')
 
     if (fromBookings === 'true' && bookingId) {
       router.push(`/profile/bookings/${bookingId}`)
     } else if (fromBookings === 'true') {
       router.push('/profile/bookings')
+    } else if (fromFavorites === 'true' && folderId) {
+      router.push(`/favorites/${folderId}`)
+    } else if (fromFavorites === 'true') {
+      router.push('/favorites')
     } else {
       router.push('/')
     }

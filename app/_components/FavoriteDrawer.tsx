@@ -11,7 +11,7 @@ import { Input } from '@/components/ui/input'
 import { FavoriteFolderCard } from './FavoriteFolderCard'
 import { Plus, Loader2, ChevronLeft } from 'lucide-react'
 import { useEffect, useState, useRef } from 'react'
-import { getFavoriteFolders, addFavorite } from '@/lib/favoriteApi'
+import { getFavoriteFolders, addFavorite } from '@/lib/api'
 import { FavoriteFolder } from '@/types/favorite'
 import { toast } from 'sonner'
 

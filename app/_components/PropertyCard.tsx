@@ -7,7 +7,7 @@ import { useState } from 'react'
 import { cn, getLowestPrice, getPetPolicy } from '@/lib/utils'
 import { Globe, GlobeLock, Heart } from 'lucide-react'
 import { FavoriteDrawer } from './FavoriteDrawer'
-import { getFavoriteFolders, addFavorite } from '@/lib/favoriteApi'
+import { getFavoriteFolders, addFavorite } from '@/lib/api'
 import { toast } from 'sonner'
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL
