@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { Ban, Home, Search } from 'lucide-react'
+import { Ban, Home } from 'lucide-react'
 
 export default function ForbiddenPage() {
   return (

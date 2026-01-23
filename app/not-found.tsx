@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { PawPrint, Home, Search } from 'lucide-react'
+import { PawPrint, Home } from 'lucide-react'
 
 export default function NotFound() {
   return (
@@ -18,7 +18,7 @@ export default function NotFound() {
       </h2>
 
       <p className="text-lg text-center text-gray-600 mb-8 max-w-md">
-        The page you're looking for doesn’t exist or may have been moved.
+        The page you&apos;re looking for doesn&apos;t exist or may have been moved.
       </p>
 
       {/* Action Buttons */}

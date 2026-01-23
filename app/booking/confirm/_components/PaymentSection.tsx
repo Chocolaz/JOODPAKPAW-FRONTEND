@@ -107,7 +107,7 @@ export default function PaymentSection({
                     Processing Payment...
                   </h3>
                   <p className="text-gray-600">
-                    Please wait, we're securing your transaction.
+                    Please wait, we&apos;re securing your transaction.
                   </p>
                 </>
               )}

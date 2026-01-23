@@ -119,8 +119,8 @@ export function PropertyCard({
                 className={cn(
                   'h-6 w-6',
                   isHeartClicked
-                    ? 'text-red-500 fill-red-500'
-                    : 'text-white fill-black/10'
+                    ? 'text-white fill-red-400'
+                    : 'text-white fill-black/40'
                 )}
               />
             </button>

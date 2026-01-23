@@ -7,11 +7,13 @@ import { SearchBar } from '@/app/_components/SearchBar'
 import { Spinner } from '@/components/ui/spinner'
 import { getProperties } from '@/lib/api'
 import { PropertiesResponse, Property } from '@/types'
+import { useAuth } from './_components/AuthContext'
 
 export default function Home() {
   const [properties, setProperties] = useState<Property[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
+  const { isAuthenticated } = useAuth()
 
   const handleSearch = (query: string) => {
     setSearchQuery(query)
@@ -62,7 +64,7 @@ export default function Home() {
             <PropertyList
               properties={properties}
               showPetPolicyChip={true}
-              showHeartIcon={true}
+              showHeartIcon={isAuthenticated}
             />
           </main>
         )}

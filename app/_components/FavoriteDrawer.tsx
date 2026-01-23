@@ -5,11 +5,10 @@ import {
   DrawerContent,
   DrawerHeader,
   DrawerTitle,
-  DrawerDescription,
 } from '@/components/ui/drawer'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Folder, Plus, Loader2, ArrowLeft } from 'lucide-react'
+import { Folder, Plus, Loader2, ChevronLeft } from 'lucide-react'
 import { useEffect, useState, useRef } from 'react'
 import { getFavoriteFolders, addFavorite } from '@/lib/favoriteApi'
 import { FavoriteFolder } from '@/types/favorite'
@@ -103,10 +102,9 @@ export function FavoriteDrawer({
           {currentView === 'list' && (
             <div>
               <DrawerHeader>
-                <DrawerTitle>Organize your favorite</DrawerTitle>
-                <DrawerDescription>Saved to My Wishlist</DrawerDescription>
+                <DrawerTitle>Select folders</DrawerTitle>
               </DrawerHeader>
-              <div className="p-4 pb-0">
+              <div className="px-4 pb-0">
                 {isLoading ? (
                   <div className="flex justify-center items-center h-32">
                     <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -146,28 +144,34 @@ export function FavoriteDrawer({
 
           {currentView === 'create' && (
             <div>
-              <DrawerHeader>
+              <DrawerHeader className="flex items-center justify-start gap-1 px-4 pt-4">
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="absolute top-3 left-3"
+                  className="flex-none"
                   onClick={() => setCurrentView('list')}
                 >
-                  <ArrowLeft className="h-4 w-4" />
+                  <ChevronLeft className="h-6! w-6!" />
                 </Button>
-                <DrawerTitle className="text-center">New wishlist</DrawerTitle>
+                <DrawerTitle className="text-start">
+                  Create your favorite folder
+                </DrawerTitle>
               </DrawerHeader>
-              <div className="p-4 space-y-4">
+              <div className="px-4 space-y-2">
                 <Input
                   ref={inputRef}
                   placeholder="Folder Name"
                   value={newFolderName}
                   onChange={(e) => setNewFolderName(e.target.value)}
+                  maxLength={20}
                 />
+                <div className="text-sm text-gray-500 text-right">
+                  {newFolderName.length}/20
+                </div>
                 <Button
                   onClick={handleCreateAndSave}
                   disabled={isPosting}
-                  className="w-full"
+                  className="py-5 w-full bg-deep-teal text-white"
                 >
                   Create & Save
                 </Button>
