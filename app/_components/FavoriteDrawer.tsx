@@ -8,7 +8,8 @@ import {
 } from '@/components/ui/drawer'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Folder, Plus, Loader2, ChevronLeft } from 'lucide-react'
+import { FavoriteFolderCard } from './FavoriteFolderCard'
+import { Plus, Loader2, ChevronLeft } from 'lucide-react'
 import { useEffect, useState, useRef } from 'react'
 import { getFavoriteFolders, addFavorite } from '@/lib/favoriteApi'
 import { FavoriteFolder } from '@/types/favorite'
@@ -62,11 +63,11 @@ export function FavoriteDrawer({
     }
   }, [currentView])
 
-  const handleSaveToFolder = async (folderId: number) => {
+  const handleSaveToFolder = async (folderId: number, folderName: string) => {
     setIsPosting(true)
     try {
       await addFavorite({ propertyId, folderId })
-      toast.success('Moved to folder!')
+      toast.success(`Moved to ${folderName}!`)
       onOpenChange(false)
       onSuccess?.()
     } catch (_err) {
@@ -84,7 +85,7 @@ export function FavoriteDrawer({
     setIsPosting(true)
     try {
       await addFavorite({ propertyId, folderName: newFolderName })
-      toast.success('Saved to new folder!')
+      toast.success(`Saved to ${newFolderName}!`)
       setNewFolderName('')
       onOpenChange(false)
       onSuccess?.()
@@ -113,19 +114,17 @@ export function FavoriteDrawer({
                   <div className="text-red-500 text-center">{error}</div>
                 ) : (
                   <div className="space-y-4">
-                    <div className="max-h-48 overflow-y-auto space-y-2">
-                      {folders.map((folder) => (
-                        <Button
-                          key={folder.id}
-                          variant="outline"
-                          className="w-full justify-start"
-                          onClick={() => handleSaveToFolder(folder.id)}
-                          disabled={isPosting}
-                        >
-                          <Folder className="mr-2 h-4 w-4" />
-                          {folder.name}
-                        </Button>
-                      ))}
+                    <div className="max-h-[60vh]">
+                      <div className="flex overflow-x-auto space-x-4 hide-scrollbar">
+                        {folders.map((folder) => (
+                          <FavoriteFolderCard
+                            key={folder.id}
+                            folder={folder}
+                            onClick={handleSaveToFolder}
+                            disabled={isPosting}
+                          />
+                        ))}
+                      </div>
                     </div>
                     <div className="text-center">
                       <Button

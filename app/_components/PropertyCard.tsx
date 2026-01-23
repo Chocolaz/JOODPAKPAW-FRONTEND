@@ -112,7 +112,7 @@ export function PropertyCard({
         {showHeartIcon && (
           <>
             <button
-              className="absolute top-2 right-2 p-1 rounded-full cursor-pointer z-10 bg-transparent border-none"
+              className="absolute top-2 right-2 p-1 rounded-full cursor-pointer bg-transparent border-none"
               onClick={handleHeartClick}
             >
               <Heart
