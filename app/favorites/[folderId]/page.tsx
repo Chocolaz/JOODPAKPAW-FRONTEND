@@ -2,7 +2,11 @@
 
 import { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
-import { getFavoriteFolderById, deleteFavoriteFolder } from '@/lib/api'
+import {
+  getFavoriteFolderById,
+  deleteFavoriteFolder,
+  renameFavoriteFolder,
+} from '@/lib/api'
 import { FavoriteFolderDetail } from '@/types/favorite'
 import { PropertyCard } from '@/app/_components/PropertyCard'
 import { AppHeader } from '@/app/_components/AppHeader'
@@ -56,17 +60,17 @@ export default function FavoriteFolderDetailPage() {
     }
   }, [folderId])
 
-  useEffect(() => {
-    if (folder) {
-      setNewFolderName(folder.name)
-    }
-  }, [folder])
-
   const handleDrawerOpenChange = (open: boolean) => {
     setIsMenuOpen(open)
     if (!open) {
       // Reset to default view when drawer is closed
-      setTimeout(() => setDrawerContent('options'), 300)
+      setTimeout(() => {
+        setDrawerContent('options')
+        // Also reset folder name input on close
+        if (folder) {
+          setNewFolderName(folder.name)
+        }
+      }, 300)
     }
   }
 
@@ -85,20 +89,24 @@ export default function FavoriteFolderDetailPage() {
   }
 
   const handleRenameFolder = async () => {
-    // Implement actual rename logic here
-    // For now, just close the drawer and show a toast
-    setIsMenuOpen(false)
-    toast.success(
-      `Folder renamed to "${newFolderName}". (Logic not implemented yet)`
-    )
-    // After successful rename, you might want to refetch the folder details or update the folder state
-    // setFolder(prev => prev ? { ...prev, name: newFolderName } : null);
+    if (!folderId || !newFolderName || newFolderName === folder?.name) return
+
+    try {
+      await renameFavoriteFolder(folderId, newFolderName)
+      setFolder((prev) => (prev ? { ...prev, name: newFolderName } : null))
+      toast.success('Folder renamed successfully!')
+      setIsMenuOpen(false)
+    } catch (err) {
+      toast.error('Failed to rename folder. Please try again later.')
+      console.error('Failed to rename folder:', err)
+      setIsMenuOpen(false)
+    }
   }
 
   const menuButton = (
     <button
       onClick={() => setIsMenuOpen(true)}
-      className="p-2 rounded-full hover:bg-gray-100"
+      className="rounded-full hover:bg-gray-100"
     >
       <Menu className="w-6 h-6 text-neutral-gray" />
     </button>
@@ -151,7 +159,7 @@ export default function FavoriteFolderDetailPage() {
           <DrawerHeader className="flex items-center">
             <button
               onClick={() => setDrawerContent('options')}
-              className="p-2 rounded-full hover:bg-gray-100 mr-2"
+              className="rounded-full hover:bg-gray-100 mr-2"
             >
               <ChevronLeft className="w-6 h-6" />
             </button>
@@ -162,7 +170,7 @@ export default function FavoriteFolderDetailPage() {
               The folder “{folder?.name}” and all its shared links will be
               removed from your Favorites.
             </p>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="flex justify-between w-full">
               <Button
                 variant="outline"
                 onClick={() => setIsMenuOpen(false)}
@@ -172,7 +180,7 @@ export default function FavoriteFolderDetailPage() {
               </Button>
               <Button
                 variant="outline"
-                className="border-red-400 text-red-400"
+                className="border-red-500  text-red-500"
                 onClick={handleDeleteFolder}
               >
                 Yes, remove
@@ -189,23 +197,46 @@ export default function FavoriteFolderDetailPage() {
           <DrawerHeader className="flex items-center">
             <button
               onClick={() => setDrawerContent('options')}
-              className="p-2 rounded-full hover:bg-gray-100 mr-2"
+              className="rounded-full hover:bg-gray-100 mr-2"
             >
               <ChevronLeft className="w-6 h-6" />
             </button>
             <DrawerTitle>Rename Folder</DrawerTitle>
           </DrawerHeader>
           <div className="px-4 pb-4 space-y-4">
-            <Input
-              value={newFolderName}
-              onChange={(e) => setNewFolderName(e.target.value)}
-              placeholder="New folder name"
-            />
-            <div className="grid grid-cols-2 gap-4">
-              <Button variant="outline" onClick={() => setIsMenuOpen(false)}>
+            <div className="space-y-2">
+              <Input
+                value={newFolderName}
+                onChange={(e) => {
+                  if (e.target.value.length <= 20) {
+                    setNewFolderName(e.target.value)
+                  }
+                }}
+                placeholder="New folder name"
+                maxLength={20}
+              />
+              <p className="text-right text-sm text-gray-500">
+                {newFolderName.length}/20
+              </p>
+            </div>
+            <div className="flex justify-between w-full">
+              <Button
+                variant="outline"
+                className="border-none shadow-none"
+                onClick={() => setIsMenuOpen(false)}
+              >
                 Cancel
               </Button>
-              <Button onClick={handleRenameFolder}>Save</Button>
+              <Button
+                onClick={handleRenameFolder}
+                className="bg-deep-teal px-4"
+                disabled={
+                  newFolderName.length === 0 ||
+                  newFolderName === folder?.name
+                }
+              >
+                Confirm
+              </Button>
             </div>
           </div>
         </>

@@ -501,3 +501,16 @@ export const deleteFavoriteFolder = (folderId: string): Promise<void> => {
     errorContext: 'Delete Favorite Folder',
   })
 }
+
+export const renameFavoriteFolder = (
+  folderId: string,
+  name: string
+): Promise<void> => {
+  return request<void>({
+    endpoint: `api/v1/favorite-folders/${folderId}`,
+    method: 'PUT',
+    body: { name },
+    requiresAuth: true,
+    errorContext: 'Rename Favorite Folder',
+  })
+}
