@@ -1,42 +1,116 @@
-'use client';
+'use client'
 
-import { useState, useEffect } from 'react';
-import { useParams } from 'next/navigation';
-import { getFavoriteFolderById } from '@/lib/api';
-import { FavoriteFolderDetail } from '@/types/favorite';
-import { PropertyCard } from '@/app/_components/PropertyCard';
-import { AppHeader } from '@/app/_components/AppHeader';
-import { Loader2 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { useState, useEffect } from 'react'
+import { useParams, useRouter } from 'next/navigation'
+import { getFavoriteFolderById, deleteFavoriteFolder } from '@/lib/api'
+import { FavoriteFolderDetail } from '@/types/favorite'
+import { PropertyCard } from '@/app/_components/PropertyCard'
+import { AppHeader } from '@/app/_components/AppHeader'
+import {
+  Loader2,
+  Menu,
+  Edit,
+  Trash2,
+  ChevronRight,
+  ChevronLeft,
+} from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import {
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+} from '@/components/ui/drawer'
+import { toast } from 'sonner'
 
 export default function FavoriteFolderDetailPage() {
-  const params = useParams();
-  const folderId = params.folderId as string;
+  const params = useParams()
+  const folderId = params.folderId as string
+  const router = useRouter()
 
-  const [folder, setFolder] = useState<FavoriteFolderDetail | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [folder, setFolder] = useState<FavoriteFolderDetail | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const [drawerContent, setDrawerContent] = useState<
+    'options' | 'confirmDelete' | 'renameFolder'
+  >('options')
+  const [newFolderName, setNewFolderName] = useState('')
 
   useEffect(() => {
     if (folderId) {
       const fetchFolder = async () => {
-        setIsLoading(true);
+        setIsLoading(true)
         try {
-          const response = await getFavoriteFolderById(folderId);
-          setFolder(response);
+          const response = await getFavoriteFolderById(folderId)
+          setFolder(response)
+          setNewFolderName(response.name) // Initialize newFolderName with current folder name
         } catch (err) {
-          setError('Failed to fetch folder details.');
+          setError('Failed to fetch folder details.')
         } finally {
-          setIsLoading(false);
+          setIsLoading(false)
         }
-      };
-      fetchFolder();
+      }
+      fetchFolder()
     }
-  }, [folderId]);
+  }, [folderId])
+
+  useEffect(() => {
+    if (folder) {
+      setNewFolderName(folder.name)
+    }
+  }, [folder])
+
+  const handleDrawerOpenChange = (open: boolean) => {
+    setIsMenuOpen(open)
+    if (!open) {
+      // Reset to default view when drawer is closed
+      setTimeout(() => setDrawerContent('options'), 300)
+    }
+  }
+
+  const handleDeleteFolder = async () => {
+    if (!folderId) return
+
+    try {
+      await deleteFavoriteFolder(folderId)
+      toast.success(`The folder "${folder?.name}" has been removed.`)
+      router.push('/favorites')
+    } catch (err) {
+      toast.error('Failed to delete folder. Please try again later.')
+      console.error('Failed to delete folder:', err)
+      setIsMenuOpen(false) // Close drawer on error
+    }
+  }
+
+  const handleRenameFolder = async () => {
+    // Implement actual rename logic here
+    // For now, just close the drawer and show a toast
+    setIsMenuOpen(false)
+    toast.success(
+      `Folder renamed to "${newFolderName}". (Logic not implemented yet)`
+    )
+    // After successful rename, you might want to refetch the folder details or update the folder state
+    // setFolder(prev => prev ? { ...prev, name: newFolderName } : null);
+  }
+
+  const menuButton = (
+    <button
+      onClick={() => setIsMenuOpen(true)}
+      className="p-2 rounded-full hover:bg-gray-100"
+    >
+      <Menu className="w-6 h-6 text-neutral-gray" />
+    </button>
+  )
 
   const renderContent = () => {
     if (isLoading) {
-      return <div className="flex justify-center items-center h-64"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
+      return (
+        <div className="flex justify-center items-center h-64">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+      )
     }
 
     if (error) {
@@ -47,11 +121,13 @@ export default function FavoriteFolderDetailPage() {
             Retry
           </Button>
         </div>
-      );
+      )
     }
 
     if (!folder || folder.properties.length === 0) {
-      return <div className="text-center text-gray-500">This folder is empty.</div>;
+      return (
+        <div className="text-center text-gray-500">This folder is empty.</div>
+      )
     }
 
     return (
@@ -65,18 +141,123 @@ export default function FavoriteFolderDetailPage() {
           />
         ))}
       </div>
-    );
-  };
+    )
+  }
+
+  const renderDrawerContent = () => {
+    if (drawerContent === 'confirmDelete') {
+      return (
+        <>
+          <DrawerHeader className="flex items-center">
+            <button
+              onClick={() => setDrawerContent('options')}
+              className="p-2 rounded-full hover:bg-gray-100 mr-2"
+            >
+              <ChevronLeft className="w-6 h-6" />
+            </button>
+            <DrawerTitle>Remove Folder?</DrawerTitle>
+          </DrawerHeader>
+          <div className="px-4 pb-4 space-y-4">
+            <p>
+              The folder “{folder?.name}” and all its shared links will be
+              removed from your Favorites.
+            </p>
+            <div className="grid grid-cols-2 gap-4">
+              <Button
+                variant="outline"
+                onClick={() => setIsMenuOpen(false)}
+                className="border-none shadow-none"
+              >
+                No, keep it
+              </Button>
+              <Button
+                variant="outline"
+                className="border-red-400 text-red-400"
+                onClick={handleDeleteFolder}
+              >
+                Yes, remove
+              </Button>
+            </div>
+          </div>
+        </>
+      )
+    }
+
+    if (drawerContent === 'renameFolder') {
+      return (
+        <>
+          <DrawerHeader className="flex items-center">
+            <button
+              onClick={() => setDrawerContent('options')}
+              className="p-2 rounded-full hover:bg-gray-100 mr-2"
+            >
+              <ChevronLeft className="w-6 h-6" />
+            </button>
+            <DrawerTitle>Rename Folder</DrawerTitle>
+          </DrawerHeader>
+          <div className="px-4 pb-4 space-y-4">
+            <Input
+              value={newFolderName}
+              onChange={(e) => setNewFolderName(e.target.value)}
+              placeholder="New folder name"
+            />
+            <div className="grid grid-cols-2 gap-4">
+              <Button variant="outline" onClick={() => setIsMenuOpen(false)}>
+                Cancel
+              </Button>
+              <Button onClick={handleRenameFolder}>Save</Button>
+            </div>
+          </div>
+        </>
+      )
+    }
+
+    // Default 'options' view
+    return (
+      <>
+        <DrawerHeader>
+          <DrawerTitle>Menu</DrawerTitle>
+        </DrawerHeader>
+        <div className="pb-4">
+          <div
+            className="flex items-center justify-between py-3 px-4 hover:bg-gray-50 cursor-pointer border-b border-gray-200"
+            onClick={() => setDrawerContent('renameFolder')}
+          >
+            <div className="flex items-center">
+              <Edit className="mr-2 h-4 w-4" />
+              Rename
+            </div>
+            <ChevronRight className="h-4 w-4 text-gray-400" />
+          </div>
+          <div
+            className="flex items-center justify-between py-3 px-4 hover:bg-gray-50 cursor-pointer"
+            onClick={() => setDrawerContent('confirmDelete')}
+          >
+            <div className="flex items-center text-red-600">
+              <Trash2 className="mr-2 h-4 w-4" />
+              Delete folder
+            </div>
+            <ChevronRight className="h-4 w-4 text-gray-400" />
+          </div>
+        </div>
+      </>
+    )
+  }
 
   return (
     <div>
-      <AppHeader title="" backPath="/favorites" />
+      <AppHeader title="" backPath="/favorites" menu={menuButton} />
       <div className="container mx-auto px-4 py-8">
         {folder && (
           <h4 className="text-xl font-semibold mb-4">{folder.name}</h4>
         )}
         {renderContent()}
       </div>
+      <Drawer open={isMenuOpen} onOpenChange={handleDrawerOpenChange}>
+        <DrawerContent>
+          <div className="mx-auto w-full max-w-sm">{renderDrawerContent()}</div>
+        </DrawerContent>
+      </Drawer>
     </div>
-  );
+  )
 }

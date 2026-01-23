@@ -492,3 +492,12 @@ export const addFavorite = (data: {
     errorContext: 'Add Favorite',
   })
 }
+
+export const deleteFavoriteFolder = (folderId: string): Promise<void> => {
+  return request<void>({
+    endpoint: `api/v1/favorite-folders/${folderId}`,
+    method: 'DELETE',
+    requiresAuth: true,
+    errorContext: 'Delete Favorite Folder',
+  })
+}
