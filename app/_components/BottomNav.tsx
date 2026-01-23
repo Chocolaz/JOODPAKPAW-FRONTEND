@@ -1,6 +1,7 @@
 'use client'
 import { usePathname } from 'next/navigation'
 import Link from 'next/link'
+import { motion } from 'framer-motion'
 import BellIcon from '@/public/icons/nav/Bell.svg'
 import HeartIcon from '@/public/icons/nav/Heart.svg'
 import HomeIcon from '@/public/icons/nav/Home.svg'
@@ -9,7 +10,7 @@ import ProfileIcon from '@/public/icons/nav/Profile.svg'
 export function BottomNav() {
   const pathname = usePathname()
 
-  const visiblePaths = ['/', '/profile']
+  const visiblePaths = ['/', '/profile', '/favorites']
 
   if (!visiblePaths.includes(pathname)) {
     return null
@@ -34,23 +35,29 @@ export function BottomNav() {
               href={item.href}
               className="relative flex flex-col items-center justify-center w-full pt-3 pb-2"
             >
-              <div
-                className={`absolute top-0 w-10 h-[3px] rounded-full ${
-                  isActive ? 'bg-accent-orange' : 'bg-transparent'
-                }`}
-              ></div>
+              <motion.div
+                className="absolute top-0 w-10 h-[3px] rounded-full bg-accent-orange"
+                initial={false}
+                animate={{ scaleX: isActive ? 1 : 0 }}
+                transition={{ duration: 0.3 }}
+              />
 
               <item.icon
-                className={`w-6 h-6 ${
+                className={`w-6 h-6 transition-colors duration-300 ${
                   isActive ? 'text-accent-orange' : 'text-gray-500'
                 }`}
               />
 
-              {isActive && (
-                <span className="text-xs font-medium text-accent-orange baloo2">
+              <motion.div
+                className="overflow-hidden"
+                initial={false}
+                animate={{ height: isActive ? 'auto' : 0 }}
+                transition={{ duration: 0.3 }}
+              >
+                <span className="text-xs font-medium text-accent-orange baloo2 pt-1">
                   {item.label}
                 </span>
-              )}
+              </motion.div>
             </Link>
           )
         })}

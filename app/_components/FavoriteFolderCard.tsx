@@ -2,21 +2,27 @@
 
 import { FavoriteFolder } from '@/types/favorite'
 import Image from 'next/image'
+import { cn } from '@/lib/utils'
 
 interface FavoriteFolderCardProps {
   folder: FavoriteFolder
   onClick: (folderId: number, folderName: string) => void
   disabled: boolean
+  widthClass?: string
 }
 
 export function FavoriteFolderCard({
   folder,
   onClick,
   disabled,
+  widthClass = 'w-36',
 }: FavoriteFolderCardProps) {
   return (
     <button
-      className="block w-36 shrink-0 cursor-pointer disabled:opacity-50 text-left"
+      className={cn(
+        'block shrink-0 cursor-pointer disabled:opacity-50 text-left',
+        widthClass
+      )}
       onClick={() => onClick(folder.id, folder.name)}
       disabled={disabled}
     >
@@ -34,8 +40,8 @@ export function FavoriteFolderCard({
           {folder.name}
         </p>
         <p className="text-xs text-neutral-gray">
-          {folder.propertyCount}{' '}
-          {folder.propertyCount !== 1 ? 'properties' : 'property'}
+          Saved {folder.propertyCount}{' '}
+          {folder.propertyCount !== 1 ? 'places' : 'place'}
         </p>
       </div>
     </button>
