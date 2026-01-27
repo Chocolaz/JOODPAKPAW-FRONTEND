@@ -522,3 +522,12 @@ export const renameFavoriteFolder = (
     errorContext: 'Rename Favorite Folder',
   })
 }
+
+export const deleteFavoriteProperty = (propertyId: number): Promise<void> => {
+  return request<void>({
+    endpoint: `api/v1/favorite-properties/${propertyId}`,
+    method: 'DELETE',
+    requiresAuth: true,
+    errorContext: 'Delete Favorite Property',
+  })
+}

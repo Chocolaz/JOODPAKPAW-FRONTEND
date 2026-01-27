@@ -7,7 +7,7 @@ import { useState, useEffect } from 'react'
 import { cn, getLowestPrice, getPetPolicy } from '@/lib/utils'
 import { Globe, GlobeLock, Heart } from 'lucide-react'
 import { FavoriteDrawer } from './FavoriteDrawer'
-import { getFavoriteFolders, addFavorite } from '@/lib/api'
+import { getFavoriteFolders, addFavorite, deleteFavoriteProperty } from '@/lib/api'
 import { toast } from 'sonner'
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL
@@ -52,36 +52,47 @@ export function PropertyCard({
     e.preventDefault()
     e.stopPropagation()
 
-    try {
-      const foldersResponse = await getFavoriteFolders()
-      const folders = foldersResponse.favoriteFolders
-      let folderName = 'default wishlist'
-
-      if (folders.length === 0) {
-        // Case: No folders, create a default one
-        await addFavorite({ propertyId: property.id })
-      } else {
-        // Case: Folders exist, add to the first one
-        folderName = folders[0].name
-        await addFavorite({
-          propertyId: property.id,
-          folderId: folders[0].id,
-        })
+    if (isHeartClicked) {
+      try {
+        await deleteFavoriteProperty(property.id)
+        setIsHeartClicked(false)
+        toast.success('Property removed from favorites.')
+      } catch (_error) {
+        toast.error('Failed to remove from favorites.')
       }
-      setIsHeartClicked(true)
-      toast.success(`Property added to ${folderName}`, {
-        action: {
-          label: 'change',
-          onClick: () => setIsDrawerOpen(true),
-        },
-        actionButtonStyle: {
-          color: 'gray',
-          textDecoration: 'underline',
-          fontSize: '1rem',
-        },
-      })
-    } catch (_error) {
-      toast.error('Failed to add to favorites.')
+    } else {
+      try {
+        const foldersResponse = await getFavoriteFolders()
+        const folders = foldersResponse.favoriteFolders
+        let folderName = 'default wishlist'
+
+        if (folders.length === 0) {
+          await addFavorite({ propertyId: property.id })
+        } else {
+          // Sort folders by ID to ensure consistency
+          const sortedFolders = folders.sort((a, b) => a.id - b.id)
+          const targetFolder = sortedFolders[0]
+          folderName = targetFolder.name
+          await addFavorite({
+            propertyId: property.id,
+            folderId: targetFolder.id,
+          })
+        }
+        setIsHeartClicked(true)
+        toast.success(`Property added to ${folderName}`, {
+          action: {
+            label: 'change',
+            onClick: () => setIsDrawerOpen(true),
+          },
+          actionButtonStyle: {
+            color: 'gray',
+            textDecoration: 'underline',
+            fontSize: '1rem',
+          },
+        })
+      } catch (_error) {
+        toast.error('Failed to add to favorites.')
+      }
     }
   }
 
