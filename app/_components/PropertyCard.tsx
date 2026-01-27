@@ -3,7 +3,7 @@
 import { Property } from '@/types'
 import Image from 'next/image'
 import Link from 'next/link'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { cn, getLowestPrice, getPetPolicy } from '@/lib/utils'
 import { Globe, GlobeLock, Heart } from 'lucide-react'
 import { FavoriteDrawer } from './FavoriteDrawer'
@@ -36,8 +36,12 @@ export function PropertyCard({
       ? new URL(property.images[0].filePath, API_BASE_URL).toString()
       : '/graphics/welcome.svg'
   )
-  const [isHeartClicked, setIsHeartClicked] = useState(false)
+  const [isHeartClicked, setIsHeartClicked] = useState(property.isFavorite)
   const [isDrawerOpen, setIsDrawerOpen] = useState(false)
+
+  useEffect(() => {
+    setIsHeartClicked(property.isFavorite)
+  }, [property.isFavorite])
 
   const finalHref = href || `/${property.id}`
 

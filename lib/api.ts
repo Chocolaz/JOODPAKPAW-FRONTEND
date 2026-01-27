@@ -130,6 +130,7 @@ export const getProperties = (
     endpoint: `api/v1/properties?${params.toString()}`,
     method: 'GET',
     errorContext: 'Get Properties',
+    sendAuthIfAvailable: true,
   })
 }
 
@@ -465,6 +466,7 @@ export const getFavoriteFolderById = async (
       longitude: '0',
       zipcode: '',
       isActive: true,
+      isFavorite: true, // Favorites are always favorited
       avgRating: 0,
       hostId: 0,
       propertyTypeId: 0,
@@ -473,8 +475,14 @@ export const getFavoriteFolderById = async (
     }),
   )
 
+  const firstPropertyImage =
+    transformedProperties.length > 0 && transformedProperties[0].images.length > 0
+      ? transformedProperties[0].images[0].filePath
+      : ''
+
   return {
     ...response,
+    firstPropertyImage,
     properties: transformedProperties,
   }
 }

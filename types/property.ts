@@ -62,6 +62,7 @@ export interface Property {
   longitude: string
   zipcode: string
   isActive: boolean
+  isFavorite: boolean
   avgRating: number
   hostId: number
   propertyTypeId: number

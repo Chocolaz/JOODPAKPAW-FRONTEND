@@ -6,6 +6,7 @@ interface RequestOptions extends Omit<RequestInit, 'body'> {
   endpoint: string
   errorContext?: string
   requiresAuth?: boolean
+  sendAuthIfAvailable?: boolean
   body?: unknown
 }
 
@@ -16,6 +17,7 @@ async function request<T>({
   headers: customHeaders,
   errorContext = 'API request',
   requiresAuth = false,
+  sendAuthIfAvailable = false,
   ...rest
 }: RequestOptions): Promise<T> {
   const headers = new Headers(customHeaders)
@@ -32,6 +34,11 @@ async function request<T>({
       }
     }
     headers.set('Authorization', `Bearer ${token}`)
+  } else if (sendAuthIfAvailable) {
+    const token = getAccessToken()
+    if (token) {
+      headers.set('Authorization', `Bearer ${token}`)
+    }
   }
 
   if (body && !(body instanceof FormData)) {

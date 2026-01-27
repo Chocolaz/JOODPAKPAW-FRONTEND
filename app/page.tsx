@@ -43,7 +43,7 @@ export default function Home() {
     }
 
     fetchProperties()
-  }, [searchQuery])
+  }, [searchQuery, isAuthenticated])
 
   return (
     <div className="bg-white text-foreground min-h-screen flex flex-col">
