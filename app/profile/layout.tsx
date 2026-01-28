@@ -54,6 +54,9 @@ function LayoutContent({ children }: { children: ReactNode }) {
     if (pathname === '/profile/pets') {
       return { title: 'Pets', backPath: '/profile' }
     }
+    if (pathname.match(/^\/profile\/pets\/\d+$/)) {
+      return { title: 'Pet Profile', backPath: '/profile/pets' }
+    }
     if (pathname === '/profile/bookings') {
       return { title: 'Bookings', backPath: '/profile' }
     }

@@ -22,11 +22,16 @@ export interface PetSizeCategoriesResponse {
 export interface PetProfile {
   id: number
   name: string
-  image: string | null // Changed from avatar
-  birthDate: string // ISO date string
-  age: number // Added based on example
-  petTypeName: string
-  // Removed: userId, petTypeId, petSizeId, petSizeName, breed, gender, weight, isNeutered, createdAt, updatedAt
+  image: string | null
+  birthDate: string
+  age?: number // In list view
+  petTypeName?: string // In list view
+  sex?: 'male' | 'female' // In detail view
+  petBreedName?: string // In detail view
+  rating?: number // In detail view
+  contactName?: string // In detail view
+  contactPhone?: string // In detail view
+  note?: string // In detail view
 }
 
 export interface PetProfilesResponse {

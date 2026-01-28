@@ -8,11 +8,13 @@ import { ErrorState } from '@/app/profile/_components/ErrorState'
 import { useProfileContext } from '../ProfileContext'
 import { useEffect } from 'react'
 import { PetCard } from './_components/PetCard'
+import { useRouter } from 'next/navigation'
 
 export default function PetsPage() {
   const {
     petProfiles: { pets, loading, error, refetch },
   } = useProfileContext()
+  const router = useRouter()
 
   useEffect(() => {
     refetch()
@@ -30,7 +32,11 @@ export default function PetsPage() {
         ) : pets.length > 0 ? (
           <div className="grid grid-cols-2 gap-3 mt-4">
             {pets.map((pet) => (
-              <PetCard key={pet.id} pet={pet} />
+              <PetCard
+                key={pet.id}
+                pet={pet}
+                onClick={() => router.push(`/profile/pets/${pet.id}`)}
+              />
             ))}
           </div>
         ) : (

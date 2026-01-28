@@ -6,6 +6,7 @@ import {
   FacilitiesResponse,
   ForgotPasswordCredentials,
   HostPropertiesResponse,
+  PetProfile,
   PetProfilesResponse,
   PetSizeCategoriesResponse,
   PetsResponse,
@@ -116,6 +117,17 @@ export const getAllPetProfiles = (): Promise<PetProfilesResponse> => {
     errorContext: 'Get All Pet Profiles',
   })
 }
+
+export const getPetProfileById = (id: string): Promise<PetProfile> => {
+  return request<PetProfile>({
+    endpoint: `api/v1/profiles/pet-profiles/${id}`,
+    method: 'GET',
+    requiresAuth: true,
+    errorContext: 'Get Pet Profile By Id',
+  })
+}
+
+// --- Property Functions ---
 
 // --- Property Functions ---
 export const getProperties = (
