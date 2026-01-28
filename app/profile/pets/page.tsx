@@ -60,7 +60,7 @@ export default function PetsPage() {
       </div>
 
       <div className="fixed bottom-0 left-0 right-0 py-5 px-5 sm:px-10 z-10 max-w-[500px] mx-auto">
-        <Link href="#">
+        <Link href="/profile/pets/add/1">
           <Button className="interact-button w-full">Add Pet</Button>
         </Link>
       </div>

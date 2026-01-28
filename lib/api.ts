@@ -127,6 +127,16 @@ export const getPetProfileById = (id: string): Promise<PetProfile> => {
   })
 }
 
+export const createPetProfile = (formData: FormData) => {
+  return request({
+    endpoint: 'api/v1/profiles/pet-profiles',
+    method: 'POST',
+    body: formData,
+    requiresAuth: true,
+    errorContext: 'Create Pet Profile',
+  })
+}
+
 // --- Property Functions ---
 
 // --- Property Functions ---
@@ -435,9 +445,8 @@ export const getFavoriteFolders = (): Promise<FavoriteFoldersResponse> => {
   })
 }
 
-
 export const getFavoriteFolderById = async (
-  folderId: string,
+  folderId: string
 ): Promise<FavoriteFolderDetail> => {
   // Define local types for the raw API response to avoid conflicts
   interface ApiFavoriteProperty {
@@ -494,11 +503,12 @@ export const getFavoriteFolderById = async (
       propertyTypeId: 0,
       createdAt: '',
       updatedAt: '',
-    }),
+    })
   )
 
   const firstPropertyImage =
-    transformedProperties.length > 0 && transformedProperties[0].images.length > 0
+    transformedProperties.length > 0 &&
+    transformedProperties[0].images.length > 0
       ? transformedProperties[0].images[0].filePath
       : ''
 

@@ -5,6 +5,7 @@ import { usePathname, useRouter } from 'next/navigation'
 import { ProfileHeader } from './_components/ProfileHeader'
 import { HostBanner } from './_components/HostBanner'
 import { PetsBanner } from './pets/_components/PetsBanner'
+import { AddPetBanner } from './pets/add/_components/AddPetBanner'
 import { ProfileProvider, useProfileContext } from './ProfileContext'
 import { useAuth } from '@/app/_components/AuthContext'
 import { Spinner } from '@/components/ui/spinner'
@@ -54,6 +55,9 @@ function LayoutContent({ children }: { children: ReactNode }) {
     if (pathname === '/profile/pets') {
       return { title: 'Pets', backPath: '/profile' }
     }
+    if (pathname.startsWith('/profile/pets/add')) {
+      return { title: 'Add Pet', backPath: '/profile/pets' }
+    }
     if (pathname.match(/^\/profile\/pets\/\d+$/)) {
       return { title: 'Pet Profile', backPath: '/profile/pets' }
     }
@@ -78,6 +82,13 @@ function LayoutContent({ children }: { children: ReactNode }) {
       const stepId = parseInt(pathname.split('/').pop() || '', 10)
       if (!isNaN(stepId)) {
         return <HostBanner currentStep={stepId} totalSteps={9} />
+      }
+      return null
+    }
+    if (pathname.startsWith('/profile/pets/add')) {
+      const stepId = parseInt(pathname.split('/').pop() || '', 10)
+      if (!isNaN(stepId)) {
+        return <AddPetBanner currentStep={stepId} totalSteps={5} />
       }
       return null
     }

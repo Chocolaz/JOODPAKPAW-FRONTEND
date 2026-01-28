@@ -37,3 +37,7 @@ export interface PetProfile {
 export interface PetProfilesResponse {
   petProfiles: PetProfile[]
 }
+
+export interface PetProfileFormData {
+  petTypeId: number | null
+}
