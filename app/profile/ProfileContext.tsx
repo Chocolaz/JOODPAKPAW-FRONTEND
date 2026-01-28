@@ -2,10 +2,18 @@
 
 import React, { createContext, useContext, useState, ReactNode } from 'react'
 import { useHostProperties } from './host/_hooks/useHostProperties'
-import { Property } from '@/types'
+import { useUserPets } from './pets/_hooks/useUserPets'
+import { Property, PetProfile } from '@/types'
 
 interface HostPropertiesState {
   properties: Property[]
+  loading: boolean
+  error: string | null
+  refetch: () => Promise<void>
+}
+
+interface PetProfilesState {
+  pets: PetProfile[]
   loading: boolean
   error: string | null
   refetch: () => Promise<void>
@@ -15,6 +23,7 @@ interface ProfileContextType {
   setMenu: (menu: ReactNode) => void
   menu: ReactNode | null
   hostProperties: HostPropertiesState
+  petProfiles: PetProfilesState
 }
 
 const ProfileContext = createContext<ProfileContextType>({
@@ -26,6 +35,12 @@ const ProfileContext = createContext<ProfileContextType>({
     error: null,
     refetch: async () => {},
   },
+  petProfiles: {
+    pets: [],
+    loading: true,
+    error: null,
+    refetch: async () => {},
+  },
 })
 
 export const useProfileContext = () => useContext(ProfileContext)
@@ -33,9 +48,12 @@ export const useProfileContext = () => useContext(ProfileContext)
 export const ProfileProvider = ({ children }: { children: ReactNode }) => {
   const [menu, setMenu] = useState<ReactNode | null>(null)
   const hostProperties = useHostProperties()
+  const petProfiles = useUserPets()
 
   return (
-    <ProfileContext.Provider value={{ menu, setMenu, hostProperties }}>
+    <ProfileContext.Provider
+      value={{ menu, setMenu, hostProperties, petProfiles }}
+    >
       {children}
     </ProfileContext.Provider>
   )

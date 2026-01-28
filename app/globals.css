@@ -213,5 +213,5 @@ body {
 }
 
 .interact-button {
-  @apply w-full bg-positive-green h-12 text-[16px];
+  @apply w-full bg-positive-green/90 h-12 text-[16px];
 }

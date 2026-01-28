@@ -4,6 +4,7 @@ import React, { ReactNode, useEffect } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
 import { ProfileHeader } from './_components/ProfileHeader'
 import { HostBanner } from './_components/HostBanner'
+import { PetsBanner } from './pets/_components/PetsBanner'
 import { ProfileProvider, useProfileContext } from './ProfileContext'
 import { useAuth } from '@/app/_components/AuthContext'
 import { Spinner } from '@/components/ui/spinner'
@@ -11,7 +12,7 @@ import { Spinner } from '@/components/ui/spinner'
 function LayoutContent({ children }: { children: ReactNode }) {
   const pathname = usePathname()
   const router = useRouter()
-  const { menu, hostProperties } = useProfileContext()
+  const { menu, hostProperties, petProfiles } = useProfileContext()
   const { isAuthenticated, loading: authLoading } = useAuth()
 
   useEffect(() => {
@@ -49,6 +50,9 @@ function LayoutContent({ children }: { children: ReactNode }) {
     }
     if (pathname === '/profile/host') {
       return { title: 'Host', backPath: '/profile' }
+    }
+    if (pathname === '/profile/pets') {
+      return { title: 'Pets', backPath: '/profile' }
     }
     if (pathname === '/profile/bookings') {
       return { title: 'Bookings', backPath: '/profile' }
@@ -93,6 +97,13 @@ function LayoutContent({ children }: { children: ReactNode }) {
           }}
         />
       )
+    }
+    if (pathname === '/profile/pets') {
+      const { pets, error } = petProfiles
+      if (error) {
+        return null
+      }
+      return <PetsBanner summary={{ total: pets.length }} />
     }
     return null
   }

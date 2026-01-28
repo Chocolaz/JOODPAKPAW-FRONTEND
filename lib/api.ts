@@ -6,6 +6,7 @@ import {
   FacilitiesResponse,
   ForgotPasswordCredentials,
   HostPropertiesResponse,
+  PetProfilesResponse,
   PetSizeCategoriesResponse,
   PetsResponse,
   ProfileResponse,
@@ -104,6 +105,15 @@ export const updateUserProfile = (userId: string, formData: FormData) => {
     body: formData,
     requiresAuth: true,
     errorContext: 'Update Profile',
+  })
+}
+
+export const getAllPetProfiles = (): Promise<PetProfilesResponse> => {
+  return request<PetProfilesResponse>({
+    endpoint: 'api/v1/profiles/pet-profiles/all',
+    method: 'GET',
+    requiresAuth: true,
+    errorContext: 'Get All Pet Profiles',
   })
 }
 
