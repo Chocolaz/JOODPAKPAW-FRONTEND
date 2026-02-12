@@ -12,6 +12,22 @@ export function AddPetBanner({ currentStep, totalSteps }: AddPetBannerProps) {
     switch (step) {
       case 1:
         return 'Species'
+      case 2:
+        return 'Breed'
+      case 3:
+        return 'Photo & Name'
+      case 4:
+        return 'Gender'
+      case 5:
+        return 'Size'
+      case 6:
+        return 'Age'
+      case 7:
+        return 'Activity Level'
+      case 8:
+        return 'Contact'
+      case 9:
+        return 'Review & Submit'
       // Add more cases for future steps
       default:
         return ''

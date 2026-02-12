@@ -29,6 +29,16 @@ const AddPetContext = createContext<AddPetContextType | undefined>(
 
 const initialFormData: PetProfileFormData = {
   petTypeId: null,
+  petBreedId: null,
+  petName: null,
+  petImage: null,
+  petGender: null,
+  petSizeCategoryId: null,
+  petBirthDate: null,
+  petActivityLevel: null,
+  contactName: null,
+  contactPhone: null,
+  petNote: null,
 }
 
 export const AddPetProvider = ({ children }: { children: ReactNode }) => {

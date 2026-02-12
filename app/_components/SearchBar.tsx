@@ -29,7 +29,10 @@ export function SearchBar({ onSearch, value }: SearchBarProps) {
             placeholder="Search"
             className="pl-10 pr-10 rounded-full"
             value={internalSearchValue}
-            onChange={(e) => setInternalSearchValue(e.target.value)}
+            onChange={(e) => {
+              setInternalSearchValue(e.target.value)
+              onSearch(e.target.value)
+            }}
           />
           <Button
             type="submit"

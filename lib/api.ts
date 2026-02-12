@@ -25,6 +25,7 @@ import {
   FullBookingDetail, // Added FullBookingDetail
   HostBookingDetail,
   FavoriteFoldersResponse, // Added FavoriteFoldersResponse
+  PetBreedsResponse,
 } from '@/types'
 import { FavoriteFolderDetail } from '@/types/favorite'
 import type { PropertiesResponse } from '@/types/property'
@@ -224,6 +225,15 @@ export const getPetTypes = (): Promise<PetsResponse> => {
     method: 'GET',
     requiresAuth: true,
     errorContext: 'Get Pet Types',
+  })
+}
+
+export const getPetBreeds = (petTypeId: number): Promise<PetBreedsResponse> => {
+  return request<PetBreedsResponse>({
+    endpoint: `api/v1/pets/${petTypeId}/pet-breeds/all`,
+    method: 'GET',
+    requiresAuth: true,
+    errorContext: 'Get Pet Breeds',
   })
 }
 

@@ -7,6 +7,17 @@ export interface PetsResponse {
   pets: Pet[]
 }
 
+export interface PetBreed {
+  id: number
+  breed: string
+  petId: number
+  petName: string
+}
+
+export interface PetBreedsResponse {
+  petBreeds: PetBreed[]
+}
+
 export interface PetSizeCategory {
   id: number
   name: string
@@ -38,6 +49,22 @@ export interface PetProfilesResponse {
   petProfiles: PetProfile[]
 }
 
+export enum PetGender {
+  Male = 'male',
+  Female = 'female',
+  Other = 'other', // Renamed from "Not sure" for consistency with typical enum values
+}
+
 export interface PetProfileFormData {
   petTypeId: number | null
+  petBreedId: number | null
+  petName: string | null
+  petImage: File | null
+  petGender: PetGender | null
+  petSizeCategoryId: number | null
+  petBirthDate: string | null
+  petActivityLevel: number | null
+  contactName: string | null
+  contactPhone: string | null
+  petNote: string | null
 }
