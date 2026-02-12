@@ -6,6 +6,7 @@ import { ProfileHeader } from './_components/ProfileHeader'
 import { HostBanner } from './_components/HostBanner'
 import { PetsBanner } from './pets/_components/PetsBanner'
 import { AddPetBanner } from './pets/add/_components/AddPetBanner'
+import { addPetStepsComponents } from './pets/add/steps' // Import the steps array
 import { ProfileProvider, useProfileContext } from './ProfileContext'
 import { useAuth } from '@/app/_components/AuthContext'
 import { Spinner } from '@/components/ui/spinner'
@@ -88,7 +89,7 @@ function LayoutContent({ children }: { children: ReactNode }) {
     if (pathname.startsWith('/profile/pets/add')) {
       const stepId = parseInt(pathname.split('/').pop() || '', 10)
       if (!isNaN(stepId)) {
-        return <AddPetBanner currentStep={stepId} totalSteps={5} />
+        return <AddPetBanner currentStep={stepId} totalSteps={addPetStepsComponents.length} />
       }
       return null
     }
