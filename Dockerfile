@@ -8,6 +8,11 @@ COPY package*.json ./
 # ติดตั้ง dependencies แบบ deterministic
 RUN npm install --legacy-peer-deps
 
+# build-time env variables (NEXT_PUBLIC_* are inlined during build)
+ARG NEXT_PUBLIC_BASE_PATH
+ARG NEXT_PUBLIC_API_BASE_URL
+ARG NEXT_PUBLIC_GOOGLE_MAPS_API_KEY
+
 # copy source code
 COPY . .
 
