@@ -119,7 +119,7 @@ export function Step9({ onBack }: Step9Props) {
         onNext={handleSubmit}
         onBack={onBack}
         isNextDisabled={isLoading}
-        nextButtonText="Submit"
+        nextText="Submit"
       />
     </div>
   )
