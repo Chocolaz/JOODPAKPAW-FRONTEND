@@ -1,9 +1,12 @@
 import type { NextConfig } from 'next'
 import type { RuleSetRule } from 'webpack'
 
+const nextBasePath = process.env.NEXT_PUBLIC_BASE_PATH || ''
+
 const nextConfig: NextConfig = {
+  ...(nextBasePath ? { basePath: nextBasePath } : {}),
   images: {
-    domains: ['cp25nk2.sit.kmutt.ac.th'],
+    domains: ['cp25nk2.sit.kmutt.ac.th', 'bscit.sit.kmutt.ac.th'],
   },
 
   webpack(config) {

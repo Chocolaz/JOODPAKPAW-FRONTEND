@@ -34,7 +34,7 @@ export default function HostPropertyDetailPage() {
 
   const handleShare = async () => {
     if (navigator.share && property) {
-      const publicUrl = `${window.location.origin}/${property.id}`
+      const publicUrl = `${window.location.origin}${process.env.NEXT_PUBLIC_BASE_PATH || ''}/${property.id}`
       try {
         await navigator.share({
           title: property.title,

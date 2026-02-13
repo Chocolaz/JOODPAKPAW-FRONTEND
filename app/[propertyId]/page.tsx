@@ -26,7 +26,7 @@ export default function PropertyDetailPage() {
         await navigator.share({
           title: property.title,
           text: `Check out this property: ${property.title}`,
-          url: `${window.location.origin}/${property.id}`,
+          url: `${window.location.origin}${process.env.NEXT_PUBLIC_BASE_PATH || ''}/${property.id}`,
         })
         console.log('Shared successfully')
       } catch (err) {
@@ -35,7 +35,7 @@ export default function PropertyDetailPage() {
     } else {
       console.log(
         'Web Share API not supported or property data not available. URL:',
-        `${window.location.origin}/${property?.id}`
+        `${window.location.origin}${process.env.NEXT_PUBLIC_BASE_PATH || ''}/${property?.id}`
       )
     }
   }
