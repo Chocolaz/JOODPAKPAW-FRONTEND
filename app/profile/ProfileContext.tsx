@@ -1,6 +1,7 @@
 'use client'
 
 import React, { createContext, useContext, useState, ReactNode } from 'react'
+import { useAuth } from '@/app/_components/AuthContext'
 import { useHostProperties } from './host/_hooks/useHostProperties'
 import { useUserPets } from './pets/_hooks/useUserPets'
 import { Property, PetProfile } from '@/types'
@@ -46,8 +47,11 @@ const ProfileContext = createContext<ProfileContextType>({
 export const useProfileContext = () => useContext(ProfileContext)
 
 export const ProfileProvider = ({ children }: { children: ReactNode }) => {
+  const { user } = useAuth()
+  const isHost = user?.role?.some((role) => role.name === 'host')
+
   const [menu, setMenu] = useState<ReactNode | null>(null)
-  const hostProperties = useHostProperties()
+  const hostProperties = useHostProperties({ enabled: isHost })
   const petProfiles = useUserPets()
 
   return (
