@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button'
 import Image from 'next/image'
 import { updateUserProfile } from '@/lib/api'
 import { useAuth } from '@/app/_components/AuthContext'
-import { useRouter } from 'next/router'
+// Removed import getConfig from 'next/config'
 
 export const EditProfileForm = ({
   profile,
@@ -20,8 +20,9 @@ export const EditProfileForm = ({
   onRefreshProfile: () => void
   onCloseDrawer: () => void
 }) => {
-  const router = useRouter()
-  const guestAvatarSrc = `${router.basePath || ''}/graphics/guest.jpg`
+  // Removed const { publicRuntimeConfig } = getConfig()
+  const basePath = process.env.NEXT_PUBLIC_BASE_PATH || ''
+  const guestAvatarSrc = `${basePath}/graphics/guest.jpg`
   const { refreshAuth } = useAuth()
   const [firstName, setFirstName] = useState(profile.firstName)
   const [lastName, setLastName] = useState(profile.lastName)

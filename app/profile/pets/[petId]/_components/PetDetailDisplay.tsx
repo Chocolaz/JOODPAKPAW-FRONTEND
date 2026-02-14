@@ -4,15 +4,16 @@ import { PetProfile } from '@/types'
 import { Button } from '@/components/ui/button'
 import { Cake, Phone, User, Star, Mars, Venus, Zap } from 'lucide-react'
 import { differenceInYears } from 'date-fns'
-import { useRouter } from 'next/router'
+// Removed import getConfig from 'next/config'
 
 interface PetDetailDisplayProps {
   pet: PetProfile
 }
 
 export default function PetDetailDisplay({ pet }: PetDetailDisplayProps) {
-  const router = useRouter()
-  const guestPetImageSrc = `${router.basePath || ''}/graphics/guest.jpg`
+  // Removed const { publicRuntimeConfig } = getConfig()
+  const basePath = process.env.NEXT_PUBLIC_BASE_PATH || ''
+  const guestPetImageSrc = `${basePath}/graphics/guest.jpg`
   const age = differenceInYears(new Date(), new Date(pet.birthDate))
 
   return (

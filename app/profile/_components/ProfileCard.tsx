@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
 import { UserProfile } from '@/types'
 import { Button } from '@/components/ui/button'
-import { useRouter } from 'next/router'
+// Removed import getConfig from 'next/config'
 
 export const ProfileCard = ({
   profile,
@@ -13,8 +13,9 @@ export const ProfileCard = ({
   profile: UserProfile
   onPasswordChangeClick: () => void
 }) => {
-  const router = useRouter()
-  const guestAvatarSrc = `${router.basePath || ''}/graphics/guest.jpg`
+  // Removed const { publicRuntimeConfig } = getConfig()
+  const basePath = process.env.NEXT_PUBLIC_BASE_PATH || ''
+  const guestAvatarSrc = `${basePath}/graphics/guest.jpg`
   return (
     <Card className="my-2">
       <CardHeader className="flex flex-col items-center text-center">

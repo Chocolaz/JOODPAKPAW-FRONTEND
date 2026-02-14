@@ -1,5 +1,5 @@
 import Image from 'next/image'
-import { useRouter } from 'next/router'
+// Removed import getConfig from 'next/config'
 
 interface PageHeaderProps {
   title?: string
@@ -7,8 +7,9 @@ interface PageHeaderProps {
 }
 
 export function PageHeader({ title, isHost }: PageHeaderProps) {
-  const router = useRouter()
-  const imageSrc = `${router.basePath || ''}/graphics/home.svg`
+  // Removed const { publicRuntimeConfig } = getConfig()
+  const basePath = process.env.NEXT_PUBLIC_BASE_PATH || ''
+  const imageSrc = `${basePath}/graphics/home.svg`
 
   return (
     <header>

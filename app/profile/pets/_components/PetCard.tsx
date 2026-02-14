@@ -3,7 +3,7 @@
 import { PetProfile } from '@/types'
 import { Card } from '@/components/ui/card'
 import { Cake, PawPrint } from 'lucide-react'
-import { useRouter } from 'next/router'
+// Removed import getConfig from 'next/config'
 
 interface PetCardProps {
   pet: PetProfile
@@ -11,8 +11,9 @@ interface PetCardProps {
 }
 
 export function PetCard({ pet, onClick }: PetCardProps) {
-  const router = useRouter()
-  const guestPetImageSrc = `${router.basePath || ''}/graphics/guest.jpg`
+  // Removed const { publicRuntimeConfig } = getConfig()
+  const basePath = process.env.NEXT_PUBLIC_BASE_PATH || ''
+  const guestPetImageSrc = `${basePath}/graphics/guest.jpg`
 
   const handleCardClick = () => {
     if (onClick) {
