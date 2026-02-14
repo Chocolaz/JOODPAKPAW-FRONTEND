@@ -8,6 +8,7 @@ import { cn, getLowestPrice, getPetPolicy, assetPath } from '@/lib/utils'
 import { Globe, GlobeLock, Heart } from 'lucide-react'
 import { FavoriteDrawer } from './FavoriteDrawer'
 import { getFavoriteFolders, addFavorite, deleteFavoriteProperty } from '@/lib/api'
+import { ApiError } from '@/lib/errorHandling'
 import { toast } from 'sonner'
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL
@@ -56,7 +57,34 @@ export function PropertyCard({
       try {
         await deleteFavoriteProperty(property.id)
         setIsHeartClicked(false)
-        toast.success('Property removed from favorites.')
+        toast.success('Property removed from favorites.', {
+          action: {
+            label: 'undo',
+            onClick: async () => {
+              try {
+                const res = await getFavoriteFolders()
+                const folders = res.favoriteFolders
+                if (folders.length === 0) {
+                  await addFavorite({ propertyId: property.id })
+                } else {
+                  const sorted = folders.sort((a, b) => a.id - b.id)
+                  await addFavorite({
+                    propertyId: property.id,
+                    folderId: sorted[0].id,
+                  })
+                }
+                setIsHeartClicked(true)
+              } catch (_err) {
+                toast.error('Failed to undo.')
+              }
+            },
+          },
+          actionButtonStyle: {
+            color: 'gray',
+            textDecoration: 'underline',
+            fontSize: '1rem',
+          },
+        })
       } catch (_error) {
         toast.error('Failed to remove from favorites.')
       }
@@ -90,8 +118,14 @@ export function PropertyCard({
             fontSize: '1rem',
           },
         })
-      } catch (_error) {
-        toast.error('Failed to add to favorites.')
+      } catch (error) {
+        if (error instanceof ApiError && error.code === 'FF-4101') {
+          // Property is already favorited in another folder — open drawer to move it
+          setIsHeartClicked(true)
+          setIsDrawerOpen(true)
+        } else {
+          toast.error('Failed to add to favorites.')
+        }
       }
     }
   }

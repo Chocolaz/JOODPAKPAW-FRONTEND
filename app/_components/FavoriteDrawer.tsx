@@ -11,7 +11,7 @@ import { Input } from '@/components/ui/input'
 import { FavoriteFolderCard } from './FavoriteFolderCard'
 import { Plus, Loader2, ChevronLeft } from 'lucide-react'
 import { useEffect, useState, useRef } from 'react'
-import { getFavoriteFolders, addFavorite } from '@/lib/api'
+import { getFavoriteFolders, moveFavorite } from '@/lib/api'
 import { FavoriteFolder } from '@/types/favorite'
 import { toast } from 'sonner'
 
@@ -66,7 +66,7 @@ export function FavoriteDrawer({
   const handleSaveToFolder = async (folderId: number, folderName: string) => {
     setIsPosting(true)
     try {
-      await addFavorite({ propertyId, folderId })
+      await moveFavorite({ propertyId, folderId })
       toast.success(`Moved to ${folderName}!`)
       onOpenChange(false)
       onSuccess?.()
@@ -84,7 +84,7 @@ export function FavoriteDrawer({
     }
     setIsPosting(true)
     try {
-      await addFavorite({ propertyId, folderName: newFolderName })
+      await moveFavorite({ propertyId, folderName: newFolderName })
       toast.success(`Saved to ${newFolderName}!`)
       setNewFolderName('')
       onOpenChange(false)

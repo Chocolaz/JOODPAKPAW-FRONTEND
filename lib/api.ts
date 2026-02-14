@@ -573,3 +573,12 @@ export const deleteFavoriteProperty = (propertyId: number): Promise<void> => {
     errorContext: 'Delete Favorite Property',
   })
 }
+
+export const moveFavorite = async (data: {
+  propertyId: number
+  folderId?: number
+  folderName?: string
+}): Promise<void> => {
+  await deleteFavoriteProperty(data.propertyId)
+  await addFavorite(data)
+}

@@ -124,7 +124,10 @@ export function FavoriteFolderMenuDrawer({
         <>
           <DrawerHeader className="flex items-center">
             <button
-              onClick={() => setDrawerContent('options')}
+              onClick={() => {
+                setNewFolderName(folder.name)
+                setDrawerContent('options')
+              }}
               className="rounded-full hover:bg-gray-100 mr-2"
             >
               <ChevronLeft className="w-6 h-6" />
@@ -151,7 +154,10 @@ export function FavoriteFolderMenuDrawer({
               <Button
                 variant="outline"
                 className="border-none shadow-none"
-                onClick={() => onOpenChange(false)}
+                onClick={() => {
+                  setNewFolderName(folder.name)
+                  onOpenChange(false)
+                }}
               >
                 Cancel
               </Button>
