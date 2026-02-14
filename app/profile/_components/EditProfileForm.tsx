@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button'
 import Image from 'next/image'
 import { updateUserProfile } from '@/lib/api'
 import { useAuth } from '@/app/_components/AuthContext'
+import { useRouter } from 'next/router'
 
 export const EditProfileForm = ({
   profile,
@@ -19,6 +20,8 @@ export const EditProfileForm = ({
   onRefreshProfile: () => void
   onCloseDrawer: () => void
 }) => {
+  const router = useRouter()
+  const guestAvatarSrc = `${router.basePath || ''}/graphics/guest.jpg`
   const { refreshAuth } = useAuth()
   const [firstName, setFirstName] = useState(profile.firstName)
   const [lastName, setLastName] = useState(profile.lastName)
@@ -75,7 +78,7 @@ export const EditProfileForm = ({
       <div className="relative mx-auto w-47 h-47 mb-4">
         <Avatar className="w-47 h-47 border border-gray-200 ring-1 ring-gray-200 ring-offset-15 ring-offset-background">
           <AvatarImage
-            src={avatarPreview || '/graphics/guest.jpg'}
+            src={avatarPreview || guestAvatarSrc}
             alt="Avatar preview"
           />
           <AvatarFallback className="text-5xl">

@@ -13,6 +13,7 @@ import clsx from 'clsx'
 export default function ProfilePage() {
   const { user, isAuthenticated, loading: authLoading } = useAuth()
   const router = useRouter()
+  const guestAvatarSrc = `${router.basePath || ''}/graphics/guest.jpg`
 
   if (authLoading) {
     return null // Or a loading spinner
@@ -51,11 +52,7 @@ export default function ProfilePage() {
       >
         <Avatar className="w-14 h-14 border-4 border-none">
           <AvatarImage
-            src={
-              isAuthenticated && user?.avatar
-                ? user.avatar
-                : '/graphics/guest.jpg'
-            }
+            src={isAuthenticated && user?.avatar ? user.avatar : guestAvatarSrc}
             alt={
               isAuthenticated && user
                 ? `${user.firstName} ${user.lastName}`

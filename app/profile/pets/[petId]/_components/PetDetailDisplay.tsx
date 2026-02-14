@@ -4,19 +4,22 @@ import { PetProfile } from '@/types'
 import { Button } from '@/components/ui/button'
 import { Cake, Phone, User, Star, Mars, Venus, Zap } from 'lucide-react'
 import { differenceInYears } from 'date-fns'
+import { useRouter } from 'next/router'
 
 interface PetDetailDisplayProps {
   pet: PetProfile
 }
 
 export default function PetDetailDisplay({ pet }: PetDetailDisplayProps) {
+  const router = useRouter()
+  const guestPetImageSrc = `${router.basePath || ''}/graphics/guest.jpg`
   const age = differenceInYears(new Date(), new Date(pet.birthDate))
 
   return (
     <div className="pb-10 bg-gray-50 min-h-screen">
       <div className="relative w-full aspect-square">
         <img
-          src={pet.image || '/graphics/guest.jpg'}
+          src={pet.image || guestPetImageSrc}
           alt={pet.name}
           className="object-cover w-full h-full rounded-b-2xl"
         />

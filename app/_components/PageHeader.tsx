@@ -1,4 +1,5 @@
 import Image from 'next/image'
+import { useRouter } from 'next/router'
 
 interface PageHeaderProps {
   title?: string
@@ -6,6 +7,9 @@ interface PageHeaderProps {
 }
 
 export function PageHeader({ title, isHost }: PageHeaderProps) {
+  const router = useRouter()
+  const imageSrc = `${router.basePath || ''}/graphics/home.svg`
+
   return (
     <header>
       {title ? (
@@ -24,7 +28,7 @@ export function PageHeader({ title, isHost }: PageHeaderProps) {
       )}
       <div className="mt-4">
         <Image
-          src="/graphics/home.svg"
+          src={imageSrc}
           alt="Illustration of pets and a house"
           width={390}
           height={144}

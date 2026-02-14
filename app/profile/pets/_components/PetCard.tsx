@@ -3,6 +3,7 @@
 import { PetProfile } from '@/types'
 import { Card } from '@/components/ui/card'
 import { Cake, PawPrint } from 'lucide-react'
+import { useRouter } from 'next/router'
 
 interface PetCardProps {
   pet: PetProfile
@@ -10,6 +11,9 @@ interface PetCardProps {
 }
 
 export function PetCard({ pet, onClick }: PetCardProps) {
+  const router = useRouter()
+  const guestPetImageSrc = `${router.basePath || ''}/graphics/guest.jpg`
+
   const handleCardClick = () => {
     if (onClick) {
       onClick(pet.id)
@@ -20,7 +24,7 @@ export function PetCard({ pet, onClick }: PetCardProps) {
     <div onClick={handleCardClick} className="cursor-pointer group">
       <Card className="rounded-xl shadow-sm group-hover:shadow-lg transition-all duration-300 aspect-square overflow-hidden relative">
         <img
-          src={pet.image || '/graphics/guest.jpg'}
+          src={pet.image || guestPetImageSrc}
           alt={pet.name}
           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
         />

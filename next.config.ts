@@ -1,14 +1,13 @@
 import type { NextConfig } from 'next'
 import type { RuleSetRule } from 'webpack'
 
-const nextBasePath = process.env.NEXT_PUBLIC_BASE_PATH || ''
+const BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH || '/capstone25/cp25nk2'
 
 const nextConfig: NextConfig = {
-  basePath: '/capstone25/cp25nk2',
-  assetPrefix: '/capstone25/cp25nk2/',
+  basePath: BASE_PATH,
+  assetPrefix: BASE_PATH + '/',
   trailingSlash: true,
 
-  ...(nextBasePath ? { basePath: nextBasePath, trailingSlash: true } : {}),
   images: {
     domains: ['cp25nk2.sit.kmutt.ac.th', 'bscit.sit.kmutt.ac.th'],
   },
