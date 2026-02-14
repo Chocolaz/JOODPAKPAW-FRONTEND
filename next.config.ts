@@ -4,6 +4,7 @@ import type { RuleSetRule } from 'webpack'
 const nextConfig: NextConfig = {
   basePath: '/capstone25/cp25nk2',
   assetPrefix: '/capstone25/cp25nk2/',
+  trailingSlash: true,
 
   images: {
     domains: ['cp25nk2.sit.kmutt.ac.th'],
