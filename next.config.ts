@@ -3,7 +3,7 @@ import type { RuleSetRule } from 'webpack'
 
 const nextConfig: NextConfig = {
   basePath: '/capstone25/cp25nk2',
-  trailingSlash: true,
+  assetPrefix: '/capstone25/cp25nk2/',
 
   images: {
     domains: ['cp25nk2.sit.kmutt.ac.th'],
@@ -31,6 +31,12 @@ const nextConfig: NextConfig = {
     config.module.rules.push({
       test: /\.svg$/,
       use: ['@svgr/webpack'],
+    })
+
+    config.module.rules.push({
+      test: /\.(ts|tsx)$/,
+      exclude: /(_actions|actions-runner|node_modules)/,
+      use: [],
     })
 
     return config
