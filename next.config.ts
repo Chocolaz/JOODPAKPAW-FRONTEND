@@ -2,12 +2,14 @@ import type { NextConfig } from 'next'
 import type { RuleSetRule } from 'webpack'
 
 const nextConfig: NextConfig = {
+  basePath: '/capstone25/cp25nk2',
+  assetPrefix: '/capstone25/cp25nk2/',
+
   images: {
     domains: ['cp25nk2.sit.kmutt.ac.th'],
   },
 
   webpack(config) {
-    // Grab the existing rule that handles SVG imports
     const fileLoaderRule = config.module.rules.find(
       (rule: RuleSetRule | '...'): rule is RuleSetRule => {
         if (
@@ -31,7 +33,6 @@ const nextConfig: NextConfig = {
       use: ['@svgr/webpack'],
     })
 
-    // ❌ Exclude GitHub Actions runner folders from being compiled
     config.module.rules.push({
       test: /\.(ts|tsx)$/,
       exclude: /(_actions|actions-runner|node_modules)/,
