@@ -10,9 +10,13 @@ import ProfileIcon from '@/public/icons/nav/Profile.svg'
 export function BottomNav() {
   const pathname = usePathname()
 
+  const basePath = process.env.NEXT_PUBLIC_BASE_PATH || ''
+
+  const normalizedPath = pathname.replace(basePath, '') || '/'
+
   const visiblePaths = ['/', '/profile', '/favorites']
 
-  if (!visiblePaths.includes(pathname)) {
+  if (!visiblePaths.includes(normalizedPath)) {
     return null
   }
 
@@ -27,7 +31,7 @@ export function BottomNav() {
     <nav className="fixed bottom-4 left-0 right-0 mx-auto bg-white border border-black/20 shadow-lg rounded-[10px] max-w-[500px] w-[90%]">
       <div className="flex justify-around items-center">
         {navItems.map((item) => {
-          const isActive = pathname === item.href
+          const isActive = normalizedPath === item.href
 
           return (
             <Link
