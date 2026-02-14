@@ -1,7 +1,8 @@
 'use client'
 // app/profile/layout.tsx
 import React, { ReactNode, useEffect } from 'react'
-import { usePathname, useRouter } from 'next/navigation'
+import { useNormalizedPathname } from '@/app/_hooks/useNormalizedPathname'
+import { useRouter } from 'next/navigation'
 import { ProfileHeader } from './_components/ProfileHeader'
 import { HostBanner } from './_components/HostBanner'
 import { PetsBanner } from './pets/_components/PetsBanner'
@@ -12,19 +13,19 @@ import { useAuth } from '@/app/_components/AuthContext'
 import { Spinner } from '@/components/ui/spinner'
 
 function LayoutContent({ children }: { children: ReactNode }) {
-  const pathname = usePathname()
+  const normalizedPath = useNormalizedPathname()
   const router = useRouter()
   const { menu, hostProperties, petProfiles } = useProfileContext()
   const { isAuthenticated, loading: authLoading } = useAuth()
 
   useEffect(() => {
-    if (!authLoading && !isAuthenticated && pathname !== '/profile') {
+    if (!authLoading && !isAuthenticated && normalizedPath !== '/profile') {
       router.replace('/authen')
     }
-  }, [isAuthenticated, authLoading, pathname, router]) // Re-added pathname to deps
+  }, [isAuthenticated, authLoading, normalizedPath, router]) // Re-added normalizedPath to deps
 
-  if (authLoading || (!isAuthenticated && pathname !== '/profile')) {
-    // Added pathname condition
+  if (authLoading || (!isAuthenticated && normalizedPath !== '/profile')) {
+    // Added normalizedPath condition
     return (
       <div className="flex h-screen items-center justify-center">
         <Spinner />
@@ -34,41 +35,41 @@ function LayoutContent({ children }: { children: ReactNode }) {
 
   // Determine header properties based on the current path
   const getHeaderProps = () => {
-    if (pathname.startsWith('/profile/host/add-property')) {
+    if (normalizedPath.startsWith('/profile/host/add-property')) {
       return { title: 'Host', backPath: '/profile/host?tab=properties' }
     }
-    if (pathname.match(/^\/profile\/host\/booking\/\d+$/)) {
+    if (normalizedPath.match(/^\/profile\/host\/booking\/\d+$/)) {
       return {
         title: 'Booking Detail(Host)',
         backPath: '/profile/host?tab=bookings',
       }
     }
     if (
-      pathname.startsWith('/profile/host/') &&
-      pathname.split('/').length === 4
+      normalizedPath.startsWith('/profile/host/') &&
+      normalizedPath.split('/').length === 4
     ) {
       // /profile/host/[propertyId]
       return null // Do not show header for this specific page
     }
-    if (pathname === '/profile/host') {
+    if (normalizedPath === '/profile/host') {
       return { title: 'Host', backPath: '/profile' }
     }
-    if (pathname === '/profile/pets') {
+    if (normalizedPath === '/profile/pets') {
       return { title: 'Pets', backPath: '/profile' }
     }
-    if (pathname.startsWith('/profile/pets/add')) {
+    if (normalizedPath.startsWith('/profile/pets/add')) {
       return { title: 'Add Pet', backPath: '/profile/pets' }
     }
-    if (pathname.match(/^\/profile\/pets\/\d+$/)) {
+    if (normalizedPath.match(/^\/profile\/pets\/\d+$/)) {
       return { title: 'Pet Profile', backPath: '/profile/pets' }
     }
-    if (pathname === '/profile/bookings') {
+    if (normalizedPath === '/profile/bookings') {
       return { title: 'Bookings', backPath: '/profile' }
     }
-    if (pathname.match(/^\/profile\/bookings\/\d+$/)) {
+    if (normalizedPath.match(/^\/profile\/bookings\/\d+$/)) {
       return { title: 'Booking Detail', backPath: '/profile/bookings' }
     }
-    if (pathname.startsWith('/profile/') && pathname !== '/profile') {
+    if (normalizedPath.startsWith('/profile/') && normalizedPath !== '/profile') {
       // This covers /profile/[firstName] and other potential sub-pages
       return { title: 'Profile', backPath: '/profile' }
     }
@@ -79,21 +80,26 @@ function LayoutContent({ children }: { children: ReactNode }) {
   const headerProps = getHeaderProps()
 
   const renderBanner = () => {
-    if (pathname.startsWith('/profile/host/add-property')) {
-      const stepId = parseInt(pathname.split('/').pop() || '', 10)
+    if (normalizedPath.startsWith('/profile/host/add-property')) {
+      const stepId = parseInt(normalizedPath.split('/').pop() || '', 10)
       if (!isNaN(stepId)) {
         return <HostBanner currentStep={stepId} totalSteps={9} />
       }
       return null
     }
-    if (pathname.startsWith('/profile/pets/add')) {
-      const stepId = parseInt(pathname.split('/').pop() || '', 10)
+    if (normalizedPath.startsWith('/profile/pets/add')) {
+      const stepId = parseInt(normalizedPath.split('/').pop() || '', 10)
       if (!isNaN(stepId)) {
-        return <AddPetBanner currentStep={stepId} totalSteps={addPetStepsComponents.length} />
+        return (
+          <AddPetBanner
+            currentStep={stepId}
+            totalSteps={addPetStepsComponents.length}
+          />
+        )
       }
       return null
     }
-    if (pathname === '/profile/host') {
+    if (normalizedPath === '/profile/host') {
       const { properties, error } = hostProperties
 
       if (error) {
@@ -113,7 +119,7 @@ function LayoutContent({ children }: { children: ReactNode }) {
         />
       )
     }
-    if (pathname === '/profile/pets') {
+    if (normalizedPath === '/profile/pets') {
       const { pets, error } = petProfiles
       if (error) {
         return null

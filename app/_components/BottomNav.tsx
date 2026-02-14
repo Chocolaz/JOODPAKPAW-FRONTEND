@@ -1,5 +1,5 @@
 'use client'
-import { usePathname } from 'next/navigation'
+import { useNormalizedPathname } from '@/app/_hooks/useNormalizedPathname'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 import BellIcon from '@/public/icons/nav/Bell.svg'
@@ -8,9 +8,7 @@ import HomeIcon from '@/public/icons/nav/Home.svg'
 import ProfileIcon from '@/public/icons/nav/Profile.svg'
 
 export function BottomNav() {
-  const pathname = usePathname()
-  const normalizedPath =
-    pathname.length > 1 ? pathname.replace(/\/$/, '') : pathname
+  const normalizedPath = useNormalizedPathname()
 
   const visiblePaths = ['/', '/profile', '/favorites']
 
