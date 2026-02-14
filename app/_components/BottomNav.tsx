@@ -10,6 +10,10 @@ import ProfileIcon from '@/public/icons/nav/Profile.svg'
 export function BottomNav() {
   const normalizedPath = useNormalizedPathname()
 
+  const basePath = process.env.NEXT_PUBLIC_BASE_PATH || ''
+
+  const normalizedPath = pathname.replace(basePath, '') || '/'
+
   const visiblePaths = ['/', '/profile', '/favorites']
 
   if (!visiblePaths.includes(normalizedPath)) {

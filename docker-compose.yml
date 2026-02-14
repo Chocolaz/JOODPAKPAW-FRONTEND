@@ -5,6 +5,10 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_BASE_PATH: /capstone25/cp25nk2
+        NEXT_PUBLIC_API_BASE_URL: https://bscit.sit.kmutt.ac.th/capstone25/cp25nk2/
+        NEXT_PUBLIC_GOOGLE_MAPS_API_KEY: ${NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}
     container_name: joodpakpaw_frontend
     ports:
       - '3000:3000'

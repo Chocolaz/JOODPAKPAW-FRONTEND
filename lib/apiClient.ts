@@ -1,6 +1,7 @@
 import { ApiError } from './errorHandling'
 import { getAccessToken, refreshAccessToken, clearTokens } from './authenUtils'
 const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL
+const BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH || ''
 
 interface RequestOptions extends Omit<RequestInit, 'body'> {
   endpoint: string
@@ -29,7 +30,7 @@ async function request<T>({
       if (!token) {
         clearTokens()
         if (typeof window !== 'undefined') {
-          window.location.href = '/authen'
+          window.location.href = `${BASE_PATH}/authen`
         }
       }
     }
@@ -64,13 +65,13 @@ async function request<T>({
       } else {
         clearTokens()
         if (typeof window !== 'undefined') {
-          window.location.href = '/authen'
+          window.location.href = `${BASE_PATH}/authen`
         }
         throw new Error('Session expired. Please login again.')
       }
     } else if (response.status === 403) {
       if (typeof window !== 'undefined') {
-        window.location.href = '/forbidden'
+        window.location.href = `${BASE_PATH}/forbidden`
       }
       throw new Error('Access forbidden.')
     }
