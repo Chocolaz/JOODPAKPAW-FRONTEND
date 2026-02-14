@@ -9,13 +9,12 @@ import HostIcon from '@/public/icons/Host.svg'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/app/_components/AuthContext'
 import clsx from 'clsx'
-// Removed import getConfig from 'next/config'
+import { assetPath } from '@/lib/utils'
 
 export default function ProfilePage() {
   const { user, isAuthenticated, loading: authLoading } = useAuth()
   const router = useRouter()
-  // Removed const { publicRuntimeConfig } = getConfig()
-  const guestAvatarSrc = `${process.env.NEXT_PUBLIC_BASE_PATH || ''}/graphics/guest.jpg`
+  const guestAvatarSrc = assetPath('/graphics/guest.jpg')
 
   if (authLoading) {
     return null // Or a loading spinner

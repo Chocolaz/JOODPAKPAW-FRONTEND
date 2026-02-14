@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
+import { assetPath } from '@/lib/utils'
 import { toast } from 'sonner'
 import { useAddProperty } from '../../_context/AddPropertyContext'
 import { updateHostPropertyIsActive } from '@/lib/api'
@@ -77,7 +78,7 @@ export function Step9() {
             {/* FIX: Equal image height wrapper */}
             <div className="h-20 flex items-center justify-center">
               <Image
-                src="/graphics/public-it.svg"
+                src={assetPath('/graphics/public-it.svg')}
                 alt="Publish it"
                 width={80}
                 height={80}
@@ -103,7 +104,7 @@ export function Step9() {
           >
             <div className="h-20 flex items-center justify-center">
               <Image
-                src="/graphics/public-later.svg"
+                src={assetPath('/graphics/public-later.svg')}
                 alt="Later"
                 width={80}
                 height={80}

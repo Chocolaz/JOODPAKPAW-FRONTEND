@@ -7,9 +7,9 @@ import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import Image from 'next/image'
+import { assetPath } from '@/lib/utils'
 import { updateUserProfile } from '@/lib/api'
 import { useAuth } from '@/app/_components/AuthContext'
-// Removed import getConfig from 'next/config'
 
 export const EditProfileForm = ({
   profile,
@@ -20,9 +20,7 @@ export const EditProfileForm = ({
   onRefreshProfile: () => void
   onCloseDrawer: () => void
 }) => {
-  // Removed const { publicRuntimeConfig } = getConfig()
-  const basePath = process.env.NEXT_PUBLIC_BASE_PATH || ''
-  const guestAvatarSrc = `${basePath}/graphics/guest.jpg`
+  const guestAvatarSrc = assetPath('/graphics/guest.jpg')
   const { refreshAuth } = useAuth()
   const [firstName, setFirstName] = useState(profile.firstName)
   const [lastName, setLastName] = useState(profile.lastName)
@@ -93,7 +91,7 @@ export const EditProfileForm = ({
           className="absolute bottom-0 right-0 bg-white rounded-full p-2 shadow-md hover:bg-gray-100"
         >
           <Image
-            src="/icons/photo.svg"
+            src={assetPath('/icons/photo.svg')}
             alt="Change photo"
             width={24}
             height={24}

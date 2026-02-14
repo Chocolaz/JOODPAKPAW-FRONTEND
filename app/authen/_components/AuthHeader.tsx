@@ -1,4 +1,5 @@
 import Image from 'next/image'
+import { assetPath } from '@/lib/utils'
 
 type AuthHeaderProps = {
   children: React.ReactNode
@@ -9,7 +10,7 @@ export default function AuthHeader({ children }: AuthHeaderProps) {
     <div className="relative w-full flex justify-center  pt-10">
       <div className="absolute top-0 z-0 pointer-events-none">
         <Image
-          src="/graphics/Ellipse.svg"
+          src={assetPath('/graphics/Ellipse.svg')}
           alt="Background Ellipse"
           width={452}
           height={308}

@@ -3,6 +3,7 @@
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
 import Image from 'next/image'
+import { assetPath } from '@/lib/utils'
 import { PropertyList } from '@/app/_components/PropertyList'
 import { Spinner } from '@/components/ui/spinner'
 import { ErrorState } from '@/app/profile/_components/ErrorState'
@@ -51,7 +52,7 @@ export default function HostPage() {
             ) : (
               <div className="text-center mt-20 text-neutral-gray">
                 <Image
-                  src="/graphics/no-host.svg"
+                  src={assetPath('/graphics/no-host.svg')}
                   alt="No host listing"
                   width={300}
                   height={300}
