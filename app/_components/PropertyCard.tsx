@@ -4,7 +4,7 @@ import { Property } from '@/types'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
-import { cn, getLowestPrice, getPetPolicy } from '@/lib/utils'
+import { cn, getLowestPrice, getPetPolicy, assetPath } from '@/lib/utils'
 import { Globe, GlobeLock, Heart } from 'lucide-react'
 import { FavoriteDrawer } from './FavoriteDrawer'
 import { getFavoriteFolders, addFavorite, deleteFavoriteProperty } from '@/lib/api'
@@ -34,7 +34,7 @@ export function PropertyCard({
   const [imgSrc, setImgSrc] = useState(
     property.images.length > 0 && API_BASE_URL
       ? new URL(property.images[0].filePath, API_BASE_URL).toString()
-      : '/graphics/welcome.svg'
+      : assetPath('/graphics/welcome.svg')
   )
   const [isHeartClicked, setIsHeartClicked] = useState(property.isFavorite)
   const [isDrawerOpen, setIsDrawerOpen] = useState(false)
@@ -100,14 +100,14 @@ export function PropertyCard({
     <div className={cn('block', className)}>
       {/* Image Box — Square Responsive */}
       <div className="w-full aspect-square relative">
-        <Link href={finalHref}>
+        <Link href={finalHref} className="relative block w-full h-full">
           <Image
             src={imgSrc}
             alt={property.title}
             fill
             unoptimized
             className="object-cover rounded-[20px] shadow-md"
-            onError={() => setImgSrc('/graphics/welcome.svg')}
+            onError={() => setImgSrc(assetPath('/graphics/welcome.svg'))}
           />
         </Link>
         {showPetPolicyChip && petPolicy && (

@@ -1,5 +1,5 @@
 import Image from 'next/image'
-// Removed import getConfig from 'next/config'
+import { assetPath } from '@/lib/utils'
 
 interface PageHeaderProps {
   title?: string
@@ -7,9 +7,7 @@ interface PageHeaderProps {
 }
 
 export function PageHeader({ title, isHost }: PageHeaderProps) {
-  // Removed const { publicRuntimeConfig } = getConfig()
-  const basePath = process.env.NEXT_PUBLIC_BASE_PATH || ''
-  const imageSrc = `${basePath}/graphics/home.svg`
+  const imageSrc = assetPath('/graphics/home.svg')
 
   return (
     <header>
@@ -34,6 +32,7 @@ export function PageHeader({ title, isHost }: PageHeaderProps) {
           width={390}
           height={144}
           sizes="100vw"
+          style={{ width: '100%', height: 'auto' }}
           priority
         />
       </div>
