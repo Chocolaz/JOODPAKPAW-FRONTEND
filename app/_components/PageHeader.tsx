@@ -25,14 +25,11 @@ export function PageHeader({ title, isHost }: PageHeaderProps) {
           )}
         </div>
       )}
-      <div className="mt-4">
+      <div className="relative mt-4 w-full" style={{ aspectRatio: '390/144' }}>
         <Image
           src={imageSrc}
           alt="Illustration of pets and a house"
-          width={390}
-          height={144}
-          sizes="100vw"
-          style={{ width: '100%', height: 'auto' }}
+          fill
           priority
         />
       </div>

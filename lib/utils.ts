@@ -49,13 +49,14 @@ export function validatePassword(password: string) {
     hasLowercase: /[a-z]/.test(password),
     hasNumber: /[0-9]/.test(password),
     hasSpecialChar: /[^A-Za-z0-9]/.test(password),
+    isAsciiOnly: /^[\x20-\x7E]*$/.test(password),
   }
 }
 
 export function isPasswordValid(password: string): boolean {
   const v = validatePassword(password)
   return (
-    v.minLength && v.hasUppercase && v.hasLowercase && v.hasNumber && v.hasSpecialChar
+    v.minLength && v.hasUppercase && v.hasLowercase && v.hasNumber && v.hasSpecialChar && v.isAsciiOnly
   )
 }
 

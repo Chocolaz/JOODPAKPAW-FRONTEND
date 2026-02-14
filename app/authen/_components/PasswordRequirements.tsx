@@ -8,6 +8,7 @@ const requirements = [
   { key: 'hasLowercase', label: 'Lowercase letter (a-z)' },
   { key: 'hasNumber', label: 'Number (0-9)' },
   { key: 'hasSpecialChar', label: 'Special character (!@#$...)' },
+  { key: 'isAsciiOnly', label: 'English characters only' },
 ] as const
 
 export default function PasswordRequirements({

@@ -11,8 +11,9 @@ export default function AuthenPage() {
         <Image
           src={assetPath('/graphics/welcome.svg')}
           alt="Welcome"
-          width={391}
+          width={500}
           height={372}
+          priority
         />
       </AuthHeader>
 
