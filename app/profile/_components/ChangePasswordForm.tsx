@@ -6,6 +6,8 @@ import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { resetPassword } from '@/lib/authApi'
 import { handleError } from '@/lib/errorHandling'
+import { isPasswordValid } from '@/lib/utils'
+import PasswordRequirements from '@/app/authen/_components/PasswordRequirements'
 import { useAuth } from '@/app/_components/AuthContext'
 
 export const ChangePasswordForm = ({
@@ -37,8 +39,8 @@ export const ChangePasswordForm = ({
       setError("New passwords don't match.")
       return
     }
-    if (newPassword.length < 8) {
-      setError('Password must be at least 8 characters long.')
+    if (!isPasswordValid(newPassword)) {
+      setError('Password does not meet all requirements.')
       return
     }
     if (newPassword.length > 128) {
@@ -98,6 +100,7 @@ export const ChangePasswordForm = ({
             placeholder="Enter your new password"
             maxLength={128}
           />
+          <PasswordRequirements password={newPassword} />
         </div>
         <div className="space-y-1">
           <label htmlFor="confirmPassword" className="text-sm text-deep-teal">
@@ -120,7 +123,7 @@ export const ChangePasswordForm = ({
         disabled={
           !isDirty ||
           oldPassword.length < 8 ||
-          newPassword.length < 8 ||
+          !isPasswordValid(newPassword) ||
           confirmPassword.length < 8
         }
       >

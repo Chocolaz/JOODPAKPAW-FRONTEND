@@ -42,6 +42,23 @@ export function normalizeRoomCategories(
   return []
 }
 
+export function validatePassword(password: string) {
+  return {
+    minLength: password.length >= 8,
+    hasUppercase: /[A-Z]/.test(password),
+    hasLowercase: /[a-z]/.test(password),
+    hasNumber: /[0-9]/.test(password),
+    hasSpecialChar: /[^A-Za-z0-9]/.test(password),
+  }
+}
+
+export function isPasswordValid(password: string): boolean {
+  const v = validatePassword(password)
+  return (
+    v.minLength && v.hasUppercase && v.hasLowercase && v.hasNumber && v.hasSpecialChar
+  )
+}
+
 export function getPetPolicy(pets: Pet[] | undefined): string | null {
   if (!pets || pets.length === 0) {
     return null

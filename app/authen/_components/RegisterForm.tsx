@@ -8,6 +8,8 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { signUp } from '@/lib/api'
 import { getApiErrorMessages } from '@/lib/errorHandling'
+import { isPasswordValid } from '@/lib/utils'
+import PasswordRequirements from './PasswordRequirements'
 import clsx from 'clsx'
 
 export default function RegisterForm() {
@@ -35,6 +37,7 @@ export default function RegisterForm() {
       !email ||
       !password ||
       !confirmPassword ||
+      !isPasswordValid(password) ||
       !!passwordMismatchError ||
       !!phoneError
     )
@@ -175,6 +178,7 @@ export default function RegisterForm() {
               {passwordApiError}
             </p>
           )}
+          <PasswordRequirements password={password} />
         </div>
         <div>
           <Input

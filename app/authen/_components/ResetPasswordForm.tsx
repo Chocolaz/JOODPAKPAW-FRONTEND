@@ -6,6 +6,8 @@ import { useState, Suspense } from 'react'
 import { resetPassword } from '@/lib/api'
 import { useSearchParams } from 'next/navigation'
 import { getApiErrorMessages } from '@/lib/errorHandling'
+import { isPasswordValid } from '@/lib/utils'
+import PasswordRequirements from './PasswordRequirements'
 import clsx from 'clsx'
 
 function ResetPasswordFormComponent({
@@ -135,6 +137,7 @@ function ResetPasswordFormComponent({
               {passwordError}
             </p>
           )}
+          <PasswordRequirements password={password} />
         </div>
         <div>
           <Input
@@ -159,7 +162,7 @@ function ResetPasswordFormComponent({
         </div>
         <Button
           type="submit"
-          disabled={!password || !confirmPassword || password.length < 8}
+          disabled={!password || !confirmPassword || !isPasswordValid(password)}
           className="w-full py-4 rounded-lg bg-accent-orange text-white hover:bg-accent-orange/80 h-auto text-[20px] font-semibold"
         >
           Reset Password
