@@ -27,6 +27,7 @@ export default function RegisterForm() {
   const [passwordMismatchError, setPasswordMismatchError] = useState('')
   const [passwordApiError, setPasswordApiError] = useState('')
   const [phoneError, setPhoneError] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   // Memoized values
   const isButtonDisabled = useMemo(() => {
@@ -60,12 +61,14 @@ export default function RegisterForm() {
     setPasswordApiError('')
     setPhoneError('')
 
-    if (isButtonDisabled) return
+    if (isButtonDisabled || isSubmitting) return
 
     if (password !== confirmPassword) {
       setPasswordMismatchError("Passwords don't match")
       return
     }
+
+    setIsSubmitting(true)
     try {
       await signUp({
         email,
@@ -75,7 +78,6 @@ export default function RegisterForm() {
         lastname,
         phone,
       })
-      console.log('Sign up successful')
       router.push(`/authen/verify-otp?email=${email}`)
     } catch (error: unknown) {
       console.error('Sign up failed:', error)
@@ -99,6 +101,8 @@ export default function RegisterForm() {
       if (!apiErrors?.some((e) => e.field === 'password'))
         setPasswordApiError('')
       if (!apiErrors?.some((e) => e.field === 'phone')) setPhoneError('')
+    } finally {
+      setIsSubmitting(false)
     }
   }
 
@@ -201,10 +205,10 @@ export default function RegisterForm() {
         </div>
         <Button
           type="submit"
-          disabled={isButtonDisabled}
+          disabled={isButtonDisabled || isSubmitting}
           className="w-full py-4 rounded-lg bg-accent-orange text-white hover:bg-accent-orange/80 h-auto text-[20px] font-semibold"
         >
-          Sign up
+          {isSubmitting ? 'Signing up...' : 'Sign up'}
         </Button>
       </form>
       <div className="mt-[30px]">

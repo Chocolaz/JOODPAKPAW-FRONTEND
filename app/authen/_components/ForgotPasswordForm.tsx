@@ -18,10 +18,14 @@ export default function ForgotPasswordForm({
   // State
   const [email, setEmail] = useState('')
   const [error, setError] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   // Handlers
   const handleForgotPassword = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (isSubmitting) return
+
+    setIsSubmitting(true)
     try {
       await forgotPassword({ email })
       onSubmitSuccess(email)
@@ -40,6 +44,8 @@ export default function ForgotPasswordForm({
           'Failed to send password reset email. Please check the email address and try again.'
         )
       }
+    } finally {
+      setIsSubmitting(false)
     }
   }
 
@@ -69,10 +75,10 @@ export default function ForgotPasswordForm({
         </div>
         <Button
           type="submit"
-          disabled={!email}
+          disabled={!email || isSubmitting}
           className="w-full py-4 rounded-lg bg-accent-orange text-white hover:bg-accent-orange/80 h-auto text-[20px] font-semibold"
         >
-          Confirm
+          {isSubmitting ? 'Sending...' : 'Confirm'}
         </Button>
       </form>
       <div className="mt-[30px]">

@@ -20,6 +20,7 @@ export default function LoginForm() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [isEmailError, setIsEmailError] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   // Memoized values
   const isButtonDisabled = useMemo(() => {
@@ -29,11 +30,11 @@ export default function LoginForm() {
   // Handlers
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (isButtonDisabled) return
+    if (isButtonDisabled || isSubmitting) return
 
+    setIsSubmitting(true)
     try {
       const data = await signIn({ email, password })
-      console.log('Sign in successful:', data)
       if (data.accessToken && data.refreshToken) {
         login(data.accessToken, data.refreshToken)
         router.push('/')
@@ -56,6 +57,8 @@ export default function LoginForm() {
         setError('Sign in failed. Please check your credentials and try again.')
         setIsEmailError(false)
       }
+    } finally {
+      setIsSubmitting(false)
     }
   }
 
@@ -105,10 +108,10 @@ export default function LoginForm() {
         </div>
         <Button
           type="submit"
-          disabled={isButtonDisabled}
+          disabled={isButtonDisabled || isSubmitting}
           className="w-full py-4 rounded-lg bg-accent-orange text-white hover:bg-accent-orange/80 h-auto text-[20px] font-semibold"
         >
-          Sign in
+          {isSubmitting ? 'Signing in...' : 'Sign in'}
         </Button>
       </form>
       <div className="mt-[30px]">

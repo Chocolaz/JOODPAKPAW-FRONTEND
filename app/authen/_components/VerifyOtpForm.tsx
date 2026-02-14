@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
-import { toast } from 'sonner' // Add this import
+import { toast } from 'sonner'
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -19,6 +19,7 @@ export default function VerifyOtpForm() {
 
   // State
   const [otp, setOtp] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   // Memoized values
   const isButtonDisabled = useMemo(() => {
@@ -28,11 +29,11 @@ export default function VerifyOtpForm() {
   // Handlers
   const handleVerifyOtp = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (isButtonDisabled) return
+    if (isButtonDisabled || isSubmitting) return
 
+    setIsSubmitting(true)
     try {
       const data = await verifyOtp({ email, otp })
-      console.log('OTP verification successful')
       if (data.accessToken && data.refreshToken) {
         login(data.accessToken, data.refreshToken)
         router.push('/')
@@ -44,6 +45,8 @@ export default function VerifyOtpForm() {
     } catch (error) {
       console.error('OTP verification failed:', error)
       toast.error('Invalid or expired OTP. Please try again.')
+    } finally {
+      setIsSubmitting(false)
     }
   }
 
@@ -97,10 +100,10 @@ export default function VerifyOtpForm() {
       <Button
         type="submit"
         form="verify-otp-form"
-        disabled={isButtonDisabled}
+        disabled={isButtonDisabled || isSubmitting}
         className="w-full py-4 rounded-lg bg-accent-orange text-white hover:bg-accent-orange/80 h-auto text-[20px] font-semibold"
       >
-        Confirm
+        {isSubmitting ? 'Verifying...' : 'Confirm'}
       </Button>
     </div>
   )

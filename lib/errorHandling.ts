@@ -61,6 +61,9 @@ export function getApiErrorMessages(
     if (error.code === 'A-3004') {
       return [{ field: 'phone', message: errorMessages[error.code] }]
     }
+    if (error.code === 'A-3003') {
+      return [{ field: 'email', message: errorMessages[error.code] }]
+    }
     if (error.code in errorMessages) {
       return [{ field: 'general', message: errorMessages[error.code] }]
     }

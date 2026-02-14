@@ -9,6 +9,7 @@ import { getApiErrorMessages } from '@/lib/errorHandling'
 import { isPasswordValid } from '@/lib/utils'
 import PasswordRequirements from './PasswordRequirements'
 import clsx from 'clsx'
+import Link from 'next/link'
 
 function ResetPasswordFormComponent({
   onSubmitSuccess,
@@ -60,6 +61,7 @@ function ResetPasswordFormComponent({
   const [formGeneralError, setFormGeneralError] = useState<string | null>(
     initialError
   )
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   // Handlers
   const handleResetPassword = async (e: React.FormEvent) => {
@@ -75,6 +77,7 @@ function ResetPasswordFormComponent({
     }
 
     if (email && token) {
+      setIsSubmitting(true)
       try {
         await resetPassword({
           email,
@@ -100,6 +103,8 @@ function ResetPasswordFormComponent({
         } else {
           setFormGeneralError('Failed to reset password. Please try again.')
         }
+      } finally {
+        setIsSubmitting(false)
       }
     }
   }
@@ -110,7 +115,12 @@ function ResetPasswordFormComponent({
         {formGeneralError && (
           <p className="text-red-500 text-center mb-4">{formGeneralError}</p>
         )}
-        <p>Loading...</p>
+        <Link
+          href="/authen/login"
+          className="text-accent-orange font-semibold hover:underline text-[20px]"
+        >
+          Back to Login
+        </Link>
       </div>
     )
   }
@@ -162,10 +172,10 @@ function ResetPasswordFormComponent({
         </div>
         <Button
           type="submit"
-          disabled={!password || !confirmPassword || !isPasswordValid(password)}
+          disabled={!password || !confirmPassword || !isPasswordValid(password) || isSubmitting}
           className="w-full py-4 rounded-lg bg-accent-orange text-white hover:bg-accent-orange/80 h-auto text-[20px] font-semibold"
         >
-          Reset Password
+          {isSubmitting ? 'Resetting...' : 'Reset Password'}
         </Button>
       </form>
     </div>

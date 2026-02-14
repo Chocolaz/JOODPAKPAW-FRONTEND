@@ -9,15 +9,13 @@ export const saveTokens = (accessToken: string, refreshToken: string) => {
   Cookies.remove('refreshToken', { path: '/' })
 
   Cookies.set('accessToken', accessToken, {
-    // secure: process.env.NODE_ENV === 'production', กลับมาแก้ตอนเป็น https
-    secure: false,
+    secure: process.env.NODE_ENV === 'production',
     sameSite: 'lax',
     path: '/',
   })
 
   Cookies.set('refreshToken', refreshToken, {
-    // secure: process.env.NODE_ENV === 'production', กลับมาแก้ตอนเป็น https
-    secure: false,
+    secure: process.env.NODE_ENV === 'production',
     sameSite: 'lax',
     path: '/',
   })

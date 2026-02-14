@@ -7,7 +7,7 @@ export default function RegisterPage() {
       <AuthHeader>
         <div className="z-10 mt-20 mx-5 text-center">
           <h1 className="text-4xl font-bold text-accent-orange mb-[25px] ">
-            Join the JODPAKPAW
+            Join the JOODPAKPAW
           </h1>
           <div className="text-[20px]">
             Create your account and start finding safe, <br />
