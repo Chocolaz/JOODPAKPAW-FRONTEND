@@ -2,19 +2,18 @@
 
 import { PetProfile } from '@/types'
 import { Button } from '@/components/ui/button'
-import { Cake, Phone, User, Star, Mars, Venus, Zap } from 'lucide-react'
-import { differenceInYears } from 'date-fns'
-// Removed import getConfig from 'next/config'
+import { Phone, User, Star, Mars, Venus, Zap, Rss } from 'lucide-react' // Added Rss for size, removed Cake
+import { differenceInYears, format } from 'date-fns' // Import format
 
 interface PetDetailDisplayProps {
   pet: PetProfile
 }
 
 export default function PetDetailDisplay({ pet }: PetDetailDisplayProps) {
-  // Removed const { publicRuntimeConfig } = getConfig()
   const basePath = process.env.NEXT_PUBLIC_BASE_PATH || ''
   const guestPetImageSrc = `${basePath}/graphics/guest.jpg`
   const age = differenceInYears(new Date(), new Date(pet.birthDate))
+  const formattedBirthDate = format(new Date(pet.birthDate), 'MMM d, yyyy') // Format birthDate
 
   return (
     <div className="pb-10 bg-gray-50 min-h-screen">
@@ -34,8 +33,16 @@ export default function PetDetailDisplay({ pet }: PetDetailDisplayProps) {
             <p className="text-neutral-gray capitalize">{pet.petBreedName}</p>
           </div>
 
-          <div className="grid grid-cols-3 gap-2 text-center border-t border-b py-4">
-            <StatItem label="Age" value={`${age} yrs`} />
+          <div className="grid grid-cols-4 gap-2 text-center border-t border-b py-4"> {/* Changed to grid-cols-4 */}
+            <StatItem
+              label="Age"
+              value={
+                <>
+                  <span className="block">{`${age} yrs`}</span>
+                  <span className="block text-xs text-neutral-gray">(Born {formattedBirthDate})</span>
+                </>
+              }
+            />
             <StatItem
               label="Sex"
               value={
@@ -46,6 +53,15 @@ export default function PetDetailDisplay({ pet }: PetDetailDisplayProps) {
                 ) : (
                   <span className="capitalize">{pet.sex}</span>
                 )
+              }
+            />
+            <StatItem
+              label="Size" // New StatItem for Size
+              value={
+                <div className="flex items-center justify-center gap-1">
+                  <Rss className="w-4 h-4 text-gray-500" /> {/* Using Rss icon for size, can be changed */}
+                  <span className="font-semibold capitalize">{pet.petSizeName}</span>
+                </div>
               }
             />
             <StatItem
