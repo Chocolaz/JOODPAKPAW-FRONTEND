@@ -27,29 +27,23 @@ export default function HostPage() {
   const defaultTab = useMemo(() => {
     if (isHost) {
       if (tabParam === 'bookings' || tabParam === 'history') {
-        return tabParam
+        return tabParam;
       }
-      return 'properties' // Default for hosts if no valid tabParam
+      return 'properties'; // Default for hosts if no valid tabParam
     }
-    return 'properties' // Always properties for non-hosts
-  }, [isHost, tabParam])
+    return 'properties'; // Always properties for non-hosts
+  }, [isHost, tabParam]);
+
 
   useEffect(() => {
     refetch()
   }, [refetch])
 
-  // Log environment variables
-  useEffect(() => {
-    console.log('Current Node.js Environment:', process.env.NODE_ENV)
-    console.log('NEXT_PUBLIC_BASE_PATH:', process.env.NEXT_PUBLIC_BASE_PATH)
-    console.log('Current Key:', process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY)
-  }, []) // Empty dependency array to run once
-
   const getGridColsClass = () => {
     if (isHost) {
-      return 'grid-cols-3' // Properties, Bookings, History
+      return 'grid-cols-3'; // Properties, Bookings, History
     }
-    return 'grid-cols-1' // Only Properties
+    return 'grid-cols-1'; // Only Properties
   }
 
   return (
