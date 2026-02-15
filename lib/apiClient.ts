@@ -74,6 +74,11 @@ async function request<T>({
         window.location.href = `${BASE_PATH}/forbidden`
       }
       throw new Error('Access forbidden.')
+    } else if (response.status === 404) {
+      if (typeof window !== 'undefined') {
+        window.location.href = `${BASE_PATH}/not-found`
+      }
+      throw new Error('Resource not found.')
     }
 
     const text = await response.text()
