@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input'
 import { useState, Suspense } from 'react'
 import { resetPassword } from '@/lib/api'
 import { useSearchParams } from 'next/navigation'
-import { getApiErrorMessages } from '@/lib/errorHandling'
+import { ApiError, getApiErrorMessages } from '@/lib/errorHandling'
 import { isPasswordValid } from '@/lib/utils'
 import PasswordRequirements from './PasswordRequirements'
 import clsx from 'clsx'
@@ -13,8 +13,10 @@ import Link from 'next/link'
 
 function ResetPasswordFormComponent({
   onSubmitSuccess,
+  onTokenExpired,
 }: {
   onSubmitSuccess: () => void
+  onTokenExpired: () => void
 }) {
   // Hooks
   const searchParams = useSearchParams()
@@ -88,6 +90,12 @@ function ResetPasswordFormComponent({
         onSubmitSuccess()
       } catch (err) {
         console.error('Reset password failed:', err)
+
+        if (err instanceof ApiError && err.code === 'A-3010') {
+          onTokenExpired()
+          return
+        }
+
         const errorResponse = getApiErrorMessages(err)
         const passwordFieldErrors = errorResponse?.filter(
           (e) => e.field === 'password'
@@ -133,12 +141,13 @@ function ResetPasswordFormComponent({
             type="password"
             placeholder="New Password"
             className={clsx('w-full', {
-              'border-red-500': passwordError,
+              'border-red-500': passwordError || formGeneralError,
             })}
             value={password}
             onChange={(e) => {
               setPassword(e.target.value)
               setPasswordError(null)
+              setFormGeneralError(null)
             }}
             required
           />
@@ -148,6 +157,9 @@ function ResetPasswordFormComponent({
             </p>
           )}
           <PasswordRequirements password={password} />
+          {formGeneralError && (
+            <p className="text-red-500 text-left text-sm mt-1">{formGeneralError}</p>
+          )}
         </div>
         <div>
           <Input
@@ -184,12 +196,14 @@ function ResetPasswordFormComponent({
 
 export default function ResetPasswordForm({
   onSubmitSuccess,
+  onTokenExpired,
 }: {
   onSubmitSuccess: () => void
+  onTokenExpired: () => void
 }) {
   return (
     <Suspense fallback={<div>Loading...</div>}>
-      <ResetPasswordFormComponent onSubmitSuccess={onSubmitSuccess} />
+      <ResetPasswordFormComponent onSubmitSuccess={onSubmitSuccess} onTokenExpired={onTokenExpired} />
     </Suspense>
   )
 }
