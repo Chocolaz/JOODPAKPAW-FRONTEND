@@ -3,7 +3,19 @@
 import { useState } from 'react'
 import { PetProfile } from '@/types'
 import { Button } from '@/components/ui/button'
-import { Phone, User, Mars, Venus, Zap, Scale, EllipsisVertical, Edit, Trash2, ChevronRight, ChevronLeft } from 'lucide-react'
+import {
+  Phone,
+  User,
+  Mars,
+  Venus,
+  Zap,
+  Scale,
+  EllipsisVertical,
+  Edit,
+  Trash2,
+  ChevronRight,
+  ChevronLeft,
+} from 'lucide-react'
 import { differenceInYears, format } from 'date-fns'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
@@ -15,20 +27,31 @@ import {
   DrawerTitle,
 } from '@/components/ui/drawer'
 import { ConfirmationModal } from '@/app/_components/ConfirmationModal'
+import EditPetProfileForm from './EditPetProfileForm' // Import the new component
 
 interface PetDetailDisplayProps {
   pet: PetProfile
-  onEdit?: () => void
   onDelete?: () => void
+  onPetUpdate: () => void // Changed to void
 }
 
-export default function PetDetailDisplay({ pet, onEdit, onDelete }: PetDetailDisplayProps) {
+export default function PetDetailDisplay({
+  pet,
+  onDelete,
+  onPetUpdate,
+}: PetDetailDisplayProps) {
   const basePath = process.env.NEXT_PUBLIC_BASE_PATH || ''
   const guestPetImageSrc = `${basePath}/graphics/guest.jpg`
-  const age = differenceInYears(new Date(), new Date(pet.birthDate))
-  const formattedBirthDate = format(new Date(pet.birthDate), 'MMM d, yyyy')
+
+  const birthDate = pet.birthDate ? new Date(pet.birthDate) : null
+  const age = birthDate ? differenceInYears(new Date(), birthDate) : null
+  const formattedBirthDate = birthDate
+    ? format(birthDate, 'MMM d, yyyy')
+    : 'N/A'
+
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
+  const [isEditDrawerOpen, setIsEditDrawerOpen] = useState(false) // New state for edit drawer
   const [isDeleting, setIsDeleting] = useState(false)
   const router = useRouter()
 
@@ -55,7 +78,7 @@ export default function PetDetailDisplay({ pet, onEdit, onDelete }: PetDetailDis
           alt={pet.name}
           className="object-cover w-full h-full rounded-b-2xl"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
+        <div className="absolute inset-0 bg-linear-to-t from-black/50 to-transparent" />
         <button
           onClick={() => router.push('/profile/pets')}
           className="absolute top-4 left-4 p-2 bg-white/80 backdrop-blur-sm rounded-full shadow hover:bg-white transition-colors"
@@ -70,6 +93,7 @@ export default function PetDetailDisplay({ pet, onEdit, onDelete }: PetDetailDis
         </button>
       </div>
 
+      {/* Menu Drawer */}
       <Drawer open={isMenuOpen} onOpenChange={setIsMenuOpen}>
         <DrawerContent>
           <div className="mx-auto w-full max-w-sm">
@@ -81,7 +105,7 @@ export default function PetDetailDisplay({ pet, onEdit, onDelete }: PetDetailDis
                 className="flex items-center justify-between py-3 hover:bg-gray-50 cursor-pointer border-b border-gray-200"
                 onClick={() => {
                   setIsMenuOpen(false)
-                  onEdit?.()
+                  setIsEditDrawerOpen(true) // Open edit drawer
                 }}
               >
                 <div className="flex items-center">
@@ -108,6 +132,28 @@ export default function PetDetailDisplay({ pet, onEdit, onDelete }: PetDetailDis
         </DrawerContent>
       </Drawer>
 
+      {/* Edit Pet Drawer */}
+      <Drawer open={isEditDrawerOpen} onOpenChange={setIsEditDrawerOpen}>
+        <DrawerContent>
+          <div className="mx-auto w-full max-w-md">
+            {' '}
+            {/* Adjusted max-w for form */}
+            <DrawerHeader>
+              <DrawerTitle>Edit {pet.name}</DrawerTitle>
+            </DrawerHeader>
+            <EditPetProfileForm
+              pet={pet}
+              onClose={() => setIsEditDrawerOpen(false)}
+              onSuccess={() => {
+                // Changed to call without arguments
+                onPetUpdate() // Call onPetUpdate without arguments
+                setIsEditDrawerOpen(false)
+              }}
+            />
+          </div>
+        </DrawerContent>
+      </Drawer>
+
       <ConfirmationModal
         isOpen={isDeleteDialogOpen}
         onClose={() => setIsDeleteDialogOpen(false)}
@@ -125,13 +171,17 @@ export default function PetDetailDisplay({ pet, onEdit, onDelete }: PetDetailDis
             <p className="text-neutral-gray capitalize">{pet.petBreedName}</p>
           </div>
 
-          <div className="grid grid-cols-4 gap-2 text-center border-t border-b py-4"> {/* Changed to grid-cols-4 */}
+          <div className="grid grid-cols-4 gap-2 text-center border-t border-b py-4">
+            {' '}
+            {/* Changed to grid-cols-4 */}
             <StatItem
               label="Age"
               value={
                 <>
                   <span className="block">{`${age} yrs`}</span>
-                  <span className="block text-xs text-neutral-gray">(Born {formattedBirthDate})</span>
+                  <span className="block text-xs text-neutral-gray">
+                    (Born {formattedBirthDate})
+                  </span>
                 </>
               }
             />
@@ -151,8 +201,11 @@ export default function PetDetailDisplay({ pet, onEdit, onDelete }: PetDetailDis
               label="Size" // New StatItem for Size
               value={
                 <div className="flex items-center justify-center gap-1">
-                  <Scale className="w-4 h-4 text-gray-500" /> {/* Changed Rss to Scale */}
-                  <span className="font-semibold capitalize">{pet.petSizeName}</span>
+                  <Scale className="w-4 h-4 text-gray-500" />{' '}
+                  {/* Changed Rss to Scale */}
+                  <span className="font-semibold capitalize">
+                    {pet.petSizeName}
+                  </span>
                 </div>
               }
             />

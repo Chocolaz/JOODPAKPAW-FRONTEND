@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useCallback } from 'react'
 import { useParams } from 'next/navigation'
 import { getPetProfileById } from '@/lib/api'
 import { PetProfile } from '@/types'
@@ -14,24 +14,28 @@ export default function PetDetailPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  useEffect(() => {
-    if (petId) {
-      const fetchPetProfile = async () => {
-        try {
-          setIsLoading(true)
-          const data = await getPetProfileById(petId as string)
-          setPetProfile(data)
-        } catch (err) {
-          console.error('Failed to fetch pet profile:', err)
-          setError('Failed to load pet profile.')
-          toast.error('Failed to load pet profile.')
-        } finally {
-          setIsLoading(false)
-        }
-      }
-      fetchPetProfile()
+  const fetchPetProfile = useCallback(async () => {
+    if (!petId) return;
+    try {
+      setIsLoading(true)
+      const data = await getPetProfileById(petId as string)
+      setPetProfile(data)
+    } catch (err) {
+      console.error('Failed to fetch pet profile:', err)
+      setError('Failed to load pet profile.')
+      toast.error('Failed to load pet profile.')
+    } finally {
+      setIsLoading(false)
     }
   }, [petId])
+
+  useEffect(() => {
+    fetchPetProfile()
+  }, [fetchPetProfile])
+
+  const handlePetUpdate = () => { // Changed to no arguments
+    fetchPetProfile(); // Call fetchPetProfile to re-fetch data
+  };
 
   if (isLoading) {
     return (
@@ -57,5 +61,5 @@ export default function PetDetailPage() {
     )
   }
 
-  return <PetDetailDisplay pet={petProfile} />
+  return <PetDetailDisplay pet={petProfile} onPetUpdate={handlePetUpdate} />
 }

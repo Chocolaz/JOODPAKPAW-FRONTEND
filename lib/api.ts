@@ -138,6 +138,16 @@ export const createPetProfile = (formData: FormData) => {
   })
 }
 
+export const updatePetProfile = (id: string, formData: FormData) => {
+  return request({
+    endpoint: `api/v1/profiles/pet-profiles/${id}`,
+    method: 'PUT',
+    body: formData,
+    requiresAuth: true,
+    errorContext: 'Update Pet Profile',
+  })
+}
+
 export const deletePetProfile = (id: string): Promise<void> => {
   return request<void>({
     endpoint: `api/v1/profiles/pet-profiles/${id}`,
