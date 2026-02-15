@@ -156,6 +156,7 @@ export function FavoriteFolderMenuDrawer({
                 className="border-none shadow-none"
                 onClick={() => {
                   setNewFolderName(folder.name)
+                  setDrawerContent('options')
                   onOpenChange(false)
                 }}
               >
