@@ -7,28 +7,55 @@ import { PropertyList } from '@/app/_components/PropertyList'
 import { Spinner } from '@/components/ui/spinner'
 import { ErrorState } from '@/app/profile/_components/ErrorState'
 import { useProfileContext } from '../ProfileContext'
-import { useEffect } from 'react'
+import { useEffect, useMemo } from 'react' // Import useMemo
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 import { HostBookingList } from './_components/HostBookingList'
 import { useSearchParams } from 'next/navigation'
+import { useAuth } from '@/app/_components/AuthContext' // Import useAuth
+import { HostBookingHistoryList } from './_components/HostBookingHistoryList' // Import new component
 
 export default function HostPage() {
+  const { user } = useAuth() // Get user from AuthContext
+  const isHost = user?.role?.some((role) => role.name === 'host')
+
   const {
     hostProperties: { properties, loading, error, refetch },
   } = useProfileContext()
   const searchParams = useSearchParams()
   const tabParam = searchParams.get('tab')
-  const defaultTab = tabParam === 'bookings' ? 'bookings' : 'properties'
+
+  const defaultTab = useMemo(() => {
+    if (isHost) {
+      if (tabParam === 'bookings' || tabParam === 'history') {
+        return tabParam;
+      }
+      return 'properties'; // Default for hosts if no valid tabParam
+    }
+    return 'properties'; // Always properties for non-hosts
+  }, [isHost, tabParam]);
+
 
   useEffect(() => {
     refetch()
   }, [refetch])
 
+  const getGridColsClass = () => {
+    if (isHost) {
+      return 'grid-cols-3'; // Properties, Bookings, History
+    }
+    return 'grid-cols-1'; // Only Properties
+  }
+
   return (
     <Tabs defaultValue={defaultTab} className="w-full mt-2">
-      <TabsList className="grid w-full grid-cols-2">
+      <TabsList className={`grid w-full ${getGridColsClass()}`}>
         <TabsTrigger value="properties">Properties</TabsTrigger>
-        <TabsTrigger value="bookings">Bookings</TabsTrigger>
+        {isHost && ( // Conditionally render Bookings tab
+          <TabsTrigger value="bookings">Bookings</TabsTrigger>
+        )}
+        {isHost && ( // Conditionally render History tab
+          <TabsTrigger value="history">History</TabsTrigger>
+        )}
       </TabsList>
       <TabsContent value="properties">
         <div className="flex flex-col px-5">
@@ -73,9 +100,16 @@ export default function HostPage() {
           </div>
         </div>
       </TabsContent>
-      <TabsContent value="bookings">
-        <HostBookingList />
-      </TabsContent>
+      {isHost && ( // Conditionally render Bookings content
+        <TabsContent value="bookings">
+          <HostBookingList />
+        </TabsContent>
+      )}
+      {isHost && ( // Conditionally render History content
+        <TabsContent value="history">
+          <HostBookingHistoryList />
+        </TabsContent>
+      )}
     </Tabs>
   )
 }

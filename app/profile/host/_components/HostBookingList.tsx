@@ -58,14 +58,36 @@ export function HostBookingList() {
   }, [bookings])
 
   const filteredBookings = useMemo(() => {
+    const statusOrder = ['CONFIRMED', 'PENDING', 'SUCCESSFUL', 'CANCELLED'] // Updated status order
+
     return bookings
       .filter((booking) =>
-        isSameMonth(parseISO(booking.checkInDate), selectedMonth)
+        isSameMonth(parseISO(booking.checkInDate), selectedMonth) &&
+        booking.bookingStatus.toUpperCase() !== 'SUCCESSFUL' // Exclude SUCCESSFUL status
       )
-      .sort(
-        (a, b) =>
-          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-      )
+      .sort((a, b) => {
+        const statusA = a.bookingStatus.toUpperCase()
+        const statusB = b.bookingStatus.toUpperCase()
+
+        const orderA = statusOrder.indexOf(statusA)
+        const orderB = statusOrder.indexOf(statusB)
+
+        // If both statuses are in the predefined order
+        if (orderA !== -1 && orderB !== -1) {
+          if (orderA !== orderB) {
+            return orderA - orderB // Sort by status order
+          }
+        } else if (orderA !== -1) {
+          return -1 // A comes first if B is not in predefined order
+        } else if (orderB !== -1) {
+          return 1 // B comes first if A is not in predefined order
+        }
+        // If one or both statuses are not in the predefined order, or if statuses are the same
+        // Sort by checkInDate (ascending)
+        return (
+          new Date(a.checkInDate).getTime() - new Date(b.checkInDate).getTime()
+        )
+      })
   }, [bookings, selectedMonth])
 
   if (loading) {

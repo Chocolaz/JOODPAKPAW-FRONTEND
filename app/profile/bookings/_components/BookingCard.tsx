@@ -40,7 +40,7 @@ export function BookingCard({ booking, onClick }: BookingCardProps) {
     if (Array.isArray(orders)) {
       totalRoomsBooked = orders.reduce(
         (sum, order) => sum + (order.roomsBooked || 0),
-        0
+      0
       )
     }
   }
@@ -55,6 +55,21 @@ export function BookingCard({ booking, onClick }: BookingCardProps) {
     }
   }
 
+  const getStatusColorClass = (status: string) => {
+    switch (status.toUpperCase()) {
+      case 'CONFIRMED':
+        return 'text-green-600'
+      case 'SUCCESSFUL': // Changed from COMPLETED to SUCCESSFUL
+        return 'text-green-600'
+      case 'PENDING':
+        return 'text-blue-600'
+      case 'CANCELLED':
+        return 'text-red-600'
+      default:
+        return 'text-gray-600'
+    }
+  }
+
   return (
     <div
       onClick={handleCardClick}
@@ -64,8 +79,16 @@ export function BookingCard({ booking, onClick }: BookingCardProps) {
     >
       <Card className="rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-all duration-200 p-5 mb-4 bg-white/70 backdrop-blur-sm">
         {/* Header */}
-        <div className="flex items-start justify-between mb-3">
+        <div className="flex items-center justify-between mb-3">
           <h4 className="leading-tight text-deep-teal">{propertyTitle}</h4>
+          <span
+            className={cn(
+              'text-xs font-semibold uppercase',
+              getStatusColorClass(booking.bookingStatus)
+            )}
+          >
+            {booking.bookingStatus}
+          </span>
         </div>
 
         {/* Info Row */}
