@@ -4,12 +4,12 @@ import { useAddProperty } from '../../_context/AddPropertyContext'
 import { propertyTypes } from '../../_constants'
 import { StepNavigation } from '../StepNavigation'
 import Image from 'next/image'
-import { cn } from '@/lib/utils'
+import { cn, assetPath } from '@/lib/utils'
 
 const propertyTypeGraphics = [
-  { id: 1, name: 'House', icon: '/graphics/steps/house.svg' },
-  { id: 2, name: 'Apartment/Condo', icon: '/graphics/steps/apartment.svg' },
-  { id: 3, name: 'Pet Hotel', icon: '/graphics/steps/hotel.svg' },
+  { id: 1, name: 'House', icon: assetPath('/graphics/steps/house.svg') },
+  { id: 2, name: 'Apartment/Condo', icon: assetPath('/graphics/steps/apartment.svg') },
+  { id: 3, name: 'Pet Hotel', icon: assetPath('/graphics/steps/hotel.svg') },
 ]
 
 export function Step1({ onNext }: { onNext: () => void }) {

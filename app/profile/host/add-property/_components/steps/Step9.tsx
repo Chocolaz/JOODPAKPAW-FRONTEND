@@ -6,7 +6,7 @@ import Image from 'next/image'
 import { toast } from 'sonner'
 import { useAddProperty } from '../../_context/AddPropertyContext'
 import { updateHostPropertyIsActive } from '@/lib/api'
-import { cn } from '@/lib/utils'
+import { cn, assetPath } from '@/lib/utils'
 import { StepNavigation } from '../StepNavigation'
 
 export function Step9() {
@@ -77,7 +77,7 @@ export function Step9() {
             {/* FIX: Equal image height wrapper */}
             <div className="h-20 flex items-center justify-center">
               <Image
-                src="/graphics/public-it.svg"
+                src={assetPath("/graphics/public-it.svg")}
                 alt="Publish it"
                 width={80}
                 height={80}
@@ -103,7 +103,7 @@ export function Step9() {
           >
             <div className="h-20 flex items-center justify-center">
               <Image
-                src="/graphics/public-later.svg"
+                src={assetPath("/graphics/public-later.svg")}
                 alt="Later"
                 width={80}
                 height={80}

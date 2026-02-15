@@ -3,8 +3,6 @@
 import { RoomCategories } from '@/types'
 import { getPetPolicy } from '@/lib/utils'
 import Image from 'next/image'
-import SearchRooms from '@/public/graphics/search-room.png'
-import NoRoom from '@/public/graphics/no-room.png'
 import {
   Select,
   SelectTrigger,
@@ -31,7 +29,7 @@ export function BookingRoomCard({
   if (categories.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-10">
-        <Image src={SearchRooms} alt="Search Rooms" width={200} height={200} />{' '}
+        <Image src="/graphics/search-room.png" alt="Search Rooms" width={200} height={200} />{' '}
         <p className="text-neutral-500">
           Select dates & pets to see available rooms
         </p>
@@ -42,7 +40,7 @@ export function BookingRoomCard({
   if (availableCategories.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-10">
-        <Image src={NoRoom} alt="No Rooms" width={200} height={200} />{' '}
+        <Image src="/graphics/no-room.png" alt="No Rooms" width={200} height={200} />{' '}
         <p className="text-neutral-500 mt-4">
           No rooms are available for the selected dates and pets
         </p>

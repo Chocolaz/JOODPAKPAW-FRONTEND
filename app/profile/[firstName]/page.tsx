@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Image from 'next/image'
+import { assetPath } from '@/lib/utils'
 import { useUserProfile } from '@/app/profile/_hooks/useUserProfile'
 import { useProfileContext } from '@/app/profile/ProfileContext'
 import { ProfileCard } from '@/app/profile/_components/ProfileCard'
@@ -30,7 +31,7 @@ export default function UserProfilePage() {
         onClick={() => setIsEditDrawerOpen(true)}
         className="p-2 rounded-full hover:bg-gray-100 transition-colors duration-200 ease-in-out"
       >
-        <Image src="/icons/edit.svg" alt="Edit" width={24} height={24} />
+        <Image src={assetPath("/icons/edit.svg")} alt="Edit" width={24} height={24} />
       </button>
     )
 

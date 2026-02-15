@@ -1,5 +1,6 @@
 import Image from 'next/image'
 import Link from 'next/link'
+import { assetPath } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import AuthHeader from './_components/AuthHeader'
 export default function AuthenPage() {
@@ -7,7 +8,7 @@ export default function AuthenPage() {
     <div className="bg-white text-foreground min-h-screen flex flex-col">
       <AuthHeader>
         <Image
-          src="/graphics/welcome.svg"
+          src={assetPath("/graphics/welcome.svg")}
           alt="Welcome"
           width={500}
           height={372}

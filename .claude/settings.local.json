@@ -6,7 +6,8 @@
       "Bash(npx tsc:*)",
       "Bash(npx next lint:*)",
       "Bash(npx next build:*)",
-      "Bash(node_modules/.bin/tsc:*)"
+      "Bash(node_modules/.bin/tsc:*)",
+      "mcp__ide__getDiagnostics"
     ]
   }
 }

@@ -12,6 +12,7 @@ import {
 import Lightbox from 'yet-another-react-lightbox'
 import 'yet-another-react-lightbox/styles.css'
 import { Property } from '@/types'
+import { assetPath } from '@/lib/utils'
 
 interface PropertyImageGalleryProps {
   images: Property['images']
@@ -32,7 +33,7 @@ export function PropertyImageGallery({
         }
         return url.replace(/(?<!:)\/\//g, '/')
       })
-    : ['/graphics/no-image.svg']
+    : [assetPath('/graphics/no-image.svg')]
 
   return (
     <>
