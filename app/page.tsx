@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react'
 import { PageHeader } from './_components/PageHeader'
 import { PropertyList } from './_components/PropertyList'
 import { SearchBar } from '@/app/_components/SearchBar'
-import { Spinner } from '@/components/ui/spinner'
 import { getProperties } from '@/lib/api'
 import { PropertiesResponse, Property } from '@/types'
 import { useAuth } from './_components/AuthContext'
@@ -51,24 +50,31 @@ export default function Home() {
         <SearchBar onSearch={handleSearch} value={searchQuery} />
         <PageHeader />
       </div>
-      <div className="flex-1">
+      <main className="mt-5 pb-24 flex-1">
+        <h5 className="text-xl font-medium text-deep-teal mb-4 px-5">
+          Properties
+        </h5>
         {isLoading ? (
-          <div className="grow flex items-center justify-center">
-            <Spinner />
+          <div className="grid grid-cols-2 gap-4 px-5">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className="animate-pulse">
+                <div className="aspect-square w-full bg-gray-200 rounded-[20px]" />
+                <div className="mt-2 space-y-2">
+                  <div className="h-4 bg-gray-200 rounded w-3/4" />
+                  <div className="h-3 bg-gray-200 rounded w-1/2" />
+                  <div className="h-3 bg-gray-200 rounded w-1/3" />
+                </div>
+              </div>
+            ))}
           </div>
         ) : (
-          <main className="mt-5 pb-24">
-            <h5 className="text-xl font-medium text-deep-teal mb-4 px-5">
-              Properties
-            </h5>
-            <PropertyList
-              properties={properties}
-              showPetPolicyChip={true}
-              showHeartIcon={isAuthenticated}
-            />
-          </main>
+          <PropertyList
+            properties={properties}
+            showPetPolicyChip={true}
+            showHeartIcon={isAuthenticated}
+          />
         )}
-      </div>
+      </main>
     </div>
   )
 }
