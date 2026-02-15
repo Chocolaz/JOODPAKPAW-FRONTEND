@@ -2,7 +2,7 @@
 
 import { FavoriteFolder } from '@/types/favorite'
 import Image from 'next/image'
-import { cn, assetPath } from '@/lib/utils'
+import { cn } from '@/lib/utils'
 
 interface FavoriteFolderCardProps {
   folder: FavoriteFolder
@@ -28,7 +28,7 @@ export function FavoriteFolderCard({
     >
       <div className="aspect-square w-full relative">
         <Image
-          src={folder.firstPropertyImage || assetPath('/graphics/no-room.png')}
+          src={folder.firstPropertyImage || '/graphics/no-room.png'}
           alt={folder.name}
           fill
           unoptimized

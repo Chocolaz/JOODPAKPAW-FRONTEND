@@ -91,7 +91,7 @@ export const EditProfileForm = ({
           className="absolute bottom-0 right-0 bg-white rounded-full p-2 shadow-md hover:bg-gray-100"
         >
           <Image
-            src={assetPath('/icons/photo.svg')}
+            src="/icons/photo.svg"
             alt="Change photo"
             width={24}
             height={24}

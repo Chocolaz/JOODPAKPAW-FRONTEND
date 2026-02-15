@@ -1,14 +1,22 @@
 'use client'
 
 import { AppHeader } from '@/app/_components/AppHeader'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
-import { motion } from 'framer-motion'
-import { getFavoriteFolders } from '@/lib/api'
+import { motion, AnimatePresence } from 'framer-motion'
+import { getFavoriteFolders, createFavoriteFolder } from '@/lib/api'
 import { FavoriteFolder } from '@/types/favorite'
 import { FavoriteFolderCard } from '@/app/_components/FavoriteFolderCard'
 import { Button } from '@/components/ui/button'
-import { Heart } from 'lucide-react'
+import { Input } from '@/components/ui/input'
+import {
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+} from '@/components/ui/drawer'
+import { Heart, Plus, FolderPlus, Loader2 } from 'lucide-react'
+import { toast } from 'sonner'
 
 const SkeletonCard = () => (
   <div className="animate-pulse">
@@ -24,24 +32,62 @@ export default function FavoritesPage() {
   const [folders, setFolders] = useState<FavoriteFolder[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false)
+  const [newFolderName, setNewFolderName] = useState('')
+  const [isCreating, setIsCreating] = useState(false)
+  const inputRef = useRef<HTMLInputElement>(null)
   const router = useRouter()
 
-  useEffect(() => {
-    const fetchFolders = async () => {
-      try {
-        const response = await getFavoriteFolders()
-        setFolders(response.favoriteFolders)
-      } catch (err) {
-        setError('Failed to fetch favorite folders.')
-      } finally {
-        setIsLoading(false)
-      }
+  const fetchFolders = useCallback(async () => {
+    try {
+      setError(null)
+      const response = await getFavoriteFolders()
+      setFolders(response.favoriteFolders)
+    } catch {
+      setError('Failed to fetch favorite folders.')
+    } finally {
+      setIsLoading(false)
     }
-    fetchFolders()
   }, [])
+
+  useEffect(() => {
+    fetchFolders()
+  }, [fetchFolders])
+
+  useEffect(() => {
+    if (isDrawerOpen && inputRef.current) {
+      setTimeout(() => inputRef.current?.focus(), 300)
+    }
+  }, [isDrawerOpen])
 
   const handleFolderClick = (folderId: number) => {
     router.push(`/favorites/${folderId}`)
+  }
+
+  const handleCreateFolder = async () => {
+    const trimmed = newFolderName.trim()
+    if (!trimmed) return
+
+    setIsCreating(true)
+    try {
+      await createFavoriteFolder(trimmed)
+      toast.success(`"${trimmed}" folder created!`)
+      setNewFolderName('')
+      setIsDrawerOpen(false)
+      setIsLoading(true)
+      await fetchFolders()
+    } catch {
+      toast.error('Failed to create folder.')
+    } finally {
+      setIsCreating(false)
+    }
+  }
+
+  const handleDrawerClose = (open: boolean) => {
+    setIsDrawerOpen(open)
+    if (!open) {
+      setTimeout(() => setNewFolderName(''), 300)
+    }
   }
 
   const containerVariants = {
@@ -49,7 +95,7 @@ export default function FavoritesPage() {
     visible: {
       opacity: 1,
       transition: {
-        staggerChildren: 0.1,
+        staggerChildren: 0.08,
       },
     },
   }
@@ -93,15 +139,25 @@ export default function FavoritesPage() {
           <h3 className="text-xl font-semibold text-gray-700">
             No favorites yet
           </h3>
-          <p className="text-gray-500 mt-2">
-            You can add properties to your favorites to see them here.
+          <p className="text-gray-500 mt-2 mb-6">
+            Create a folder to start organizing your favorite places.
           </p>
-          <Button
-            onClick={() => router.push('/')}
-            className="mt-6 bg-deep-teal text-white"
-          >
-            Find Properties
-          </Button>
+          <div className="flex flex-col gap-3">
+            <Button
+              onClick={() => setIsDrawerOpen(true)}
+              className="bg-deep-teal text-white px-8"
+            >
+              <FolderPlus className="mr-2 h-4 w-4" />
+              Create Folder
+            </Button>
+            <Button
+              onClick={() => router.push('/')}
+              variant="outline"
+              className="px-8"
+            >
+              Find Properties
+            </Button>
+          </div>
         </div>
       )
     }
@@ -113,16 +169,44 @@ export default function FavoritesPage() {
         initial="hidden"
         animate="visible"
       >
-        {folders.map((folder) => (
-          <motion.div key={folder.id} variants={itemVariants}>
-            <FavoriteFolderCard
-              folder={folder}
-              onClick={(folderId) => handleFolderClick(folderId)}
-              disabled={false}
-              widthClass="w-full"
-            />
-          </motion.div>
-        ))}
+        {/* Create New Folder Card */}
+        <motion.div variants={itemVariants}>
+          <button
+            onClick={() => setIsDrawerOpen(true)}
+            className="block w-full cursor-pointer text-left group"
+          >
+            <div className="aspect-square w-full rounded-[20px] border-2 border-dashed border-gray-300 group-hover:border-deep-teal flex flex-col items-center justify-center transition-colors bg-gray-50 group-hover:bg-teal-50/50">
+              <div className="w-12 h-12 rounded-full bg-deep-teal/10 group-hover:bg-deep-teal/20 flex items-center justify-center transition-colors mb-2">
+                <Plus className="w-6 h-6 text-deep-teal" />
+              </div>
+              <span className="text-sm font-medium text-deep-teal">
+                New Folder
+              </span>
+            </div>
+            <div className="mt-2">
+              <p className="text-sm font-medium text-deep-teal">
+                Create folder
+              </p>
+              <p className="text-xs text-neutral-gray">
+                Organize your favorites
+              </p>
+            </div>
+          </button>
+        </motion.div>
+
+        {/* Existing Folder Cards */}
+        <AnimatePresence>
+          {folders.map((folder) => (
+            <motion.div key={folder.id} variants={itemVariants} layout>
+              <FavoriteFolderCard
+                folder={folder}
+                onClick={(folderId) => handleFolderClick(folderId)}
+                disabled={false}
+                widthClass="w-full"
+              />
+            </motion.div>
+          ))}
+        </AnimatePresence>
       </motion.div>
     )
   }
@@ -131,6 +215,53 @@ export default function FavoritesPage() {
     <div>
       <AppHeader title="Favorites" backPath="/" />
       <div className="container mx-auto px-5 pt-8 mb-30">{renderContent()}</div>
+
+      {/* Create Folder Drawer */}
+      <Drawer open={isDrawerOpen} onOpenChange={handleDrawerClose}>
+        <DrawerContent>
+          <div className="mx-auto w-full max-w-sm pb-6">
+            <DrawerHeader>
+              <DrawerTitle>Create new folder</DrawerTitle>
+            </DrawerHeader>
+            <div className="px-4 space-y-4">
+              <div className="space-y-1">
+                <Input
+                  ref={inputRef}
+                  placeholder="e.g. Summer Trips, Dream Stays..."
+                  value={newFolderName}
+                  onChange={(e) => setNewFolderName(e.target.value)}
+                  maxLength={20}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && newFolderName.trim()) {
+                      handleCreateFolder()
+                    }
+                  }}
+                />
+                <p className="text-xs text-gray-400 text-right">
+                  {newFolderName.length}/20
+                </p>
+              </div>
+              <Button
+                onClick={handleCreateFolder}
+                disabled={isCreating || !newFolderName.trim()}
+                className="w-full py-5 bg-deep-teal text-white disabled:opacity-50"
+              >
+                {isCreating ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Creating...
+                  </>
+                ) : (
+                  <>
+                    <FolderPlus className="mr-2 h-4 w-4" />
+                    Create Folder
+                  </>
+                )}
+              </Button>
+            </div>
+          </div>
+        </DrawerContent>
+      </Drawer>
     </div>
   )
 }

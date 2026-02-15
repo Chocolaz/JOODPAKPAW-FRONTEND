@@ -3,7 +3,6 @@
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { useState } from 'react'
 import Image from 'next/image'
-import { assetPath } from '@/lib/utils'
 import { Input } from '@/components/ui/input'
 import { X, Plus } from 'lucide-react'
 import { toast } from 'sonner'
@@ -104,7 +103,7 @@ export function ImageManager({
             className="flex flex-col items-center justify-center w-full max-w-xs aspect-square border-2 border-dashed border-gray-300 rounded-2xl cursor-pointer hover:border-deep-teal/50 transition-colors bg-white"
           >
             <Image
-              src={assetPath('/graphics/steps/add-photo.svg')}
+              src="/graphics/steps/add-photo.svg"
               alt="Add photo icon"
               width={190}
               height={190}

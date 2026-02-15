@@ -3,7 +3,6 @@
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
 import Image from 'next/image'
-import { assetPath } from '@/lib/utils'
 import { Spinner } from '@/components/ui/spinner'
 import { ErrorState } from '@/app/profile/_components/ErrorState'
 import { useProfileContext } from '../ProfileContext'
@@ -43,7 +42,7 @@ export default function PetsPage() {
         ) : (
           <div className="text-center mt-20 text-neutral-gray">
             <Image
-              src={assetPath('/graphics/search-room.png')}
+              src="/graphics/search-room.png"
               alt="No pets found"
               width={200}
               height={200}

@@ -3,7 +3,6 @@
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
 import Image from 'next/image'
-import { assetPath } from '@/lib/utils'
 
 export default function AddPropertyPage() {
   return (
@@ -28,7 +27,7 @@ export default function AddPropertyPage() {
             </div>
             <div className="shrink-0">
               <Image
-                src={assetPath('/graphics/steps/tell-us.svg')}
+                src="/graphics/steps/tell-us.svg"
                 alt="Tell us about your space"
                 width={80}
                 height={80}
@@ -49,7 +48,7 @@ export default function AddPropertyPage() {
             </div>
             <div className="shrink-0">
               <Image
-                src={assetPath('/graphics/steps/make-it.svg')}
+                src="/graphics/steps/make-it.svg"
                 alt="Make it stand out"
                 width={80}
                 height={80}
@@ -70,7 +69,7 @@ export default function AddPropertyPage() {
             </div>
             <div className="shrink-0">
               <Image
-                src={assetPath('/graphics/steps/publish.svg')}
+                src="/graphics/steps/publish.svg"
                 alt="Publish Your Listing"
                 width={80}
                 height={80}
