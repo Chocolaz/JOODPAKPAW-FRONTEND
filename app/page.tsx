@@ -47,7 +47,7 @@ export default function Home() {
 
   return (
     <div className="bg-white text-foreground min-h-screen flex flex-col">
-      <div className="px-5 ">
+      <div className="px-5">
         <SearchBar onSearch={handleSearch} value={searchQuery} />
         <PageHeader />
       </div>
