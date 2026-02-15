@@ -2,7 +2,7 @@
 
 import { PetProfile } from '@/types'
 import { Button } from '@/components/ui/button'
-import { Phone, User, Star, Mars, Venus, Zap, Rss } from 'lucide-react' // Added Rss for size, removed Cake
+import { Phone, User, Star, Mars, Venus, Zap, Scale } from 'lucide-react' // Changed Rss to Scale
 import { differenceInYears, format } from 'date-fns' // Import format
 
 interface PetDetailDisplayProps {
@@ -59,7 +59,7 @@ export default function PetDetailDisplay({ pet }: PetDetailDisplayProps) {
               label="Size" // New StatItem for Size
               value={
                 <div className="flex items-center justify-center gap-1">
-                  <Rss className="w-4 h-4 text-gray-500" /> {/* Using Rss icon for size, can be changed */}
+                  <Scale className="w-4 h-4 text-gray-500" /> {/* Changed Rss to Scale */}
                   <span className="font-semibold capitalize">{pet.petSizeName}</span>
                 </div>
               }
