@@ -1,19 +1,51 @@
 'use client'
 
+import { useState } from 'react'
 import { PetProfile } from '@/types'
 import { Button } from '@/components/ui/button'
-import { Phone, User, Star, Mars, Venus, Zap, Scale } from 'lucide-react' // Changed Rss to Scale
-import { differenceInYears, format } from 'date-fns' // Import format
+import { Phone, User, Mars, Venus, Zap, Scale, EllipsisVertical, Edit, Trash2, ChevronRight, ChevronLeft } from 'lucide-react'
+import { differenceInYears, format } from 'date-fns'
+import { useRouter } from 'next/navigation'
+import { toast } from 'sonner'
+import { deletePetProfile } from '@/lib/api'
+import {
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+} from '@/components/ui/drawer'
+import { ConfirmationModal } from '@/app/_components/ConfirmationModal'
 
 interface PetDetailDisplayProps {
   pet: PetProfile
+  onEdit?: () => void
+  onDelete?: () => void
 }
 
-export default function PetDetailDisplay({ pet }: PetDetailDisplayProps) {
+export default function PetDetailDisplay({ pet, onEdit, onDelete }: PetDetailDisplayProps) {
   const basePath = process.env.NEXT_PUBLIC_BASE_PATH || ''
   const guestPetImageSrc = `${basePath}/graphics/guest.jpg`
   const age = differenceInYears(new Date(), new Date(pet.birthDate))
-  const formattedBirthDate = format(new Date(pet.birthDate), 'MMM d, yyyy') // Format birthDate
+  const formattedBirthDate = format(new Date(pet.birthDate), 'MMM d, yyyy')
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
+  const [isDeleting, setIsDeleting] = useState(false)
+  const router = useRouter()
+
+  const handleDelete = async () => {
+    try {
+      setIsDeleting(true)
+      await deletePetProfile(String(pet.id))
+      toast.success(`${pet.name} has been deleted.`)
+      router.push('/profile/pets')
+    } catch (error) {
+      console.error('Failed to delete pet profile:', error)
+      toast.error('Failed to delete pet profile.')
+    } finally {
+      setIsDeleting(false)
+      setIsDeleteDialogOpen(false)
+    }
+  }
 
   return (
     <div className="pb-10 bg-gray-50 min-h-screen">
@@ -24,7 +56,67 @@ export default function PetDetailDisplay({ pet }: PetDetailDisplayProps) {
           className="object-cover w-full h-full rounded-b-2xl"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
+        <button
+          onClick={() => router.push('/profile/pets')}
+          className="absolute top-4 left-4 p-2 bg-white/80 backdrop-blur-sm rounded-full shadow hover:bg-white transition-colors"
+        >
+          <ChevronLeft className="w-5 h-5 text-neutral-gray" />
+        </button>
+        <button
+          onClick={() => setIsMenuOpen(true)}
+          className="absolute top-4 right-4 p-2 bg-white/80 backdrop-blur-sm rounded-full shadow hover:bg-white transition-colors"
+        >
+          <EllipsisVertical className="w-5 h-5 text-neutral-gray" />
+        </button>
       </div>
+
+      <Drawer open={isMenuOpen} onOpenChange={setIsMenuOpen}>
+        <DrawerContent>
+          <div className="mx-auto w-full max-w-sm">
+            <DrawerHeader>
+              <DrawerTitle>Menu</DrawerTitle>
+            </DrawerHeader>
+            <div className="px-4 pb-4 min-h-[130px]">
+              <div
+                className="flex items-center justify-between py-3 hover:bg-gray-50 cursor-pointer border-b border-gray-200"
+                onClick={() => {
+                  setIsMenuOpen(false)
+                  onEdit?.()
+                }}
+              >
+                <div className="flex items-center">
+                  <Edit className="mr-2 h-4 w-4" />
+                  Edit Pet
+                </div>
+                <ChevronRight className="h-4 w-4 text-gray-400" />
+              </div>
+              <div
+                className="flex items-center justify-between py-3 hover:bg-gray-50 cursor-pointer"
+                onClick={() => {
+                  setIsMenuOpen(false)
+                  setIsDeleteDialogOpen(true)
+                }}
+              >
+                <div className="flex items-center text-red-600">
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  Delete Pet
+                </div>
+                <ChevronRight className="h-4 w-4 text-gray-400" />
+              </div>
+            </div>
+          </div>
+        </DrawerContent>
+      </Drawer>
+
+      <ConfirmationModal
+        isOpen={isDeleteDialogOpen}
+        onClose={() => setIsDeleteDialogOpen(false)}
+        onConfirm={handleDelete}
+        title={`Delete ${pet.name}?`}
+        message="This action cannot be undone. This will permanently delete your pet profile."
+        titleClassName="text-red-600"
+        confirmButtonClassName="bg-red-600 hover:bg-red-700"
+      />
 
       <div className="px-6 -mt-10 relative z-10">
         <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100 space-y-6">

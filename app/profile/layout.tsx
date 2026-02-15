@@ -61,7 +61,7 @@ function LayoutContent({ children }: { children: ReactNode }) {
       return { title: 'Add Pet', backPath: '/profile/pets' }
     }
     if (normalizedPath.match(/^\/profile\/pets\/\d+$/)) {
-      return { title: 'Pet Profile', backPath: '/profile/pets' }
+      return null // Pet detail page has its own header
     }
     if (normalizedPath === '/profile/bookings') {
       return { title: 'Bookings', backPath: '/profile' }

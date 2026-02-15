@@ -138,7 +138,14 @@ export const createPetProfile = (formData: FormData) => {
   })
 }
 
-// --- Property Functions ---
+export const deletePetProfile = (id: string): Promise<void> => {
+  return request<void>({
+    endpoint: `api/v1/profiles/pet-profiles/${id}`,
+    method: 'DELETE',
+    requiresAuth: true,
+    errorContext: 'Delete Pet Profile',
+  })
+}
 
 // --- Property Functions ---
 export const getProperties = (

@@ -76,13 +76,14 @@ async function request<T>({
       throw new Error('Access forbidden.')
     }
 
-    const data = await response.json()
+    const text = await response.text()
+    const data = text ? JSON.parse(text) : null
 
     if (!response.ok) {
       throw new ApiError(
-        data.message || 'Something went wrong',
-        data.code,
-        data.errors
+        data?.message || 'Something went wrong',
+        data?.code,
+        data?.errors
       )
     }
 

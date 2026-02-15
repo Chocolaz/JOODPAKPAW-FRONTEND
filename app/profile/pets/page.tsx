@@ -43,7 +43,7 @@ export default function PetsPage() {
         ) : (
           <div className="text-center mt-20 text-neutral-gray">
             <Image
-              src={assetPath("/graphics/search-room.png")}
+              src={assetPath('/graphics/no-pet.png')}
               alt="No pets found"
               width={200}
               height={200}
