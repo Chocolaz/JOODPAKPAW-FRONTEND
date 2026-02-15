@@ -21,6 +21,7 @@ interface PropertyCardProps {
   showStatusIcon?: boolean
   showPetPolicyChip?: boolean
   showHeartIcon?: boolean
+  favoriteFolderId?: number
 }
 
 export function PropertyCard({
@@ -31,6 +32,7 @@ export function PropertyCard({
   showStatusIcon = false,
   showPetPolicyChip = false,
   showHeartIcon = false,
+  favoriteFolderId,
 }: PropertyCardProps) {
   const [imgSrc, setImgSrc] = useState(
     property.images.length > 0 && API_BASE_URL
@@ -62,16 +64,20 @@ export function PropertyCard({
             label: 'undo',
             onClick: async () => {
               try {
-                const res = await getFavoriteFolders()
-                const folders = res.favoriteFolders
-                if (folders.length === 0) {
-                  await addFavorite({ propertyId: property.id })
+                if (favoriteFolderId) {
+                  await addFavorite({ propertyId: property.id, folderId: favoriteFolderId })
                 } else {
-                  const sorted = folders.sort((a, b) => a.id - b.id)
-                  await addFavorite({
-                    propertyId: property.id,
-                    folderId: sorted[0].id,
-                  })
+                  const res = await getFavoriteFolders()
+                  const folders = res.favoriteFolders
+                  if (folders.length === 0) {
+                    await addFavorite({ propertyId: property.id })
+                  } else {
+                    const sorted = folders.sort((a, b) => a.id - b.id)
+                    await addFavorite({
+                      propertyId: property.id,
+                      folderId: sorted[0].id,
+                    })
+                  }
                 }
                 setIsHeartClicked(true)
               } catch (_err) {

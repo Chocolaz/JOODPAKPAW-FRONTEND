@@ -87,6 +87,7 @@ export default function FavoriteFolderDetailPage() {
             key={property.id}
             property={property}
             showHeartIcon={true}
+            favoriteFolderId={Number(folderId)}
             href={`/${property.id}?fromFavorites=true&folderId=${folderId}`}
           />
         ))}
