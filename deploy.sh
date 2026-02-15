@@ -21,6 +21,9 @@ fi
 git fetch origin main
 git reset --hard origin/main
 
+# Write .env for docker compose variable substitution
+echo "NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=${NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}" > .env
+
 # Build new image
 docker compose -f docker-compose.yml build --no-cache
 
