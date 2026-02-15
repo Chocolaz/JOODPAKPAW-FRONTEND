@@ -4,6 +4,7 @@ import type { RuleSetRule } from 'webpack'
 const BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH || '/capstone25/cp25nk2'
 
 const nextConfig: NextConfig = {
+  output: 'standalone',
   basePath: BASE_PATH,
   assetPrefix: BASE_PATH + '/',
   trailingSlash: true,

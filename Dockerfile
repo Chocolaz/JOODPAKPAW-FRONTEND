@@ -5,7 +5,6 @@ WORKDIR /app
 # copy package files
 COPY package*.json ./
 
-# ติดตั้ง dependencies แบบ deterministic
 RUN npm install --legacy-peer-deps
 
 # build-time env variables (NEXT_PUBLIC_* are inlined during build)
@@ -28,11 +27,12 @@ WORKDIR /app
 
 ENV NODE_ENV=production
 
-# copy build output & dependencies
-COPY --from=builder /app ./
+# Copy only what's needed for standalone production server
+COPY --from=builder /app/public ./public
+COPY --from=builder /app/.next/standalone ./
+COPY --from=builder /app/.next/static ./.next/static
 
-# expose port
 EXPOSE 3000
 
-# start Next.js
-CMD ["npm", "run", "start"]
+# standalone server replaces `next start`
+CMD ["node", "server.js"]

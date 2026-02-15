@@ -27,13 +27,12 @@ export default function HostPage() {
   const defaultTab = useMemo(() => {
     if (isHost) {
       if (tabParam === 'bookings' || tabParam === 'history') {
-        return tabParam;
+        return tabParam
       }
-      return 'properties'; // Default for hosts if no valid tabParam
+      return 'properties' // Default for hosts if no valid tabParam
     }
-    return 'properties'; // Always properties for non-hosts
-  }, [isHost, tabParam]);
-
+    return 'properties' // Always properties for non-hosts
+  }, [isHost, tabParam])
 
   useEffect(() => {
     refetch()
@@ -41,9 +40,9 @@ export default function HostPage() {
 
   const getGridColsClass = () => {
     if (isHost) {
-      return 'grid-cols-3'; // Properties, Bookings, History
+      return 'grid-cols-3' // Properties, Bookings, History
     }
-    return 'grid-cols-1'; // Only Properties
+    return 'grid-cols-1' // Only Properties
   }
 
   return (
