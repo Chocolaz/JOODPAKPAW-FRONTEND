@@ -19,7 +19,7 @@ interface AuthContextType {
   login: (accessToken: string, refreshToken: string) => void
   logout: () => void
   loading: boolean
-  refreshAuth: () => void
+  refreshAuth: () => Promise<void>
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -29,8 +29,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true)
   const [refreshTrigger, setRefreshTrigger] = useState(0)
 
-  const refreshAuth = useCallback(() => {
-    setRefreshTrigger((prev) => prev + 1)
+  const refreshAuth = useCallback(async () => {
+    setLoading(true)
+    try {
+      const profile = await getProfile()
+      setUser(profile.data)
+    } catch (e) {
+      console.error('Failed to refresh auth:', e)
+    } finally {
+      setLoading(false)
+    }
   }, [])
 
   const login = (accessToken: string, refreshToken: string) => {

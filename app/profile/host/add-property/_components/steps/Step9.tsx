@@ -5,12 +5,14 @@ import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import { toast } from 'sonner'
 import { useAddProperty } from '../../_context/AddPropertyContext'
+import { useAuth } from '@/app/_components/AuthContext'
 import { updateHostPropertyIsActive } from '@/lib/api'
 import { cn, assetPath } from '@/lib/utils'
 import { StepNavigation } from '../StepNavigation'
 
 export function Step9() {
   const router = useRouter()
+  const { refreshAuth } = useAuth()
   const { formData, clearAddPropertySession } = useAddProperty()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [selectedOption, setSelectedOption] = useState<
@@ -28,6 +30,7 @@ export function Step9() {
       await updateHostPropertyIsActive(String(formData.propertyId), true)
       toast.success('Your property has been published successfully!')
       clearAddPropertySession()
+      await refreshAuth()
       router.push('/profile/host')
     } catch (error) {
       toast.error(
@@ -38,12 +41,11 @@ export function Step9() {
     }
   }
 
-  const savePropertyLater = () => {
+  const savePropertyLater = async () => {
     toast.info('Your property is saved as a draft.')
     clearAddPropertySession()
-    setTimeout(() => {
-      router.push('/profile/host')
-    }, 100)
+    await refreshAuth()
+    router.push('/profile/host')
   }
 
   const handleNext = async () => {
