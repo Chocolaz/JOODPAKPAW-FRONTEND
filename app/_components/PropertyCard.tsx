@@ -7,6 +7,7 @@ import { useState, useEffect } from 'react'
 import { cn, getLowestPrice, getPetPolicy, assetPath } from '@/lib/utils'
 import { Globe, GlobeLock, Heart, Star } from 'lucide-react'
 import { FavoriteDrawer } from './FavoriteDrawer'
+import { useAuth } from '@/app/_components/AuthContext'
 import { getFavoriteFolders, addFavorite, deleteFavoriteProperty } from '@/lib/api'
 import { ApiError } from '@/lib/errorHandling'
 import { toast } from 'sonner'
@@ -34,6 +35,9 @@ export function PropertyCard({
   showHeartIcon = false,
   favoriteFolderId,
 }: PropertyCardProps) {
+  const { user } = useAuth()
+  const isOwner = user && property.hostId === user.id
+
   const [imgSrc, setImgSrc] = useState(
     property.images.length > 0 && API_BASE_URL
       ? new URL(property.images[0].filePath, API_BASE_URL).toString()
@@ -46,7 +50,7 @@ export function PropertyCard({
     setIsHeartClicked(property.isFavorite)
   }, [property.isFavorite])
 
-  const finalHref = href || `/${property.id}`
+  const finalHref = href || (isOwner ? `/profile/host/${property.id}` : `/${property.id}`)
 
   const lowestPrice = getLowestPrice(property.roomCategories)
   const petPolicy = getPetPolicy(property.pets)

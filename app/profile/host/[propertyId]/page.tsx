@@ -123,7 +123,7 @@ export default function HostPropertyDetailPage() {
     }
   }
 
-  const handleBack = () => router.push('/profile/host?tab=properties')
+  const handleBack = () => router.back()
 
   if (loading || isUpdatingStatus || isDeleting) {
     return (
