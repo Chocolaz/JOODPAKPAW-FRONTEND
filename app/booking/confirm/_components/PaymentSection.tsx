@@ -9,7 +9,7 @@ import { createBooking, confirmPayment } from '@/lib/api'
 import { ApiError } from '@/lib/errorHandling'
 import { BookingDetail } from '@/types'
 import { cn } from '@/lib/utils'
-import { CheckCircle, CreditCard } from 'lucide-react'
+import { CheckCircle, CreditCard, Clock } from 'lucide-react'
 
 interface PaymentSectionProps {
   bookingDetails: BookingDetail
@@ -42,8 +42,51 @@ export default function PaymentSection({
   const router = useRouter()
   const [selectedCard, setSelectedCard] = useState<number | null>(null)
   const [paymentState, setPaymentState] = useState<
-    'idle' | 'processing' | 'success'
+    'idle' | 'booking' | 'processing' | 'success'
   >('idle')
+
+  const handlePayLater = async () => {
+    setIsBookingLoading(true)
+    setPaymentState('booking')
+
+    try {
+      const body = {
+        propertyId: bookingDetails.propertyId,
+        numberOfPets: bookingDetails.numberOfPets,
+        bookingOrders: Object.entries(bookingDetails.selectedRooms).map(
+          ([id, count]) => ({
+            roomCategoryId: Number(id),
+            checkInDate: bookingDetails.checkInDate,
+            checkOutDate: bookingDetails.checkOutDate,
+            roomsBooked: count,
+          })
+        ),
+      }
+
+      await createBooking(body)
+
+      await new Promise((resolve) => setTimeout(resolve, 1000))
+
+      setPaymentState('success')
+      toast.success('Booking created! You can pay later.')
+
+      setTimeout(() => {
+        router.push('/profile/bookings')
+      }, 1500)
+    } catch (err) {
+      console.error('Booking failed:', err)
+      let errorMessage = 'Booking failed. Please try again.'
+      if (err instanceof ApiError) {
+        errorMessage = err.message
+      }
+      toast.error(errorMessage)
+      setPaymentState('idle')
+    } finally {
+      if (paymentState !== 'success') {
+        setIsBookingLoading(false)
+      }
+    }
+  }
 
   const handlePayment = async () => {
     if (!selectedCard) return
@@ -97,9 +140,20 @@ export default function PaymentSection({
   return (
     <div className="relative">
       <>
-        {(paymentState === 'processing' || paymentState === 'success') && (
+        {paymentState !== 'idle' && (
           <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center">
             <div className="bg-white rounded-2xl p-8 shadow-2xl text-center flex flex-col items-center gap-4">
+              {paymentState === 'booking' && (
+                <>
+                  <Spinner className="w-16 h-16" />
+                  <h3 className="text-lg font-semibold text-gray-800">
+                    Creating Booking...
+                  </h3>
+                  <p className="text-gray-600">
+                    Please wait, we&apos;re reserving your spot.
+                  </p>
+                </>
+              )}
               {paymentState === 'processing' && (
                 <>
                   <Spinner className="w-16 h-16" />
@@ -117,9 +171,9 @@ export default function PaymentSection({
                     <CheckCircle className="w-16 h-16 text-positive-green" />
                   </div>
                   <h3 className="text-lg font-semibold text-gray-800">
-                    Payment Successful!
+                    Booking Confirmed!
                   </h3>
-                  <p className="text-gray-600">Your booking is confirmed.</p>
+                  <p className="text-gray-600">Redirecting to your bookings...</p>
                 </>
               )}
             </div>
@@ -176,13 +230,28 @@ export default function PaymentSection({
         </div>
 
         <div className="fixed bottom-0 left-0 right-0 backdrop-blur-xl bg-white/85 border-t shadow-2xl rounded-t-3xl py-5 px-6 z-40">
-          <div className="max-w-[500px] mx-auto">
+          <div className="max-w-[500px] mx-auto flex gap-3">
+            <Button
+              onClick={handlePayLater}
+              disabled={isBookingLoading}
+              variant="outline"
+              className="h-14 flex-1 text-base font-semibold border-gray-300"
+            >
+              {isBookingLoading ? (
+                <Spinner />
+              ) : (
+                <>
+                  <Clock className="w-4 h-4 mr-2" />
+                  Pay Later
+                </>
+              )}
+            </Button>
             <Button
               onClick={handlePayment}
               disabled={!selectedCard || isBookingLoading}
-              className="bg-positive-green h-14 w-full text-lg text-white font-semibold"
+              className="bg-positive-green h-14 flex-[2] text-base text-white font-semibold"
             >
-              {isBookingLoading ? <Spinner /> : 'Pay with selected card'}
+              {isBookingLoading ? <Spinner /> : 'Pay Now'}
             </Button>
           </div>
         </div>

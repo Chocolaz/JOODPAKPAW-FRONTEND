@@ -8,6 +8,7 @@ import { Spinner } from '@/components/ui/spinner'
 import { toast } from 'sonner'
 import BookingDetailDisplay from './_components/BookingDetailDisplay'
 import ReviewSection from './_components/ReviewSection'
+import PendingPaymentSection from './_components/PendingPaymentSection'
 import { Button } from '@/components/ui/button'
 import { ConfirmationModal } from '@/app/_components/ConfirmationModal'
 
@@ -87,7 +88,7 @@ export default function BookingDetailPage() {
   }
 
   const status = bookingDetails.bookingStatus.toUpperCase()
-  const isCancellable = status !== 'CANCELLED' && status !== 'SUCCESSFUL'
+  const isPending = status === 'PENDING'
   const isSuccessful = status === 'SUCCESSFUL'
 
   return (
@@ -95,6 +96,20 @@ export default function BookingDetailPage() {
       <BookingDetailDisplay bookingDetails={bookingDetails} />
 
       <div className="container mx-auto max-w-[550px] px-6 space-y-4 pb-6">
+        {isPending && (
+          <PendingPaymentSection
+            bookingId={bookingDetails.id}
+            createdAt={bookingDetails.createdAt}
+            onPaymentSuccess={() => {
+              handleBookingUpdate({ bookingStatus: 'confirmed' })
+            }}
+            onExpired={() => {
+              handleBookingUpdate({ bookingStatus: 'cancelled' })
+              toast.error('Booking has been automatically cancelled due to payment timeout.')
+            }}
+          />
+        )}
+
         {isSuccessful && (
           <ReviewSection
             bookingId={bookingId as string}
@@ -103,7 +118,7 @@ export default function BookingDetailPage() {
           />
         )}
 
-        {isCancellable && (
+        {isPending && (
           <Button
             className="w-full text-lg h-12 bg-white text-red-700 border border-red-200"
             onClick={() => setIsCancelModalOpen(true)}
