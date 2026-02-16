@@ -21,6 +21,7 @@ import { PropertyRoomCategories } from '@/app/_components/property-detail/Proper
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { Property } from '@/types'
 import { normalizeRoomCategories } from '@/lib/utils'
+import { PropertyReviews } from '@/app/_components/property-detail/PropertyReviews'
 import { PropertyBookingsSection } from './_components/PropertyBookingsSection'
 import { AddRoomCategoryForm } from '../_components/AddRoomCategoryForm'
 import { Plus, ChevronLeft } from 'lucide-react'
@@ -189,47 +190,54 @@ export default function HostPropertyDetailPage() {
           facilities={property.facilities}
           description={property.description}
         />
-        {roomCategoriesArray.length > 0 ? (
-          <PropertyRoomCategories
-            propertyId={property.id}
-            roomCategories={roomCategoriesArray}
-            onDeleteSuccess={refreshProperty}
-            showDeleteButton={false}
-          />
-        ) : (
-          <Drawer open={isAddRoomDrawerOpen} onOpenChange={setIsAddRoomDrawerOpen}>
+        <Drawer open={isAddRoomDrawerOpen} onOpenChange={setIsAddRoomDrawerOpen}>
+          {roomCategoriesArray.length > 0 ? (
+            <PropertyRoomCategories
+              propertyId={property.id}
+              roomCategories={roomCategoriesArray}
+              onDeleteSuccess={refreshProperty}
+              showDeleteButton={false}
+            />
+          ) : (
             <div className="border-t pt-8 mt-10">
               <h3 className="mb-3 text-deep-teal">Room Categories</h3>
               <p className="text-neutral-gray mb-4">No room categories added yet.</p>
-              <DrawerTrigger asChild>
-                <div className="px-6 py-8 border-2 border-dashed border-positive-green rounded-xl cursor-pointer hover:bg-green-50/50 transition-colors">
-                  <div className="font-medium text-deep-teal text-lg flex items-center justify-between w-full">
-                    <span>Add Room Category</span>
-                    <Plus className="h-6 w-6 text-positive-green" />
-                  </div>
-                </div>
-              </DrawerTrigger>
             </div>
-            <DrawerContent>
-              <DrawerHeader className="relative">
-                <DrawerTitle className="flex items-center gap-2">
-                  <ChevronLeft
-                    className="w-6 h-6 text-neutral-gray cursor-pointer"
-                    onClick={() => setIsAddRoomDrawerOpen(false)}
-                  />
+          )}
+          <div className={roomCategoriesArray.length > 0 ? 'px-0 mt-4' : ''}>
+            <DrawerTrigger asChild>
+              <div className="px-6 py-8 border-2 border-dashed border-positive-green rounded-xl cursor-pointer hover:bg-green-50/50 transition-colors">
+                <div className="font-medium text-deep-teal text-lg flex items-center justify-between w-full">
                   <span>Add Room Category</span>
-                </DrawerTitle>
-              </DrawerHeader>
-              <AddRoomCategoryForm
-                propertyId={property.id}
-                onAddSuccess={() => {
-                  setIsAddRoomDrawerOpen(false)
-                  refreshProperty()
-                }}
-              />
-            </DrawerContent>
-          </Drawer>
-        )}
+                  <Plus className="h-6 w-6 text-positive-green" />
+                </div>
+              </div>
+            </DrawerTrigger>
+          </div>
+          <DrawerContent>
+            <DrawerHeader className="relative">
+              <DrawerTitle className="flex items-center gap-2">
+                <ChevronLeft
+                  className="w-6 h-6 text-neutral-gray cursor-pointer"
+                  onClick={() => setIsAddRoomDrawerOpen(false)}
+                />
+                <span>Add Room Category</span>
+              </DrawerTitle>
+            </DrawerHeader>
+            <AddRoomCategoryForm
+              propertyId={property.id}
+              onAddSuccess={() => {
+                setIsAddRoomDrawerOpen(false)
+                refreshProperty()
+              }}
+            />
+          </DrawerContent>
+        </Drawer>
+        <PropertyReviews
+          avgRating={property.avgRating}
+          reviewCount={property.reviewCount ?? 0}
+          reviews={property.reviews}
+        />
         <PropertyLocation property={property} />
 
         <PropertyBookingsSection
