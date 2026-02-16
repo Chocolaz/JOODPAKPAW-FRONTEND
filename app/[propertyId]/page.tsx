@@ -8,6 +8,7 @@ import { PropertyImageGallery } from '@/app/_components/property-detail/Property
 import { PropertyHeader } from '@/app/_components/property-detail/PropertyHeader'
 import { PropertyFacilities } from '@/app/_components/property-detail/PropertyFacilities'
 import { PropertyLocation } from '@/app/_components/property-detail/PropertyLocation'
+import { PropertyReviews } from '@/app/_components/property-detail/PropertyReviews'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { PageHeaderButtons } from '@/app/_components/property-detail/PageHeaderButtons'
 import { PropertyRoomCategories } from '@/app/_components/property-detail/PropertyRoomCategories'
@@ -88,6 +89,11 @@ export default function PropertyDetailPage() {
           roomCategories={roomCategoriesArray}
           onDeleteSuccess={refreshProperty}
           showDeleteButton={false}
+        />
+        <PropertyReviews
+          avgRating={property.avgRating}
+          reviewCount={property.reviewCount ?? 0}
+          reviews={property.reviews}
         />
         <PropertyLocation property={property} />
       </div>

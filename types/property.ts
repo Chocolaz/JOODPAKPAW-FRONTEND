@@ -51,6 +51,14 @@ export interface PropertyType {
   name: string
 }
 
+export interface PropertyReview {
+  firstName: string
+  lastName: string
+  avatar?: string | null
+  comment: string
+  rating: number
+}
+
 export interface Property {
   id: number
   title: string
@@ -71,6 +79,7 @@ export interface Property {
   createdAt: string
   updatedAt: string
   reviewCount?: number
+  reviews?: PropertyReview[]
   propertyType?: PropertyType
   facilities?: Facility[]
   totalRoomCategories?: number

@@ -5,7 +5,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import { cn, getLowestPrice, getPetPolicy, assetPath } from '@/lib/utils'
-import { Globe, GlobeLock, Heart } from 'lucide-react'
+import { Globe, GlobeLock, Heart, Star } from 'lucide-react'
 import { FavoriteDrawer } from './FavoriteDrawer'
 import { getFavoriteFolders, addFavorite, deleteFavoriteProperty } from '@/lib/api'
 import { ApiError } from '@/lib/errorHandling'
@@ -196,9 +196,24 @@ export function PropertyCard({
             {property.title}
           </p>
 
-          <p className="text-xs text-neutral-gray truncate">
-            {property.province}, {property.district}
-          </p>
+          <div className="flex items-center justify-between">
+            <p className="text-xs text-neutral-gray truncate">
+              {property.province}, {property.district}
+            </p>
+            <div className="flex items-center gap-0.5 shrink-0">
+              <Star
+                className={cn(
+                  'w-3 h-3',
+                  property.avgRating > 0
+                    ? 'fill-yellow-400 text-yellow-500'
+                    : 'text-gray-300'
+                )}
+              />
+              <span className="text-xs font-medium text-gray-700">
+                {property.avgRating > 0 ? property.avgRating.toFixed(1) : 'New'}
+              </span>
+            </div>
+          </div>
 
           {showRoomCount && property.totalRoomCategories !== undefined && (
             <p className="text-xs font-medium">

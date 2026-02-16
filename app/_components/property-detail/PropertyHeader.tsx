@@ -20,12 +20,14 @@ export function PropertyHeader({ property }: PropertyHeaderProps) {
         </p>
         <p className="flex items-center gap-1">
           <Star
-            className="w-5 h-5 text-yellow-400"
+            className={`w-5 h-5 ${property.avgRating > 0 ? 'text-yellow-400' : 'text-gray-300'}`}
             fill="currentColor"
             strokeWidth={0}
           />
           <span>
-            {property.avgRating} - {property.reviewCount} reviews
+            {property.avgRating > 0
+              ? `${property.avgRating.toFixed(1)} (${property.reviewCount})`
+              : 'New'}
           </span>
         </p>
       </div>
