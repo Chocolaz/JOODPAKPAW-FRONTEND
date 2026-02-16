@@ -432,7 +432,7 @@ export const getHostBookings = (): Promise<BookingsResponse> => {
 
 export const completeBooking = (bookingId: number): Promise<void> => {
   return request<void>({
-    endpoint: `api/v1/bookings/${bookingId}/success`,
+    endpoint: `api/v1/hosts/bookings/${bookingId}/success`,
     method: 'PATCH',
     requiresAuth: true,
     errorContext: 'Complete Booking',

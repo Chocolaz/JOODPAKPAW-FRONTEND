@@ -22,6 +22,15 @@ import { PropertyRoomCategories } from '@/app/_components/property-detail/Proper
 import { Property } from '@/types'
 import { normalizeRoomCategories } from '@/lib/utils'
 import { PropertyBookingsSection } from './_components/PropertyBookingsSection'
+import { AddRoomCategoryForm } from '../_components/AddRoomCategoryForm'
+import { Plus, ChevronLeft } from 'lucide-react'
+import {
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from '@/components/ui/drawer'
 
 export default function HostPropertyDetailPage() {
   const { property, loading, error, refreshProperty } =
@@ -31,6 +40,7 @@ export default function HostPropertyDetailPage() {
   const [isDeleting, setIsDeleting] = useState(false)
   const [showPublishModal, setShowPublishModal] = useState(false)
   const [showDeleteModal, setShowDeleteModal] = useState(false)
+  const [isAddRoomDrawerOpen, setIsAddRoomDrawerOpen] = useState(false)
 
   const handleShare = async () => {
     if (navigator.share && property) {
@@ -187,10 +197,38 @@ export default function HostPropertyDetailPage() {
             showDeleteButton={false}
           />
         ) : (
-          <div className="border-t pt-8 mt-10">
-            <h3 className="mb-3 text-deep-teal">Room Categories</h3>
-            <p className="text-neutral-gray">No room categories added yet.</p>
-          </div>
+          <Drawer open={isAddRoomDrawerOpen} onOpenChange={setIsAddRoomDrawerOpen}>
+            <div className="border-t pt-8 mt-10">
+              <h3 className="mb-3 text-deep-teal">Room Categories</h3>
+              <p className="text-neutral-gray mb-4">No room categories added yet.</p>
+              <DrawerTrigger asChild>
+                <div className="px-6 py-8 border-2 border-dashed border-positive-green rounded-xl cursor-pointer hover:bg-green-50/50 transition-colors">
+                  <div className="font-medium text-deep-teal text-lg flex items-center justify-between w-full">
+                    <span>Add Room Category</span>
+                    <Plus className="h-6 w-6 text-positive-green" />
+                  </div>
+                </div>
+              </DrawerTrigger>
+            </div>
+            <DrawerContent>
+              <DrawerHeader className="relative">
+                <DrawerTitle className="flex items-center gap-2">
+                  <ChevronLeft
+                    className="w-6 h-6 text-neutral-gray cursor-pointer"
+                    onClick={() => setIsAddRoomDrawerOpen(false)}
+                  />
+                  <span>Add Room Category</span>
+                </DrawerTitle>
+              </DrawerHeader>
+              <AddRoomCategoryForm
+                propertyId={property.id}
+                onAddSuccess={() => {
+                  setIsAddRoomDrawerOpen(false)
+                  refreshProperty()
+                }}
+              />
+            </DrawerContent>
+          </Drawer>
         )}
         <PropertyLocation property={property} />
 
