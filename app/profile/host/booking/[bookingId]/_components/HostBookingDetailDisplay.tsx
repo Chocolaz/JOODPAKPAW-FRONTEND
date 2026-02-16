@@ -11,6 +11,7 @@ import {
   BadgeInfo,
   Phone,
   CheckCircle,
+  Star,
 } from 'lucide-react'
 import { HostBookingDetail } from '@/types'
 import { completeBooking } from '@/lib/api'
@@ -301,6 +302,48 @@ export default function HostBookingDetailDisplay({
             </div>
           </div>
         </div>
+
+        {/* GUEST REVIEW */}
+        {bookingDetails.rating != null && bookingDetails.rating > 0 && (
+          <div className="bg-white rounded-2xl p-6 shadow-md border border-gray-100 space-y-4">
+            <h4 className="text-sm font-semibold text-deep-teal uppercase tracking-wide">
+              Guest Review
+            </h4>
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2">
+                <User className="w-5 h-5 text-gray-400" />
+                <span className="text-sm font-medium text-gray-900">
+                  {bookingDetails.guest.firstName}{' '}
+                  {bookingDetails.guest.lastName}
+                </span>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="flex gap-0.5">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <Star
+                    key={star}
+                    className={cn(
+                      'w-5 h-5',
+                      star <= bookingDetails.rating!
+                        ? 'fill-yellow-400 text-yellow-500'
+                        : 'text-gray-300'
+                    )}
+                  />
+                ))}
+              </div>
+              <span className="text-sm font-medium text-gray-700">
+                {bookingDetails.rating}/5
+              </span>
+            </div>
+            {bookingDetails.comment && (
+              <p className="text-sm text-gray-600 leading-relaxed border bg-off-white/80 border-gray-200 rounded-xl p-4">
+                &quot;{bookingDetails.comment}&quot;
+              </p>
+            )}
+          </div>
+        )}
+
         {/* ACTION BUTTON */}
         {bookingDetails.bookingStatus.toUpperCase() === 'CONFIRMED' && (
           <div className="pt-4">

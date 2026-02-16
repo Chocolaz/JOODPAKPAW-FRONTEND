@@ -99,6 +99,9 @@ export interface HostBookingDetail {
   numberOfPets: number
   totalPrice: number
   bookingStatus: string
+  rating?: number | null
+  comment?: string | null
+  successedAt?: string | null
   confirmedAt: string
   guest: HostGuest
   bookingOrders: BookingOrder[]

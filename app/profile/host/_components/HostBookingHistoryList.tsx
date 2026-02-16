@@ -37,7 +37,10 @@ export function HostBookingHistoryList() {
     const statusOrder = ['CONFIRMED', 'PENDING', 'SUCCESSFUL', 'CANCELLED'] // Updated status order
 
     return bookings
-      .filter((booking) => booking.bookingStatus.toUpperCase() === 'SUCCESSFUL') // Filter only for SUCCESSFUL status
+      .filter((booking) => {
+        const status = booking.bookingStatus.toUpperCase()
+        return status === 'SUCCESSFUL' || status === 'CANCELLED'
+      })
       .sort((a, b) => {
         const statusA = a.bookingStatus.toUpperCase()
         const statusB = b.bookingStatus.toUpperCase()
@@ -87,7 +90,7 @@ export function HostBookingHistoryList() {
           </div>
         ) : (
           <div className="flex justify-center items-center h-40">
-            <p className="text-gray-500">No successful bookings found.</p>
+            <p className="text-gray-500">No booking history found.</p>
           </div>
         )}
       </div>
