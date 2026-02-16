@@ -29,6 +29,8 @@ export default function BookingDetailDisplay({
         return 'text-green-600'
       case 'PENDING':
         return 'text-blue-600'
+      case 'SUCCESSFUL':
+        return 'text-positive-green'
       case 'CANCELLED':
         return 'text-red-600'
       default:

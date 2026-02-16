@@ -39,7 +39,7 @@ export default function HostBookingDetailDisplay({
     switch (status.toUpperCase()) {
       case 'CONFIRMED':
         return 'text-green-600'
-      case 'COMPLETED':
+      case 'SUCCESSFUL':
         return 'text-green-600'
       case 'PENDING':
         return 'text-blue-600'
@@ -330,7 +330,7 @@ export default function HostBookingDetailDisplay({
         onClose={() => setIsModalOpen(false)}
         onConfirm={handleCompleteBooking}
         title="Complete Booking"
-        message="Are you sure you want to mark this booking as completed? This action cannot be undone."
+        message="Are you sure you want to mark this booking as successful? This action cannot be undone."
         titleClassName="text-deep-teal"
         confirmButtonClassName="bg-deep-teal hover:bg-deep-teal/90"
       />

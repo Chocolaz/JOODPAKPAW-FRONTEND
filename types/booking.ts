@@ -26,6 +26,7 @@ export interface Booking {
   numberOfPets: number
   totalPrice: number
   bookingStatus: string
+  rating?: number | null
   property: PropertyBooked
   createdAt: string
 }
@@ -72,6 +73,10 @@ export interface FullBookingDetail {
   numberOfPets: number
   totalPrice: number
   bookingStatus: string
+  rating?: number | null
+  comment?: string | null
+  successedAt?: string | null
+  confirmedAt?: string | null
   guestId: number
   guest: Guest
   bookingOrders: BookingOrder[]

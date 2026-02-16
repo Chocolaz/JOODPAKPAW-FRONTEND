@@ -2,7 +2,7 @@
 
 import { Booking, BookingOrder } from '@/types/booking'
 import { Card, CardContent } from '@/components/ui/card'
-import { Calendar, Clock, Home, PawPrint } from 'lucide-react'
+import { Calendar, Clock, Home, PawPrint, Star } from 'lucide-react'
 import { format, differenceInDays } from 'date-fns'
 import { useRouter } from 'next/navigation' // Import useRouter
 import { cn } from '@/lib/utils'
@@ -81,14 +81,31 @@ export function BookingCard({ booking, onClick }: BookingCardProps) {
         {/* Header */}
         <div className="flex items-center justify-between mb-3">
           <h4 className="leading-tight text-deep-teal">{propertyTitle}</h4>
-          <span
-            className={cn(
-              'text-xs font-semibold uppercase',
-              getStatusColorClass(booking.bookingStatus)
+          <div className="flex flex-col items-end gap-1">
+            <span
+              className={cn(
+                'text-xs font-semibold uppercase',
+                getStatusColorClass(booking.bookingStatus)
+              )}
+            >
+              {booking.bookingStatus}
+            </span>
+            {booking.bookingStatus.toUpperCase() === 'SUCCESSFUL' && (
+              <div className="flex gap-0.5">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <Star
+                    key={star}
+                    className={cn(
+                      'w-3.5 h-3.5',
+                      booking.rating && star <= booking.rating
+                        ? 'fill-yellow-400 text-yellow-500'
+                        : 'text-gray-300'
+                    )}
+                  />
+                ))}
+              </div>
             )}
-          >
-            {booking.bookingStatus}
-          </span>
+          </div>
         </div>
 
         {/* Info Row */}

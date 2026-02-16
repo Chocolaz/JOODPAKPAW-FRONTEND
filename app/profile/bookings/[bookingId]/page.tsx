@@ -7,6 +7,7 @@ import { FullBookingDetail } from '@/types'
 import { Spinner } from '@/components/ui/spinner'
 import { toast } from 'sonner'
 import BookingDetailDisplay from './_components/BookingDetailDisplay'
+import ReviewSection from './_components/ReviewSection'
 import { Button } from '@/components/ui/button'
 import { ConfirmationModal } from '@/app/_components/ConfirmationModal'
 
@@ -85,15 +86,24 @@ export default function BookingDetailPage() {
     )
   }
 
-  const isCancellable =
-    bookingDetails.bookingStatus.toUpperCase() !== 'CANCELLED'
+  const status = bookingDetails.bookingStatus.toUpperCase()
+  const isCancellable = status !== 'CANCELLED' && status !== 'SUCCESSFUL'
+  const isSuccessful = status === 'SUCCESSFUL'
 
   return (
     <>
       <BookingDetailDisplay bookingDetails={bookingDetails} />
 
-      {isCancellable && (
-        <div className="container mx-auto max-w-[550px] px-6 py-4">
+      <div className="container mx-auto max-w-[550px] px-6 space-y-4 pb-6">
+        {isSuccessful && (
+          <ReviewSection
+            bookingId={bookingId as string}
+            existingRating={bookingDetails.rating}
+            existingComment={bookingDetails.comment}
+          />
+        )}
+
+        {isCancellable && (
           <Button
             className="w-full text-lg h-12 bg-white text-red-700 border border-red-200"
             onClick={() => setIsCancelModalOpen(true)}
@@ -102,8 +112,8 @@ export default function BookingDetailPage() {
             {isCancelling ? <Spinner className="size-4 mr-2" /> : null}
             Cancel Booking
           </Button>
-        </div>
-      )}
+        )}
+      </div>
 
       <ConfirmationModal
         isOpen={isCancelModalOpen}

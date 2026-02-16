@@ -601,6 +601,20 @@ export const deleteFavoriteProperty = (propertyId: number): Promise<void> => {
   })
 }
 
+// --- Review Functions ---
+export const submitReview = (
+  bookingId: string,
+  data: { rating: number; comment: string }
+): Promise<void> => {
+  return request<void>({
+    endpoint: `api/v1/bookings/${bookingId}/review`,
+    method: 'POST',
+    body: data,
+    requiresAuth: true,
+    errorContext: 'Submit Review',
+  })
+}
+
 export const moveFavorite = async (data: {
   propertyId: number
   folderId?: number
