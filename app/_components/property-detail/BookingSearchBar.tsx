@@ -2,7 +2,6 @@
 
 import * as React from 'react'
 import { format, differenceInDays } from 'date-fns'
-import { Search } from 'lucide-react'
 import { DateRange } from 'react-day-picker'
 
 import { cn } from '@/lib/utils'
@@ -63,13 +62,17 @@ export function BookingSearchBar({
     return differenceInDays(selectedDateRange.to, selectedDateRange.from) < 1
   }, [selectedDateRange])
 
-  const handleSearch = () => {
-    onSearch({
-      checkInDate: date?.from ? format(date.from, 'yyyy-MM-dd') : undefined,
-      checkOutDate: date?.to ? format(date.to, 'yyyy-MM-dd') : undefined,
-      numberOfPets: numberOfPets,
-    })
-  }
+  // Auto-search when all fields are filled
+  React.useEffect(() => {
+    if (date?.from && date?.to && numberOfPets > 0) {
+      onSearch({
+        checkInDate: format(date.from, 'yyyy-MM-dd'),
+        checkOutDate: format(date.to, 'yyyy-MM-dd'),
+        numberOfPets,
+      })
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [date?.from?.getTime(), date?.to?.getTime(), numberOfPets])
 
   return (
     <div className="flex items-center gap-2 p-2 rounded-full border bg-off-white shadow-sm mb-4">
@@ -196,17 +199,6 @@ export function BookingSearchBar({
         </DialogContent>
       </Dialog>
 
-      {/* --- Search Button --- */}
-      <div className="p-1">
-        <Button
-          onClick={handleSearch}
-          className="h-12 w-12 rounded-full bg-accent-orange hover:bg-accent-orange/90"
-          size="icon"
-          disabled={!date?.from || !date?.to || numberOfPets === 0}
-        >
-          <Search className="h-6 w-6" />
-        </Button>
-      </div>
     </div>
   )
 }
