@@ -56,7 +56,7 @@ export function HostBanner({
   }
 
   return (
-    <div className="sticky top-14 z-9 bg-off-white p-10 rounded-bl-4xl rounded-br-4xl shadow-sm border-b w-full">
+    <div className="sticky top-14 z-9 bg-off-white p-6 sm:p-10 rounded-bl-4xl rounded-br-4xl shadow-sm border-b w-full">
       {currentStep && totalSteps ? (
         <div className="min-h-20">
           {/* Row หลัก: Step อยู่ขวาสุด, Title อยู่กลาง */}

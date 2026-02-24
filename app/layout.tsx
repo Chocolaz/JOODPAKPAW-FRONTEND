@@ -34,7 +34,7 @@ export default function RootLayout({
         <AuthWrapper>
           <AuthModalProvider>
             <BookingProvider>
-              <div className="max-w-[500px] mx-auto flex flex-col min-h-screen">
+              <div className="max-w-[500px] md:max-w-3xl lg:max-w-5xl mx-auto flex flex-col min-h-screen ">
                 <main className="flex-1">{children}</main>
                 {showBottomNav && <BottomNav />}
               </div>
