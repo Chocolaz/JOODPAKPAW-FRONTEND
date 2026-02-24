@@ -15,9 +15,11 @@ import {
   DrawerHeader,
   DrawerTitle,
 } from '@/components/ui/drawer'
-import { Heart, Plus, FolderPlus, Loader2 } from 'lucide-react'
+import { Plus, FolderPlus, Loader2, Search } from 'lucide-react'
 import { toast } from 'sonner'
 import { useAuth } from '@/app/_components/AuthContext'
+import Image from 'next/image'
+import { assetPath } from '@/lib/utils'
 
 const SkeletonCard = () => (
   <div className="animate-pulse">
@@ -143,31 +145,67 @@ export default function FavoritesPage() {
 
     if (folders.length === 0) {
       return (
-        <div className="flex flex-col items-center justify-center h-64 text-center">
-          <Heart className="w-16 h-16 text-gray-300 mb-4" />
-          <h3 className="text-xl font-semibold text-gray-700">
+        <motion.div
+          className="flex flex-col items-center justify-center pt-12 pb-8 text-center px-6"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, ease: 'easeOut' }}
+        >
+          <motion.div
+            initial={{ scale: 0.9 }}
+            animate={{ scale: 1 }}
+            transition={{ duration: 0.5, ease: 'easeOut', delay: 0.1 }}
+          >
+            <Image
+              src={assetPath('/graphics/no-fav.png')}
+              alt="No favorites yet"
+              width={200}
+              height={200}
+              className="mx-auto"
+              priority
+            />
+          </motion.div>
+
+          <h3 className="text-[22px] font-semibold text-deep-teal mt-4">
             No favorites yet
           </h3>
-          <p className="text-gray-500 mt-2 mb-6">
-            Create a folder to start organizing your favorite places.
+          <p className="text-neutral-gray mt-2 max-w-[260px] leading-relaxed">
+            {isAuthenticated
+              ? 'Save places you love and organize them into folders.'
+              : 'Sign in to save your favorite places and access them anytime.'}
           </p>
-          <div className="flex flex-col gap-3">
-            <Button
-              onClick={() => setIsDrawerOpen(true)}
-              className="bg-deep-teal text-white px-8"
-            >
-              <FolderPlus className="mr-2 h-4 w-4" />
-              Create Folder
-            </Button>
-            <Button
-              onClick={() => router.push('/')}
-              variant="outline"
-              className="px-8"
-            >
-              Find Properties
-            </Button>
+
+          <div className="flex flex-col gap-3 w-full max-w-[260px] mt-8">
+            {isAuthenticated ? (
+              <>
+                <Button
+                  onClick={() => setIsDrawerOpen(true)}
+                  className="w-full py-5 rounded-xl bg-accent-orange text-white hover:bg-accent-orange/80 text-base font-semibold"
+                >
+                  <FolderPlus className="mr-2 h-5 w-5" />
+                  Create a Folder
+                </Button>
+                <Button
+                  onClick={() => router.push('/')}
+                  variant="outline"
+                  className="w-full py-5 rounded-xl text-base font-medium border-gray-200"
+                >
+                  <Search className="mr-2 h-5 w-5" />
+                  Explore Places
+                </Button>
+              </>
+            ) : (
+              <Button
+                onClick={() => router.push('/')}
+                variant="outline"
+                className="w-full py-5 rounded-xl text-base font-medium border-gray-200"
+              >
+                <Search className="mr-2 h-5 w-5" />
+                Explore Places
+              </Button>
+            )}
           </div>
-        </div>
+        </motion.div>
       )
     }
 
@@ -222,7 +260,7 @@ export default function FavoritesPage() {
 
   return (
     <div>
-      <AppHeader title="Favorites" backPath="/" />
+      <AppHeader title="Favorites" />
       <div className="container mx-auto px-5 pt-8 mb-30">{renderContent()}</div>
 
       {/* Create Folder Drawer */}

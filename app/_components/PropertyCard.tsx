@@ -8,7 +8,11 @@ import { cn, getLowestPrice, getPetPolicy, assetPath } from '@/lib/utils'
 import { Globe, GlobeLock, Heart, Star } from 'lucide-react'
 import { FavoriteDrawer } from './FavoriteDrawer'
 import { useAuth } from '@/app/_components/AuthContext'
-import { getFavoriteFolders, addFavorite, deleteFavoriteProperty } from '@/lib/api'
+import {
+  getFavoriteFolders,
+  addFavorite,
+  deleteFavoriteProperty,
+} from '@/lib/api'
 import { ApiError } from '@/lib/errorHandling'
 import { toast } from 'sonner'
 
@@ -50,7 +54,8 @@ export function PropertyCard({
     setIsHeartClicked(property.isFavorite)
   }, [property.isFavorite])
 
-  const finalHref = href || (isOwner ? `/profile/host/${property.id}` : `/${property.id}`)
+  const finalHref =
+    href || (isOwner ? `/profile/host/${property.id}` : `/${property.id}`)
 
   const lowestPrice = getLowestPrice(property.roomCategories)
   const petPolicy = getPetPolicy(property.pets)
@@ -63,38 +68,7 @@ export function PropertyCard({
       try {
         await deleteFavoriteProperty(property.id)
         setIsHeartClicked(false)
-        toast.success('Property removed from favorites.', {
-          action: {
-            label: 'undo',
-            onClick: async () => {
-              try {
-                if (favoriteFolderId) {
-                  await addFavorite({ propertyId: property.id, folderId: favoriteFolderId })
-                } else {
-                  const res = await getFavoriteFolders()
-                  const folders = res.favoriteFolders
-                  if (folders.length === 0) {
-                    await addFavorite({ propertyId: property.id })
-                  } else {
-                    const sorted = folders.sort((a, b) => a.id - b.id)
-                    await addFavorite({
-                      propertyId: property.id,
-                      folderId: sorted[0].id,
-                    })
-                  }
-                }
-                setIsHeartClicked(true)
-              } catch (_err) {
-                toast.error('Failed to undo.')
-              }
-            },
-          },
-          actionButtonStyle: {
-            color: 'gray',
-            textDecoration: 'underline',
-            fontSize: '1rem',
-          },
-        })
+        toast.success('Property removed from favorites.')
       } catch (_error) {
         toast.error('Failed to remove from favorites.')
       }

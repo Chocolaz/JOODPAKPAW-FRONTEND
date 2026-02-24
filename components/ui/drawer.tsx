@@ -37,7 +37,7 @@ DrawerOverlay.displayName = DrawerPrimitive.Overlay.displayName
 const DrawerContent = React.forwardRef<
   React.ElementRef<typeof DrawerPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof DrawerPrimitive.Content>
->(({ className, children, ...props }, ref) => (
+>(({ className, children, onPointerDownOutside, ...props }, ref) => (
   <DrawerPortal>
     <DrawerOverlay />
     <DrawerPrimitive.Content
@@ -47,6 +47,15 @@ const DrawerContent = React.forwardRef<
         'fixed inset-x-0 bottom-0 z-50 mt-24 flex h-auto flex-col rounded-t-[10px] border bg-background',
         className
       )}
+      onPointerDownOutside={(e) => {
+        // Prevent Radix "releasePointerCapture" error on touch devices
+        const event = e.detail.originalEvent
+        const target = event.target as HTMLElement
+        if (target.hasPointerCapture(event.pointerId)) {
+          target.releasePointerCapture(event.pointerId)
+        }
+        onPointerDownOutside?.(e)
+      }}
       {...props}
     >
       {children}
