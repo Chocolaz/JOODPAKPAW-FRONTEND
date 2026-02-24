@@ -12,7 +12,7 @@ import clsx from 'clsx'
 import { assetPath } from '@/lib/utils'
 
 export default function ProfilePage() {
-  const { user, isAuthenticated, loading: authLoading } = useAuth()
+  const { user, isAuthenticated, loading: authLoading, requireAuth } = useAuth()
   const router = useRouter()
   const guestAvatarSrc = assetPath('/graphics/guest.jpg')
 
@@ -20,23 +20,18 @@ export default function ProfilePage() {
     return null // Or a loading spinner
   }
 
-  // Function to check authentication and redirect
+  // Show auth modal if not logged in, otherwise navigate
   const checkAuthAndRedirect = (authenticatedPath: string) => {
-    if (authLoading) return // Prevent clicks while auth is loading
-    if (isAuthenticated) {
-      router.push(authenticatedPath)
-    } else {
-      router.push('/authen')
-    }
+    if (authLoading) return
+    if (!requireAuth()) return
+    router.push(authenticatedPath)
   }
 
-  const handleProfileClick = async () => {
-    if (authLoading) return // Prevent clicks while auth is loading
-
-    if (isAuthenticated && user) {
+  const handleProfileClick = () => {
+    if (authLoading) return
+    if (!requireAuth()) return
+    if (user) {
       router.push(`/profile/${user.firstName.toLowerCase()}`)
-    } else {
-      router.push('/authen')
     }
   }
 

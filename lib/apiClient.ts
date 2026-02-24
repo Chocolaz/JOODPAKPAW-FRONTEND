@@ -1,5 +1,6 @@
 import { ApiError } from './errorHandling'
 import { getAccessToken, refreshAccessToken, clearTokens } from './authenUtils'
+import { AuthRequiredError, authErrorEmitter } from './authErrors'
 const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL
 const BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH || ''
 
@@ -8,6 +9,7 @@ interface RequestOptions extends Omit<RequestInit, 'body'> {
   errorContext?: string
   requiresAuth?: boolean
   sendAuthIfAvailable?: boolean
+  silentAuth?: boolean
   body?: unknown
 }
 
@@ -19,6 +21,7 @@ async function request<T>({
   errorContext = 'API request',
   requiresAuth = false,
   sendAuthIfAvailable = false,
+  silentAuth = false,
   ...rest
 }: RequestOptions): Promise<T> {
   const headers = new Headers(customHeaders)
@@ -29,9 +32,9 @@ async function request<T>({
       token = await refreshAccessToken()
       if (!token) {
         clearTokens()
-        if (typeof window !== 'undefined') {
-          window.location.href = `${BASE_PATH}/authen`
-        }
+        const error = new AuthRequiredError('no_token')
+        if (!silentAuth) authErrorEmitter.emit(error)
+        throw error
       }
     }
     headers.set('Authorization', `Bearer ${token}`)
@@ -64,20 +67,13 @@ async function request<T>({
         response = await fetch(`${BASE_URL}${endpoint}`, config)
       } else {
         clearTokens()
-        if (typeof window !== 'undefined') {
-          window.location.href = `${BASE_PATH}/authen`
-        }
-        throw new Error('Session expired. Please login again.')
+        const error = new AuthRequiredError('expired_token')
+        if (!silentAuth) authErrorEmitter.emit(error)
+        throw error
       }
     } else if (response.status === 403) {
-      if (typeof window !== 'undefined') {
-        window.location.href = `${BASE_PATH}/forbidden`
-      }
       throw new Error('Access forbidden.')
     } else if (response.status === 404) {
-      if (typeof window !== 'undefined') {
-        window.location.href = `${BASE_PATH}/not-found`
-      }
       throw new Error('Resource not found.')
     }
 

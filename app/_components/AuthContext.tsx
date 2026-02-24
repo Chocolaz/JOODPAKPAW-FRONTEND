@@ -12,6 +12,7 @@ import { User } from '@/types'
 import { getAccessToken, clearTokens, saveTokens } from '@/lib/tokenManager'
 import { refreshAccessToken } from '@/lib/authenUtils'
 import { getProfile } from '@/lib/api'
+import { AuthRequiredError, authErrorEmitter } from '@/lib/authErrors'
 
 interface AuthContextType {
   user: User | null
@@ -20,6 +21,7 @@ interface AuthContextType {
   logout: () => void
   loading: boolean
   refreshAuth: () => Promise<void>
+  requireAuth: () => boolean
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -82,9 +84,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const isAuthenticated = !!user
 
+  const requireAuth = useCallback(() => {
+    if (!isAuthenticated) {
+      const error = new AuthRequiredError('no_token')
+      authErrorEmitter.emit(error)
+      return false
+    }
+    return true
+  }, [isAuthenticated])
+
   return (
     <AuthContext.Provider
-      value={{ user, isAuthenticated, login, logout, loading, refreshAuth }}
+      value={{ user, isAuthenticated, login, logout, loading, refreshAuth, requireAuth }}
     >
       {children}
     </AuthContext.Provider>

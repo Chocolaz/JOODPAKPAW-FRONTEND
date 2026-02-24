@@ -95,6 +95,7 @@ export const getProfile = (): Promise<ProfileResponse> => {
     endpoint: 'api/v1/auth/profile',
     method: 'GET',
     requiresAuth: true,
+    silentAuth: true,
     errorContext: 'Get Profile',
     cache: 'no-store',
   })

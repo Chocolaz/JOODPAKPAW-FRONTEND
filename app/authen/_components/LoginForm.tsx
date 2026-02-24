@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { useState, useMemo } from 'react'
 import { signIn } from '@/lib/api'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { getApiErrorMessages, ApiError } from '@/lib/errorHandling'
 import clsx from 'clsx'
 import { useAuth } from '@/app/_components/AuthContext'
@@ -13,7 +13,11 @@ import { useAuth } from '@/app/_components/AuthContext'
 export default function LoginForm() {
   // Hooks
   const router = useRouter()
+  const searchParams = useSearchParams()
   const { login } = useAuth()
+
+  const returnUrl = searchParams.get('returnUrl')
+  const safeReturnUrl = returnUrl?.startsWith('/') ? returnUrl : '/'
 
   // State
   const [email, setEmail] = useState('')
@@ -37,7 +41,7 @@ export default function LoginForm() {
       const data = await signIn({ email, password })
       if (data.accessToken && data.refreshToken) {
         login(data.accessToken, data.refreshToken)
-        router.push('/')
+        router.push(safeReturnUrl)
       } else {
         console.error('Sign in successful, but no tokens received.')
         setError('Sign in failed. Please try again.')

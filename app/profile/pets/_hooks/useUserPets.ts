@@ -4,12 +4,18 @@ import { useEffect, useState, useCallback } from 'react'
 import { getAllPetProfiles } from '@/lib/api'
 import { PetProfile } from '@/types'
 
-export function useUserPets() {
+export function useUserPets(options?: { enabled?: boolean }) {
+  const { enabled = true } = options || {}
   const [pets, setPets] = useState<PetProfile[]>([])
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(enabled)
   const [error, setError] = useState<string | null>(null)
 
   const fetchUserPets = useCallback(async () => {
+    if (!enabled) {
+      setPets([])
+      setLoading(false)
+      return
+    }
     try {
       setLoading(true)
       const response = await getAllPetProfiles()
@@ -24,7 +30,7 @@ export function useUserPets() {
     } finally {
       setLoading(false)
     }
-  }, [])
+  }, [enabled])
 
   useEffect(() => {
     fetchUserPets()

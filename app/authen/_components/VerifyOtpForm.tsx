@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useMemo } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { toast } from 'sonner'
 
 import { Button } from '@/components/ui/button'
@@ -13,9 +13,13 @@ import { useAuth } from '@/app/_components/AuthContext'
 export default function VerifyOtpForm() {
   // Hooks
   const router = useRouter()
+  const searchParams = useSearchParams()
   const email = useEmailFromQuery('/authen/register')
   const { cooldown, startCooldown } = useCooldown()
   const { login } = useAuth()
+
+  const returnUrl = searchParams.get('returnUrl')
+  const safeReturnUrl = returnUrl?.startsWith('/') ? returnUrl : '/'
 
   // State
   const [otp, setOtp] = useState('')
@@ -36,7 +40,7 @@ export default function VerifyOtpForm() {
       const data = await verifyOtp({ email, otp })
       if (data.accessToken && data.refreshToken) {
         login(data.accessToken, data.refreshToken)
-        router.push('/')
+        router.push(safeReturnUrl)
       } else {
         console.error('OTP verification successful, but no tokens received.')
         toast.success('Verification successful! Please log in.')

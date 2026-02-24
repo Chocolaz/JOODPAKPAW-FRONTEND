@@ -17,6 +17,7 @@ import {
 } from '@/components/ui/drawer'
 import { Heart, Plus, FolderPlus, Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
+import { useAuth } from '@/app/_components/AuthContext'
 
 const SkeletonCard = () => (
   <div className="animate-pulse">
@@ -37,8 +38,14 @@ export default function FavoritesPage() {
   const [isCreating, setIsCreating] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
   const router = useRouter()
+  const { isAuthenticated, loading: authLoading } = useAuth()
 
   const fetchFolders = useCallback(async () => {
+    if (!isAuthenticated) {
+      setFolders([])
+      setIsLoading(false)
+      return
+    }
     try {
       setError(null)
       const response = await getFavoriteFolders()
@@ -48,11 +55,13 @@ export default function FavoritesPage() {
     } finally {
       setIsLoading(false)
     }
-  }, [])
+  }, [isAuthenticated])
 
   useEffect(() => {
-    fetchFolders()
-  }, [fetchFolders])
+    if (!authLoading) {
+      fetchFolders()
+    }
+  }, [fetchFolders, authLoading])
 
   useEffect(() => {
     if (isDrawerOpen && inputRef.current) {

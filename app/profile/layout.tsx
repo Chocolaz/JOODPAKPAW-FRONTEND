@@ -20,9 +20,9 @@ function LayoutContent({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (!authLoading && !isAuthenticated && normalizedPath !== '/profile') {
-      router.replace('/authen')
+      router.replace('/profile')
     }
-  }, [isAuthenticated, authLoading, normalizedPath, router]) // Re-added normalizedPath to deps
+  }, [isAuthenticated, authLoading, normalizedPath, router])
 
   if (authLoading || (!isAuthenticated && normalizedPath !== '/profile')) {
     // Added normalizedPath condition

@@ -51,8 +51,8 @@ export const ProfileProvider = ({ children }: { children: ReactNode }) => {
   const isHost = user?.role?.some((role) => role.name === 'host')
 
   const [menu, setMenu] = useState<ReactNode | null>(null)
-  const hostProperties = useHostProperties({ enabled: isHost })
-  const petProfiles = useUserPets()
+  const hostProperties = useHostProperties({ enabled: !!isHost })
+  const petProfiles = useUserPets({ enabled: !!user })
 
   return (
     <ProfileContext.Provider
