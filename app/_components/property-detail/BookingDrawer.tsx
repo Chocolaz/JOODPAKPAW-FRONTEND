@@ -19,6 +19,8 @@ import { BookingRoomCard } from './BookingRoomCard'
 import { BookingSearchBar, SearchParams } from './BookingSearchBar'
 import { useBooking } from '@/app/_context/BookingContext'
 import { useAuth } from '@/app/_components/AuthContext'
+import { getAllPetProfiles } from '@/lib/api'
+import { PetProfile } from '@/types'
 import { toast } from 'sonner'
 import { format } from 'date-fns'
 
@@ -30,13 +32,15 @@ export function BookingDrawer({ propertyId }: BookingDrawerProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
 
-  const { requireAuth } = useAuth()
+  const { requireAuth, isAuthenticated } = useAuth()
 
   const {
     loading,
     error,
     date,
     setDate,
+    selectedPetIds,
+    setSelectedPetIds,
     numberOfPets,
     setNumberOfPets,
     handleSelectChange,
@@ -51,6 +55,21 @@ export function BookingDrawer({ propertyId }: BookingDrawerProps) {
   } = currentPropertyData
 
   const [isDrawerOpen, setIsDrawerOpen] = React.useState(false)
+  const [petProfiles, setPetProfiles] = React.useState<PetProfile[]>([])
+  const [petProfilesLoading, setPetProfilesLoading] = React.useState(false)
+
+  // Fetch pet profiles when authenticated
+  React.useEffect(() => {
+    if (!isAuthenticated) {
+      setPetProfiles([])
+      return
+    }
+    setPetProfilesLoading(true)
+    getAllPetProfiles()
+      .then((res) => setPetProfiles(res.petProfiles))
+      .catch(() => setPetProfiles([]))
+      .finally(() => setPetProfilesLoading(false))
+  }, [isAuthenticated])
 
   React.useEffect(() => {
     if (searchParams.get('drawer') === 'open') {
@@ -71,7 +90,6 @@ export function BookingDrawer({ propertyId }: BookingDrawerProps) {
     router.replace(`?${newSearchParams.toString()}`, { scroll: false })
   }
 
-  // Calculate total selected rooms
   const totalSelectedRooms = React.useMemo(() => {
     return Object.values(selectedRooms).reduce(
       (sum: number, count: number) => sum + count,
@@ -79,26 +97,32 @@ export function BookingDrawer({ propertyId }: BookingDrawerProps) {
     )
   }, [selectedRooms])
 
+  const activePetCount = selectedPetIds.length > 0 ? selectedPetIds.length : numberOfPets
+
   const isContinueDisabled = React.useMemo(() => {
-    return totalSelectedRooms === 0 || !date?.from || !date?.to
-  }, [totalSelectedRooms, date])
+    return totalSelectedRooms === 0 || !date?.from || !date?.to || activePetCount === 0
+  }, [totalSelectedRooms, date, activePetCount])
 
   const onSearch = (params: SearchParams) => {
     if (!params.checkInDate || !params.checkOutDate) {
       toast.error('Please select check-in and check-out dates.')
       return
     }
-
     handleSearch(
       propertyId,
       params.checkInDate,
       params.checkOutDate,
-      params.numberOfPets
+      params.petCount
     )
   }
 
   const handleContinue = () => {
     if (!requireAuth()) return
+
+    if (activePetCount === 0) {
+      toast.error('Please select at least one pet.')
+      return
+    }
 
     if (totalSelectedRooms === 0) {
       toast.error('Please select at least one room.')
@@ -110,7 +134,6 @@ export function BookingDrawer({ propertyId }: BookingDrawerProps) {
       return
     }
 
-    // Construct roomNames object from selectedRooms and roomCategories
     const roomNames: { [key: string]: string } = {}
     Object.keys(selectedRooms).forEach((roomId) => {
       const roomCategory = roomCategories.find(
@@ -132,9 +155,11 @@ export function BookingDrawer({ propertyId }: BookingDrawerProps) {
       `/booking/confirm?propertyId=${propertyId}` +
         `&start=${format(date.from, 'yyyy-MM-dd')}` +
         `&end=${format(date.to, 'yyyy-MM-dd')}` +
-        `&pets=${numberOfPets}` +
+        (selectedPetIds.length > 0
+          ? `&petIds=${selectedPetIds.join(',')}`
+          : `&pets=${numberOfPets}`) +
         `&rooms=${encodeURIComponent(JSON.stringify(selectedRooms))}` +
-        `&roomNames=${encodeURIComponent(JSON.stringify(roomNames))}` + // Add roomNames
+        `&roomNames=${encodeURIComponent(JSON.stringify(roomNames))}` +
         (currentSearchParams.toString()
           ? `&${currentSearchParams.toString()}`
           : '')
@@ -142,11 +167,17 @@ export function BookingDrawer({ propertyId }: BookingDrawerProps) {
   }
 
   const petCountText = React.useMemo(() => {
-    if (numberOfPets > 0) {
-      return `${numberOfPets} pet${numberOfPets > 1 ? 's' : ''}`
+    if (selectedPetIds.length > 0) {
+      const names = petProfiles
+        .filter((p) => selectedPetIds.includes(p.id))
+        .map((p) => p.name)
+      if (names.length === 0) return `${selectedPetIds.length} pet${selectedPetIds.length > 1 ? 's' : ''}`
+      if (names.length <= 2) return names.join(', ')
+      return `${names[0]}, +${names.length - 1} more`
     }
-    return '0 pets'
-  }, [numberOfPets])
+    if (numberOfPets > 0) return `${numberOfPets} pet${numberOfPets > 1 ? 's' : ''}`
+    return 'Select pets'
+  }, [selectedPetIds, numberOfPets, petProfiles])
 
   const roomCountText = React.useMemo(() => {
     if (totalSelectedRooms > 0) {
@@ -156,11 +187,11 @@ export function BookingDrawer({ propertyId }: BookingDrawerProps) {
   }, [totalSelectedRooms])
 
   const combinedText = React.useMemo(() => {
-    if (numberOfPets === 0 && totalSelectedRooms === 0) {
-      return 'When is your pet&apos;s stay?'
+    if (activePetCount === 0 && totalSelectedRooms === 0) {
+      return "When is your pet's stay?"
     }
     return `${petCountText} • ${roomCountText}`
-  }, [petCountText, roomCountText, numberOfPets, totalSelectedRooms])
+  }, [petCountText, roomCountText, activePetCount, totalSelectedRooms])
 
   return (
     <div className="fixed bottom-0 left-0 right-0 bg-off-white border-t p-4 flex items-center justify-between z-10 max-w-4xl mx-auto rounded-t-[20px] shadow-lg">
@@ -173,10 +204,7 @@ export function BookingDrawer({ propertyId }: BookingDrawerProps) {
             <div>
               <h4 className="leading-none">
                 {date?.from && date?.to
-                  ? `${format(date.from, 'MMM dd')} - ${format(
-                      date.to,
-                      'MMM dd'
-                    )}`
+                  ? `${format(date.from, 'MMM dd')} - ${format(date.to, 'MMM dd')}`
                   : 'Pick your date'}
               </h4>
               <p className="text-neutral-gray">{combinedText}</p>
@@ -198,15 +226,17 @@ export function BookingDrawer({ propertyId }: BookingDrawerProps) {
                 onSearch={onSearch}
                 date={date}
                 setDate={setDate}
+                selectedPetIds={selectedPetIds}
+                setSelectedPetIds={setSelectedPetIds}
                 numberOfPets={numberOfPets}
                 setNumberOfPets={setNumberOfPets}
+                petProfiles={petProfiles}
+                petProfilesLoading={petProfilesLoading}
               />
               <h4 className="text-deep-teal mb-2">
                 Select a Room{' '}
                 {searchedNumberOfNights > 0 &&
-                  `for ${searchedNumberOfNights} night${
-                    searchedNumberOfNights > 1 ? 's' : ''
-                  }`}
+                  `for ${searchedNumberOfNights} night${searchedNumberOfNights > 1 ? 's' : ''}`}
               </h4>
             </div>
 
@@ -231,11 +261,10 @@ export function BookingDrawer({ propertyId }: BookingDrawerProps) {
               <DrawerClose asChild>
                 <Button variant="outline">Cancel</Button>
               </DrawerClose>
-
               <Button
                 className="bg-positive-green"
                 onClick={handleContinue}
-                disabled={isContinueDisabled} // Disable button
+                disabled={isContinueDisabled}
               >
                 Continue
               </Button>

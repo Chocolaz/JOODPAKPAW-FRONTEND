@@ -45,6 +45,21 @@ export default function PaymentSection({
   onCancel,
 }: PaymentSectionProps) {
   const router = useRouter()
+
+  const buildBookingBody = () => {
+    const bookingOrders = Object.entries(bookingDetails.selectedRooms).map(
+      ([id, count]) => ({
+        roomCategoryId: Number(id),
+        checkInDate: bookingDetails.checkInDate,
+        checkOutDate: bookingDetails.checkOutDate,
+        roomsBooked: count,
+      })
+    )
+    if (bookingDetails.petProfileIds.length > 0) {
+      return { PetProfileIDs: bookingDetails.petProfileIds, bookingOrders }
+    }
+    return { numberOfPets: bookingDetails.petCount, bookingOrders }
+  }
   // Default to 'now' so the card list is visible immediately
   const [paymentMode, setPaymentMode] = useState<PaymentMode>('now')
   const [selectedCard, setSelectedCard] = useState<number | null>(null)
@@ -62,20 +77,7 @@ export default function PaymentSection({
     setPaymentState('booking')
 
     try {
-      const body = {
-        propertyId: bookingDetails.propertyId,
-        numberOfPets: bookingDetails.numberOfPets,
-        bookingOrders: Object.entries(bookingDetails.selectedRooms).map(
-          ([id, count]) => ({
-            roomCategoryId: Number(id),
-            checkInDate: bookingDetails.checkInDate,
-            checkOutDate: bookingDetails.checkOutDate,
-            roomsBooked: count,
-          })
-        ),
-      }
-
-      await createBooking(body)
+      await createBooking(buildBookingBody())
       await new Promise((resolve) => setTimeout(resolve, 1000))
 
       setPaymentState('success')
@@ -98,20 +100,7 @@ export default function PaymentSection({
     setPaymentState('processing')
 
     try {
-      const body = {
-        propertyId: bookingDetails.propertyId,
-        numberOfPets: bookingDetails.numberOfPets,
-        bookingOrders: Object.entries(bookingDetails.selectedRooms).map(
-          ([id, count]) => ({
-            roomCategoryId: Number(id),
-            checkInDate: bookingDetails.checkInDate,
-            checkOutDate: bookingDetails.checkOutDate,
-            roomsBooked: count,
-          })
-        ),
-      }
-
-      const booking = await createBooking(body)
+      const booking = await createBooking(buildBookingBody())
       await confirmPayment(booking.id)
       await new Promise((resolve) => setTimeout(resolve, 1500))
 
@@ -494,7 +483,7 @@ export default function PaymentSection({
           >
             <div className="max-w-[500px] mx-auto px-6 py-4">
               <p className="text-center text-xs text-neutral-gray mb-3">
-                Select a card above to continue
+                Select a payment method above to continue
               </p>
               <Button
                 onClick={onCancel}

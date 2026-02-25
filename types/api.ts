@@ -59,11 +59,9 @@ export interface BookingOrderItem {
   roomsBooked: number
 }
 
-export interface BookingRequestBody {
-  propertyId: number
-  numberOfPets: number
-  bookingOrders: BookingOrderItem[]
-}
+export type BookingRequestBody =
+  | { PetProfileIDs: number[]; bookingOrders: BookingOrderItem[] }
+  | { numberOfPets: number; bookingOrders: BookingOrderItem[] }
 
 export interface BookingResponse {
   message: string

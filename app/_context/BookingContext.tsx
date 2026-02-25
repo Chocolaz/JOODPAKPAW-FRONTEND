@@ -19,6 +19,7 @@ interface BookingData {
 interface BookingContextType {
   // Shared State
   date: DateRange | undefined
+  selectedPetIds: number[]
   numberOfPets: number
   loading: boolean
   error: string | null
@@ -28,13 +29,14 @@ interface BookingContextType {
 
   // Setters & Handlers
   setDate: React.Dispatch<React.SetStateAction<DateRange | undefined>>
+  setSelectedPetIds: React.Dispatch<React.SetStateAction<number[]>>
   setNumberOfPets: React.Dispatch<React.SetStateAction<number>>
   handleSelectChange: (categoryId: number, value: number) => void
   handleSearch: (
     propertyId: number,
     checkInDate: string,
     checkOutDate: string,
-    pets: number
+    petCount: number
   ) => Promise<void>
   clearBookingState: () => void
 }
@@ -57,26 +59,27 @@ export function BookingProvider({ children }: { children: React.ReactNode }) {
           return parsedState
         } catch (e) {
           console.error(
-            'Failed to parse saved booking state from localStorage',
+            'Failed to parse saved booking state from sessionStorage',
             e
           )
         }
       }
     }
-    return { date: undefined, numberOfPets: 0, bookingData: {} }
+    return { date: undefined, selectedPetIds: [], numberOfPets: 0, bookingData: {} }
   }
 
   const initialState = React.useRef(getInitialBookingState()).current
 
-  // Shared state across all properties
   const [date, setDate] = React.useState<DateRange | undefined>(
     initialState.date
   )
+  const [selectedPetIds, setSelectedPetIds] = React.useState<number[]>(
+    initialState.selectedPetIds ?? []
+  )
   const [numberOfPets, setNumberOfPets] = React.useState<number>(
-    initialState.numberOfPets
+    initialState.numberOfPets ?? 0
   )
 
-  // Per-property state
   const [bookingData, setBookingData] = React.useState<
     Record<string, Partial<BookingData>>
   >(initialState.bookingData)
@@ -91,6 +94,7 @@ export function BookingProvider({ children }: { children: React.ReactNode }) {
   const clearBookingState = () => {
     setBookingData({})
     setDate(undefined)
+    setSelectedPetIds([])
     setNumberOfPets(0)
     setError(null)
     if (typeof window !== 'undefined') {
@@ -98,7 +102,6 @@ export function BookingProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
-  // Effect to clear state on logout
   React.useEffect(() => {
     if (!isAuthenticated) {
       clearBookingState()
@@ -107,10 +110,10 @@ export function BookingProvider({ children }: { children: React.ReactNode }) {
 
   React.useEffect(() => {
     if (typeof window !== 'undefined') {
-      const stateToSave = { date, numberOfPets, bookingData }
+      const stateToSave = { date, selectedPetIds, numberOfPets, bookingData }
       sessionStorage.setItem('booking_state', JSON.stringify(stateToSave))
     }
-  }, [date, numberOfPets, bookingData])
+  }, [date, selectedPetIds, numberOfPets, bookingData])
 
   const handleSelectChange = (categoryId: number, value: number) => {
     if (!currentPropertyId) return
@@ -141,7 +144,7 @@ export function BookingProvider({ children }: { children: React.ReactNode }) {
     searchPropertyId: number,
     checkInDate: string,
     checkOutDate: string,
-    pets: number
+    petCount: number
   ) => {
     if (!checkInDate || !checkOutDate) {
       toast.error('Please select check-in and check-out dates.')
@@ -155,7 +158,7 @@ export function BookingProvider({ children }: { children: React.ReactNode }) {
         searchPropertyId,
         checkInDate,
         checkOutDate,
-        pets
+        petCount
       )
       const normalizedCategories = normalizeRoomCategories(
         response.roomCategories
@@ -182,6 +185,7 @@ export function BookingProvider({ children }: { children: React.ReactNode }) {
 
   const value: BookingContextType = {
     date,
+    selectedPetIds,
     numberOfPets,
     loading,
     error,
@@ -189,6 +193,7 @@ export function BookingProvider({ children }: { children: React.ReactNode }) {
       ? (bookingData[currentPropertyId] ?? {})
       : {},
     setDate,
+    setSelectedPetIds,
     setNumberOfPets,
     handleSelectChange,
     handleSearch,

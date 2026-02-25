@@ -2,7 +2,8 @@ export interface BookingDetail {
   propertyId: number
   checkInDate: string
   checkOutDate: string
-  numberOfPets: number
+  petProfileIds: number[]
+  petCount: number
   selectedRooms: { [key: string]: number }
   roomNames: { [key: string]: string }
 }
@@ -68,6 +69,13 @@ export interface BookingOrder {
   roomCategory: BookingOrderRoomCategory
 }
 
+export interface BookingPetProfile {
+  id: number
+  name: string
+  image: string | null
+  petTypeName?: string
+}
+
 export interface FullBookingDetail {
   id: number
   checkInDate: string
@@ -82,6 +90,7 @@ export interface FullBookingDetail {
   guestId: number
   guest: Guest
   bookingOrders: BookingOrder[]
+  petProfiles?: BookingPetProfile[]
   createdAt: string
   updatedAt: string
 }

@@ -3,19 +3,16 @@
 import React from 'react'
 import { useRouter } from 'next/navigation'
 import { format } from 'date-fns'
-import { RoomCategories, BookingDetail } from '@/types'
-import {
-  CalendarCheck,
-  CalendarX,
-  ArrowLeft,
-  PawPrint,
-  Moon,
-} from 'lucide-react'
+import { RoomCategories, BookingDetail, PetProfile } from '@/types'
+import { CalendarCheck, CalendarX, ArrowLeft, PawPrint, Moon } from 'lucide-react'
+import Image from 'next/image'
+import { cn } from '@/lib/utils'
 import PaymentSection from './PaymentSection'
 
 interface ConfirmBookingDisplayProps {
   bookingDetails: BookingDetail
   fetchedRoomCategories: RoomCategories[]
+  petProfiles: PetProfile[]
   isBookingLoading: boolean
   setIsBookingLoading: (loading: boolean) => void
 }
@@ -23,6 +20,7 @@ interface ConfirmBookingDisplayProps {
 export default function ConfirmBookingDisplay({
   bookingDetails,
   fetchedRoomCategories,
+  petProfiles,
   isBookingLoading,
   setIsBookingLoading,
 }: ConfirmBookingDisplayProps) {
@@ -60,6 +58,11 @@ export default function ConfirmBookingDisplay({
 
   const finalPrice = priceDetails.reduce((acc, d) => acc + d.price, 0)
 
+  // Only show the profiles that were selected in the drawer
+  const selectedPets = petProfiles.filter((p) =>
+    bookingDetails.petProfileIds.includes(p.id)
+  )
+
   const handleCancel = () => {
     router.push(`/${bookingDetails.propertyId}?drawer=open`)
   }
@@ -68,6 +71,13 @@ export default function ConfirmBookingDisplay({
     <div className="container mx-auto max-w-[500px] px-5 pb-64 pt-6 space-y-6">
       {/* Page Header */}
       <div className="flex items-center gap-3">
+        <button
+          onClick={handleCancel}
+          className="p-2 rounded-full hover:bg-gray-100 transition-colors"
+          aria-label="Go back"
+        >
+          <ArrowLeft className="w-5 h-5 text-deep-teal" />
+        </button>
         <h2 className="text-deep-teal font-semibold text-lg">
           Confirm Booking
         </h2>
@@ -134,16 +144,51 @@ export default function ConfirmBookingDisplay({
 
         <hr className="border-gray-100" />
 
-        {/* Pets */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
+        {/* Selected Pets — read-only */}
+        <div>
+          <div className="flex items-center gap-2 mb-3">
             <PawPrint className="w-4 h-4 text-accent-orange" />
-            <h4 className="text-sm font-semibold text-deep-teal">Pets</h4>
+            <h4 className="text-xs font-semibold uppercase tracking-wide text-neutral-gray">
+              Pets
+            </h4>
           </div>
-          <span className="px-3 py-1 bg-accent-orange/10 text-accent-orange text-sm font-medium rounded-full">
-            {bookingDetails.numberOfPets}{' '}
-            {bookingDetails.numberOfPets === 1 ? 'pet' : 'pets'}
-          </span>
+
+          <div className="flex flex-wrap gap-2">
+            {selectedPets.length > 0 ? (
+              selectedPets.map((pet) => (
+                <div
+                  key={pet.id}
+                  className={cn(
+                    'flex items-center gap-2 pl-1.5 pr-3 py-1.5 rounded-full',
+                    'border border-accent-orange/30 bg-accent-orange/5'
+                  )}
+                >
+                  <div className="w-6 h-6 rounded-full overflow-hidden bg-gray-100 shrink-0 flex items-center justify-center">
+                    {pet.image ? (
+                      <Image
+                        src={pet.image}
+                        alt={pet.name}
+                        width={24}
+                        height={24}
+                        className="object-cover w-full h-full"
+                      />
+                    ) : (
+                      <PawPrint className="w-3.5 h-3.5 text-gray-400" />
+                    )}
+                  </div>
+                  <span className="text-sm font-medium text-accent-orange">
+                    {pet.name}
+                  </span>
+                </div>
+              ))
+            ) : (
+              // Fallback: no profiles — show pet count
+              <span className="text-sm text-gray-600">
+                {bookingDetails.petCount} pet
+                {bookingDetails.petCount > 1 ? 's' : ''}
+              </span>
+            )}
+          </div>
         </div>
 
         <hr className="border-gray-100" />

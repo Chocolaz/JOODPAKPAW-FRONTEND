@@ -4,9 +4,9 @@ import React, { useState, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { toast } from 'sonner'
 import { Spinner } from '@/components/ui/spinner'
-import { searchRoomCategories } from '@/lib/api'
+import { searchRoomCategories, getAllPetProfiles } from '@/lib/api'
 import { useAuth } from '@/app/_components/AuthContext'
-import { RoomCategories, BookingDetail } from '@/types'
+import { RoomCategories, BookingDetail, PetProfile } from '@/types'
 import ConfirmBookingDisplay from './ConfirmBookingDisplay'
 
 export default function ConfirmBookingDataLoader() {
@@ -14,14 +14,11 @@ export default function ConfirmBookingDataLoader() {
   const searchParams = useSearchParams()
   const { isAuthenticated } = useAuth()
 
-  const [bookingDetails, setBookingDetails] = useState<BookingDetail | null>(
-    null
-  )
-  const [fetchedRoomCategories, setFetchedRoomCategories] = useState<
-    RoomCategories[]
-  >([])
+  const [bookingDetails, setBookingDetails] = useState<BookingDetail | null>(null)
+  const [fetchedRoomCategories, setFetchedRoomCategories] = useState<RoomCategories[]>([])
+  const [petProfiles, setPetProfiles] = useState<PetProfile[]>([])
   const [loading, setLoading] = useState(true)
-  const [isBookingLoading, setIsBookingLoading] = useState(false) // State for booking confirmation loading
+  const [isBookingLoading, setIsBookingLoading] = useState(false)
 
   useEffect(() => {
     const fetchBookingData = async () => {
@@ -34,42 +31,56 @@ export default function ConfirmBookingDataLoader() {
       const propertyId = searchParams.get('propertyId')
       const start = searchParams.get('start')
       const end = searchParams.get('end')
-      const pets = searchParams.get('pets')
+      const petIdsParam = searchParams.get('petIds')
+      const petsParam = searchParams.get('pets')
       const rooms = searchParams.get('rooms')
       const roomNames = searchParams.get('roomNames')
 
-      if (!propertyId || !start || !end || !pets || !rooms || !roomNames) {
+      if (!propertyId || !start || !end || (!petIdsParam && !petsParam) || !rooms || !roomNames) {
         toast.error('Missing booking details')
         router.push('/')
         return
       }
 
       try {
+        // petIds = profile-based path, pets = number-only fallback
+        const petProfileIds = petIdsParam
+          ? petIdsParam.split(',').map(Number).filter((n) => !isNaN(n) && n > 0)
+          : []
+        const petCount = petProfileIds.length > 0
+          ? petProfileIds.length
+          : Number(petsParam) || 0
+
+        if (petCount === 0) {
+          toast.error('No pets selected')
+          router.push('/')
+          return
+        }
+
         const parsedRooms = JSON.parse(decodeURIComponent(rooms))
         const parsedRoomNames = JSON.parse(decodeURIComponent(roomNames))
-
         const propertyIdNum = Number(propertyId)
-        const petsNum = Number(pets)
 
         setBookingDetails({
           propertyId: propertyIdNum,
           checkInDate: start,
           checkOutDate: end,
-          numberOfPets: petsNum,
+          petProfileIds,
+          petCount,
           selectedRooms: parsedRooms,
           roomNames: parsedRoomNames,
         })
 
-        const response = await searchRoomCategories(
-          propertyIdNum,
-          start,
-          end,
-          petsNum
-        )
-        setFetchedRoomCategories(response.roomCategories)
+        const [roomResponse, petProfilesResponse] = await Promise.all([
+          searchRoomCategories(propertyIdNum, start, end, petCount),
+          getAllPetProfiles(),
+        ])
+
+        setFetchedRoomCategories(roomResponse.roomCategories)
+        setPetProfiles(petProfilesResponse.petProfiles)
       } catch (err) {
         console.error('Error fetching booking data or parsing params:', err)
-        toast.error('Invalid booking data or failed to fetch prices.')
+        toast.error('Invalid booking data or failed to fetch details.')
         router.push('/')
       } finally {
         setLoading(false)
@@ -97,6 +108,7 @@ export default function ConfirmBookingDataLoader() {
     <ConfirmBookingDisplay
       bookingDetails={bookingDetails}
       fetchedRoomCategories={fetchedRoomCategories}
+      petProfiles={petProfiles}
       isBookingLoading={isBookingLoading}
       setIsBookingLoading={setIsBookingLoading}
     />

@@ -12,10 +12,10 @@ import {
   Clock,
   CheckCircle2,
   XCircle,
-  AlertCircle,
   Hourglass,
   Home,
 } from 'lucide-react'
+import Image from 'next/image'
 import { FullBookingDetail } from '@/types'
 import { useRouter } from 'next/navigation'
 import { cn } from '@/lib/utils'
@@ -211,6 +211,51 @@ export default function BookingDetailDisplay({
           </div>
         </div>
       </div>
+
+      {/* Pets card — only shown when pet profiles are attached */}
+      {bookingDetails.petProfiles && bookingDetails.petProfiles.length > 0 && (
+        <div className="bg-white rounded-2xl p-4 shadow-md border border-gray-200/60 space-y-3">
+          <div className="flex items-center gap-2">
+            <PawPrint className="w-4 h-4 text-accent-orange" />
+            <h4 className="text-xs font-semibold text-neutral-gray uppercase tracking-wide">
+              Pets
+            </h4>
+          </div>
+
+          <div className="flex flex-wrap gap-2">
+            {bookingDetails.petProfiles.map((pet) => (
+              <div
+                key={pet.id}
+                className="flex items-center gap-2 pl-1.5 pr-3 py-1.5 rounded-full border border-accent-orange/30 bg-accent-orange/5"
+              >
+                <div className="w-7 h-7 rounded-full overflow-hidden bg-gray-100 shrink-0 flex items-center justify-center">
+                  {pet.image ? (
+                    <Image
+                      src={pet.image}
+                      alt={pet.name}
+                      width={28}
+                      height={28}
+                      className="object-cover w-full h-full"
+                    />
+                  ) : (
+                    <PawPrint className="w-3.5 h-3.5 text-gray-400" />
+                  )}
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-accent-orange leading-none">
+                    {pet.name}
+                  </p>
+                  {pet.petTypeName && (
+                    <p className="text-[11px] text-neutral-gray capitalize leading-none mt-0.5">
+                      {pet.petTypeName}
+                    </p>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Rooms & pricing card */}
       <div className="bg-white rounded-2xl p-4 shadow-md border border-gray-200/60 space-y-4">
