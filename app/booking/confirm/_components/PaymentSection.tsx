@@ -9,7 +9,7 @@ import { createBooking, confirmPayment } from '@/lib/api'
 import { ApiError } from '@/lib/errorHandling'
 import { BookingDetail } from '@/types'
 import { cn } from '@/lib/utils'
-import { CheckCircle, CreditCard, Clock, X, ChevronRight } from 'lucide-react'
+import { CheckCircle, CreditCard, Clock, X, ShieldCheck } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 
 interface PaymentSectionProps {
@@ -36,7 +36,7 @@ const mockCreditCards = [
   },
 ]
 
-type PaymentMode = 'now' | 'later' | null
+type PaymentMode = 'now' | 'later'
 
 export default function PaymentSection({
   bookingDetails,
@@ -45,20 +45,17 @@ export default function PaymentSection({
   onCancel,
 }: PaymentSectionProps) {
   const router = useRouter()
-  const [paymentMode, setPaymentMode] = useState<PaymentMode>(null)
+  // Default to 'now' so the card list is visible immediately
+  const [paymentMode, setPaymentMode] = useState<PaymentMode>('now')
   const [selectedCard, setSelectedCard] = useState<number | null>(null)
   const [paymentState, setPaymentState] = useState<
     'idle' | 'booking' | 'processing' | 'success'
   >('idle')
 
-  const selectedCardData = mockCreditCards.find((c) => c.id === selectedCard) ?? null
+  const selectedCardData =
+    mockCreditCards.find((c) => c.id === selectedCard) ?? null
   const isReady =
     paymentMode === 'later' || (paymentMode === 'now' && selectedCard !== null)
-
-  const handleSelectMode = (mode: PaymentMode) => {
-    setPaymentMode((prev) => (prev === mode ? null : mode))
-    if (mode === 'later') setSelectedCard(null)
-  }
 
   const handlePayLater = async () => {
     setIsBookingLoading(true)
@@ -173,23 +170,36 @@ export default function PaymentSection({
         </div>
       )}
 
-      <div className="space-y-3">
-        <h4 className="text-xs font-semibold uppercase tracking-wide text-neutral-gray">
-          Payment Method
-        </h4>
+      <div className="space-y-4">
+        {/* Section header */}
+        <div className="flex items-center justify-between">
+          <h4 className="text-xs font-semibold uppercase tracking-wide text-neutral-gray">
+            Payment Method
+          </h4>
+          <div className="flex items-center gap-1 text-positive-green">
+            <ShieldCheck className="w-3.5 h-3.5" />
+            <span className="text-[11px] font-medium">Secure payment</span>
+          </div>
+        </div>
 
-        {/* Pay Now option */}
+        {/* Pay Now — primary, expanded by default */}
         <div
-          onClick={() => handleSelectMode('now')}
           className={cn(
-            'rounded-2xl border-2 cursor-pointer transition-all duration-200 overflow-hidden',
+            'rounded-2xl border-2 overflow-hidden transition-all duration-200',
             paymentMode === 'now'
-              ? 'border-deep-teal'
-              : 'border-gray-200 hover:border-gray-300'
+              ? 'border-deep-teal shadow-sm'
+              : 'border-gray-200'
           )}
         >
-          {/* Option header */}
-          <div className="flex items-center justify-between px-5 py-4 bg-white">
+          {/* Header */}
+          <button
+            type="button"
+            onClick={() => {
+              setPaymentMode('now')
+              setSelectedCard(null)
+            }}
+            className="w-full flex items-center justify-between px-5 py-4 bg-white"
+          >
             <div className="flex items-center gap-3">
               <div
                 className={cn(
@@ -204,47 +214,60 @@ export default function PaymentSection({
                   )}
                 />
               </div>
-              <div>
-                <p
-                  className={cn(
-                    'font-semibold text-sm transition-colors',
-                    paymentMode === 'now' ? 'text-deep-teal' : 'text-gray-700'
-                  )}
-                >
-                  Pay Now
-                </p>
-                <p className="text-xs text-neutral-gray">
-                  Pay securely with a card
+              <div className="text-left">
+                <div className="flex items-center gap-2">
+                  <p
+                    className={cn(
+                      'font-semibold text-sm',
+                      paymentMode === 'now' ? 'text-deep-teal' : 'text-gray-700'
+                    )}
+                  >
+                    Pay Now
+                  </p>
+                  {/* Recommended badge */}
+                  <span className="text-[10px] font-semibold bg-deep-teal text-white px-2 py-0.5 rounded-full">
+                    Recommended
+                  </span>
+                </div>
+                <p className="text-xs text-neutral-gray mt-0.5">
+                  Instant confirmation, booking secured
                 </p>
               </div>
             </div>
-            <motion.div
-              animate={{ rotate: paymentMode === 'now' ? 90 : 0 }}
-              transition={{ duration: 0.2 }}
-            >
-              <ChevronRight className="w-4 h-4 text-neutral-gray" />
-            </motion.div>
-          </div>
 
-          {/* Expandable card list */}
+            {/* Active indicator dot */}
+            <div
+              className={cn(
+                'w-4 h-4 rounded-full border-2 flex items-center justify-center transition-colors shrink-0',
+                paymentMode === 'now'
+                  ? 'border-deep-teal bg-deep-teal'
+                  : 'border-gray-300'
+              )}
+            >
+              {paymentMode === 'now' && (
+                <div className="w-1.5 h-1.5 rounded-full bg-white" />
+              )}
+            </div>
+          </button>
+
+          {/* Card list — always open when mode is 'now' */}
           <AnimatePresence initial={false}>
             {paymentMode === 'now' && (
               <motion.div
                 initial={{ height: 0, opacity: 0 }}
                 animate={{ height: 'auto', opacity: 1 }}
                 exit={{ height: 0, opacity: 0 }}
-                transition={{ duration: 0.25, ease: 'easeInOut' }}
+                transition={{ duration: 0.22, ease: 'easeInOut' }}
               >
-                <div className="border-t border-gray-100 bg-gray-50 px-4 py-4 space-y-3">
+                <div className="border-t border-gray-100 bg-gray-50/70 px-4 py-4 space-y-3">
                   {mockCreditCards.map((card) => {
                     const isSelected = selectedCard === card.id
                     return (
                       <motion.div
                         key={card.id}
-                        onClick={(e) => {
-                          e.stopPropagation()
+                        onClick={() =>
                           setSelectedCard(isSelected ? null : card.id)
-                        }}
+                        }
                         whileTap={{ scale: 0.98 }}
                         className={cn(
                           'p-4 rounded-xl border-2 cursor-pointer bg-white transition-all duration-200 relative overflow-hidden',
@@ -253,7 +276,6 @@ export default function PaymentSection({
                             : 'border-gray-200 hover:border-gray-300'
                         )}
                       >
-                        {/* Selected left stripe */}
                         <AnimatePresence>
                           {isSelected && (
                             <motion.div
@@ -326,82 +348,58 @@ export default function PaymentSection({
           </AnimatePresence>
         </div>
 
-        {/* Pay Later option */}
-        <div
-          onClick={() => handleSelectMode('later')}
+        {/* Pay Later — secondary, subtle */}
+        <button
+          type="button"
+          onClick={() => {
+            setPaymentMode('later')
+            setSelectedCard(null)
+          }}
           className={cn(
-            'flex items-center justify-between px-5 py-4 rounded-2xl border-2 cursor-pointer bg-white transition-all duration-200',
+            'w-full flex items-center justify-between px-4 py-3 rounded-xl border transition-all duration-200',
             paymentMode === 'later'
-              ? 'border-accent-orange'
-              : 'border-gray-200 hover:border-gray-300'
+              ? 'border-accent-orange/50 bg-accent-orange/5'
+              : 'border-gray-200 hover:border-gray-300 bg-white'
           )}
         >
           <div className="flex items-center gap-3">
-            <div
+            <Clock
               className={cn(
-                'p-2 rounded-xl transition-colors',
-                paymentMode === 'later' ? 'bg-accent-orange/10' : 'bg-gray-100'
+                'w-4 h-4 shrink-0 transition-colors',
+                paymentMode === 'later' ? 'text-accent-orange' : 'text-gray-400'
               )}
-            >
-              <Clock
-                className={cn(
-                  'w-5 h-5 transition-colors',
-                  paymentMode === 'later'
-                    ? 'text-accent-orange'
-                    : 'text-gray-400'
-                )}
-              />
-            </div>
-            <div>
+            />
+            <div className="text-left">
               <p
                 className={cn(
-                  'font-semibold text-sm transition-colors',
-                  paymentMode === 'later' ? 'text-accent-orange' : 'text-gray-700'
+                  'text-sm font-medium transition-colors',
+                  paymentMode === 'later' ? 'text-accent-orange' : 'text-gray-500'
                 )}
               >
                 Pay Later
               </p>
               <p className="text-xs text-neutral-gray">
-                Confirm now, pay at check-in
+                Pay at check-in — no card needed now
               </p>
             </div>
           </div>
 
-          {/* Animated checkmark */}
           <div
             className={cn(
-              'w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors',
+              'w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors',
               paymentMode === 'later'
                 ? 'border-accent-orange bg-accent-orange'
                 : 'border-gray-300'
             )}
           >
-            <AnimatePresence>
-              {paymentMode === 'later' && (
-                <motion.svg
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  exit={{ scale: 0 }}
-                  transition={{ duration: 0.15 }}
-                  viewBox="0 0 10 8"
-                  className="w-3 h-3"
-                  fill="none"
-                >
-                  <path
-                    d="M1 4L3.5 6.5L9 1"
-                    stroke="white"
-                    strokeWidth="1.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </motion.svg>
-              )}
-            </AnimatePresence>
+            {paymentMode === 'later' && (
+              <div className="w-1.5 h-1.5 rounded-full bg-white" />
+            )}
           </div>
-        </div>
+        </button>
       </div>
 
-      {/* Slide-up footer */}
+      {/* Slide-up footer — appears when ready */}
       <AnimatePresence>
         {isReady && (
           <motion.div
@@ -412,7 +410,7 @@ export default function PaymentSection({
             transition={{ type: 'spring', stiffness: 280, damping: 28 }}
           >
             <div className="max-w-[500px] mx-auto px-6 pt-5 pb-6 space-y-3">
-              {/* Context line */}
+              {/* Context summary */}
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2.5">
                   <div
@@ -442,22 +440,22 @@ export default function PaymentSection({
                 </div>
                 <button
                   onClick={() => {
-                    setPaymentMode(null)
-                    setSelectedCard(null)
+                    if (paymentMode === 'now') setSelectedCard(null)
+                    else setPaymentMode('now')
                   }}
                   className="p-1.5 rounded-full hover:bg-gray-100 transition-colors"
-                  aria-label="Clear selection"
+                  aria-label="Change selection"
                 >
                   <X className="w-4 h-4 text-neutral-gray" />
                 </button>
               </div>
 
-              {/* Confirm button */}
+              {/* Primary confirm button */}
               <Button
                 onClick={paymentMode === 'now' ? handlePayNow : handlePayLater}
                 disabled={isBookingLoading}
                 className={cn(
-                  'w-full h-13 text-white text-base font-semibold rounded-2xl',
+                  'w-full h-12 text-white text-base font-semibold rounded-2xl',
                   paymentMode === 'now' ? 'bg-positive-green' : 'bg-accent-orange'
                 )}
               >
@@ -484,7 +482,7 @@ export default function PaymentSection({
         )}
       </AnimatePresence>
 
-      {/* Minimal footer before any selection */}
+      {/* Minimal footer before a card is selected */}
       <AnimatePresence>
         {!isReady && (
           <motion.div
@@ -496,7 +494,7 @@ export default function PaymentSection({
           >
             <div className="max-w-[500px] mx-auto px-6 py-4">
               <p className="text-center text-xs text-neutral-gray mb-3">
-                Choose a payment method above to continue
+                Select a card above to continue
               </p>
               <Button
                 onClick={onCancel}
