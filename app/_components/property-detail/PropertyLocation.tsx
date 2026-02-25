@@ -1,6 +1,5 @@
 'use client'
 
-import Image from 'next/image'
 import { Property } from '@/types'
 import { getStaticMapUrl } from '@/lib/mapUtils'
 
@@ -16,13 +15,24 @@ export function PropertyLocation({ property }: PropertyLocationProps) {
   const mapUrl = getStaticMapUrl({
     latitude: property.latitude,
     longitude: property.longitude,
+    width: 800,
+    height: 400,
   })
   const googleMapsUrl = `https://www.google.com/maps?q=${property.latitude},${property.longitude}`
+
+  console.log('[PropertyLocation]', {
+    latitude: property.latitude,
+    longitude: property.longitude,
+    apiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY,
+    mapUrl,
+  })
+
+  if (!mapUrl) return null
 
   return (
     <div className="mt-10 border-t pt-8">
       <div className="mb-4">
-        <h3 className="text-xl font-semibold text-deep-teal ">Location</h3>
+        <h3 className="text-xl font-semibold text-deep-teal">Location</h3>
         <p className="text-neutral-gray">
           {property.district}, {property.province}
         </p>
@@ -31,14 +41,13 @@ export function PropertyLocation({ property }: PropertyLocationProps) {
         href={googleMapsUrl}
         target="_blank"
         rel="noopener noreferrer"
-        className="block w-full aspect-square relative"
+        className="block w-full overflow-hidden rounded-xl shadow-md border border-gray-200/60 hover:shadow-lg transition-shadow"
       >
-        <Image
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
           src={mapUrl}
           alt="Map of property location"
-          fill
-          unoptimized
-          className="object-cover rounded-xl shadow cursor-pointer hover:opacity-90 transition"
+          className="w-full h-auto block"
         />
       </a>
     </div>

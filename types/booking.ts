@@ -46,6 +46,8 @@ export interface BookingOrderProperty {
   id: number
   title: string
   address: string
+  district?: string
+  province?: string
 }
 
 export interface BookingOrderRoomCategory {
