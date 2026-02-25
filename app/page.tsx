@@ -55,8 +55,8 @@ export default function Home() {
           Properties
         </h5>
         {isLoading ? (
-          <div className="grid grid-cols-2 gap-4 px-5">
-            {Array.from({ length: 6 }).map((_, i) => (
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-5 px-5">
+            {Array.from({ length: 8 }).map((_, i) => (
               <div key={i} className="animate-pulse">
                 <div className="aspect-square w-full bg-gray-200 rounded-[20px]" />
                 <div className="mt-2 space-y-2">

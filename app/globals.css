@@ -184,7 +184,17 @@ body {
   }
 }
 
-/* Custom CSS to hide scrollbar */
+/* Hide vertical scrollbar globally */
+html {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+html::-webkit-scrollbar {
+  display: none;
+}
+
+/* Custom CSS to hide scrollbar on individual elements */
 .hide-scrollbar {
   -ms-overflow-style: none; /* IE and Edge */
   scrollbar-width: none; /* Firefox */

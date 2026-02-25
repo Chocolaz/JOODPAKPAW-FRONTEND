@@ -34,7 +34,7 @@ const itemVariants = {
 
 export function PropertyList({
   properties,
-  className = 'grid grid-cols-2 gap-4 px-5',
+  className = 'grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-5 px-5',
   buildHref,
   showRoomCount,
   showStatusIcon,
