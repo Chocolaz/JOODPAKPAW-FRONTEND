@@ -18,6 +18,7 @@ import { Spinner } from '@/components/ui/spinner'
 import { BookingRoomCard } from './BookingRoomCard'
 import { BookingSearchBar, SearchParams } from './BookingSearchBar'
 import { useBooking } from '@/app/_context/BookingContext'
+import { useAuth } from '@/app/_components/AuthContext'
 import { toast } from 'sonner'
 import { format } from 'date-fns'
 
@@ -28,6 +29,8 @@ interface BookingDrawerProps {
 export function BookingDrawer({ propertyId }: BookingDrawerProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
+
+  const { requireAuth } = useAuth()
 
   const {
     loading,
@@ -95,6 +98,8 @@ export function BookingDrawer({ propertyId }: BookingDrawerProps) {
   }
 
   const handleContinue = () => {
+    if (!requireAuth()) return
+
     if (totalSelectedRooms === 0) {
       toast.error('Please select at least one room.')
       return

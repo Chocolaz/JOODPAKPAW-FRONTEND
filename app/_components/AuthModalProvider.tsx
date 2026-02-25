@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState, useCallback } from 'react'
-import { usePathname, useRouter } from 'next/navigation'
+import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   AuthRequiredError,
@@ -27,6 +27,7 @@ export function AuthModalProvider({ children }: { children: React.ReactNode }) {
   const [navigating, setNavigating] = useState(false)
   const router = useRouter()
   const pathname = usePathname()
+  const searchParams = useSearchParams()
 
   useEffect(() => {
     return authErrorEmitter.subscribe((err) => {
@@ -47,9 +48,11 @@ export function AuthModalProvider({ children }: { children: React.ReactNode }) {
     if (navigating) {
       setNavigating(false)
       setError(null)
-      router.push(`/authen?returnUrl=${encodeURIComponent(pathname)}`)
+      const qs = searchParams.toString()
+      const fullPath = qs ? `${pathname}?${qs}` : pathname
+      router.push(`/authen?returnUrl=${encodeURIComponent(fullPath)}`)
     }
-  }, [navigating, router, pathname])
+  }, [navigating, router, pathname, searchParams])
 
   const info = error ? content[error.reason] : null
   const isOpen = !!error && !navigating

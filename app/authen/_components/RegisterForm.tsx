@@ -1,7 +1,7 @@
 'use client'
 import { useState, useMemo } from 'react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { toast } from 'sonner'
 
 import { Button } from '@/components/ui/button'
@@ -15,6 +15,8 @@ import clsx from 'clsx'
 export default function RegisterForm() {
   // Hooks
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const returnUrl = searchParams.get('returnUrl')
 
   // State
   const [email, setEmail] = useState('')
@@ -78,7 +80,10 @@ export default function RegisterForm() {
         lastname,
         phone,
       })
-      router.push(`/authen/verify-otp?email=${email}`)
+      const verifyUrl = returnUrl
+        ? `/authen/verify-otp?email=${email}&returnUrl=${encodeURIComponent(returnUrl)}`
+        : `/authen/verify-otp?email=${email}`
+      router.push(verifyUrl)
     } catch (error: unknown) {
       console.error('Sign up failed:', error)
       const apiErrors = getApiErrorMessages(error)
