@@ -1,9 +1,9 @@
 'use client'
 
 import React, { useEffect, useState, useMemo, useRef, useCallback } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 import { getHostBookings } from '@/lib/api'
 import { Booking, BookingsResponse } from '@/types/booking'
-import { LoadingState } from '@/app/profile/_components/LoadingState'
 import { ErrorState } from '@/app/profile/_components/ErrorState'
 import { useRouter } from 'next/navigation'
 import {
@@ -144,10 +144,6 @@ export function HostBookingList() {
     setStatusFilter('ALL')
   }
 
-  if (loading) {
-    return <LoadingState />
-  }
-
   if (error) {
     return <ErrorState message={error} />
   }
@@ -156,144 +152,210 @@ export function HostBookingList() {
   const emptyMsg = EMPTY_MESSAGES[statusFilter] || EMPTY_MESSAGES.ALL
 
   return (
-    <div className="flex flex-col h-full">
-      {/* Pending alert banner */}
-      {pendingCount > 0 && statusFilter === 'ALL' && (
-        <div className="flex items-center gap-2.5 mx-3 sm:mx-4 mt-3 p-2.5 sm:p-3 bg-amber-50 border border-amber-200 rounded-xl">
-          <AlertCircle className="w-4 h-4 sm:w-5 sm:h-5 text-amber-500 shrink-0" />
-          <p className="text-xs sm:text-sm text-amber-800 min-w-0">
-            <span className="font-semibold">{pendingCount}</span> booking{pendingCount > 1 ? 's' : ''} awaiting response
-          </p>
-          <button
-            onClick={() => setStatusFilter('PENDING')}
-            className="ml-auto text-xs sm:text-sm font-semibold text-amber-700 hover:text-amber-900 whitespace-nowrap"
-          >
-            View
-          </button>
-        </div>
-      )}
-
-      {/* Month selector */}
-      <div
-        ref={monthScrollRef}
-        className="overflow-x-auto whitespace-nowrap hide-scrollbar border-b"
-      >
-        <div className="inline-flex space-x-4 p-3 sm:p-4 md:justify-center md:w-full">
-          {months.map((month) => {
-            const monthStr = format(month, 'yyyy-MM')
-            const hasBooking = bookingsByMonth.has(monthStr)
-            const isSelected = isSameMonth(month, selectedMonth)
-
-            return (
-              <button
-                key={month.toString()}
-                ref={(el) => {
-                  if (el) monthButtonRefs.current.set(monthStr, el)
-                }}
-                onClick={() => handleMonthSelect(month)}
-                className={cn(
-                  'relative pb-2 text-sm font-medium text-gray-500 transition-colors duration-200',
-                  isSelected && 'text-deep-teal border-b-2 border-deep-teal'
-                )}
-              >
-                {format(month, 'MMM')}
-                {hasBooking && !isSelected && (
-                  <span className="absolute top-0 right-[-4px] h-1.5 w-1.5 rounded-full bg-accent-orange"></span>
-                )}
-              </button>
-            )
-          })}
-        </div>
-      </div>
-
-      {/* Summary stats bar */}
-      {statusCounts.ALL > 0 && (
-        <div className="flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2 text-[11px] sm:text-xs text-neutral-gray border-b border-gray-100 overflow-x-auto hide-scrollbar">
-          <span className="whitespace-nowrap">{statusCounts.ALL} booking{statusCounts.ALL > 1 ? 's' : ''}</span>
-          <span className="text-gray-200">|</span>
-          {statusCounts.CONFIRMED > 0 && (
-            <span className="flex items-center gap-1 whitespace-nowrap">
-              <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-green-500"></span>
-              {statusCounts.CONFIRMED} confirmed
-            </span>
-          )}
-          {statusCounts.PENDING > 0 && (
-            <span className="flex items-center gap-1 whitespace-nowrap">
-              <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-blue-500"></span>
-              {statusCounts.PENDING} pending
-            </span>
-          )}
-          {statusCounts.CANCELLED > 0 && (
-            <span className="flex items-center gap-1 whitespace-nowrap">
-              <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-red-400"></span>
-              {statusCounts.CANCELLED} cancelled
-            </span>
-          )}
-        </div>
-      )}
-
-      {/* Status filter chips */}
-      <div className="flex gap-2 px-3 sm:px-4 py-2.5 overflow-x-auto hide-scrollbar">
-        {STATUS_FILTERS.map((filter) => {
-          const count = statusCounts[filter.value] || 0
-          const isActive = statusFilter === filter.value
-
-          return (
-            <button
-              key={filter.value}
-              onClick={() => setStatusFilter(filter.value)}
-              className={cn(
-                'flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium border whitespace-nowrap transition-all duration-200',
-                isActive
-                  ? filter.value === 'ALL'
-                    ? 'bg-deep-teal text-white border-deep-teal'
-                    : filter.color
-                  : 'bg-white text-gray-500 border-gray-200'
-              )}
-            >
-              {filter.label}
-              {count > 0 && (
-                <span
-                  className={cn(
-                    'text-xs rounded-full min-w-[20px] h-5 flex items-center justify-center px-1.5',
-                    isActive
-                      ? filter.value === 'ALL'
-                        ? 'bg-white/20'
-                        : 'bg-black/10'
-                      : 'bg-gray-100'
-                  )}
-                >
-                  {count}
-                </span>
-              )}
-            </button>
-          )
-        })}
-      </div>
-
-      <div className="grow overflow-y-auto p-3 sm:p-4 md:p-6">
-        {filteredBookings.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
-            {filteredBookings.map((booking) => (
-              <BookingCard
-                key={booking.id}
-                booking={booking}
-                onClick={(id) => router.push(`/profile/host/booking/${id}`)}
-              />
+    <AnimatePresence mode="wait">
+      {loading ? (
+        <motion.div
+          key="skeleton"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.2 }}
+          className="flex flex-col h-full"
+        >
+          {/* Skeleton month selector */}
+          <div className="flex gap-4 p-3 sm:p-4 border-b overflow-hidden">
+            {Array.from({ length: 8 }).map((_, i) => (
+              <div key={i} className="animate-pulse">
+                <div className="h-4 w-8 bg-gray-200 rounded" />
+              </div>
             ))}
           </div>
-        ) : (
-          <div className="flex flex-col items-center justify-center py-16 text-center px-6">
-            <CalendarX2 className="w-12 h-12 text-gray-300 mb-3" />
-            <h4 className="text-base font-semibold text-gray-600">
-              {emptyMsg.title}
-            </h4>
-            <p className="text-sm text-gray-400 mt-1 max-w-[240px]">
-              {emptyMsg.description}
-            </p>
+          {/* Skeleton filter chips */}
+          <div className="flex gap-2 px-3 sm:px-4 py-2.5">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="animate-pulse">
+                <div className="h-8 rounded-full bg-gray-200" style={{ width: `${60 + i * 16}px` }} />
+              </div>
+            ))}
           </div>
-        )}
-      </div>
-    </div>
+          {/* Skeleton booking cards */}
+          <div className="p-3 sm:p-4 md:p-6 grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <div key={i} className="animate-pulse rounded-xl border border-gray-100 p-4 sm:p-5 space-y-3">
+                <div className="flex justify-between">
+                  <div className="h-4 bg-gray-200 rounded w-1/2" />
+                  <div className="h-5 bg-gray-200 rounded-full w-16" />
+                </div>
+                <div className="flex gap-3">
+                  <div className="h-3 bg-gray-200 rounded w-16" />
+                  <div className="h-3 bg-gray-200 rounded w-16" />
+                  <div className="h-3 bg-gray-200 rounded w-14" />
+                </div>
+                <div className="grid grid-cols-2 gap-3 bg-gray-100 rounded-lg p-3">
+                  <div className="space-y-1.5">
+                    <div className="h-2.5 bg-gray-200 rounded w-12" />
+                    <div className="h-3.5 bg-gray-200 rounded w-20" />
+                  </div>
+                  <div className="space-y-1.5">
+                    <div className="h-2.5 bg-gray-200 rounded w-14" />
+                    <div className="h-3.5 bg-gray-200 rounded w-20" />
+                  </div>
+                </div>
+                <div className="flex justify-between border-t pt-3">
+                  <div className="h-3 bg-gray-200 rounded w-24" />
+                  <div className="h-5 bg-gray-200 rounded w-16" />
+                </div>
+              </div>
+            ))}
+          </div>
+        </motion.div>
+      ) : (
+        <motion.div
+          key="content"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.3, ease: 'easeOut' }}
+          className="flex flex-col h-full"
+        >
+          {/* Pending alert banner */}
+          {pendingCount > 0 && statusFilter === 'ALL' && (
+            <div className="flex items-center gap-2.5 mx-3 sm:mx-4 mt-3 p-2.5 sm:p-3 bg-amber-50 border border-amber-200 rounded-xl">
+              <AlertCircle className="w-4 h-4 sm:w-5 sm:h-5 text-amber-500 shrink-0" />
+              <p className="text-xs sm:text-sm text-amber-800 min-w-0">
+                <span className="font-semibold">{pendingCount}</span> booking{pendingCount > 1 ? 's' : ''} awaiting response
+              </p>
+              <button
+                onClick={() => setStatusFilter('PENDING')}
+                className="ml-auto text-xs sm:text-sm font-semibold text-amber-700 hover:text-amber-900 whitespace-nowrap"
+              >
+                View
+              </button>
+            </div>
+          )}
+
+          {/* Month selector */}
+          <div
+            ref={monthScrollRef}
+            className="overflow-x-auto whitespace-nowrap hide-scrollbar border-b"
+          >
+            <div className="inline-flex space-x-4 p-3 sm:p-4 md:justify-center md:w-full">
+              {months.map((month) => {
+                const monthStr = format(month, 'yyyy-MM')
+                const hasBooking = bookingsByMonth.has(monthStr)
+                const isSelected = isSameMonth(month, selectedMonth)
+
+                return (
+                  <button
+                    key={month.toString()}
+                    ref={(el) => {
+                      if (el) monthButtonRefs.current.set(monthStr, el)
+                    }}
+                    onClick={() => handleMonthSelect(month)}
+                    className={cn(
+                      'relative pb-2 text-sm font-medium text-gray-500 transition-colors duration-200',
+                      isSelected && 'text-deep-teal border-b-2 border-deep-teal'
+                    )}
+                  >
+                    {format(month, 'MMM')}
+                    {hasBooking && !isSelected && (
+                      <span className="absolute top-0 right-[-4px] h-1.5 w-1.5 rounded-full bg-accent-orange"></span>
+                    )}
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+
+          {/* Summary stats bar */}
+          {statusCounts.ALL > 0 && (
+            <div className="flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2 text-[11px] sm:text-xs text-neutral-gray border-b border-gray-100 overflow-x-auto hide-scrollbar">
+              <span className="whitespace-nowrap">{statusCounts.ALL} booking{statusCounts.ALL > 1 ? 's' : ''}</span>
+              <span className="text-gray-200">|</span>
+              {statusCounts.CONFIRMED > 0 && (
+                <span className="flex items-center gap-1 whitespace-nowrap">
+                  <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-green-500"></span>
+                  {statusCounts.CONFIRMED} confirmed
+                </span>
+              )}
+              {statusCounts.PENDING > 0 && (
+                <span className="flex items-center gap-1 whitespace-nowrap">
+                  <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-blue-500"></span>
+                  {statusCounts.PENDING} pending
+                </span>
+              )}
+              {statusCounts.CANCELLED > 0 && (
+                <span className="flex items-center gap-1 whitespace-nowrap">
+                  <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-red-400"></span>
+                  {statusCounts.CANCELLED} cancelled
+                </span>
+              )}
+            </div>
+          )}
+
+          {/* Status filter chips */}
+          <div className="flex gap-2 px-3 sm:px-4 py-2.5 overflow-x-auto hide-scrollbar">
+            {STATUS_FILTERS.map((filter) => {
+              const count = statusCounts[filter.value] || 0
+              const isActive = statusFilter === filter.value
+
+              return (
+                <button
+                  key={filter.value}
+                  onClick={() => setStatusFilter(filter.value)}
+                  className={cn(
+                    'flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium border whitespace-nowrap transition-all duration-200',
+                    isActive
+                      ? filter.value === 'ALL'
+                        ? 'bg-deep-teal text-white border-deep-teal'
+                        : filter.color
+                      : 'bg-white text-gray-500 border-gray-200'
+                  )}
+                >
+                  {filter.label}
+                  {count > 0 && (
+                    <span
+                      className={cn(
+                        'text-xs rounded-full min-w-[20px] h-5 flex items-center justify-center px-1.5',
+                        isActive
+                          ? filter.value === 'ALL'
+                            ? 'bg-white/20'
+                            : 'bg-black/10'
+                          : 'bg-gray-100'
+                      )}
+                    >
+                      {count}
+                    </span>
+                  )}
+                </button>
+              )
+            })}
+          </div>
+
+          <div className="grow overflow-y-auto p-3 sm:p-4 md:p-6">
+            {filteredBookings.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
+                {filteredBookings.map((booking) => (
+                  <BookingCard
+                    key={booking.id}
+                    booking={booking}
+                    onClick={(id) => router.push(`/profile/host/booking/${id}`)}
+                  />
+                ))}
+              </div>
+            ) : (
+              <div className="flex flex-col items-center justify-center py-16 text-center px-6">
+                <CalendarX2 className="w-12 h-12 text-gray-300 mb-3" />
+                <h4 className="text-base font-semibold text-gray-600">
+                  {emptyMsg.title}
+                </h4>
+                <p className="text-sm text-gray-400 mt-1 max-w-[240px]">
+                  {emptyMsg.description}
+                </p>
+              </div>
+            )}
+          </div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   )
 }

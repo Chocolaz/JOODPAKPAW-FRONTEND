@@ -10,13 +10,14 @@ import {
   Venus,
   Zap,
   Scale,
-  EllipsisVertical,
   Edit,
   Trash2,
-  ChevronRight,
   ChevronLeft,
+  Cake,
+  PawPrint,
+  Notebook,
 } from 'lucide-react'
-import { differenceInYears, format } from 'date-fns'
+import { differenceInYears, differenceInMonths, format } from 'date-fns'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import { deletePetProfile } from '@/lib/api'
@@ -27,12 +28,12 @@ import {
   DrawerTitle,
 } from '@/components/ui/drawer'
 import { ConfirmationModal } from '@/app/_components/ConfirmationModal'
-import EditPetProfileForm from './EditPetProfileForm' // Import the new component
+import EditPetProfileForm from './EditPetProfileForm'
 
 interface PetDetailDisplayProps {
   pet: PetProfile
   onDelete?: () => void
-  onPetUpdate: () => void // Changed to void
+  onPetUpdate: () => void
 }
 
 export default function PetDetailDisplay({
@@ -44,14 +45,23 @@ export default function PetDetailDisplay({
   const guestPetImageSrc = `${basePath}/graphics/guest.jpg`
 
   const birthDate = pet.birthDate ? new Date(pet.birthDate) : null
-  const age = birthDate ? differenceInYears(new Date(), birthDate) : null
+  const ageYears = birthDate ? differenceInYears(new Date(), birthDate) : null
+  const ageMonths = birthDate
+    ? differenceInMonths(new Date(), birthDate) % 12
+    : null
   const formattedBirthDate = birthDate
     ? format(birthDate, 'MMM d, yyyy')
     : 'N/A'
 
-  const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const ageDisplay =
+    ageYears !== null
+      ? ageYears > 0
+        ? `${ageYears} yr${ageYears !== 1 ? 's' : ''}${ageMonths ? ` ${ageMonths} mo` : ''}`
+        : `${ageMonths} mo`
+      : 'N/A'
+
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
-  const [isEditDrawerOpen, setIsEditDrawerOpen] = useState(false) // New state for edit drawer
+  const [isEditDrawerOpen, setIsEditDrawerOpen] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
   const router = useRouter()
 
@@ -70,74 +80,395 @@ export default function PetDetailDisplay({
     }
   }
 
+  // Energy level bar (1-5)
+  const energyLevel = pet.rating ?? 0
+  const energyLabel =
+    energyLevel <= 1
+      ? 'Calm'
+      : energyLevel <= 2
+        ? 'Low'
+        : energyLevel <= 3
+          ? 'Medium'
+          : energyLevel <= 4
+            ? 'Active'
+            : 'Hyper'
+
   return (
-    <div className="pb-10 bg-gray-50 min-h-screen">
-      <div className="relative w-full aspect-square">
-        <img
-          src={pet.image || guestPetImageSrc}
-          alt={pet.name}
-          className="object-cover w-full h-full rounded-b-2xl"
-        />
-        <div className="absolute inset-0 bg-linear-to-t from-black/50 to-transparent" />
-        <button
-          onClick={() => router.push('/profile/pets')}
-          className="absolute top-4 left-4 p-2 bg-white/80 backdrop-blur-sm rounded-full shadow hover:bg-white transition-colors"
-        >
-          <ChevronLeft className="w-5 h-5 text-neutral-gray" />
-        </button>
-        <button
-          onClick={() => setIsMenuOpen(true)}
-          className="absolute top-4 right-4 p-2 bg-white/80 backdrop-blur-sm rounded-full shadow hover:bg-white transition-colors"
-        >
-          <EllipsisVertical className="w-5 h-5 text-neutral-gray" />
-        </button>
+    <div className="pb-10 min-h-screen bg-white">
+      {/* ========== MOBILE LAYOUT ========== */}
+      <div className="md:hidden">
+        {/* Hero image */}
+        <div className="relative w-full aspect-[4/3]">
+          <img
+            src={pet.image || guestPetImageSrc}
+            alt={pet.name}
+            className="object-cover w-full h-full"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
+
+          {/* Top bar */}
+          <button
+            onClick={() => router.push('/profile/pets')}
+            className="absolute top-4 left-4 p-2 bg-white/80 backdrop-blur-sm rounded-full shadow-sm hover:bg-white transition-colors"
+          >
+            <ChevronLeft className="w-5 h-5 text-neutral-gray" />
+          </button>
+
+          <div className="absolute top-4 right-4 flex gap-2">
+            <button
+              onClick={() => setIsEditDrawerOpen(true)}
+              className="p-2 bg-white/80 backdrop-blur-sm rounded-full shadow-sm hover:bg-white transition-colors"
+            >
+              <Edit className="w-4 h-4 text-neutral-gray" />
+            </button>
+            <button
+              onClick={() => setIsDeleteDialogOpen(true)}
+              className="p-2 bg-white/80 backdrop-blur-sm rounded-full shadow-sm hover:bg-white transition-colors"
+            >
+              <Trash2 className="w-4 h-4 text-red-500" />
+            </button>
+          </div>
+
+          {/* Name overlay on image */}
+          <div className="absolute bottom-0 left-0 right-0 px-5 pb-5">
+            <h1 className="text-3xl font-bold text-white drop-shadow-md">
+              {pet.name}
+            </h1>
+            {pet.petBreedName && (
+              <p className="text-white/90 text-sm mt-0.5 capitalize drop-shadow-sm">
+                {pet.petBreedName}
+              </p>
+            )}
+          </div>
+        </div>
+
+        {/* Stat pills row */}
+        <div className="px-5 -mt-4 relative z-10">
+          <div className="flex gap-2 overflow-x-auto hide-scrollbar pb-1">
+            <StatPill
+              icon={<Cake className="w-3.5 h-3.5" />}
+              value={ageDisplay}
+              color="bg-orange-50 text-accent-orange"
+            />
+            <StatPill
+              icon={
+                pet.sex === 'male' ? (
+                  <Mars className="w-3.5 h-3.5" />
+                ) : (
+                  <Venus className="w-3.5 h-3.5" />
+                )
+              }
+              value={pet.sex === 'male' ? 'Male' : 'Female'}
+              color={
+                pet.sex === 'male'
+                  ? 'bg-blue-50 text-blue-600'
+                  : 'bg-pink-50 text-pink-600'
+              }
+            />
+            {pet.petSizeName && (
+              <StatPill
+                icon={<Scale className="w-3.5 h-3.5" />}
+                value={pet.petSizeName}
+                color="bg-teal-50 text-deep-teal"
+              />
+            )}
+            <StatPill
+              icon={<Zap className="w-3.5 h-3.5" />}
+              value={energyLabel}
+              color="bg-yellow-50 text-yellow-600"
+            />
+          </div>
+        </div>
+
+        {/* Detail cards */}
+        <div className="px-5 mt-4 space-y-3">
+          {/* Birthday card */}
+          <DetailCard>
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-orange-50 flex items-center justify-center shrink-0">
+                <Cake className="w-5 h-5 text-accent-orange" />
+              </div>
+              <div>
+                <p className="text-xs text-neutral-gray">Birthday</p>
+                <p className="font-medium text-deep-teal">
+                  {formattedBirthDate}
+                </p>
+              </div>
+            </div>
+          </DetailCard>
+
+          {/* Energy level card */}
+          <DetailCard>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-yellow-50 flex items-center justify-center shrink-0">
+                  <Zap className="w-5 h-5 text-yellow-500" />
+                </div>
+                <div>
+                  <p className="text-xs text-neutral-gray">Energy Level</p>
+                  <p className="font-medium text-deep-teal">{energyLabel}</p>
+                </div>
+              </div>
+              <div className="flex gap-1">
+                {[1, 2, 3, 4, 5].map((level) => (
+                  <div
+                    key={level}
+                    className={`w-2 h-5 rounded-full ${
+                      level <= energyLevel
+                        ? 'bg-yellow-400'
+                        : 'bg-gray-200'
+                    }`}
+                  />
+                ))}
+              </div>
+            </div>
+          </DetailCard>
+
+          {/* Owner contact card */}
+          {(pet.contactName || pet.contactPhone) && (
+            <DetailCard>
+              <p className="text-xs text-neutral-gray mb-3 uppercase tracking-wide font-semibold">
+                Owner Contact
+              </p>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-green-50 flex items-center justify-center shrink-0">
+                    <User className="w-5 h-5 text-positive-green" />
+                  </div>
+                  <div>
+                    <p className="font-medium text-deep-teal">
+                      {pet.contactName}
+                    </p>
+                    {pet.contactPhone && (
+                      <p className="text-xs text-neutral-gray">
+                        {pet.contactPhone}
+                      </p>
+                    )}
+                  </div>
+                </div>
+                {pet.contactPhone && (
+                  <a href={`tel:${pet.contactPhone}`}>
+                    <Button
+                      size="sm"
+                      className="bg-positive-green hover:bg-positive-green/90 rounded-xl h-9 px-4"
+                    >
+                      <Phone className="w-4 h-4 mr-1.5" />
+                      Call
+                    </Button>
+                  </a>
+                )}
+              </div>
+            </DetailCard>
+          )}
+
+          {/* About / Notes card */}
+          {pet.note && (
+            <DetailCard>
+              <div className="flex items-center gap-2 mb-3">
+                <Notebook className="w-4 h-4 text-deep-teal" />
+                <p className="text-xs text-neutral-gray uppercase tracking-wide font-semibold">
+                  About {pet.name}
+                </p>
+              </div>
+              <p className="text-sm text-gray-700 whitespace-pre-wrap leading-relaxed">
+                {pet.note}
+              </p>
+            </DetailCard>
+          )}
+        </div>
       </div>
 
-      {/* Menu Drawer */}
-      <Drawer open={isMenuOpen} onOpenChange={setIsMenuOpen}>
-        <DrawerContent>
-          <div className="mx-auto w-full max-w-sm">
-            <DrawerHeader>
-              <DrawerTitle>Menu</DrawerTitle>
-            </DrawerHeader>
-            <div className="px-4 pb-4 min-h-[130px]">
-              <div
-                className="flex items-center justify-between py-3 hover:bg-gray-50 cursor-pointer border-b border-gray-200"
-                onClick={() => {
-                  setIsMenuOpen(false)
-                  setIsEditDrawerOpen(true) // Open edit drawer
-                }}
-              >
-                <div className="flex items-center">
-                  <Edit className="mr-2 h-4 w-4" />
-                  Edit Pet
-                </div>
-                <ChevronRight className="h-4 w-4 text-gray-400" />
+      {/* ========== DESKTOP / TABLET LAYOUT ========== */}
+      <div className="hidden md:block px-6 lg:px-8 py-6">
+        {/* Back button */}
+        <button
+          onClick={() => router.push('/profile/pets')}
+          className="flex items-center gap-1 text-neutral-gray hover:text-deep-teal transition-colors mb-4"
+        >
+          <ChevronLeft className="w-5 h-5" />
+          <span className="text-sm">Back to Pets</span>
+        </button>
+
+        <div className="grid grid-cols-12 gap-6 lg:gap-8">
+          {/* Left — Image + actions */}
+          <div className="col-span-5">
+            <div className="sticky top-24 space-y-4">
+              <div className="relative rounded-2xl overflow-hidden shadow-md">
+                <img
+                  src={pet.image || guestPetImageSrc}
+                  alt={pet.name}
+                  className="object-cover w-full aspect-square"
+                />
               </div>
-              <div
-                className="flex items-center justify-between py-3 hover:bg-gray-50 cursor-pointer"
-                onClick={() => {
-                  setIsMenuOpen(false)
-                  setIsDeleteDialogOpen(true)
-                }}
-              >
-                <div className="flex items-center text-red-600">
-                  <Trash2 className="mr-2 h-4 w-4" />
-                  Delete Pet
-                </div>
-                <ChevronRight className="h-4 w-4 text-gray-400" />
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  className="flex-1 h-10 gap-2"
+                  onClick={() => setIsEditDrawerOpen(true)}
+                >
+                  <Edit className="w-4 h-4" />
+                  Edit
+                </Button>
+                <Button
+                  variant="outline"
+                  className="h-10 gap-2 text-red-500 border-red-200 hover:bg-red-50 hover:text-red-600"
+                  onClick={() => setIsDeleteDialogOpen(true)}
+                >
+                  <Trash2 className="w-4 h-4" />
+                  Delete
+                </Button>
               </div>
             </div>
           </div>
-        </DrawerContent>
-      </Drawer>
+
+          {/* Right — Details */}
+          <div className="col-span-7 space-y-5">
+            {/* Header */}
+            <div>
+              <h1 className="text-3xl font-bold text-deep-teal">{pet.name}</h1>
+              {pet.petBreedName && (
+                <div className="flex items-center gap-1.5 mt-1">
+                  <PawPrint className="w-4 h-4 text-neutral-gray" />
+                  <p className="text-neutral-gray capitalize">
+                    {pet.petBreedName}
+                  </p>
+                </div>
+              )}
+            </div>
+
+            {/* Stat pills */}
+            <div className="flex flex-wrap gap-2">
+              <StatPill
+                icon={<Cake className="w-3.5 h-3.5" />}
+                value={ageDisplay}
+                color="bg-orange-50 text-accent-orange"
+              />
+              <StatPill
+                icon={
+                  pet.sex === 'male' ? (
+                    <Mars className="w-3.5 h-3.5" />
+                  ) : (
+                    <Venus className="w-3.5 h-3.5" />
+                  )
+                }
+                value={pet.sex === 'male' ? 'Male' : 'Female'}
+                color={
+                  pet.sex === 'male'
+                    ? 'bg-blue-50 text-blue-600'
+                    : 'bg-pink-50 text-pink-600'
+                }
+              />
+              {pet.petSizeName && (
+                <StatPill
+                  icon={<Scale className="w-3.5 h-3.5" />}
+                  value={pet.petSizeName}
+                  color="bg-teal-50 text-deep-teal"
+                />
+              )}
+              <StatPill
+                icon={<Zap className="w-3.5 h-3.5" />}
+                value={energyLabel}
+                color="bg-yellow-50 text-yellow-600"
+              />
+            </div>
+
+            {/* Detail cards */}
+            <DetailCard>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-orange-50 flex items-center justify-center shrink-0">
+                    <Cake className="w-5 h-5 text-accent-orange" />
+                  </div>
+                  <div>
+                    <p className="text-xs text-neutral-gray">Birthday</p>
+                    <p className="font-medium text-deep-teal">
+                      {formattedBirthDate}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-yellow-50 flex items-center justify-center shrink-0">
+                    <Zap className="w-5 h-5 text-yellow-500" />
+                  </div>
+                  <div>
+                    <p className="text-xs text-neutral-gray">Energy</p>
+                    <p className="font-medium text-deep-teal">{energyLabel}</p>
+                  </div>
+                  <div className="flex gap-1 ml-2">
+                    {[1, 2, 3, 4, 5].map((level) => (
+                      <div
+                        key={level}
+                        className={`w-2 h-5 rounded-full ${
+                          level <= energyLevel
+                            ? 'bg-yellow-400'
+                            : 'bg-gray-200'
+                        }`}
+                      />
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </DetailCard>
+
+            {/* Owner contact */}
+            {(pet.contactName || pet.contactPhone) && (
+              <DetailCard>
+                <p className="text-xs text-neutral-gray mb-3 uppercase tracking-wide font-semibold">
+                  Owner Contact
+                </p>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-green-50 flex items-center justify-center shrink-0">
+                      <User className="w-5 h-5 text-positive-green" />
+                    </div>
+                    <div>
+                      <p className="font-medium text-deep-teal">
+                        {pet.contactName}
+                      </p>
+                      {pet.contactPhone && (
+                        <p className="text-xs text-neutral-gray">
+                          {pet.contactPhone}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                  {pet.contactPhone && (
+                    <a href={`tel:${pet.contactPhone}`}>
+                      <Button
+                        size="sm"
+                        className="bg-positive-green hover:bg-positive-green/90 rounded-xl h-9 px-4"
+                      >
+                        <Phone className="w-4 h-4 mr-1.5" />
+                        Call
+                      </Button>
+                    </a>
+                  )}
+                </div>
+              </DetailCard>
+            )}
+
+            {/* About */}
+            {pet.note && (
+              <DetailCard>
+                <div className="flex items-center gap-2 mb-3">
+                  <Notebook className="w-4 h-4 text-deep-teal" />
+                  <p className="text-xs text-neutral-gray uppercase tracking-wide font-semibold">
+                    About {pet.name}
+                  </p>
+                </div>
+                <p className="text-sm text-gray-700 whitespace-pre-wrap leading-relaxed">
+                  {pet.note}
+                </p>
+              </DetailCard>
+            )}
+          </div>
+        </div>
+      </div>
 
       {/* Edit Pet Drawer */}
       <Drawer open={isEditDrawerOpen} onOpenChange={setIsEditDrawerOpen}>
         <DrawerContent>
           <div className="mx-auto w-full max-w-md">
-            {' '}
-            {/* Adjusted max-w for form */}
             <DrawerHeader>
               <DrawerTitle>Edit {pet.name}</DrawerTitle>
             </DrawerHeader>
@@ -145,8 +476,7 @@ export default function PetDetailDisplay({
               pet={pet}
               onClose={() => setIsEditDrawerOpen(false)}
               onSuccess={() => {
-                // Changed to call without arguments
-                onPetUpdate() // Call onPetUpdate without arguments
+                onPetUpdate()
                 setIsEditDrawerOpen(false)
               }}
             />
@@ -163,109 +493,33 @@ export default function PetDetailDisplay({
         titleClassName="text-red-600"
         confirmButtonClassName="bg-red-600 hover:bg-red-700"
       />
-
-      <div className="px-6 -mt-10 relative z-10">
-        <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100 space-y-6">
-          <div className="text-center">
-            <h2 className="text-3xl font-bold text-deep-teal">{pet.name}</h2>
-            <p className="text-neutral-gray capitalize">{pet.petBreedName}</p>
-          </div>
-
-          <div className="grid grid-cols-4 gap-2 text-center border-t border-b py-4">
-            {' '}
-            {/* Changed to grid-cols-4 */}
-            <StatItem
-              label="Age"
-              value={
-                <>
-                  <span className="block">{`${age} yrs`}</span>
-                  <span className="block text-xs text-neutral-gray">
-                    (Born {formattedBirthDate})
-                  </span>
-                </>
-              }
-            />
-            <StatItem
-              label="Sex"
-              value={
-                pet.sex === 'male' ? (
-                  <Mars className="w-5 h-5 mx-auto text-blue-500" />
-                ) : pet.sex === 'female' ? (
-                  <Venus className="w-5 h-5 mx-auto text-pink-500" />
-                ) : (
-                  <span className="capitalize">{pet.sex}</span>
-                )
-              }
-            />
-            <StatItem
-              label="Size" // New StatItem for Size
-              value={
-                <div className="flex items-center justify-center gap-1">
-                  <Scale className="w-4 h-4 text-gray-500" />{' '}
-                  {/* Changed Rss to Scale */}
-                  <span className="font-semibold capitalize">
-                    {pet.petSizeName}
-                  </span>
-                </div>
-              }
-            />
-            <StatItem
-              label="Energy Level"
-              value={
-                <div className="flex items-center justify-center gap-1">
-                  <Zap className="w-4 h-4 text-yellow-500" />
-                  <span className="font-semibold">{pet.rating}</span>
-                </div>
-              }
-            />
-          </div>
-
-          <div className="space-y-4">
-            <h4 className="text-sm font-semibold text-deep-teal uppercase tracking-wide">
-              Owner Contact
-            </h4>
-            <div className="flex justify-between items-center text-gray-800">
-              <div className="flex items-center gap-2">
-                <User className="w-5 h-5 text-gray-400" />
-                <span>{pet.contactName}</span>
-              </div>
-              <a href={`tel:${pet.contactPhone}`}>
-                <Button
-                  size="sm"
-                  className="bg-positive-green hover:bg-positive-green/90"
-                >
-                  <Phone className="w-4 h-4 mr-2" />
-                  Call
-                </Button>
-              </a>
-            </div>
-          </div>
-
-          {pet.note && (
-            <div className="space-y-2 border-t pt-6">
-              <h4 className="text-sm font-semibold text-deep-teal uppercase tracking-wide">
-                A Little Bit About {pet.name}
-              </h4>
-              <p className="text-sm text-gray-700 whitespace-pre-wrap">
-                {pet.note}
-              </p>
-            </div>
-          )}
-        </div>
-      </div>
     </div>
   )
 }
 
-const StatItem = ({
-  label,
+function StatPill({
+  icon,
   value,
+  color,
 }: {
-  label: string
-  value?: string | number | React.ReactNode
-}) => (
-  <div>
-    <p className="text-xs text-neutral-gray">{label}</p>
-    <div className="font-semibold text-lg capitalize mt-1">{value}</div>
-  </div>
-)
+  icon: React.ReactNode
+  value: string
+  color: string
+}) {
+  return (
+    <div
+      className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap shadow-sm ${color}`}
+    >
+      {icon}
+      <span className="capitalize">{value}</span>
+    </div>
+  )
+}
+
+function DetailCard({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="bg-white rounded-2xl p-4 shadow-md border border-gray-200/60">
+      {children}
+    </div>
+  )
+}

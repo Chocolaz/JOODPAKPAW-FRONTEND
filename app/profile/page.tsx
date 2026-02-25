@@ -3,14 +3,11 @@
 import { Card, CardContent } from '@/components/ui/card'
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
 import { SettingsList } from './_components/SettingsList'
-import PawPrint from '@/public/icons/PawPrint.svg'
-import History from '@/public/icons/History.svg'
-import HostIcon from '@/public/icons/Host.svg'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/app/_components/AuthContext'
 import clsx from 'clsx'
 import { assetPath } from '@/lib/utils'
-import { ChevronRight } from 'lucide-react'
+import { ChevronRight, PawPrint, CalendarClock, House, Mail, BadgeCheck } from 'lucide-react'
 
 export default function ProfilePage() {
   const { user, isAuthenticated, loading: authLoading, requireAuth } = useAuth()
@@ -47,7 +44,7 @@ export default function ProfilePage() {
     {
       label: 'Bookings',
       description: 'View booking history',
-      icon: History,
+      icon: CalendarClock,
       path: '/profile/bookings',
       color: 'bg-teal-50 text-deep-teal',
       iconColor: 'text-deep-teal',
@@ -55,7 +52,7 @@ export default function ProfilePage() {
     {
       label: 'Become a Host',
       description: 'List your property',
-      icon: HostIcon,
+      icon: House,
       path: '/profile/host',
       color: 'bg-green-50 text-green-700',
       iconColor: 'text-green-600',
@@ -63,47 +60,83 @@ export default function ProfilePage() {
   ]
 
   // --- Profile card (shared between layouts) ---
+  const isHost = user?.role?.some((roleItem) => roleItem.name === 'host')
+
   const ProfileCard = (
     <Card
-      className="w-full overflow-hidden cursor-pointer hover:shadow-md transition-shadow"
+      className="w-full overflow-hidden cursor-pointer hover:shadow-md transition-all duration-300 group"
       onClick={handleProfileClick}
     >
-      <CardContent
+      {/* Gradient banner */}
+      <div
         className={clsx(
-          'p-0 flex flex-col items-center justify-center pt-8 pb-6 relative',
-          {
-            'bg-linear-to-r from-orange-100 to-green-100': isAuthenticated,
-            'bg-linear-to-r from-gray-100 to-gray-300': !isAuthenticated,
-          }
+          'h-20 md:h-24 relative',
+          isAuthenticated
+            ? 'bg-gradient-to-br from-deep-teal via-deep-teal/80 to-positive-green/60'
+            : 'bg-gradient-to-br from-gray-300 via-gray-200 to-gray-100'
         )}
       >
-        <Avatar className="w-16 h-16 md:w-20 md:h-20 ring-4 ring-white shadow-sm">
-          <AvatarImage
-            src={isAuthenticated && user?.avatar ? user.avatar : guestAvatarSrc}
-            alt={
-              isAuthenticated && user
+        {/* Decorative circles */}
+        <div className="absolute top-2 right-6 w-16 h-16 rounded-full bg-white/10" />
+        <div className="absolute -bottom-2 left-8 w-10 h-10 rounded-full bg-white/5" />
+      </div>
+
+      <CardContent className="px-5 pb-5 pt-0 relative">
+        {/* Avatar overlapping the banner */}
+        <div className="flex justify-between items-start">
+          <Avatar className="w-18 h-18 md:w-22 md:h-22 ring-4 ring-white shadow-lg -mt-10 md:-mt-12">
+            <AvatarImage
+              src={isAuthenticated && user?.avatar ? user.avatar : guestAvatarSrc}
+              alt={
+                isAuthenticated && user
+                  ? `${user.firstName} ${user.lastName}`
+                  : 'Guest'
+              }
+            />
+            <AvatarFallback className="text-2xl md:text-3xl bg-gray-100 text-deep-teal font-semibold">
+              {user
+                ? `${user.firstName?.charAt(0)}${user.lastName?.charAt(0)}`
+                : '?'}
+            </AvatarFallback>
+          </Avatar>
+
+          {/* View profile hint */}
+          {isAuthenticated && (
+            <span className="mt-2 text-xs text-neutral-gray flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+              View profile
+              <ChevronRight className="w-3.5 h-3.5" />
+            </span>
+          )}
+        </div>
+
+        {/* Name + role badge */}
+        <div className="mt-3">
+          <div className="flex items-center gap-2">
+            <h3 className="text-xl font-semibold text-deep-teal leading-tight">
+              {isAuthenticated && user
                 ? `${user.firstName} ${user.lastName}`
-                : 'Guest'
-            }
-          />
-          <AvatarFallback className="text-3xl">
-            {user
-              ? `${user.firstName?.charAt(0)}${user.lastName?.charAt(0)}`
-              : '?'}
-          </AvatarFallback>
-        </Avatar>
-        <h3 className="mt-4 text-[22px] font-semibold">
-          {isAuthenticated && user
-            ? `${user.firstName} ${user.lastName}`
-            : 'Guest'}
-        </h3>
-        <p className="text-sm text-neutral-gray">
-          {isAuthenticated && user
-            ? user.role?.some((roleItem) => roleItem.name === 'host')
-              ? 'Host'
-              : user.role?.[0]?.name || ''
-            : 'Welcome to JoodPakPaw!'}
-        </p>
+                : 'Guest'}
+            </h3>
+            {isAuthenticated && isHost && (
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-positive-green/15 text-positive-green text-xs font-medium">
+                <BadgeCheck className="w-3 h-3" />
+                Host
+              </span>
+            )}
+          </div>
+
+          {/* Email for authenticated users, welcome message for guests */}
+          {isAuthenticated && user ? (
+            <div className="flex items-center gap-1.5 mt-1.5">
+              <Mail className="w-3.5 h-3.5 text-neutral-gray/70" />
+              <p className="text-sm text-neutral-gray truncate">{user.email}</p>
+            </div>
+          ) : (
+            <p className="text-sm text-neutral-gray mt-1">
+              Welcome to JoodPakPaw!
+            </p>
+          )}
+        </div>
       </CardContent>
     </Card>
   )
@@ -177,7 +210,7 @@ export default function ProfilePage() {
           >
             <CardContent className="flex items-center gap-4 p-4">
               <div className={clsx('w-11 h-11 rounded-xl flex items-center justify-center shrink-0', featureItems[2].color)}>
-                <HostIcon className={clsx('w-5 h-5', featureItems[2].iconColor)} />
+                <House className={clsx('w-5 h-5', featureItems[2].iconColor)} />
               </div>
               <div className="min-w-0 flex-1">
                 <p className="font-semibold text-deep-teal">Become a Host</p>
