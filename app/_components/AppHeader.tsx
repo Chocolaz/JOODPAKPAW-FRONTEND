@@ -28,7 +28,7 @@ export const AppHeader = ({ title, backPath, menu }: AppHeaderProps) => {
       <h2 className="text-xl font-semibold text-deep-teal absolute left-1/2 -translate-x-1/2">
         {title}
       </h2>
-      <div className="w-10">{menu}</div>
+      <div className="min-w-10 flex items-center justify-end">{menu}</div>
     </header>
   )
 }

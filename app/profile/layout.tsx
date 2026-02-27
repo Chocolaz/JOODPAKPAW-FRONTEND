@@ -39,8 +39,9 @@ function LayoutContent({ children }: { children: ReactNode }) {
       return { title: 'Host', backPath: '/profile/host?tab=properties' }
     }
     if (normalizedPath.match(/^\/profile\/host\/booking\/\d+$/)) {
+      const bookingId = normalizedPath.split('/').pop()
       return {
-        title: 'Booking Detail(Host)',
+        title: `Booking #${bookingId}`,
         backPath: '/profile/host?tab=bookings',
       }
     }

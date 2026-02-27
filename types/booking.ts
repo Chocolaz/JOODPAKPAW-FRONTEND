@@ -103,6 +103,24 @@ export interface HostGuest {
   phone: string
 }
 
+export interface HostBookingPetProfile {
+  id: number
+  name: string
+  sex: string
+  birthDate: string
+  contactName: string
+  contactPhone: string
+  note?: string
+  breedName: string
+  petTypeName: string
+  petEnergy?: {
+    id: number
+    rating: number
+    description: string
+  }
+  petSizeName: string
+}
+
 export interface HostBookingDetail {
   id: number
   checkInDate: string
@@ -116,6 +134,7 @@ export interface HostBookingDetail {
   confirmedAt: string
   guest: HostGuest
   bookingOrders: BookingOrder[]
+  petProfiles?: HostBookingPetProfile[]
   createdAt: string
   updatedAt: string
 }
