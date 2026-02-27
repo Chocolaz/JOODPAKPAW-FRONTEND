@@ -6,15 +6,14 @@ import {
   Bell,
   CheckCheck,
   Trash2,
-  CheckCircle2,
-  XCircle,
   CalendarPlus,
   Star,
   CreditCard,
-  Info,
   Wifi,
   WifiOff,
   ChevronRight,
+  User,
+  Home,
 } from 'lucide-react'
 import { formatDistanceToNow, isToday, isYesterday, format } from 'date-fns'
 import { motion, AnimatePresence, useAnimation } from 'framer-motion'
@@ -24,59 +23,48 @@ import { AppNotification } from '@/types'
 import { AppHeader } from '@/app/_components/AppHeader'
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Notification type config
+// Action-based icon config
 // ─────────────────────────────────────────────────────────────────────────────
 
-const TYPE_CONFIG: Record<
+const ACTION_CONFIG: Record<
   string,
-  { Icon: React.ElementType; color: string; bg: string }
+  { Icon: React.ElementType; guest: { color: string; bg: string }; host: { color: string; bg: string } }
 > = {
-  booking_confirmed: {
-    Icon: CheckCircle2,
-    color: 'text-emerald-600',
-    bg: 'bg-emerald-100',
-  },
-  booking_cancelled: {
-    Icon: XCircle,
-    color: 'text-red-500',
-    bg: 'bg-red-100',
-  },
-  new_booking: {
+  booking: {
     Icon: CalendarPlus,
-    color: 'text-blue-500',
-    bg: 'bg-blue-100',
-  },
-  booking_completed: {
-    Icon: CheckCircle2,
-    color: 'text-emerald-600',
-    bg: 'bg-emerald-100',
-  },
-  review_received: {
-    Icon: Star,
-    color: 'text-yellow-500',
-    bg: 'bg-yellow-100',
+    guest: { color: 'text-blue-500', bg: 'bg-blue-100' },
+    host:  { color: 'text-deep-teal', bg: 'bg-deep-teal/10' },
   },
   payment: {
     Icon: CreditCard,
-    color: 'text-purple-500',
-    bg: 'bg-purple-100',
+    guest: { color: 'text-purple-500', bg: 'bg-purple-100' },
+    host:  { color: 'text-emerald-600', bg: 'bg-emerald-100' },
   },
-  general: {
-    Icon: Info,
-    color: 'text-deep-teal',
-    bg: 'bg-deep-teal/10',
+  review: {
+    Icon: Star,
+    guest: { color: 'text-yellow-500', bg: 'bg-yellow-100' },
+    host:  { color: 'text-yellow-500', bg: 'bg-yellow-100' },
   },
 }
 
-function getTypeConfig(type: string) {
-  return (
-    TYPE_CONFIG[type] ?? {
-      Icon: Bell,
-      color: 'text-deep-teal',
-      bg: 'bg-deep-teal/10',
-    }
-  )
+function getActionConfig(actionName?: string, roleName?: string) {
+  const entry = ACTION_CONFIG[actionName ?? '']
+  if (!entry) return { Icon: Bell, color: 'text-deep-teal', bg: 'bg-deep-teal/10' }
+  const style = roleName === 'host' ? entry.host : entry.guest
+  return { Icon: entry.Icon, ...style }
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Tabs
+// ─────────────────────────────────────────────────────────────────────────────
+
+type Tab = 'all' | 'guest' | 'host'
+
+const TABS: { id: Tab; label: string; Icon: React.ElementType }[] = [
+  { id: 'all', label: 'All', Icon: Bell },
+  { id: 'guest', label: 'Guest', Icon: User },
+  { id: 'host', label: 'Host', Icon: Home },
+]
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Helpers
@@ -98,6 +86,12 @@ function groupByDate(
     groups[label].push(n)
   }
   return Object.entries(groups).map(([label, items]) => ({ label, items }))
+}
+
+function filterByTab(notifications: AppNotification[], tab: Tab) {
+  if (tab === 'guest') return notifications.filter((n) => n.roleName === 'guest')
+  if (tab === 'host') return notifications.filter((n) => n.roleName === 'host')
+  return notifications
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -149,7 +143,7 @@ function NotificationItem({
   onDelete: (id: string) => Promise<void>
 }) {
   const router = useRouter()
-  const cfg = getTypeConfig(notification.type)
+  const cfg = getActionConfig(notification.actionName, notification.roleName)
   const { Icon } = cfg
   const timeAgo = formatDistanceToNow(new Date(notification.receivedAt), {
     addSuffix: true,
@@ -171,7 +165,6 @@ function NotificationItem({
       controls.start({ x: 0 })
       isOpen.current = false
     }
-    // Let click events settle before clearing drag flag
     setTimeout(() => {
       isDragging.current = false
     }, 50)
@@ -179,7 +172,6 @@ function NotificationItem({
 
   const handleClick = () => {
     if (isDragging.current) return
-    // If swiped open, tap closes it
     if (isOpen.current) {
       controls.start({ x: 0 })
       isOpen.current = false
@@ -212,7 +204,7 @@ function NotificationItem({
       exit="exit"
       className="overflow-hidden"
     >
-      {/* Drag container — card + delete button sit side-by-side, wider than visible area */}
+      {/* Drag container — card + delete button sit side-by-side */}
       <motion.div
         drag="x"
         dragConstraints={{ left: -DELETE_BTN_WIDTH, right: 0 }}
@@ -230,7 +222,7 @@ function NotificationItem({
             notification.isRead ? 'bg-white' : 'bg-orange-50'
           )}
         >
-          {/* Type icon */}
+          {/* Action icon */}
           <div className={cn('w-10 h-10 rounded-full flex items-center justify-center shrink-0 mt-0.5', cfg.bg)}>
             <Icon className={cn('w-5 h-5', cfg.color)} />
           </div>
@@ -265,13 +257,13 @@ function NotificationItem({
                 />
               )}
             </AnimatePresence>
-            {notification.actionName === 'booking' && notification.referenceId && (
+            {notification.referenceId && (
               <ChevronRight className="w-3.5 h-3.5 text-gray-300" />
             )}
           </div>
         </div>
 
-        {/* Delete button — sits to the right, hidden until swiped */}
+        {/* Delete button — hidden until swiped */}
         <div
           className="w-20 shrink-0 bg-red-500 flex flex-col items-center justify-center gap-1 cursor-pointer"
           onClick={handleDelete}
@@ -314,7 +306,6 @@ function NotificationSkeleton() {
 export default function NotificationsPage() {
   const {
     notifications,
-    unreadCount,
     isConnected,
     isLoading,
     markAsRead,
@@ -323,7 +314,24 @@ export default function NotificationsPage() {
     clearAll,
   } = useNotifications()
 
-  const grouped = useMemo(() => groupByDate(notifications), [notifications])
+  const [activeTab, setActiveTab] = useState<Tab>('all')
+
+  const filtered = useMemo(
+    () => filterByTab(notifications, activeTab),
+    [notifications, activeTab]
+  )
+  const filteredUnread = useMemo(
+    () => filtered.filter((n) => !n.isRead).length,
+    [filtered]
+  )
+  const grouped = useMemo(() => groupByDate(filtered), [filtered])
+
+  // Unread count per tab for badges
+  const tabUnread = useMemo(() => ({
+    all: notifications.filter((n) => !n.isRead).length,
+    guest: notifications.filter((n) => !n.isRead && n.roleName === 'guest').length,
+    host: notifications.filter((n) => !n.isRead && n.roleName === 'host').length,
+  }), [notifications])
 
   const connectionMenu = (
     <AnimatePresence mode="wait">
@@ -354,9 +362,47 @@ export default function NotificationsPage() {
     <div>
       <AppHeader title="Notifications" menu={connectionMenu} />
 
-      {/* Actions sub-bar */}
+      {/* ── Tabs ──────────────────────────────────────────────────────────── */}
+      <div className="flex bg-white border-b border-gray-100 px-4">
+        {TABS.map((tab) => {
+          const isActive = activeTab === tab.id
+          const count = tabUnread[tab.id]
+          return (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className="relative flex items-center gap-1.5 px-4 py-3 text-sm font-medium transition-colors duration-200"
+            >
+              <tab.Icon className={cn('w-3.5 h-3.5', isActive ? 'text-accent-orange' : 'text-gray-400')} />
+              <span className={isActive ? 'text-accent-orange' : 'text-gray-400'}>
+                {tab.label}
+              </span>
+              {count > 0 && (
+                <motion.span
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  className="min-w-4 h-4 px-1 bg-accent-orange rounded-full flex items-center justify-center"
+                >
+                  <span className="text-white text-[9px] font-bold leading-none">
+                    {count > 9 ? '9+' : count}
+                  </span>
+                </motion.span>
+              )}
+              {isActive && (
+                <motion.div
+                  layoutId="tab-indicator"
+                  className="absolute bottom-0 left-0 right-0 h-0.5 bg-accent-orange rounded-full"
+                  transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+                />
+              )}
+            </button>
+          )
+        })}
+      </div>
+
+      {/* ── Actions sub-bar ───────────────────────────────────────────────── */}
       <AnimatePresence>
-        {notifications.length > 0 && (
+        {filtered.length > 0 && (
           <motion.div
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
@@ -366,17 +412,17 @@ export default function NotificationsPage() {
           >
             <div className="flex items-center justify-between px-5 py-2.5 border-b border-gray-100 bg-white">
               <motion.p
-                key={unreadCount}
+                key={filteredUnread}
                 initial={{ opacity: 0, y: -4 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.2 }}
                 className="text-xs text-neutral-gray"
               >
-                {unreadCount > 0 ? `${unreadCount} unread` : 'All caught up'}
+                {filteredUnread > 0 ? `${filteredUnread} unread` : 'All caught up'}
               </motion.p>
               <div className="flex items-center gap-4">
                 <AnimatePresence>
-                  {unreadCount > 0 && (
+                  {filteredUnread > 0 && (
                     <motion.button
                       initial={{ opacity: 0, x: 8 }}
                       animate={{ opacity: 1, x: 0 }}
@@ -403,7 +449,7 @@ export default function NotificationsPage() {
         )}
       </AnimatePresence>
 
-      {/* ── BODY ──────────────────────────────────────────────────────── */}
+      {/* ── Body ──────────────────────────────────────────────────────────── */}
       <div className="pb-24">
         <AnimatePresence mode="wait">
           {isLoading ? (
@@ -416,10 +462,9 @@ export default function NotificationsPage() {
             >
               <NotificationSkeleton />
             </motion.div>
-          ) : notifications.length === 0 ? (
-            /* Empty state */
+          ) : filtered.length === 0 ? (
             <motion.div
-              key="empty"
+              key={`empty-${activeTab}`}
               variants={emptyVariants}
               initial="hidden"
               animate="visible"
@@ -440,18 +485,19 @@ export default function NotificationsPage() {
                 transition={{ delay: 0.2, duration: 0.3 }}
                 className="text-center space-y-1"
               >
-                <p className="font-semibold text-gray-700">
-                  No notifications yet
-                </p>
+                <p className="font-semibold text-gray-700">No notifications yet</p>
                 <p className="text-sm text-neutral-gray">
-                  You&apos;ll see booking updates and messages here.
+                  {activeTab === 'guest'
+                    ? 'No guest notifications yet.'
+                    : activeTab === 'host'
+                      ? 'No host notifications yet.'
+                      : "You'll see booking updates and messages here."}
                 </p>
               </motion.div>
             </motion.div>
           ) : (
-            /* Notification list */
             <motion.div
-              key="list"
+              key={`list-${activeTab}`}
               variants={listVariants}
               initial="hidden"
               animate="visible"
@@ -467,12 +513,9 @@ export default function NotificationsPage() {
                     exit="exit"
                     layout
                   >
-                    {/* Date group label */}
                     <p className="px-4 py-1.5 text-[11px] font-semibold text-neutral-gray uppercase tracking-wider">
                       {label}
                     </p>
-
-                    {/* Cards */}
                     <div className="bg-white rounded-2xl mx-4 overflow-hidden shadow-sm border border-gray-100 divide-y divide-gray-100">
                       <AnimatePresence>
                         {items.map((n) => (

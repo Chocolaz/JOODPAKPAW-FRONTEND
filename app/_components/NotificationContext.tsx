@@ -186,24 +186,31 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
       return
     }
 
-    setIsConnected(null) // reset to "connecting" on each auth change
+    setIsConnected(null)
     const socket = connectSocket()
     if (!socket) return
 
+    // Debounce disconnect so brief proxy-caused reconnects don't flicker the UI
+    let disconnectTimer: ReturnType<typeof setTimeout> | null = null
+
     const onConnect = () => {
       console.log('[Socket] Connected')
+      if (disconnectTimer) {
+        clearTimeout(disconnectTimer)
+        disconnectTimer = null
+      }
       setIsConnected(true)
-      // Re-fetch in case notifications arrived while the socket was disconnected
       fetchNotifications()
     }
     const onDisconnect = () => {
-      console.log('[Socket] Disconnected')
-      setIsConnected(false)
+      console.log('[Socket] Disconnected — waiting to confirm...')
+      disconnectTimer = setTimeout(() => {
+        console.log('[Socket] Confirmed disconnected')
+        setIsConnected(false)
+      }, 4000)
     }
     const onNotification = (data: unknown) => addNotification(data)
 
-    // 'connect' is the built-in Socket.IO event (fires on connect + every reconnect)
-    // 'connected' is the custom server event sent after auth success
     socket.on('connect', onConnect)
     socket.on('connected', onConnect)
     socket.on('disconnect', onDisconnect)
@@ -212,6 +219,7 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
     if (socket.connected) setIsConnected(true)
 
     return () => {
+      if (disconnectTimer) clearTimeout(disconnectTimer)
       socket.off('connect', onConnect)
       socket.off('connected', onConnect)
       socket.off('disconnect', onDisconnect)
