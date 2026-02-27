@@ -1,17 +1,16 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
-export const config = {
+export const proxyConfig = {
   matcher: '/profile/:path*',
 }
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
 
   // Allow main /profile page
   if (pathname === '/profile') return NextResponse.next()
 
-  // ปล่อยให้ client handle ถ้าไม่มี token
-  // ไม่ redirect server-side เพื่อให้ SPA remount
+  // Let the client handle auth — no server-side redirect to preserve SPA remount
   return NextResponse.next()
 }

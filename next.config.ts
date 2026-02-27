@@ -10,7 +10,10 @@ const nextConfig: NextConfig = {
   trailingSlash: true,
 
   images: {
-    domains: ['cp25nk2.sit.kmutt.ac.th', 'bscit.sit.kmutt.ac.th'],
+    remotePatterns: [
+      { hostname: 'cp25nk2.sit.kmutt.ac.th' },
+      { hostname: 'bscit.sit.kmutt.ac.th' },
+    ],
   },
 
   webpack(config) {

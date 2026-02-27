@@ -16,7 +16,7 @@ import {
   Home,
 } from 'lucide-react'
 import { formatDistanceToNow, isToday, isYesterday, format } from 'date-fns'
-import { motion, AnimatePresence, useAnimation } from 'framer-motion'
+import { motion, AnimatePresence, useAnimation, type Variants } from 'framer-motion'
 import { cn } from '@/lib/utils'
 import { useNotifications } from '@/app/_components/NotificationContext'
 import { AppNotification } from '@/types'
@@ -98,33 +98,33 @@ function filterByTab(notifications: AppNotification[], tab: Tab) {
 // Animation variants
 // ─────────────────────────────────────────────────────────────────────────────
 
-const listVariants = {
+const listVariants: Variants = {
   hidden: {},
   visible: { transition: { staggerChildren: 0.06 } },
 }
 
-const itemVariants = {
+const itemVariants: Variants = {
   hidden: { opacity: 0, y: 16 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.3, ease: 'easeOut' } },
-  exit: { opacity: 0, x: -20, transition: { duration: 0.2, ease: 'easeIn' } },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.3, ease: 'easeOut' as const } },
+  exit: { opacity: 0, x: -20, transition: { duration: 0.2, ease: 'easeIn' as const } },
 }
 
-const groupVariants = {
+const groupVariants: Variants = {
   hidden: { opacity: 0, y: 12 },
   visible: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.35, ease: 'easeOut' },
+    transition: { duration: 0.35, ease: 'easeOut' as const },
   },
   exit: { opacity: 0, y: -8, transition: { duration: 0.2 } },
 }
 
-const emptyVariants = {
+const emptyVariants: Variants = {
   hidden: { opacity: 0, scale: 0.92 },
   visible: {
     opacity: 1,
     scale: 1,
-    transition: { duration: 0.4, ease: 'easeOut' },
+    transition: { duration: 0.4, ease: 'easeOut' as const },
   },
   exit: { opacity: 0, scale: 0.9, transition: { duration: 0.2 } },
 }
