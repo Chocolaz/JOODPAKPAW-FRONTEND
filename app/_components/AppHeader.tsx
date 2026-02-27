@@ -7,18 +7,20 @@ import React from 'react'
 interface AppHeaderProps {
   title: string
   backPath?: string
+  useBack?: boolean
   menu?: React.ReactNode
 }
 
-export const AppHeader = ({ title, backPath, menu }: AppHeaderProps) => {
+export const AppHeader = ({ title, backPath, useBack, menu }: AppHeaderProps) => {
   const router = useRouter()
+  const showBack = backPath || useBack
 
   return (
     <header className="sticky top-0 z-10 flex items-center justify-between w-full h-14 px-4 md:px-6 bg-white border-b-2">
       <div className="w-10">
-        {backPath && (
+        {showBack && (
           <button
-            onClick={() => router.push(backPath)}
+            onClick={() => (useBack ? router.back() : router.push(backPath!))}
             className="p-2 rounded-full hover:bg-gray-100 transition-colors duration-200 ease-in-out -ml-2"
           >
             <ChevronLeft className="w-6 h-6 text-neutral-gray" />

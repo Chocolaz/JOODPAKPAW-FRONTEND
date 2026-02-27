@@ -24,6 +24,7 @@ import {
   BookingsResponse, // Added BookingsResponse
   FullBookingDetail, // Added FullBookingDetail
   HostBookingDetail,
+  NotificationsResponse,
   FavoriteFoldersResponse, // Added FavoriteFoldersResponse
   PetBreedsResponse,
 } from '@/types'
@@ -613,6 +614,34 @@ export const submitReview = (
     body: data,
     requiresAuth: true,
     errorContext: 'Submit Review',
+  })
+}
+
+// --- Notification Functions ---
+export const getNotifications = (): Promise<NotificationsResponse> => {
+  return request<NotificationsResponse>({
+    endpoint: 'api/v1/notifications',
+    method: 'GET',
+    requiresAuth: true,
+    errorContext: 'Get Notifications',
+  })
+}
+
+export const deleteAllNotifications = (): Promise<void> => {
+  return request<void>({
+    endpoint: 'api/v1/notifications',
+    method: 'DELETE',
+    requiresAuth: true,
+    errorContext: 'Delete All Notifications',
+  })
+}
+
+export const deleteNotificationById = (id: string): Promise<void> => {
+  return request<void>({
+    endpoint: `api/v1/notifications/${id}`,
+    method: 'DELETE',
+    requiresAuth: true,
+    errorContext: 'Delete Notification',
   })
 }
 

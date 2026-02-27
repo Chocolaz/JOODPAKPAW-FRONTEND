@@ -1,5 +1,7 @@
 'use client'
+
 import { useNormalizedPathname } from '@/app/_hooks/useNormalizedPathname'
+import { useNotifications } from '@/app/_components/NotificationContext'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 import BellIcon from '@/public/icons/nav/Bell.svg'
@@ -9,8 +11,9 @@ import ProfileIcon from '@/public/icons/nav/Profile.svg'
 
 export function BottomNav() {
   const normalizedPath = useNormalizedPathname()
+  const { unreadCount } = useNotifications()
 
-  const visiblePaths = ['/', '/profile', '/favorites']
+  const visiblePaths = ['/', '/profile', '/favorites', '/notifications']
 
   if (!visiblePaths.includes(normalizedPath)) {
     return null
@@ -28,6 +31,7 @@ export function BottomNav() {
       <div className="flex justify-around items-center">
         {navItems.map((item) => {
           const isActive = normalizedPath === item.href
+          const showBadge = item.href === '/notifications' && unreadCount > 0
 
           return (
             <Link
@@ -42,11 +46,27 @@ export function BottomNav() {
                 transition={{ duration: 0.3 }}
               />
 
-              <item.icon
-                className={`w-6 h-6 transition-colors duration-300 ${
-                  isActive ? 'text-accent-orange' : 'text-gray-500'
-                }`}
-              />
+              {/* Icon wrapper — relative so badge can be positioned inside */}
+              <div className="relative">
+                <item.icon
+                  className={`w-6 h-6 transition-colors duration-300 ${
+                    isActive ? 'text-accent-orange' : 'text-gray-500'
+                  }`}
+                />
+
+                {/* Unread badge */}
+                {showBadge && (
+                  <motion.span
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    className="absolute -top-1.5 -right-1.5 min-w-4 h-4 px-0.5 bg-accent-orange rounded-full flex items-center justify-center"
+                  >
+                    <span className="text-white text-[9px] font-bold leading-none">
+                      {unreadCount > 9 ? '9+' : unreadCount}
+                    </span>
+                  </motion.span>
+                )}
+              </div>
 
               <motion.div
                 className="overflow-hidden"

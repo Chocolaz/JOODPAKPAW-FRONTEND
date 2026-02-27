@@ -9,6 +9,7 @@ import { AuthWrapper } from '@/app/_components/AuthWrapper'
 import { Toaster } from '@/components/ui/sonner'
 import { BookingProvider } from './_context/BookingContext'
 import { AuthModalProvider } from './_components/AuthModalProvider'
+import { NotificationProvider } from './_components/NotificationContext'
 
 // Metadata can still be exported from a client component layout
 // export const metadata: Metadata = {
@@ -33,6 +34,7 @@ export default function RootLayout({
       <body className={`${afacad.variable} ${baloo2.variable} bg-white`}>
         <AuthWrapper>
           <AuthModalProvider>
+            <NotificationProvider>
             <BookingProvider>
               <div className="max-w-[500px] md:max-w-3xl lg:max-w-5xl mx-auto flex flex-col min-h-screen ">
                 <main className="flex-1">{children}</main>
@@ -40,6 +42,7 @@ export default function RootLayout({
               </div>
               <Toaster />
             </BookingProvider>
+            </NotificationProvider>
           </AuthModalProvider>
         </AuthWrapper>
       </body>
