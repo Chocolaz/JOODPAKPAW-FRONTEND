@@ -10,6 +10,7 @@ import React, {
 } from 'react'
 import { useAuth } from './AuthContext'
 import { connectSocket, disconnectSocket } from '@/lib/socket'
+import { refreshAccessToken } from '@/lib/authenUtils'
 import { getNotifications, deleteAllNotifications, deleteNotificationById } from '@/lib/api'
 import { AppNotification } from '@/types'
 
@@ -107,6 +108,7 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
   const [notifications, setNotifications] = useState<AppNotification[]>([])
   const [isConnected, setIsConnected] = useState<boolean | null>(null)
   const [isLoading, setIsLoading] = useState(false)
+  const [reconnectKey, setReconnectKey] = useState(0)
 
   const unreadCount = notifications.filter((n) => !n.isRead).length
 
@@ -204,9 +206,17 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
     }
     const onDisconnect = () => {
       console.log('[Socket] Disconnected — waiting to confirm...')
-      disconnectTimer = setTimeout(() => {
-        console.log('[Socket] Confirmed disconnected')
-        setIsConnected(false)
+      disconnectTimer = setTimeout(async () => {
+        console.log('[Socket] Confirmed disconnected — refreshing token and reconnecting')
+        const newToken = await refreshAccessToken()
+        disconnectSocket() // clear stale socket so connectSocket() creates a fresh one
+        if (newToken) {
+          setReconnectKey((k) => k + 1) // triggers effect re-run with fresh token
+        } else {
+          // Refresh failed — session truly expired
+          console.warn('[Socket] Token refresh failed, staying disconnected')
+          setIsConnected(false)
+        }
       }, 4000)
     }
     const onNotification = (data: unknown) => addNotification(data)
@@ -225,7 +235,7 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
       socket.off('disconnect', onDisconnect)
       socket.off('notification', onNotification)
     }
-  }, [isAuthenticated, addNotification, fetchNotifications])
+  }, [isAuthenticated, reconnectKey, addNotification, fetchNotifications])
 
   return (
     <NotificationContext.Provider

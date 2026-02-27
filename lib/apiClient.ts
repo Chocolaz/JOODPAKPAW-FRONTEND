@@ -4,6 +4,12 @@ import { AuthRequiredError, authErrorEmitter } from './authErrors'
 const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL
 const BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH || ''
 
+// JWT tokens are base64url-encoded and must be ASCII-only.
+// If the cookie was manually edited with non-ASCII chars the Headers API throws.
+function isSafeToken(token: string): boolean {
+  return /^[\x20-\x7E]+$/.test(token)
+}
+
 interface RequestOptions extends Omit<RequestInit, 'body'> {
   endpoint: string
   errorContext?: string
@@ -28,7 +34,8 @@ async function request<T>({
 
   if (requiresAuth) {
     let token = getAccessToken()
-    if (!token) {
+    if (!token || !isSafeToken(token)) {
+      if (token) clearTokens() // corrupt token — wipe it
       token = await refreshAccessToken()
       if (!token) {
         clearTokens()
@@ -40,8 +47,10 @@ async function request<T>({
     headers.set('Authorization', `Bearer ${token}`)
   } else if (sendAuthIfAvailable) {
     const token = getAccessToken()
-    if (token) {
+    if (token && isSafeToken(token)) {
       headers.set('Authorization', `Bearer ${token}`)
+    } else if (token) {
+      clearTokens() // corrupt token — wipe it silently
     }
   }
 
@@ -61,7 +70,7 @@ async function request<T>({
 
     if (response.status === 401 && requiresAuth) {
       const newAccessToken = await refreshAccessToken()
-      if (newAccessToken) {
+      if (newAccessToken && isSafeToken(newAccessToken)) {
         headers.set('Authorization', `Bearer ${newAccessToken}`)
         config.headers = headers
         response = await fetch(`${BASE_URL}${endpoint}`, config)
