@@ -30,8 +30,8 @@ export function Step9() {
       await updateHostPropertyIsActive(String(formData.propertyId), true)
       toast.success('Your property has been published successfully!')
       clearAddPropertySession()
-      await refreshAuth()
       router.push('/profile/host')
+      await refreshAuth()
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : 'Failed to publish property.'
@@ -44,8 +44,8 @@ export function Step9() {
   const savePropertyLater = async () => {
     toast.info('Your property is saved as a draft.')
     clearAddPropertySession()
-    await refreshAuth()
     router.push('/profile/host')
+    await refreshAuth()
   }
 
   const handleNext = async () => {
