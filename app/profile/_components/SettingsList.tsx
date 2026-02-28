@@ -40,9 +40,9 @@ export function SettingsList() {
             <div className="flex items-center gap-3">
               <div className="relative w-6 h-6">
                 {isAuthenticated ? (
-                  <LogoutIcon className="w-6 h-6 text-neutral-gray transition-transform duration-200 ease-in-out transform hover:scale-110" />
+                  <LogoutIcon className="w-6 h-6 text-red-500 transition-transform duration-200 ease-in-out transform hover:scale-110" />
                 ) : (
-                  <LoginIcon className="w-6 h-6 text-neutral-gray transition-colors duration-200 ease-in-out" />
+                  <LoginIcon className="w-6 h-6 text-green-500 transition-colors duration-200 ease-in-out" />
                 )}
               </div>
               <span className="font-medium text-neutral-gray transition-colors duration-200 ease-in-out">
