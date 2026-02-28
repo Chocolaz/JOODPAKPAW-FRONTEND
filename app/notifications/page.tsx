@@ -55,12 +55,19 @@ export default function NotificationsPage() {
           exit={{ opacity: 0, scale: 0.8 }}
           transition={{ duration: 0.25 }}
           className={cn(
-            'flex items-center gap-1 text-[11px] font-medium',
+            'flex items-center gap-1.5 text-[11px] md:text-xs font-medium',
             isConnected ? 'text-emerald-500' : 'text-gray-400'
           )}
           title={isConnected ? 'Connected' : 'Disconnected'}
         >
-          {isConnected ? <Wifi className="w-3.5 h-3.5" /> : <WifiOff className="w-3.5 h-3.5" />}
+          {isConnected ? (
+            <Wifi className="w-3.5 h-3.5 md:w-4 md:h-4" />
+          ) : (
+            <WifiOff className="w-3.5 h-3.5 md:w-4 md:h-4" />
+          )}
+          <span className="hidden md:inline">
+            {isConnected ? 'Live' : 'Offline'}
+          </span>
         </motion.span>
       )}
     </AnimatePresence>
@@ -70,89 +77,96 @@ export default function NotificationsPage() {
     <div>
       <AppHeader title="Notifications" menu={connectionMenu} />
 
-      <TabBar activeTab={activeTab} tabUnread={tabUnread} onTabChange={setActiveTab} />
+      {/* Centered content container for tablet/desktop */}
+      <div className="md:max-w-2xl lg:max-w-3xl md:mx-auto md:mt-4 md:px-4 lg:px-0">
 
-      {/* Actions sub-bar — only visible when there are notifications */}
-      <AnimatePresence>
-        {filtered.length > 0 && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.25, ease: 'easeOut' }}
-            className="overflow-hidden"
-          >
-            <ActionsBar
-              filteredUnread={filteredUnread}
-              onMarkAllRead={markAllAsRead}
-              onClearAll={clearAll}
-            />
-          </motion.div>
-        )}
-      </AnimatePresence>
+        <div className="md:rounded-2xl md:border md:border-gray-100 md:shadow-sm md:overflow-hidden">
+          <TabBar activeTab={activeTab} tabUnread={tabUnread} onTabChange={setActiveTab} />
 
-      {/* Body */}
-      <div className="pb-24">
-        <AnimatePresence mode="wait">
-          {isLoading ? (
-            <motion.div
-              key="skeleton"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.2 }}
-            >
-              <NotificationSkeleton />
-            </motion.div>
-          ) : filtered.length === 0 ? (
-            <motion.div
-              key={`empty-${activeTab}`}
-              variants={emptyVariants}
-              initial="hidden"
-              animate="visible"
-              exit="exit"
-            >
-              <EmptyState activeTab={activeTab} />
-            </motion.div>
-          ) : (
-            <motion.div
-              key={`list-${activeTab}`}
-              variants={listVariants}
-              initial="hidden"
-              animate="visible"
-              className="space-y-4 pt-3"
-            >
-              <AnimatePresence>
-                {grouped.map(({ label, items }) => (
-                  <motion.div
-                    key={label}
-                    variants={groupVariants}
-                    initial="hidden"
-                    animate="visible"
-                    exit="exit"
-                    layout
-                  >
-                    <p className="px-4 py-1.5 text-[11px] font-semibold text-neutral-gray uppercase tracking-wider">
-                      {label}
-                    </p>
-                    <div className="bg-white rounded-2xl mx-4 overflow-hidden shadow-sm border border-gray-100 divide-y divide-gray-100">
-                      <AnimatePresence>
-                        {items.map((n) => (
-                          <NotificationItem
-                            key={n.id}
-                            notification={n}
-                            onRead={markAsRead}
-                            onDelete={deleteOne}
-                          />
-                        ))}
-                      </AnimatePresence>
-                    </div>
-                  </motion.div>
-                ))}
-              </AnimatePresence>
-            </motion.div>
-          )}
-        </AnimatePresence>
+          {/* Actions sub-bar */}
+          <AnimatePresence>
+            {filtered.length > 0 && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ duration: 0.25, ease: 'easeOut' }}
+                className="overflow-hidden"
+              >
+                <ActionsBar
+                  filteredUnread={filteredUnread}
+                  onMarkAllRead={markAllAsRead}
+                  onClearAll={clearAll}
+                />
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* Body */}
+          <div className="pb-24 md:pb-8 md:bg-gray-50/50">
+            <AnimatePresence mode="wait">
+              {isLoading ? (
+                <motion.div
+                  key="skeleton"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <NotificationSkeleton />
+                </motion.div>
+              ) : filtered.length === 0 ? (
+                <motion.div
+                  key={`empty-${activeTab}`}
+                  variants={emptyVariants}
+                  initial="hidden"
+                  animate="visible"
+                  exit="exit"
+                >
+                  <EmptyState activeTab={activeTab} />
+                </motion.div>
+              ) : (
+                <motion.div
+                  key={`list-${activeTab}`}
+                  variants={listVariants}
+                  initial="hidden"
+                  animate="visible"
+                  className="space-y-4 pt-3"
+                >
+                  <AnimatePresence>
+                    {grouped.map(({ label, items }) => (
+                      <motion.div
+                        key={label}
+                        variants={groupVariants}
+                        initial="hidden"
+                        animate="visible"
+                        exit="exit"
+                        layout
+                      >
+                        <p className="px-4 md:px-5 py-1.5 text-[11px] md:text-xs font-semibold text-neutral-gray uppercase tracking-wider">
+                          {label}
+                        </p>
+                        <div className="bg-white md:rounded-2xl mx-4 md:mx-5 overflow-hidden shadow-sm border border-gray-100 divide-y divide-gray-100">
+                          <AnimatePresence>
+                            {items.map((n) => (
+                              <NotificationItem
+                                key={n.id}
+                                notification={n}
+                                onRead={markAsRead}
+                                onDelete={deleteOne}
+                              />
+                            ))}
+                          </AnimatePresence>
+                        </div>
+                      </motion.div>
+                    ))}
+                  </AnimatePresence>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        </div>
+
       </div>
     </div>
   )

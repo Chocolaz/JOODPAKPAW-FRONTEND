@@ -88,29 +88,37 @@ export function NotificationItem({ notification, onRead, onDelete }: Props) {
         <div
           onClick={handleClick}
           className={cn(
-            'flex items-start gap-3 px-4 py-3.5 cursor-pointer select-none flex-1 min-w-0',
+            'flex items-start gap-3 md:gap-4 px-4 md:px-6 py-3.5 md:py-5 cursor-pointer select-none flex-1 min-w-0',
             notification.isRead ? 'bg-white' : 'bg-orange-50'
           )}
         >
-          <div className={cn('w-10 h-10 rounded-full flex items-center justify-center shrink-0 mt-0.5', cfg.bg)}>
-            <Icon className={cn('w-5 h-5', cfg.color)} />
+          {/* Action icon */}
+          <div className={cn(
+            'rounded-full flex items-center justify-center shrink-0 mt-0.5',
+            'w-10 h-10 md:w-12 md:h-12',
+            cfg.bg
+          )}>
+            <Icon className={cn('w-5 h-5 md:w-6 md:h-6', cfg.color)} />
           </div>
 
+          {/* Content */}
           <div className="flex-1 min-w-0">
             <p className={cn(
-              'text-sm leading-snug transition-all duration-300',
+              'leading-snug transition-all duration-300',
+              'text-sm md:text-base',
               notification.isRead ? 'font-normal text-gray-600' : 'font-semibold text-gray-900'
             )}>
               {notification.title}
             </p>
             {notification.message && (
-              <p className="text-xs text-neutral-gray mt-0.5 line-clamp-2 leading-relaxed">
+              <p className="text-xs md:text-sm text-neutral-gray mt-0.5 md:mt-1 line-clamp-2 leading-relaxed">
                 {notification.message}
               </p>
             )}
-            <p className="text-[11px] text-neutral-gray/70 mt-1">{timeAgo}</p>
+            <p className="text-[11px] md:text-xs text-neutral-gray/70 mt-1 md:mt-1.5">{timeAgo}</p>
           </div>
 
+          {/* Right side */}
           <div className="flex flex-col items-center gap-1.5 shrink-0 mt-1">
             <AnimatePresence>
               {!notification.isRead && (
@@ -120,12 +128,12 @@ export function NotificationItem({ notification, onRead, onDelete }: Props) {
                   animate={{ scale: 1, opacity: 1 }}
                   exit={{ scale: 0, opacity: 0 }}
                   transition={{ duration: 0.2 }}
-                  className="w-2 h-2 rounded-full bg-accent-orange"
+                  className="w-2 h-2 md:w-2.5 md:h-2.5 rounded-full bg-accent-orange"
                 />
               )}
             </AnimatePresence>
             {notification.referenceId && (
-              <ChevronRight className="w-3.5 h-3.5 text-gray-300" />
+              <ChevronRight className="w-3.5 h-3.5 md:w-4 md:h-4 text-gray-300" />
             )}
           </div>
         </div>
@@ -135,8 +143,8 @@ export function NotificationItem({ notification, onRead, onDelete }: Props) {
           className="w-20 shrink-0 bg-red-500 flex flex-col items-center justify-center gap-1 cursor-pointer"
           onClick={handleDelete}
         >
-          <Trash2 className="w-5 h-5 text-white" />
-          <span className="text-[10px] font-medium text-white">Delete</span>
+          <Trash2 className="w-5 h-5 md:w-6 md:h-6 text-white" />
+          <span className="text-[10px] md:text-xs font-medium text-white">Delete</span>
         </div>
       </motion.div>
     </motion.div>

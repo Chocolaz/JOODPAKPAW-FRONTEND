@@ -12,7 +12,7 @@ interface Props {
 
 export function TabBar({ activeTab, tabUnread, onTabChange }: Props) {
   return (
-    <div className="flex bg-white border-b border-gray-100 px-4">
+    <div className="flex bg-white border-b border-gray-100 px-4 md:px-2">
       {TABS.map((tab) => {
         const isActive = activeTab === tab.id
         const count = tabUnread[tab.id]
@@ -20,9 +20,9 @@ export function TabBar({ activeTab, tabUnread, onTabChange }: Props) {
           <button
             key={tab.id}
             onClick={() => onTabChange(tab.id)}
-            className="relative flex items-center gap-1.5 px-4 py-3 text-sm font-medium transition-colors duration-200"
+            className="relative flex items-center gap-1.5 md:gap-2 px-4 md:px-6 py-3 md:py-4 text-sm md:text-base font-medium transition-colors duration-200"
           >
-            <tab.Icon className={cn('w-3.5 h-3.5', isActive ? 'text-accent-orange' : 'text-gray-400')} />
+            <tab.Icon className={cn('w-3.5 h-3.5 md:w-4.5 md:h-4.5', isActive ? 'text-accent-orange' : 'text-gray-400')} />
             <span className={isActive ? 'text-accent-orange' : 'text-gray-400'}>
               {tab.label}
             </span>
@@ -30,9 +30,9 @@ export function TabBar({ activeTab, tabUnread, onTabChange }: Props) {
               <motion.span
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
-                className="min-w-4 h-4 px-1 bg-accent-orange rounded-full flex items-center justify-center"
+                className="min-w-4 md:min-w-5 h-4 md:h-5 px-1 bg-accent-orange rounded-full flex items-center justify-center"
               >
-                <span className="text-white text-[9px] font-bold leading-none">
+                <span className="text-white text-[9px] md:text-[10px] font-bold leading-none">
                   {count > 9 ? '9+' : count}
                 </span>
               </motion.span>
