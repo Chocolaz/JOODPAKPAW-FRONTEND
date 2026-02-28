@@ -68,7 +68,7 @@ function LayoutContent({ children }: { children: ReactNode }) {
       return { title: 'Bookings', backPath: '/profile' }
     }
     if (normalizedPath.match(/^\/profile\/bookings\/\d+$/)) {
-      return { title: 'Booking Detail', useBack: true }
+      return { title: 'Booking Detail', backPath: '/profile/bookings' }
     }
     if (normalizedPath.startsWith('/profile/') && normalizedPath !== '/profile') {
       // This covers /profile/[firstName] and other potential sub-pages
