@@ -2,7 +2,7 @@
 // app/profile/layout.tsx
 import React, { ReactNode, useEffect } from 'react'
 import { useNormalizedPathname } from '@/app/_hooks/useNormalizedPathname'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { ProfileHeader } from './_components/ProfileHeader'
 import { HostBanner } from './_components/HostBanner'
 import { PetsBanner } from './pets/_components/PetsBanner'
@@ -15,6 +15,8 @@ import { Spinner } from '@/components/ui/spinner'
 function LayoutContent({ children }: { children: ReactNode }) {
   const normalizedPath = useNormalizedPathname()
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const fromNotifications = searchParams.get('from') === 'notifications'
   const { menu, hostProperties, petProfiles } = useProfileContext()
   const { isAuthenticated, loading: authLoading } = useAuth()
 
@@ -42,7 +44,7 @@ function LayoutContent({ children }: { children: ReactNode }) {
       const bookingId = normalizedPath.split('/').pop()
       return {
         title: `Booking #${bookingId}`,
-        backPath: '/profile/host?tab=bookings',
+        backPath: fromNotifications ? '/notifications' : '/profile/host?tab=bookings',
       }
     }
     if (
@@ -68,7 +70,10 @@ function LayoutContent({ children }: { children: ReactNode }) {
       return { title: 'Bookings', backPath: '/profile' }
     }
     if (normalizedPath.match(/^\/profile\/bookings\/\d+$/)) {
-      return { title: 'Booking Detail', backPath: '/profile/bookings' }
+      return {
+        title: 'Booking Detail',
+        backPath: fromNotifications ? '/notifications' : '/profile/bookings',
+      }
     }
     if (normalizedPath.startsWith('/profile/') && normalizedPath !== '/profile') {
       // This covers /profile/[firstName] and other potential sub-pages

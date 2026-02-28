@@ -1,307 +1,20 @@
 'use client'
 
-import React, { useMemo, useRef, useState } from 'react'
-import { useRouter } from 'next/navigation'
-import {
-  Bell,
-  CheckCheck,
-  Trash2,
-  CalendarPlus,
-  Star,
-  CreditCard,
-  Wifi,
-  WifiOff,
-  ChevronRight,
-  User,
-  Home,
-} from 'lucide-react'
-import { formatDistanceToNow, isToday, isYesterday, format } from 'date-fns'
-import { motion, AnimatePresence, useAnimation, type Variants } from 'framer-motion'
+import { useMemo, useState } from 'react'
+import { Wifi, WifiOff } from 'lucide-react'
+import { motion, AnimatePresence } from 'framer-motion'
 import { cn } from '@/lib/utils'
 import { useNotifications } from '@/app/_components/NotificationContext'
-import { AppNotification } from '@/types'
 import { AppHeader } from '@/app/_components/AppHeader'
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Action-based icon config
-// ─────────────────────────────────────────────────────────────────────────────
-
-const ACTION_CONFIG: Record<
-  string,
-  { Icon: React.ElementType; guest: { color: string; bg: string }; host: { color: string; bg: string } }
-> = {
-  booking: {
-    Icon: CalendarPlus,
-    guest: { color: 'text-blue-500', bg: 'bg-blue-100' },
-    host:  { color: 'text-deep-teal', bg: 'bg-deep-teal/10' },
-  },
-  payment: {
-    Icon: CreditCard,
-    guest: { color: 'text-purple-500', bg: 'bg-purple-100' },
-    host:  { color: 'text-emerald-600', bg: 'bg-emerald-100' },
-  },
-  review: {
-    Icon: Star,
-    guest: { color: 'text-yellow-500', bg: 'bg-yellow-100' },
-    host:  { color: 'text-yellow-500', bg: 'bg-yellow-100' },
-  },
-}
-
-function getActionConfig(actionName?: string, roleName?: string) {
-  const entry = ACTION_CONFIG[actionName ?? '']
-  if (!entry) return { Icon: Bell, color: 'text-deep-teal', bg: 'bg-deep-teal/10' }
-  const style = roleName === 'host' ? entry.host : entry.guest
-  return { Icon: entry.Icon, ...style }
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Tabs
-// ─────────────────────────────────────────────────────────────────────────────
-
-type Tab = 'all' | 'guest' | 'host'
-
-const TABS: { id: Tab; label: string; Icon: React.ElementType }[] = [
-  { id: 'all', label: 'All', Icon: Bell },
-  { id: 'guest', label: 'Guest', Icon: User },
-  { id: 'host', label: 'Host', Icon: Home },
-]
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Helpers
-// ─────────────────────────────────────────────────────────────────────────────
-
-function getTimeLabel(date: Date): string {
-  if (isToday(date)) return 'Today'
-  if (isYesterday(date)) return 'Yesterday'
-  return format(date, 'MMMM d, yyyy')
-}
-
-function groupByDate(
-  notifications: AppNotification[]
-): { label: string; items: AppNotification[] }[] {
-  const groups: Record<string, AppNotification[]> = {}
-  for (const n of notifications) {
-    const label = getTimeLabel(new Date(n.receivedAt))
-    if (!groups[label]) groups[label] = []
-    groups[label].push(n)
-  }
-  return Object.entries(groups).map(([label, items]) => ({ label, items }))
-}
-
-function filterByTab(notifications: AppNotification[], tab: Tab) {
-  if (tab === 'guest') return notifications.filter((n) => n.roleName === 'guest')
-  if (tab === 'host') return notifications.filter((n) => n.roleName === 'host')
-  return notifications
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Animation variants
-// ─────────────────────────────────────────────────────────────────────────────
-
-const listVariants: Variants = {
-  hidden: {},
-  visible: { transition: { staggerChildren: 0.06 } },
-}
-
-const itemVariants: Variants = {
-  hidden: { opacity: 0, y: 16 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.3, ease: 'easeOut' as const } },
-  exit: { opacity: 0, x: -20, transition: { duration: 0.2, ease: 'easeIn' as const } },
-}
-
-const groupVariants: Variants = {
-  hidden: { opacity: 0, y: 12 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.35, ease: 'easeOut' as const },
-  },
-  exit: { opacity: 0, y: -8, transition: { duration: 0.2 } },
-}
-
-const emptyVariants: Variants = {
-  hidden: { opacity: 0, scale: 0.92 },
-  visible: {
-    opacity: 1,
-    scale: 1,
-    transition: { duration: 0.4, ease: 'easeOut' as const },
-  },
-  exit: { opacity: 0, scale: 0.9, transition: { duration: 0.2 } },
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// NotificationItem
-// ─────────────────────────────────────────────────────────────────────────────
-
-function NotificationItem({
-  notification,
-  onRead,
-  onDelete,
-}: {
-  notification: AppNotification
-  onRead: (id: string) => void
-  onDelete: (id: string) => Promise<void>
-}) {
-  const router = useRouter()
-  const cfg = getActionConfig(notification.actionName, notification.roleName)
-  const { Icon } = cfg
-  const timeAgo = formatDistanceToNow(new Date(notification.receivedAt), {
-    addSuffix: true,
-  })
-
-  const controls = useAnimation()
-  const isDragging = useRef(false)
-  const isOpen = useRef(false)
-
-  const SWIPE_THRESHOLD = 40
-  const DELETE_BTN_WIDTH = 80
-
-  const handleDragEnd = (_: unknown, info: { offset: { x: number } }) => {
-    const dragged = info.offset.x
-    if (dragged < -SWIPE_THRESHOLD) {
-      controls.start({ x: -DELETE_BTN_WIDTH })
-      isOpen.current = true
-    } else {
-      controls.start({ x: 0 })
-      isOpen.current = false
-    }
-    setTimeout(() => {
-      isDragging.current = false
-    }, 50)
-  }
-
-  const handleClick = () => {
-    if (isDragging.current) return
-    if (isOpen.current) {
-      controls.start({ x: 0 })
-      isOpen.current = false
-      return
-    }
-    onRead(notification.id)
-    if (notification.actionName === 'booking' && notification.referenceId) {
-      if (notification.roleName === 'host') {
-        router.push(`/profile/host/booking/${notification.referenceId}`)
-      } else {
-        router.push(`/profile/bookings/${notification.referenceId}`)
-      }
-    }
-  }
-
-  const handleDelete = async () => {
-    await controls.start({
-      x: -400,
-      opacity: 0,
-      transition: { duration: 0.25, ease: 'easeIn' },
-    })
-    onDelete(notification.id)
-  }
-
-  return (
-    <motion.div
-      variants={itemVariants}
-      initial="hidden"
-      animate="visible"
-      exit="exit"
-      className="overflow-hidden"
-    >
-      {/* Drag container — card + delete button sit side-by-side */}
-      <motion.div
-        drag="x"
-        dragConstraints={{ left: -DELETE_BTN_WIDTH, right: 0 }}
-        dragElastic={0.08}
-        animate={controls}
-        onDragStart={() => { isDragging.current = true }}
-        onDragEnd={handleDragEnd}
-        style={{ display: 'flex', width: `calc(100% + ${DELETE_BTN_WIDTH}px)` }}
-      >
-        {/* Card */}
-        <div
-          onClick={handleClick}
-          className={cn(
-            'flex items-start gap-3 px-4 py-3.5 cursor-pointer select-none flex-1 min-w-0',
-            notification.isRead ? 'bg-white' : 'bg-orange-50'
-          )}
-        >
-          {/* Action icon */}
-          <div className={cn('w-10 h-10 rounded-full flex items-center justify-center shrink-0 mt-0.5', cfg.bg)}>
-            <Icon className={cn('w-5 h-5', cfg.color)} />
-          </div>
-
-          {/* Content */}
-          <div className="flex-1 min-w-0">
-            <p className={cn(
-              'text-sm leading-snug transition-all duration-300',
-              notification.isRead ? 'font-normal text-gray-600' : 'font-semibold text-gray-900'
-            )}>
-              {notification.title}
-            </p>
-            {notification.message && (
-              <p className="text-xs text-neutral-gray mt-0.5 line-clamp-2 leading-relaxed">
-                {notification.message}
-              </p>
-            )}
-            <p className="text-[11px] text-neutral-gray/70 mt-1">{timeAgo}</p>
-          </div>
-
-          {/* Right side */}
-          <div className="flex flex-col items-center gap-1.5 shrink-0 mt-1">
-            <AnimatePresence>
-              {!notification.isRead && (
-                <motion.span
-                  key="dot"
-                  initial={{ scale: 0, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  exit={{ scale: 0, opacity: 0 }}
-                  transition={{ duration: 0.2 }}
-                  className="w-2 h-2 rounded-full bg-accent-orange"
-                />
-              )}
-            </AnimatePresence>
-            {notification.referenceId && (
-              <ChevronRight className="w-3.5 h-3.5 text-gray-300" />
-            )}
-          </div>
-        </div>
-
-        {/* Delete button — hidden until swiped */}
-        <div
-          className="w-20 shrink-0 bg-red-500 flex flex-col items-center justify-center gap-1 cursor-pointer"
-          onClick={handleDelete}
-        >
-          <Trash2 className="w-5 h-5 text-white" />
-          <span className="text-[10px] font-medium text-white">Delete</span>
-        </div>
-      </motion.div>
-    </motion.div>
-  )
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Page
-// ─────────────────────────────────────────────────────────────────────────────
-
-function NotificationSkeleton() {
-  return (
-    <div className="space-y-4 pt-3">
-      {[0, 1].map((g) => (
-        <div key={g}>
-          <div className="px-4 py-1.5 h-4 w-16 bg-gray-200 rounded animate-pulse mx-4 mb-2" />
-          <div className="bg-white rounded-2xl mx-4 overflow-hidden shadow-sm border border-gray-100 divide-y divide-gray-100">
-            {[0, 1, 2].map((i) => (
-              <div key={i} className="flex items-start gap-3 px-4 py-3.5 animate-pulse">
-                <div className="w-10 h-10 rounded-full bg-gray-200 shrink-0" />
-                <div className="flex-1 space-y-2">
-                  <div className="h-3.5 bg-gray-200 rounded w-3/4" />
-                  <div className="h-3 bg-gray-200 rounded w-1/3" />
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      ))}
-    </div>
-  )
-}
+import { Tab } from './_constants'
+import { filterByTab, groupByDate } from './_utils'
+import { listVariants, groupVariants, emptyVariants } from './_variants'
+import { NotificationItem } from './_components/NotificationItem'
+import { NotificationSkeleton } from './_components/NotificationSkeleton'
+import { TabBar } from './_components/TabBar'
+import { ActionsBar } from './_components/ActionsBar'
+import { EmptyState } from './_components/EmptyState'
 
 export default function NotificationsPage() {
   const {
@@ -326,7 +39,6 @@ export default function NotificationsPage() {
   )
   const grouped = useMemo(() => groupByDate(filtered), [filtered])
 
-  // Unread count per tab for badges
   const tabUnread = useMemo(() => ({
     all: notifications.filter((n) => !n.isRead).length,
     guest: notifications.filter((n) => !n.isRead && n.roleName === 'guest').length,
@@ -348,11 +60,7 @@ export default function NotificationsPage() {
           )}
           title={isConnected ? 'Connected' : 'Disconnected'}
         >
-          {isConnected ? (
-            <Wifi className="w-3.5 h-3.5" />
-          ) : (
-            <WifiOff className="w-3.5 h-3.5" />
-          )}
+          {isConnected ? <Wifi className="w-3.5 h-3.5" /> : <WifiOff className="w-3.5 h-3.5" />}
         </motion.span>
       )}
     </AnimatePresence>
@@ -362,45 +70,9 @@ export default function NotificationsPage() {
     <div>
       <AppHeader title="Notifications" menu={connectionMenu} />
 
-      {/* ── Tabs ──────────────────────────────────────────────────────────── */}
-      <div className="flex bg-white border-b border-gray-100 px-4">
-        {TABS.map((tab) => {
-          const isActive = activeTab === tab.id
-          const count = tabUnread[tab.id]
-          return (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className="relative flex items-center gap-1.5 px-4 py-3 text-sm font-medium transition-colors duration-200"
-            >
-              <tab.Icon className={cn('w-3.5 h-3.5', isActive ? 'text-accent-orange' : 'text-gray-400')} />
-              <span className={isActive ? 'text-accent-orange' : 'text-gray-400'}>
-                {tab.label}
-              </span>
-              {count > 0 && (
-                <motion.span
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  className="min-w-4 h-4 px-1 bg-accent-orange rounded-full flex items-center justify-center"
-                >
-                  <span className="text-white text-[9px] font-bold leading-none">
-                    {count > 9 ? '9+' : count}
-                  </span>
-                </motion.span>
-              )}
-              {isActive && (
-                <motion.div
-                  layoutId="tab-indicator"
-                  className="absolute bottom-0 left-0 right-0 h-0.5 bg-accent-orange rounded-full"
-                  transition={{ type: 'spring', stiffness: 400, damping: 30 }}
-                />
-              )}
-            </button>
-          )
-        })}
-      </div>
+      <TabBar activeTab={activeTab} tabUnread={tabUnread} onTabChange={setActiveTab} />
 
-      {/* ── Actions sub-bar ───────────────────────────────────────────────── */}
+      {/* Actions sub-bar — only visible when there are notifications */}
       <AnimatePresence>
         {filtered.length > 0 && (
           <motion.div
@@ -410,46 +82,16 @@ export default function NotificationsPage() {
             transition={{ duration: 0.25, ease: 'easeOut' }}
             className="overflow-hidden"
           >
-            <div className="flex items-center justify-between px-5 py-2.5 border-b border-gray-100 bg-white">
-              <motion.p
-                key={filteredUnread}
-                initial={{ opacity: 0, y: -4 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.2 }}
-                className="text-xs text-neutral-gray"
-              >
-                {filteredUnread > 0 ? `${filteredUnread} unread` : 'All caught up'}
-              </motion.p>
-              <div className="flex items-center gap-4">
-                <AnimatePresence>
-                  {filteredUnread > 0 && (
-                    <motion.button
-                      initial={{ opacity: 0, x: 8 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0, x: 8 }}
-                      transition={{ duration: 0.2 }}
-                      onClick={markAllAsRead}
-                      className="flex items-center gap-1 text-xs font-medium text-deep-teal hover:opacity-75 transition-opacity"
-                    >
-                      <CheckCheck className="w-3.5 h-3.5" />
-                      Mark all read
-                    </motion.button>
-                  )}
-                </AnimatePresence>
-                <button
-                  onClick={clearAll}
-                  className="flex items-center gap-1 text-xs font-medium text-red-400 hover:opacity-75 transition-opacity"
-                >
-                  <Trash2 className="w-3.5 h-3.5" />
-                  Clear all
-                </button>
-              </div>
-            </div>
+            <ActionsBar
+              filteredUnread={filteredUnread}
+              onMarkAllRead={markAllAsRead}
+              onClearAll={clearAll}
+            />
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* ── Body ──────────────────────────────────────────────────────────── */}
+      {/* Body */}
       <div className="pb-24">
         <AnimatePresence mode="wait">
           {isLoading ? (
@@ -469,31 +111,8 @@ export default function NotificationsPage() {
               initial="hidden"
               animate="visible"
               exit="exit"
-              className="flex flex-col items-center justify-center min-h-[60vh] gap-4 px-8"
             >
-              <motion.div
-                initial={{ scale: 0.8, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                transition={{ delay: 0.1, duration: 0.4, ease: 'easeOut' }}
-                className="w-20 h-20 rounded-full bg-gray-100 flex items-center justify-center"
-              >
-                <Bell className="w-9 h-9 text-gray-300" />
-              </motion.div>
-              <motion.div
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2, duration: 0.3 }}
-                className="text-center space-y-1"
-              >
-                <p className="font-semibold text-gray-700">No notifications yet</p>
-                <p className="text-sm text-neutral-gray">
-                  {activeTab === 'guest'
-                    ? 'No guest notifications yet.'
-                    : activeTab === 'host'
-                      ? 'No host notifications yet.'
-                      : "You'll see booking updates and messages here."}
-                </p>
-              </motion.div>
+              <EmptyState activeTab={activeTab} />
             </motion.div>
           ) : (
             <motion.div

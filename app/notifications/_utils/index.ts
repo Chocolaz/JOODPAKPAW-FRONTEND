@@ -1,0 +1,35 @@
+import { format, isToday, isYesterday } from 'date-fns'
+import { Bell } from 'lucide-react'
+import { AppNotification } from '@/types'
+import { ACTION_CONFIG, Tab } from '../_constants'
+
+export function getActionConfig(actionName?: string, roleName?: string) {
+  const entry = ACTION_CONFIG[actionName ?? '']
+  if (!entry) return { Icon: Bell, color: 'text-deep-teal', bg: 'bg-deep-teal/10' }
+  const style = roleName === 'host' ? entry.host : entry.guest
+  return { Icon: entry.Icon, ...style }
+}
+
+export function getTimeLabel(date: Date): string {
+  if (isToday(date)) return 'Today'
+  if (isYesterday(date)) return 'Yesterday'
+  return format(date, 'MMMM d, yyyy')
+}
+
+export function groupByDate(
+  notifications: AppNotification[]
+): { label: string; items: AppNotification[] }[] {
+  const groups: Record<string, AppNotification[]> = {}
+  for (const n of notifications) {
+    const label = getTimeLabel(new Date(n.receivedAt))
+    if (!groups[label]) groups[label] = []
+    groups[label].push(n)
+  }
+  return Object.entries(groups).map(([label, items]) => ({ label, items }))
+}
+
+export function filterByTab(notifications: AppNotification[], tab: Tab): AppNotification[] {
+  if (tab === 'guest') return notifications.filter((n) => n.roleName === 'guest')
+  if (tab === 'host') return notifications.filter((n) => n.roleName === 'host')
+  return notifications
+}
