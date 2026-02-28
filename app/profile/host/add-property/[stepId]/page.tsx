@@ -20,7 +20,7 @@ export default function AddPropertyDynamicStepsPage() {
   const router = useRouter()
   const { isAuthenticated, loading: authLoading, logout } = useAuth()
   const stepId = parseInt(params.stepId as string, 10)
-  const { highestStepReached, setHighestStepReached, isLoading } =
+  const { highestStepReached, setHighestStepReached, isLoading, formData } =
     useAddProperty()
 
   useEffect(() => {
@@ -32,11 +32,15 @@ export default function AddPropertyDynamicStepsPage() {
 
   useEffect(() => {
     if (!isLoading) {
-      if (stepId > highestStepReached + 1) {
+      // Once a property is created (steps 8-9 are post-creation), allow access
+      // to avoid a race condition where highestStepReached state update hasn't
+      // committed yet when navigating from step 8 → 9.
+      const maxStep = formData.propertyId ? 9 : highestStepReached + 1
+      if (stepId > maxStep) {
         router.push('/profile/host/add-property/1')
       }
     }
-  }, [stepId, highestStepReached, isLoading, router])
+  }, [stepId, highestStepReached, formData.propertyId, isLoading, router])
 
   if (!authLoading && !isAuthenticated) {
     return (
@@ -74,7 +78,8 @@ export default function AddPropertyDynamicStepsPage() {
     return <div>Invalid Step</div>
   }
 
-  if (isLoading || authLoading || stepId > highestStepReached + 1) {
+  const maxStep = formData.propertyId ? 9 : highestStepReached + 1
+  if (isLoading || authLoading || stepId > maxStep) {
     return (
       <div className="flex grow items-center justify-center">
         <Spinner />
