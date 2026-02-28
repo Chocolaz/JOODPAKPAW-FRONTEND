@@ -1,12 +1,66 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { PageHeader } from './_components/PageHeader'
 import { PropertyList } from './_components/PropertyList'
+import { PropertyCard } from './_components/PropertyCard'
 import { SearchBar } from '@/app/_components/SearchBar'
 import { getProperties } from '@/lib/api'
 import { PropertiesResponse, Property } from '@/types'
 import { useAuth } from './_components/AuthContext'
+import { motion, AnimatePresence } from 'framer-motion'
+import { SearchX, Sparkles, Star } from 'lucide-react'
+
+const SKELETON_COUNT = 10
+const SECTION_LIMIT = 10
+const TOP_RATED_MIN = 4.0
+
+interface PropertySectionProps {
+  title: string
+  icon?: React.ReactNode
+  properties: Property[]
+  showHeartIcon?: boolean
+  showPetPolicyChip?: boolean
+}
+
+function PropertySection({
+  title,
+  icon,
+  properties,
+  showHeartIcon,
+  showPetPolicyChip,
+}: PropertySectionProps) {
+  if (properties.length === 0) return null
+  return (
+    <motion.section
+      initial={{ opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3 }}
+      className="mb-8 md:mb-10"
+    >
+      <div className="flex items-center gap-2 mb-3 md:mb-4">
+        {icon}
+        <h5 className="text-lg md:text-xl font-semibold text-deep-teal">{title}</h5>
+        <span className="text-sm text-neutral-gray">({properties.length})</span>
+      </div>
+      {/* Mobile: horizontal scroll row; md+: regular grid */}
+      <div className="flex gap-3 overflow-x-auto scrollbar-hide pb-2 -mx-5 px-5 snap-x snap-mandatory md:mx-0 md:px-0 md:overflow-x-visible md:grid md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 md:gap-5 lg:gap-6">
+        {properties.map((property) => (
+          <div
+            key={property.id}
+            className="w-44 shrink-0 snap-start md:w-auto md:shrink"
+          >
+            <PropertyCard
+              property={property}
+              showPetPolicyChip={showPetPolicyChip}
+              showHeartIcon={showHeartIcon}
+            />
+          </div>
+        ))}
+      </div>
+    </motion.section>
+  )
+}
 
 export default function Home() {
   const [properties, setProperties] = useState<Property[]>([])
@@ -14,24 +68,15 @@ export default function Home() {
   const [searchQuery, setSearchQuery] = useState('')
   const { isAuthenticated } = useAuth()
 
-  const handleSearch = (query: string) => {
-    setSearchQuery(query)
-  }
-
   useEffect(() => {
     const fetchProperties = async () => {
       try {
         setIsLoading(true)
-        const params: { search?: string; searchBy?: string } = {}
-        if (searchQuery) {
-          params.search = searchQuery
-          params.searchBy = 'title'
-        }
         const response = (await getProperties(
           1,
           1000,
-          params.search,
-          params.searchBy
+          searchQuery || undefined,
+          searchQuery ? 'title' : undefined
         )) as PropertiesResponse
         setProperties(response.data)
       } catch (error) {
@@ -44,36 +89,164 @@ export default function Home() {
     fetchProperties()
   }, [searchQuery, isAuthenticated])
 
+  const topRated = useMemo(
+    () =>
+      [...properties]
+        .filter((p) => p.avgRating >= TOP_RATED_MIN)
+        .sort((a, b) => b.avgRating - a.avgRating)
+        .slice(0, SECTION_LIMIT),
+    [properties]
+  )
+
+  const newListings = useMemo(
+    () =>
+      [...properties]
+        .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+        .slice(0, SECTION_LIMIT),
+    [properties]
+  )
+
   return (
     <div className="bg-white text-foreground min-h-screen flex flex-col">
-      <div className="px-5">
-        <SearchBar onSearch={handleSearch} value={searchQuery} />
+      {/* Header + search — constrained on desktop */}
+      <div className="px-5 md:px-6 lg:px-10 xl:px-16">
+        <SearchBar onSearch={setSearchQuery} value={searchQuery} />
         <PageHeader />
       </div>
-      <main className="mt-5 pb-24 flex-1">
-        <h5 className="text-xl font-medium text-deep-teal mb-4 px-5">
-          Properties
-        </h5>
-        {isLoading ? (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-5 px-5">
-            {Array.from({ length: 8 }).map((_, i) => (
-              <div key={i} className="animate-pulse">
-                <div className="aspect-square w-full bg-gray-200 rounded-[20px]" />
-                <div className="mt-2 space-y-2">
-                  <div className="h-4 bg-gray-200 rounded w-3/4" />
-                  <div className="h-3 bg-gray-200 rounded w-1/2" />
-                  <div className="h-3 bg-gray-200 rounded w-1/3" />
-                </div>
-              </div>
-            ))}
+
+      <main className="mt-5 pb-24 flex-1 px-5 md:px-6 lg:px-10 xl:px-16">
+        {/* Search results header */}
+        {searchQuery && (
+          <div className="flex items-center justify-between mb-4 md:mb-6">
+            <h5 className="text-xl md:text-2xl font-medium text-deep-teal">
+              Results for &ldquo;{searchQuery}&rdquo;
+            </h5>
+            <AnimatePresence>
+              {!isLoading && (
+                <motion.span
+                  initial={{ opacity: 0, y: -4 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.2 }}
+                  className="text-sm md:text-base text-neutral-gray"
+                >
+                  {properties.length} {properties.length === 1 ? 'place' : 'places'}
+                </motion.span>
+              )}
+            </AnimatePresence>
           </div>
-        ) : (
-          <PropertyList
-            properties={properties}
-            showPetPolicyChip={true}
-            showHeartIcon={isAuthenticated}
-          />
         )}
+
+        <AnimatePresence mode="wait">
+          {isLoading ? (
+            <motion.div
+              key="skeleton"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-5 lg:gap-6"
+            >
+              {Array.from({ length: SKELETON_COUNT }).map((_, i) => (
+                <div key={i} className="animate-pulse">
+                  <div className="aspect-square w-full bg-gray-200 rounded-[20px]" />
+                  <div className="mt-2 space-y-2">
+                    <div className="h-4 bg-gray-200 rounded w-3/4" />
+                    <div className="h-3 bg-gray-200 rounded w-1/2" />
+                    <div className="h-3 bg-gray-200 rounded w-1/3" />
+                  </div>
+                </div>
+              ))}
+            </motion.div>
+          ) : properties.length === 0 ? (
+            <motion.div
+              key="empty"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              transition={{ duration: 0.3, ease: 'easeOut' }}
+              className="flex flex-col items-center justify-center min-h-[40vh] gap-4 md:gap-6 text-center"
+            >
+              <motion.div
+                initial={{ scale: 0.8, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ delay: 0.1, duration: 0.4, ease: 'easeOut' }}
+                className="w-20 h-20 md:w-28 md:h-28 rounded-full bg-gray-100 flex items-center justify-center"
+              >
+                <SearchX className="w-9 h-9 md:w-12 md:h-12 text-gray-300" />
+              </motion.div>
+              <motion.div
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2, duration: 0.3 }}
+                className="space-y-1 md:space-y-2"
+              >
+                <p className="font-semibold text-gray-700 md:text-lg">No properties found</p>
+                <p className="text-sm md:text-base text-neutral-gray">
+                  {searchQuery
+                    ? `No results for "${searchQuery}". Try a different keyword.`
+                    : 'No properties available right now.'}
+                </p>
+              </motion.div>
+            </motion.div>
+          ) : searchQuery ? (
+            /* Flat search results */
+            <motion.div
+              key="search-results"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.25 }}
+            >
+              <PropertyList
+                properties={properties}
+                className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-5 lg:gap-6"
+                showPetPolicyChip={true}
+                showHeartIcon={isAuthenticated}
+              />
+            </motion.div>
+          ) : (
+            /* Sectioned browse */
+            <motion.div
+              key="sections"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.25 }}
+            >
+              <PropertySection
+                title="Top Rated"
+                icon={<Star className="w-5 h-5 fill-yellow-400 text-yellow-500" />}
+                properties={topRated}
+                showHeartIcon={isAuthenticated}
+                showPetPolicyChip={true}
+              />
+              <PropertySection
+                title="New Listings"
+                icon={<Sparkles className="w-5 h-5 text-deep-teal" />}
+                properties={newListings}
+                showHeartIcon={isAuthenticated}
+                showPetPolicyChip={true}
+              />
+              <section className="mb-8 md:mb-10">
+                <div className="flex items-center justify-between mb-3 md:mb-4">
+                  <h5 className="text-lg md:text-xl font-semibold text-deep-teal">
+                    All Properties
+                  </h5>
+                  <span className="text-sm md:text-base text-neutral-gray">
+                    {properties.length} {properties.length === 1 ? 'place' : 'places'}
+                  </span>
+                </div>
+                <PropertyList
+                  properties={properties}
+                  className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-5 lg:gap-6"
+                  showPetPolicyChip={true}
+                  showHeartIcon={isAuthenticated}
+                />
+              </section>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </main>
     </div>
   )

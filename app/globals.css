@@ -225,3 +225,11 @@ html::-webkit-scrollbar {
 .interact-button {
   @apply w-full bg-positive-green/90 h-12 text-[16px];
 }
+
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}

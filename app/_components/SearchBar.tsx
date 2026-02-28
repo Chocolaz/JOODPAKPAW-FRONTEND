@@ -21,27 +21,29 @@ export function SearchBar({ onSearch, value }: SearchBarProps) {
   }
 
   return (
-    <div className="sticky top-4 z-50 w-full bg-white/95 rounded-full backdrop-blur">
-      <div className="container flex h-14 items-center">
-        <form onSubmit={handleSubmit} className="relative flex w-full">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-          <Input
-            placeholder="Search"
-            className="pl-10 pr-10 rounded-full"
-            value={internalSearchValue}
-            onChange={(e) => {
-              setInternalSearchValue(e.target.value)
-              onSearch(e.target.value)
-            }}
-          />
-          <Button
-            type="submit"
-            size="icon"
-            className="absolute right-4 top-1/2 -translate-y-1/2 h-10 w-10 rounded-full bg-accent-orange"
-          >
-            <TextSearch className="h-5 w-5" />
-          </Button>
-        </form>
+    <div className="sticky top-4 z-50 w-full">
+      <div className="md:max-w-xl lg:max-w-2xl md:mx-auto">
+        <div className="bg-white/95 rounded-full backdrop-blur shadow-sm">
+          <form onSubmit={handleSubmit} className="relative flex w-full h-12 md:h-14 items-center">
+            <Search className="absolute left-4 h-5 w-5 md:h-5 md:w-5 text-muted-foreground" />
+            <Input
+              placeholder="Search properties…"
+              className="pl-11 pr-14 h-full rounded-full border-0 bg-transparent focus-visible:ring-0 text-sm md:text-base"
+              value={internalSearchValue}
+              onChange={(e) => {
+                setInternalSearchValue(e.target.value)
+                onSearch(e.target.value)
+              }}
+            />
+            <Button
+              type="submit"
+              size="icon"
+              className="absolute right-1.5 h-9 w-9 md:h-10 md:w-10 rounded-full bg-accent-orange shrink-0"
+            >
+              <TextSearch className="h-4 w-4 md:h-5 md:w-5" />
+            </Button>
+          </form>
+        </div>
       </div>
     </div>
   )

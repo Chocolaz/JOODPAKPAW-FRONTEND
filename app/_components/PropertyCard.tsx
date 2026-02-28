@@ -170,38 +170,38 @@ export function PropertyCard({
       {/* Content */}
       <Link href={finalHref}>
         <div className="mt-2">
-          <p className="text-sm font-medium text-deep-teal truncate">
+          <p className="text-sm md:text-base font-medium text-deep-teal truncate">
             {property.title}
           </p>
 
           <div className="flex items-center justify-between">
-            <p className="text-xs text-neutral-gray truncate">
+            <p className="text-xs md:text-sm text-neutral-gray truncate">
               {property.province}, {property.district}
             </p>
             <div className="flex items-center gap-0.5 shrink-0">
               <Star
                 className={cn(
-                  'w-3 h-3',
+                  'w-3 h-3 md:w-3.5 md:h-3.5',
                   property.avgRating > 0
                     ? 'fill-yellow-400 text-yellow-500'
                     : 'text-gray-300'
                 )}
               />
-              <span className="text-xs font-medium text-gray-700">
+              <span className="text-xs md:text-sm font-medium text-gray-700">
                 {property.avgRating > 0 ? property.avgRating.toFixed(1) : 'New'}
               </span>
             </div>
           </div>
 
           {showRoomCount && property.totalRoomCategories !== undefined && (
-            <p className="text-xs font-medium">
+            <p className="text-xs md:text-sm font-medium">
               {property.totalRoomCategories} Room{' '}
               {property.totalRoomCategories === 1 ? 'Type' : 'Types'}
             </p>
           )}
 
           {lowestPrice !== null && (
-            <p className="font-bold text-[10px]">THB {lowestPrice}</p>
+            <p className="font-bold text-xs md:text-sm text-deep-teal">THB {lowestPrice}</p>
           )}
         </div>
       </Link>
