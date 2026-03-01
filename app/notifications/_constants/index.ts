@@ -35,4 +35,9 @@ export const ACTION_CONFIG: Record<
 }
 
 /** Actions that navigate to the booking detail page when tapped */
-export const BOOKING_DETAIL_ACTIONS = new Set(['booking', 'payment', 'review'])
+export const BOOKING_DETAIL_ACTIONS = new Set([
+  'booking',
+  'payment',
+  'review',
+  'reminder',
+])
