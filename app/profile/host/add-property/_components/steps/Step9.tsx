@@ -29,9 +29,13 @@ export function Step9() {
     try {
       await updateHostPropertyIsActive(String(formData.propertyId), true)
       toast.success('Your property has been published successfully!')
+      // refreshAuth must run before clearAddPropertySession + router.push.
+      // The profile layout unmounts children while authLoading is true, which
+      // remounts AddPropertyProvider. If sessionStorage is already cleared at
+      // that point the guard sees an empty state and redirects to step 1.
+      await refreshAuth()
       clearAddPropertySession()
       router.push('/profile/host')
-      await refreshAuth()
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : 'Failed to publish property.'
@@ -43,9 +47,9 @@ export function Step9() {
 
   const savePropertyLater = async () => {
     toast.info('Your property is saved as a draft.')
+    await refreshAuth()
     clearAddPropertySession()
     router.push('/profile/host')
-    await refreshAuth()
   }
 
   const handleNext = async () => {

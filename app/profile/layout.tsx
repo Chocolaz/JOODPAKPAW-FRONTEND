@@ -26,8 +26,11 @@ function LayoutContent({ children }: { children: ReactNode }) {
     }
   }, [isAuthenticated, authLoading, normalizedPath, router])
 
-  if (authLoading || (!isAuthenticated && normalizedPath !== '/profile')) {
-    // Added normalizedPath condition
+  // Only block rendering when the user is not yet authenticated.
+  // Do NOT unmount children during a refresh (authLoading while already
+  // authenticated) — that would remount AddPropertyProvider with empty
+  // sessionStorage and trigger the step-guard to redirect to step 1.
+  if (!isAuthenticated && (authLoading || normalizedPath !== '/profile')) {
     return (
       <div className="flex h-screen items-center justify-center">
         <Spinner />
