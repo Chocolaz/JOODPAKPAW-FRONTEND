@@ -40,4 +40,5 @@ export const BOOKING_DETAIL_ACTIONS = new Set([
   'payment',
   'review',
   'reminder',
+  'cancel',
 ])
