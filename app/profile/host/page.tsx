@@ -42,7 +42,7 @@ export default function HostPage() {
   return (
     <Tabs defaultValue={defaultTab} className="w-full flex flex-col">
       {isHost && (
-        <TabsList className="grid w-full grid-cols-3 mx-auto sticky top-14 z-10 rounded-none h-11 bg-gray-50/80 backdrop-blur-sm md:max-w-md md:rounded-lg md:mt-2">
+        <TabsList className="grid w-full grid-cols-3 mx-auto sticky top-14 rounded-none h-11 bg-gray-50/80 backdrop-blur-sm md:max-w-md md:rounded-lg md:mt-2">
           <TabsTrigger value="properties" className="text-sm">
             Properties
           </TabsTrigger>
