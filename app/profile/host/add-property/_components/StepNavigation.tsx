@@ -1,5 +1,7 @@
 'use client'
 
+import { useEffect, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { Button } from '@/components/ui/button'
 import { Spinner } from '@/components/ui/spinner'
 
@@ -20,13 +22,16 @@ export function StepNavigation({
   backText = 'Back',
   nextText = 'Continue',
 }: StepNavigationProps) {
-  return (
-    <div className="fixed bottom-2 left-0 right-0 py-5 px-10 z-10 max-w-[500px] mx-auto flex justify-between items-center">
+  const [mounted, setMounted] = useState(false)
+  useEffect(() => setMounted(true), [])
+
+  const nav = (
+    <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 py-4 px-10 z-50 flex justify-between items-center max-w-[500px] mx-auto">
       {onBack ? (
         <Button
           variant="outline"
           onClick={onBack}
-          className="text-[16px] p-6 w-[100px]"
+          className="text-base px-6 py-3 min-w-[90px]"
           disabled={isSubmitting}
         >
           {backText}
@@ -38,7 +43,7 @@ export function StepNavigation({
       {onNext && (
         <Button
           onClick={onNext}
-          className="text-[16px] w-auto min-w-[100px] p-6 bg-positive-green"
+          className="text-base px-6 py-3 min-w-[110px] bg-positive-green"
           disabled={isNextDisabled || isSubmitting}
         >
           {isSubmitting ? <Spinner className="h-5 w-5" /> : nextText}
@@ -46,4 +51,6 @@ export function StepNavigation({
       )}
     </div>
   )
+
+  return mounted ? createPortal(nav, document.body) : null
 }

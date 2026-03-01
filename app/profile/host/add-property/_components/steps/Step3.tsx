@@ -1,6 +1,6 @@
 'use client'
 
-import * as React from 'react'
+import { ChangeEvent } from 'react'
 import { Input } from '@/components/ui/input'
 import { useAddProperty } from '../../_context/AddPropertyContext'
 import { StepNavigation } from '../StepNavigation'
@@ -14,141 +14,67 @@ export function Step3({
 }) {
   const { formData, updateField } = useAddProperty()
 
-  // Auto fill on load
-  React.useEffect(() => {
-    if (formData.latitude && formData.longitude) {
-      updateField('country', 'Thailand')
-      updateField('province', formData.province || '')
-
-      let districtToSet = formData.district || ''
-      if (!districtToSet && formData.subdistrict) {
-        districtToSet = formData.subdistrict.replace(/Khet/gi, '').trim()
-      }
-
-      updateField('district', districtToSet)
-      updateField('subdistrict', formData.subdistrict || '')
-      updateField('address', formData.address || '')
-      updateField('zipcode', formData.zipcode || '')
-    }
-  }, [
-    formData.latitude,
-    formData.longitude,
-    formData.province,
-    formData.district,
-    formData.subdistrict,
-    formData.address,
-    formData.zipcode,
-    updateField,
-  ])
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
-
-    // Allow only numbers for zipcode
     if (name === 'zipcode') {
-      const numeric = value.replace(/\D/g, '') // remove non-digits
-      updateField('zipcode', numeric.slice(0, 5)) // limit to 5 digits
+      updateField('zipcode', value.replace(/\D/g, '').slice(0, 5))
       return
     }
-
     updateField(name as keyof typeof formData, value)
   }
 
-  const isFormValid = () => {
-    return (
-      formData.country.trim() !== '' &&
-      formData.province.trim() !== '' &&
-      formData.district.trim() !== '' &&
-      formData.subdistrict.trim() !== '' &&
-      formData.address.trim() !== '' &&
-      formData.zipcode.trim().length === 5
-    )
-  }
+  const isFormValid =
+    formData.country.trim() !== '' &&
+    formData.province.trim() !== '' &&
+    formData.district.trim() !== '' &&
+    formData.subdistrict.trim() !== '' &&
+    formData.address.trim() !== '' &&
+    formData.zipcode.trim().length === 5
+
+  const fields = [
+    { name: 'district', label: 'District', maxLength: 50 },
+    { name: 'subdistrict', label: 'Subdistrict', maxLength: 50 },
+    { name: 'address', label: 'Address', maxLength: 120 },
+    { name: 'zipcode', label: 'Zipcode', maxLength: 5, inputMode: 'numeric' as const },
+  ]
 
   return (
     <>
       <div className="w-full text-center mt-10 pb-24">
         <h3 className="text-deep-teal">Confirm your address</h3>
         <p className="mb-6 text-neutral-gray text-sm">
-          We’ve auto-filled your address based on the location you picked.
-          <br /> You can make adjustments if needed.
+          We&apos;ve auto-filled your address based on the location you picked.
+          You can make adjustments if needed.
         </p>
 
         <div className="space-y-4 text-left pb-4">
-          {/* Country */}
           <div>
-            <p className="text-sm font-medium text-deep-teal mb-1">Country</p>
+            <label className="text-sm font-medium text-deep-teal mb-1 block">Country</label>
             <Input value="Thailand" disabled className="cursor-not-allowed" />
           </div>
 
-          {/* Province */}
           <div>
-            <p className="text-sm font-medium text-deep-teal mb-1">Province</p>
-            <Input
-              value={formData.province || ''}
-              disabled
-              className="cursor-not-allowed"
-            />
+            <label className="text-sm font-medium text-deep-teal mb-1 block">Province</label>
+            <Input value={formData.province || ''} disabled className="cursor-not-allowed" />
           </div>
 
-          {/* District */}
-          <div>
-            <p className="text-sm font-medium text-deep-teal mb-1">District</p>
-            <Input
-              name="district"
-              placeholder="District"
-              value={formData.district}
-              maxLength={50}
-              onChange={handleChange}
-            />
-          </div>
-
-          {/* Subdistrict */}
-          <div>
-            <p className="text-sm font-medium text-deep-teal mb-1">
-              Subdistrict
-            </p>
-            <Input
-              name="subdistrict"
-              placeholder="Subdistrict"
-              value={formData.subdistrict}
-              maxLength={50}
-              onChange={handleChange}
-            />
-          </div>
-
-          {/* Address */}
-          <div>
-            <p className="text-sm font-medium text-deep-teal mb-1">Address</p>
-            <Input
-              name="address"
-              placeholder="Address"
-              value={formData.address}
-              maxLength={120}
-              onChange={handleChange}
-            />
-          </div>
-
-          {/* Zipcode */}
-          <div>
-            <p className="text-sm font-medium text-deep-teal mb-1">Zipcode</p>
-            <Input
-              name="zipcode"
-              placeholder="Zipcode"
-              value={formData.zipcode}
-              inputMode="numeric"
-              maxLength={5}
-              onChange={handleChange}
-            />
-          </div>
+          {fields.map(({ name, label, maxLength, inputMode }) => (
+            <div key={name}>
+              <label className="text-sm font-medium text-deep-teal mb-1 block">{label}</label>
+              <Input
+                name={name}
+                placeholder={label}
+                value={formData[name as keyof typeof formData] as string}
+                maxLength={maxLength}
+                inputMode={inputMode}
+                onChange={handleChange}
+              />
+            </div>
+          ))}
         </div>
       </div>
 
-      <StepNavigation
-        onBack={onBack}
-        onNext={onNext}
-        isNextDisabled={!isFormValid()}
-      />
+      <StepNavigation onBack={onBack} onNext={onNext} isNextDisabled={!isFormValid} />
     </>
   )
 }

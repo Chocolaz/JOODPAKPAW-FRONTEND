@@ -27,6 +27,36 @@ import SmallIcon from '/public/icons/small.svg'
 import MediumIcon from '/public/icons/medium.svg'
 import LargeIcon from '/public/icons/large.svg'
 
+function SkeletonPetTypes() {
+  return (
+    <div className="flex justify-center items-center gap-6">
+      {[0, 1].map((i) => (
+        <div key={i} className="w-24 h-24 rounded-xl bg-gray-100 animate-pulse" />
+      ))}
+    </div>
+  )
+}
+
+function SkeletonPetSizes() {
+  return (
+    <div className="flex justify-center items-center gap-6">
+      {[0, 1, 2].map((i) => (
+        <div key={i} className="w-[100px] h-[125px] rounded-xl bg-gray-100 animate-pulse" />
+      ))}
+    </div>
+  )
+}
+
+function SkeletonFacilities() {
+  return (
+    <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+      {Array.from({ length: 6 }).map((_, i) => (
+        <div key={i} className="h-[72px] rounded-xl bg-gray-100 animate-pulse" />
+      ))}
+    </div>
+  )
+}
+
 const initialRoomState: RoomCategoryFormData = {
   name: '',
   basePrice: 0,
@@ -264,7 +294,7 @@ export function AddRoomCategoryForm({
       <div>
         <Label className="text-deep-teal block mb-2">Species Allowed</Label>
         {loadingPetData ? (
-          <Spinner />
+          <SkeletonPetTypes />
         ) : (
           <div className="flex justify-center items-center gap-6">
             {petTypes.map((pet) => {
@@ -293,6 +323,9 @@ export function AddRoomCategoryForm({
       {/* Pet Size */}
       <div>
         <Label className="text-deep-teal block mb-2">Size</Label>
+        {loadingPetData ? (
+          <SkeletonPetSizes />
+        ) : (
         <div className="flex justify-center items-center gap-6">
           {petSizeCategories.map((size) => {
             const selected = roomData.petSizeCategoryId === size.id
@@ -329,22 +362,26 @@ export function AddRoomCategoryForm({
             )
           })}
         </div>
+        )}
       </div>
 
       {/* Facilities */}
       <div>
         <Label className="text-deep-teal block mb-2">Room Facilities</Label>
-        {facilitiesLoading && <Spinner />}
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-          {roomFacilities.map((f) => (
-            <FacilityCard
-              key={f.id}
-              facility={f}
-              selected={roomData.facilities.includes(f.id)}
-              onToggle={(id) => toggleMulti('facilities', id)}
-            />
-          ))}
-        </div>
+        {facilitiesLoading ? (
+          <SkeletonFacilities />
+        ) : (
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+            {roomFacilities.map((f) => (
+              <FacilityCard
+                key={f.id}
+                facility={f}
+                selected={roomData.facilities.includes(f.id)}
+                onToggle={(id) => toggleMulti('facilities', id)}
+              />
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Max pets */}

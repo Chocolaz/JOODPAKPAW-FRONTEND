@@ -7,5 +7,9 @@ export default function AddPropertyLayout({
 }: {
   children: React.ReactNode
 }) {
-  return <AddPropertyProvider>{children}</AddPropertyProvider>
+  return (
+    <AddPropertyProvider>
+      <div className="overflow-x-hidden">{children}</div>
+    </AddPropertyProvider>
+  )
 }

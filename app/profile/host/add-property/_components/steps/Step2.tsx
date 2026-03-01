@@ -7,6 +7,7 @@ import {
   StandaloneSearchBox,
   useJsApiLoader,
 } from '@react-google-maps/api'
+import { MapPin, Loader2 } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { useAddProperty } from '../../_context/AddPropertyContext'
 import { StepNavigation } from '../StepNavigation'
@@ -23,40 +24,36 @@ export function Step2({
 }) {
   const { formData, updateField } = useAddProperty()
 
-  // -------------------------------
-  // 1) State
-  // -------------------------------
   const [center, setCenter] = useState({
     lat: Number(formData.latitude) || 13.736717,
     lng: Number(formData.longitude) || 100.523186,
   })
-  const [searchBox, setSearchBox] =
-    useState<google.maps.places.SearchBox | null>(null)
+  const [searchBox, setSearchBox] = useState<google.maps.places.SearchBox | null>(null)
   const [address, setAddress] = useState(formData.address || '')
+  const [isLocating, setIsLocating] = useState(false)
+  const [isGeocoding, setIsGeocoding] = useState(false)
 
   const { isLoaded } = useJsApiLoader({
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY!,
     libraries,
   })
 
-  // -------------------------------
-  // 3) Reverse Geocoding
-  // -------------------------------
   const reverseGeocode = useCallback(
     (lat: number, lng: number) => {
-      if (!window.google || !window.google.maps) return
-
+      if (!window.google?.maps) return
+      setIsGeocoding(true)
       const geocoder = new window.google.maps.Geocoder()
       geocoder.geocode(
         { location: { lat, lng }, language: 'en' },
         (results, status) => {
+          setIsGeocoding(false)
           if (status === 'OK' && results && results.length > 0) {
             const place = results[0]
             const components: AddressComponents = {}
 
             place.address_components.forEach((c) => {
               const types = c.types
-              if (types.includes('country')) components.country = 'Thailand' // lock country
+              if (types.includes('country')) components.country = 'Thailand'
               if (types.includes('administrative_area_level_1')) {
                 let prov = c.long_name
                 if (/krung\s*thep/i.test(prov)) prov = 'Bangkok'
@@ -64,16 +61,11 @@ export function Step2({
               }
               if (types.includes('administrative_area_level_2'))
                 components.district = c.long_name
-              if (
-                types.includes('sublocality_level_1') ||
-                types.includes('locality')
-              )
+              if (types.includes('sublocality_level_1') || types.includes('locality'))
                 components.subdistrict = c.long_name
               if (types.includes('route')) components.route = c.long_name
-              if (types.includes('street_number'))
-                components.street_number = c.long_name
-              if (types.includes('postal_code'))
-                components.zipcode = c.long_name
+              if (types.includes('street_number')) components.street_number = c.long_name
+              if (types.includes('postal_code')) components.zipcode = c.long_name
             })
 
             updateField('country', components.country || 'Thailand')
@@ -85,7 +77,6 @@ export function Step2({
               `${components.street_number || ''} ${components.route || ''}`.trim()
             )
             updateField('zipcode', components.zipcode || '')
-
             setAddress(place.formatted_address || '')
           }
         }
@@ -94,29 +85,25 @@ export function Step2({
     [updateField]
   )
 
-  // -------------------------------
-  // 2) Use user's location if not set
-  // -------------------------------
+  // Auto-locate the user if no coordinates are saved yet
   useEffect(() => {
-    const handleLocation = (lat: number, lng: number) => {
-      setCenter({ lat, lng })
-      updateField('latitude', String(lat))
-      updateField('longitude', String(lng))
-      reverseGeocode(lat, lng)
-    }
+    if (formData.latitude || formData.longitude) return
+    if (!navigator.geolocation) return
 
-    if (!formData.latitude && !formData.longitude) {
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition((pos) =>
-          handleLocation(pos.coords.latitude, pos.coords.longitude)
-        )
-      }
-    }
+    setIsLocating(true)
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const { latitude: lat, longitude: lng } = pos.coords
+        setCenter({ lat, lng })
+        updateField('latitude', String(lat))
+        updateField('longitude', String(lng))
+        setIsLocating(false)
+        reverseGeocode(lat, lng)
+      },
+      () => setIsLocating(false) // user denied or error — fail silently
+    )
   }, [formData.latitude, formData.longitude, reverseGeocode, updateField])
 
-  // -------------------------------
-  // 4) SearchBox change
-  // -------------------------------
   const onPlacesChanged = () => {
     if (!searchBox) return
     const places = searchBox.getPlaces()
@@ -132,9 +119,6 @@ export function Step2({
     }
   }
 
-  // -------------------------------
-  // 5) Drag Marker
-  // -------------------------------
   const onMarkerDragEnd = (e: google.maps.MapMouseEvent) => {
     if (!e.latLng) return
     const lat = e.latLng.lat()
@@ -145,14 +129,36 @@ export function Step2({
     reverseGeocode(lat, lng)
   }
 
-  if (!isLoaded) return <p className="text-center py-6">Loading map…</p>
+  // ── Map API still loading ───────────────────────────────────────────────
+  if (!isLoaded) {
+    return (
+      <>
+        <div className="w-full text-center mt-5">
+          <h3 className="text-deep-teal">Where is your property located?</h3>
+          <p className="mb-4 text-neutral-gray text-sm">
+            Drag the marker or search to choose your location (within Thailand).
+          </p>
 
+          {/* Search box skeleton */}
+          <div className="w-full h-10 mb-3 bg-gray-100 animate-pulse rounded-lg" />
+
+          {/* Map skeleton */}
+          <div className="w-full h-[380px] rounded-xl bg-gray-100 animate-pulse flex flex-col items-center justify-center gap-2 text-gray-400 border">
+            <MapPin className="w-8 h-8 opacity-40" />
+            <span className="text-sm">Loading map…</span>
+          </div>
+        </div>
+
+        <StepNavigation onBack={onBack} onNext={onNext} isNextDisabled />
+      </>
+    )
+  }
+
+  // ── Map loaded ──────────────────────────────────────────────────────────
   return (
     <>
       <div className="w-full text-center mt-5">
-        <h3 className="text-deep-teal text-xl font-semibold">
-          Where is your property located?
-        </h3>
+        <h3 className="text-deep-teal">Where is your property located?</h3>
         <p className="mb-4 text-neutral-gray text-sm">
           Drag the marker or search to choose your location (within Thailand).
         </p>
@@ -163,18 +169,18 @@ export function Step2({
           onPlacesChanged={onPlacesChanged}
         >
           <Input
-            placeholder="Search location..."
+            placeholder="Search location…"
             value={address}
             onChange={(e) => setAddress(e.target.value)}
             className="w-full mb-3"
           />
         </StandaloneSearchBox>
 
-        {/* Google Map */}
-        <div className="w-full h-[380px] rounded-xl overflow-hidden shadow-md border">
+        {/* Map */}
+        <div className="relative w-full h-[380px] rounded-xl overflow-hidden shadow-md border">
           <GoogleMap
             mapContainerStyle={{ width: '100%', height: '100%' }}
-            center={{ lat: Number(center.lat), lng: Number(center.lng) }}
+            center={center}
             zoom={15}
             options={{
               streetViewControl: false,
@@ -191,29 +197,39 @@ export function Step2({
               },
             }}
           >
-            <Marker
-              position={{ lat: Number(center.lat), lng: Number(center.lng) }}
-              draggable
-              onDragEnd={onMarkerDragEnd}
-            />
+            <Marker position={center} draggable onDragEnd={onMarkerDragEnd} />
           </GoogleMap>
+
+          {/* Geolocation overlay — shown while waiting for GPS */}
+          {isLocating && (
+            <div className="absolute inset-0 bg-white/75 backdrop-blur-[2px] flex flex-col items-center justify-center gap-2">
+              <Loader2 className="w-6 h-6 animate-spin text-deep-teal" />
+              <span className="text-sm font-medium text-deep-teal">Getting your location…</span>
+            </div>
+          )}
         </div>
 
-        {/* Lat/Lng */}
-        <div className="text-center text-neutral-gray text-sm my-4">
-          <span className="block">
-            <b>Latitude:</b> {formData.latitude || ''}
-          </span>
-          <span className="block">
-            <b>Longitude:</b> {formData.longitude || ''}
-          </span>
+        {/* Status row below map */}
+        <div className="flex items-center justify-center gap-1.5 text-neutral-gray text-xs mt-3 h-5">
+          {isGeocoding ? (
+            <>
+              <Loader2 className="w-3 h-3 animate-spin" />
+              <span>Updating address…</span>
+            </>
+          ) : formData.latitude && formData.longitude ? (
+            <span className="text-positive-green font-medium">
+              Location set — drag the pin to adjust
+            </span>
+          ) : (
+            <span>Search for an address or drag the pin to your property</span>
+          )}
         </div>
       </div>
 
       <StepNavigation
         onBack={onBack}
         onNext={onNext}
-        isNextDisabled={!formData.latitude || !formData.longitude}
+        isNextDisabled={!formData.latitude || !formData.longitude || isGeocoding}
       />
     </>
   )

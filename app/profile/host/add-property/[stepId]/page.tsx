@@ -23,6 +23,11 @@ export default function AddPropertyDynamicStepsPage() {
   const { highestStepReached, setHighestStepReached, isLoading, formData } =
     useAddProperty()
 
+  // Once a property is created, all post-creation steps (8-9) are accessible.
+  // This avoids a race condition where highestStepReached hasn't committed yet
+  // when navigating from step 8 → 9 (propertyId is from an earlier batch).
+  const maxStep = formData.propertyId ? 9 : highestStepReached + 1
+
   useEffect(() => {
     if (!authLoading && !isAuthenticated) {
       logout()
@@ -31,18 +36,20 @@ export default function AddPropertyDynamicStepsPage() {
   }, [authLoading, isAuthenticated, router, logout])
 
   useEffect(() => {
-    if (!isLoading) {
-      // Once a property is created (steps 8-9 are post-creation), allow access
-      // to avoid a race condition where highestStepReached state update hasn't
-      // committed yet when navigating from step 8 → 9.
-      const maxStep = formData.propertyId ? 9 : highestStepReached + 1
-      if (stepId > maxStep) {
-        router.push('/profile/host/add-property/1')
-      }
+    if (!isLoading && stepId > maxStep) {
+      router.push('/profile/host/add-property/1')
     }
-  }, [stepId, highestStepReached, formData.propertyId, isLoading, router])
+  }, [stepId, maxStep, isLoading, router])
 
   if (!authLoading && !isAuthenticated) {
+    return (
+      <div className="flex grow items-center justify-center">
+        <Spinner />
+      </div>
+    )
+  }
+
+  if (isLoading || authLoading || stepId > maxStep) {
     return (
       <div className="flex grow items-center justify-center">
         <Spinner />
@@ -71,25 +78,17 @@ export default function AddPropertyDynamicStepsPage() {
     <Step9 key="step-9" />,
   ]
 
-  const renderStep = () => {
-    if (stepId > 0 && stepId <= steps.length) {
-      return steps[stepId - 1]
-    }
-    return <div>Invalid Step</div>
-  }
-
-  const maxStep = formData.propertyId ? 9 : highestStepReached + 1
-  if (isLoading || authLoading || stepId > maxStep) {
+  if (stepId < 1 || stepId > steps.length) {
     return (
-      <div className="flex grow items-center justify-center">
-        <Spinner />
+      <div className="flex grow items-center justify-center text-neutral-gray">
+        Invalid step
       </div>
     )
   }
 
   return (
     <div className="flex flex-col max-w-[500px] mx-auto w-full px-8">
-      {renderStep()}
+      {steps[stepId - 1]}
     </div>
   )
 }
