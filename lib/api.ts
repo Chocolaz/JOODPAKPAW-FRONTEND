@@ -260,7 +260,7 @@ export const getPetSizeCategories = (): Promise<PetSizeCategoriesResponse> => {
   return request<PetSizeCategoriesResponse>({
     endpoint: 'api/v1/pet-size-categories/all',
     method: 'GET',
-    requiresAuth: true,
+    sendAuthIfAvailable: true,
     errorContext: 'Get Pet Size Categories',
   })
 }
@@ -358,13 +358,17 @@ export const searchRoomCategories = (
   propertyId: number,
   checkInDate: string,
   checkOutDate: string,
-  numberOfPets: number
+  numberOfPets: number,
+  petSizeId?: number
 ): Promise<RoomCategoriesResponse> => {
   const params = new URLSearchParams({
     checkInDate,
     checkOutDate,
     numberOfPets: String(numberOfPets),
   })
+  if (petSizeId !== undefined) {
+    params.append('petSizeId', String(petSizeId))
+  }
   return request<RoomCategoriesResponse>({
     endpoint: `api/v1/properties/${propertyId}/room-categories/search?${params.toString()}`,
     method: 'GET',

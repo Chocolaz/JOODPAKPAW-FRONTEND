@@ -19,8 +19,8 @@ import { BookingRoomCard } from './BookingRoomCard'
 import { BookingSearchBar, SearchParams } from './BookingSearchBar'
 import { useBooking } from '@/app/_context/BookingContext'
 import { useAuth } from '@/app/_components/AuthContext'
-import { getAllPetProfiles } from '@/lib/api'
-import { PetProfile } from '@/types'
+import { getAllPetProfiles, getPetSizeCategories } from '@/lib/api'
+import { PetProfile, PetSizeCategory } from '@/types'
 import { toast } from 'sonner'
 import { format } from 'date-fns'
 
@@ -43,6 +43,8 @@ export function BookingDrawer({ propertyId }: BookingDrawerProps) {
     setSelectedPetIds,
     numberOfPets,
     setNumberOfPets,
+    petSizeId,
+    setPetSizeId,
     handleSelectChange,
     handleSearch,
     currentPropertyData,
@@ -57,6 +59,13 @@ export function BookingDrawer({ propertyId }: BookingDrawerProps) {
   const [isDrawerOpen, setIsDrawerOpen] = React.useState(false)
   const [petProfiles, setPetProfiles] = React.useState<PetProfile[]>([])
   const [petProfilesLoading, setPetProfilesLoading] = React.useState(false)
+  const [petSizeCategories, setPetSizeCategories] = React.useState<PetSizeCategory[]>([])
+
+  React.useEffect(() => {
+    getPetSizeCategories()
+      .then((res) => setPetSizeCategories(res.petSizeCategories))
+      .catch(() => setPetSizeCategories([]))
+  }, [])
 
   // Fetch pet profiles when authenticated
   React.useEffect(() => {
@@ -112,7 +121,8 @@ export function BookingDrawer({ propertyId }: BookingDrawerProps) {
       propertyId,
       params.checkInDate,
       params.checkOutDate,
-      params.petCount
+      params.petCount,
+      params.petSizeId
     )
   }
 
@@ -230,8 +240,11 @@ export function BookingDrawer({ propertyId }: BookingDrawerProps) {
                 setSelectedPetIds={setSelectedPetIds}
                 numberOfPets={numberOfPets}
                 setNumberOfPets={setNumberOfPets}
+                petSizeId={petSizeId}
+                setPetSizeId={setPetSizeId}
                 petProfiles={petProfiles}
                 petProfilesLoading={petProfilesLoading}
+                petSizeCategories={petSizeCategories}
               />
               <h4 className="text-deep-teal mb-2">
                 Select a Room{' '}

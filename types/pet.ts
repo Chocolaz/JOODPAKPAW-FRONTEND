@@ -37,9 +37,10 @@ export interface PetProfile {
   birthDate: string
   age?: number // In list view
   petTypeName?: string // In list view
+  petSizeCategoryId?: number // In list view
   sex?: 'male' | 'female' // In detail view
   petBreedName?: string // In detail view
-  petSizeName?: string // In detail view // Added petSizeName
+  petSizeName?: string // In detail view
   rating?: number // In detail view
   contactName?: string // In detail view
   contactPhone?: string // In detail view

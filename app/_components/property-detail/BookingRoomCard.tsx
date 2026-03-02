@@ -71,6 +71,11 @@ export function BookingRoomCard({
                     {getPetPolicy(cat.pets)}
                   </span>
                   {cat.numberOfPets} pets max{' '}
+                  {cat.petSizeCategory && (
+                    <span className="ml-1 capitalize">
+                      · {cat.petSizeCategory.name} ({cat.petSizeCategory.min}–{cat.petSizeCategory.max} kg)
+                    </span>
+                  )}
                 </p>
 
                 {/* Facilities */}

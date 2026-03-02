@@ -31,6 +31,13 @@ export interface RoomCategories {
       finalPrice: number
     }[]
   }
+  petSizeCategory?: {
+    id: number
+    name: string
+    code: number
+    min: number
+    max: number
+  }
   property?: {
     id: number
     title: string

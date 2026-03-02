@@ -21,6 +21,7 @@ interface BookingContextType {
   date: DateRange | undefined
   selectedPetIds: number[]
   numberOfPets: number
+  petSizeId: number | undefined
   loading: boolean
   error: string | null
 
@@ -31,12 +32,14 @@ interface BookingContextType {
   setDate: React.Dispatch<React.SetStateAction<DateRange | undefined>>
   setSelectedPetIds: React.Dispatch<React.SetStateAction<number[]>>
   setNumberOfPets: React.Dispatch<React.SetStateAction<number>>
+  setPetSizeId: React.Dispatch<React.SetStateAction<number | undefined>>
   handleSelectChange: (categoryId: number, value: number) => void
   handleSearch: (
     propertyId: number,
     checkInDate: string,
     checkOutDate: string,
-    petCount: number
+    petCount: number,
+    petSizeId?: number
   ) => Promise<void>
   clearBookingState: () => void
 }
@@ -65,7 +68,7 @@ export function BookingProvider({ children }: { children: React.ReactNode }) {
         }
       }
     }
-    return { date: undefined, selectedPetIds: [], numberOfPets: 0, bookingData: {} }
+    return { date: undefined, selectedPetIds: [], numberOfPets: 0, petSizeId: undefined, bookingData: {} }
   }
 
   const initialState = React.useRef(getInitialBookingState()).current
@@ -78,6 +81,9 @@ export function BookingProvider({ children }: { children: React.ReactNode }) {
   )
   const [numberOfPets, setNumberOfPets] = React.useState<number>(
     initialState.numberOfPets ?? 0
+  )
+  const [petSizeId, setPetSizeId] = React.useState<number | undefined>(
+    initialState.petSizeId
   )
 
   const [bookingData, setBookingData] = React.useState<
@@ -96,6 +102,7 @@ export function BookingProvider({ children }: { children: React.ReactNode }) {
     setDate(undefined)
     setSelectedPetIds([])
     setNumberOfPets(0)
+    setPetSizeId(undefined)
     setError(null)
     if (typeof window !== 'undefined') {
       sessionStorage.removeItem('booking_state')
@@ -110,10 +117,10 @@ export function BookingProvider({ children }: { children: React.ReactNode }) {
 
   React.useEffect(() => {
     if (typeof window !== 'undefined') {
-      const stateToSave = { date, selectedPetIds, numberOfPets, bookingData }
+      const stateToSave = { date, selectedPetIds, numberOfPets, petSizeId, bookingData }
       sessionStorage.setItem('booking_state', JSON.stringify(stateToSave))
     }
-  }, [date, selectedPetIds, numberOfPets, bookingData])
+  }, [date, selectedPetIds, numberOfPets, petSizeId, bookingData])
 
   const handleSelectChange = (categoryId: number, value: number) => {
     if (!currentPropertyId) return
@@ -144,7 +151,8 @@ export function BookingProvider({ children }: { children: React.ReactNode }) {
     searchPropertyId: number,
     checkInDate: string,
     checkOutDate: string,
-    petCount: number
+    petCount: number,
+    petSizeId?: number
   ) => {
     if (!checkInDate || !checkOutDate) {
       toast.error('Please select check-in and check-out dates.')
@@ -158,7 +166,8 @@ export function BookingProvider({ children }: { children: React.ReactNode }) {
         searchPropertyId,
         checkInDate,
         checkOutDate,
-        petCount
+        petCount,
+        petSizeId
       )
       const normalizedCategories = normalizeRoomCategories(
         response.roomCategories
@@ -187,6 +196,7 @@ export function BookingProvider({ children }: { children: React.ReactNode }) {
     date,
     selectedPetIds,
     numberOfPets,
+    petSizeId,
     loading,
     error,
     currentPropertyData: currentPropertyId
@@ -195,6 +205,7 @@ export function BookingProvider({ children }: { children: React.ReactNode }) {
     setDate,
     setSelectedPetIds,
     setNumberOfPets,
+    setPetSizeId,
     handleSelectChange,
     handleSearch,
     clearBookingState,

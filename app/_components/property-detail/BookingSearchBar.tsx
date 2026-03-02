@@ -20,12 +20,13 @@ import {
   DialogFooter,
 } from '@/components/ui/dialog'
 import { PawPrint, CheckCircle2, Hash } from 'lucide-react'
-import { PetProfile } from '@/types'
+import { PetProfile, PetSizeCategory } from '@/types'
 
 export interface SearchParams {
   checkInDate: string | undefined
   checkOutDate: string | undefined
   petCount: number
+  petSizeId?: number
 }
 
 interface BookingSearchBarProps {
@@ -36,8 +37,11 @@ interface BookingSearchBarProps {
   setSelectedPetIds: React.Dispatch<React.SetStateAction<number[]>>
   numberOfPets: number
   setNumberOfPets: React.Dispatch<React.SetStateAction<number>>
+  petSizeId: number | undefined
+  setPetSizeId: React.Dispatch<React.SetStateAction<number | undefined>>
   petProfiles: PetProfile[]
   petProfilesLoading: boolean
+  petSizeCategories: PetSizeCategory[]
 }
 
 type PetMode = 'profiles' | 'count'
@@ -50,8 +54,11 @@ export function BookingSearchBar({
   setSelectedPetIds,
   numberOfPets,
   setNumberOfPets,
+  petSizeId,
+  setPetSizeId,
   petProfiles,
   petProfilesLoading,
+  petSizeCategories,
 }: BookingSearchBarProps) {
   const [selectedDateRange, setSelectedDateRange] = React.useState<
     DateRange | undefined
@@ -62,6 +69,7 @@ export function BookingSearchBar({
   // Draft state inside the dialog — committed on "Confirm"
   const [draftPetIds, setDraftPetIds] = React.useState<number[]>([])
   const [draftNumberOfPets, setDraftNumberOfPets] = React.useState(0)
+  const [draftPetSizeId, setDraftPetSizeId] = React.useState<number | undefined>(undefined)
   const [petMode, setPetMode] = React.useState<PetMode>(
     petProfiles.length > 0 ? 'profiles' : 'count'
   )
@@ -74,6 +82,7 @@ export function BookingSearchBar({
     if (isPetsDialogOpen) {
       setDraftPetIds(selectedPetIds)
       setDraftNumberOfPets(numberOfPets)
+      setDraftPetSizeId(petSizeId)
       if (selectedPetIds.length > 0) {
         setPetMode('profiles')
       } else if (numberOfPets > 0) {
@@ -82,7 +91,7 @@ export function BookingSearchBar({
         setPetMode(petProfiles.length > 0 ? 'profiles' : 'count')
       }
     }
-  }, [isPetsDialogOpen, selectedPetIds, numberOfPets, petProfiles.length])
+  }, [isPetsDialogOpen, selectedPetIds, numberOfPets, petSizeId, petProfiles.length])
 
   const handleConfirmDate = () => {
     if (selectedDateRange?.from && selectedDateRange?.to) {
@@ -95,9 +104,11 @@ export function BookingSearchBar({
     if (petMode === 'profiles') {
       setSelectedPetIds(draftPetIds)
       setNumberOfPets(0)
+      setPetSizeId(undefined)
     } else {
       setSelectedPetIds([])
       setNumberOfPets(draftNumberOfPets)
+      setPetSizeId(draftPetSizeId)
     }
     setIsPetsDialogOpen(false)
   }
@@ -121,14 +132,18 @@ export function BookingSearchBar({
   React.useEffect(() => {
     const petCount = selectedPetIds.length > 0 ? selectedPetIds.length : numberOfPets
     if (date?.from && date?.to && petCount > 0) {
+      const resolvedPetSizeId = selectedPetIds.length > 0
+        ? petProfiles.find((p) => selectedPetIds.includes(p.id))?.petSizeCategoryId
+        : petSizeId
       onSearch({
         checkInDate: format(date.from, 'yyyy-MM-dd'),
         checkOutDate: format(date.to, 'yyyy-MM-dd'),
         petCount,
+        petSizeId: resolvedPetSizeId,
       })
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [date?.from?.getTime(), date?.to?.getTime(), selectedPetIds.length, numberOfPets])
+  }, [date?.from?.getTime(), date?.to?.getTime(), selectedPetIds.length, numberOfPets, petSizeId])
 
   const petButtonLabel = React.useMemo(() => {
     if (selectedPetIds.length > 0) {
@@ -144,7 +159,9 @@ export function BookingSearchBar({
 
   const confirmedCount =
     petMode === 'profiles' ? draftPetIds.length : draftNumberOfPets
-  const isConfirmPetsDisabled = confirmedCount === 0
+  const isConfirmPetsDisabled =
+    confirmedCount === 0 ||
+    (petMode === 'count' && petSizeCategories.length > 0 && draftPetSizeId === undefined)
 
   return (
     <div className="flex items-center gap-2 p-2 rounded-full border bg-off-white shadow-sm mb-4">
@@ -449,7 +466,7 @@ export function BookingSearchBar({
                         exit={{ height: 0, opacity: 0 }}
                         transition={{ duration: 0.22, ease: 'easeInOut' }}
                       >
-                        <div className="border-t border-gray-100 bg-gray-50/70 px-5 py-4">
+                        <div className="border-t border-gray-100 bg-gray-50/70 px-5 py-4 space-y-4">
                           <div className="flex items-center justify-between">
                             <span className="font-medium text-deep-teal">
                               Number of pets
@@ -478,6 +495,40 @@ export function BookingSearchBar({
                               </Button>
                             </div>
                           </div>
+
+                          {petSizeCategories.length > 0 && (
+                            <div className="space-y-2">
+                              <p className="text-sm font-medium text-deep-teal">Pet size</p>
+                              <div className="flex flex-wrap gap-2">
+                                {petSizeCategories.map((size) => (
+                                  <button
+                                    key={size.id}
+                                    type="button"
+                                    onClick={() =>
+                                      setDraftPetSizeId((prev) =>
+                                        prev === size.id ? undefined : size.id
+                                      )
+                                    }
+                                    className={cn(
+                                      'flex-1 min-w-[80px] rounded-xl border-2 px-3 py-2 text-center transition-all duration-150',
+                                      draftPetSizeId === size.id
+                                        ? 'border-accent-orange bg-accent-orange/10 text-accent-orange'
+                                        : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300'
+                                    )}
+                                  >
+                                    <p className="text-sm font-semibold capitalize">{size.name}</p>
+                                    <p className="text-xs text-neutral-gray">
+                                      {size.max === 0
+                                        ? `0 kg`
+                                        : size.min === 0
+                                        ? `0–${size.max} kg`
+                                        : `${size.min}–${size.max} kg`}
+                                    </p>
+                                  </button>
+                                ))}
+                              </div>
+                            </div>
+                          )}
                         </div>
                       </motion.div>
                     )}
@@ -509,10 +560,12 @@ export function BookingSearchBar({
               disabled={isConfirmPetsDisabled}
               className="bg-accent-orange w-full"
             >
-              {isConfirmPetsDisabled
+              {confirmedCount === 0
                 ? petMode === 'profiles'
                   ? 'Select at least one pet'
                   : 'Enter number of pets'
+                : petMode === 'count' && petSizeCategories.length > 0 && draftPetSizeId === undefined
+                ? 'Select pet size'
                 : `Confirm ${confirmedCount} pet${confirmedCount > 1 ? 's' : ''}`}
             </Button>
           </DialogFooter>
