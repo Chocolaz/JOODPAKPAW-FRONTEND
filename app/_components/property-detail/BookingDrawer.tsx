@@ -67,6 +67,14 @@ export function BookingDrawer({ propertyId }: BookingDrawerProps) {
       .catch(() => setPetSizeCategories([]))
   }, [])
 
+  const handlePetSizeUpdated = (petId: number, newSizeCategoryId: number) => {
+    setPetProfiles((prev) =>
+      prev.map((p) =>
+        p.id === petId ? { ...p, petSizeCategoryId: newSizeCategoryId } : p
+      )
+    )
+  }
+
   // Fetch pet profiles when authenticated
   React.useEffect(() => {
     if (!isAuthenticated) {
@@ -245,6 +253,7 @@ export function BookingDrawer({ propertyId }: BookingDrawerProps) {
                 petProfiles={petProfiles}
                 petProfilesLoading={petProfilesLoading}
                 petSizeCategories={petSizeCategories}
+                onPetSizeUpdated={handlePetSizeUpdated}
               />
               <h4 className="text-deep-teal mb-2">
                 Select a Room{' '}

@@ -7,7 +7,9 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
 
-import { cn } from '@/lib/utils'
+import { getPetProfileById, updatePetProfile } from '@/lib/api'
+import { toast } from 'sonner'
+import { cn, formatPetSizeRange } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Calendar } from '@/components/ui/calendar'
 import {
@@ -19,7 +21,7 @@ import {
   DialogDescription,
   DialogFooter,
 } from '@/components/ui/dialog'
-import { PawPrint, CheckCircle2, Hash } from 'lucide-react'
+import { PawPrint, CheckCircle2, Hash, AlertTriangle, Pencil } from 'lucide-react'
 import { PetProfile, PetSizeCategory } from '@/types'
 
 export interface SearchParams {
@@ -42,6 +44,7 @@ interface BookingSearchBarProps {
   petProfiles: PetProfile[]
   petProfilesLoading: boolean
   petSizeCategories: PetSizeCategory[]
+  onPetSizeUpdated: (petId: number, newSizeCategoryId: number) => void
 }
 
 type PetMode = 'profiles' | 'count'
@@ -59,6 +62,7 @@ export function BookingSearchBar({
   petProfiles,
   petProfilesLoading,
   petSizeCategories,
+  onPetSizeUpdated,
 }: BookingSearchBarProps) {
   const [selectedDateRange, setSelectedDateRange] = React.useState<
     DateRange | undefined
@@ -73,6 +77,63 @@ export function BookingSearchBar({
   const [petMode, setPetMode] = React.useState<PetMode>(
     petProfiles.length > 0 ? 'profiles' : 'count'
   )
+
+  // Inline pet size editing state
+  const [editingPetId, setEditingPetId] = React.useState<number | null>(null)
+  const [editingPetDetail, setEditingPetDetail] = React.useState<PetProfile | null>(null)
+  const [editingPetDetailLoading, setEditingPetDetailLoading] = React.useState(false)
+  const [selectedEditSizeId, setSelectedEditSizeId] = React.useState<number | undefined>(undefined)
+  const [savingSize, setSavingSize] = React.useState(false)
+
+  const handleEditPetSize = async (pet: PetProfile) => {
+    setEditingPetId(pet.id)
+    setSelectedEditSizeId(pet.petSizeCategoryId)
+    setEditingPetDetailLoading(true)
+    try {
+      const detail = await getPetProfileById(pet.id.toString())
+      setEditingPetDetail(detail)
+    } catch {
+      toast.error('Failed to load pet details.')
+      setEditingPetId(null)
+    } finally {
+      setEditingPetDetailLoading(false)
+    }
+  }
+
+  const handleSavePetSize = async () => {
+    if (!editingPetDetail || selectedEditSizeId === undefined) return
+    setSavingSize(true)
+    try {
+      const formPayload = new FormData()
+      formPayload.append('name', editingPetDetail.name)
+      formPayload.append('contactName', editingPetDetail.contactName || '')
+      formPayload.append('contactPhone', editingPetDetail.contactPhone || '')
+      formPayload.append('note', editingPetDetail.note || '')
+      formPayload.append('petSizeId', String(selectedEditSizeId))
+      formPayload.append('petActivityLevel', String(editingPetDetail.rating || 1))
+      await updatePetProfile(editingPetDetail.id.toString(), formPayload)
+      toast.success(`${editingPetDetail.name}'s size updated!`)
+      onPetSizeUpdated(editingPetDetail.id, selectedEditSizeId)
+      setEditingPetId(null)
+      setEditingPetDetail(null)
+      // Re-trigger search with the updated size
+      if (date?.from && date?.to) {
+        const petCount = selectedPetIds.length > 0 ? selectedPetIds.length : numberOfPets
+        if (petCount > 0) {
+          onSearch({
+            checkInDate: format(date.from, 'yyyy-MM-dd'),
+            checkOutDate: format(date.to, 'yyyy-MM-dd'),
+            petCount,
+            petSizeId: selectedEditSizeId,
+          })
+        }
+      }
+    } catch {
+      toast.error('Failed to update pet size.')
+    } finally {
+      setSavingSize(false)
+    }
+  }
 
   React.useEffect(() => {
     if (isDateDialogOpen) setSelectedDateRange(date)
@@ -394,6 +455,138 @@ export function BookingSearchBar({
                                 </motion.button>
                               )
                             })}
+
+                            {/* Pet size reminder — shown when at least one pet is selected */}
+                            <AnimatePresence>
+                              {draftPetIds.length > 0 && (
+                                <motion.div
+                                  initial={{ opacity: 0, y: -4 }}
+                                  animate={{ opacity: 1, y: 0 }}
+                                  exit={{ opacity: 0, y: -4 }}
+                                  transition={{ duration: 0.2 }}
+                                  className="mt-1 rounded-xl border border-amber-200 bg-amber-50 p-3 space-y-2"
+                                >
+                                  <div className="flex items-center gap-2">
+                                    <AlertTriangle className="w-4 h-4 text-amber-500 shrink-0" />
+                                    <p className="text-xs font-semibold text-amber-700">
+                                      Pets grow — are their sizes still correct?
+                                    </p>
+                                  </div>
+
+                                  <div className="space-y-2">
+                                    {petProfiles
+                                      .filter((p) => draftPetIds.includes(p.id))
+                                      .map((pet) => {
+                                        const sizeCategory = petSizeCategories.find(
+                                          (s) => s.id === pet.petSizeCategoryId
+                                        )
+                                        const isEditing = editingPetId === pet.id
+
+                                        return (
+                                          <div key={pet.id}>
+                                            {isEditing ? (
+                                              <div className="rounded-lg bg-white border border-amber-200 p-2.5 space-y-2.5">
+                                                <p className="text-xs font-semibold text-amber-800">
+                                                  Update {pet.name}&apos;s size
+                                                </p>
+
+                                                {editingPetDetailLoading ? (
+                                                  <div className="flex justify-center py-2">
+                                                    <div className="w-4 h-4 border-2 border-amber-500 border-t-transparent rounded-full animate-spin" />
+                                                  </div>
+                                                ) : (
+                                                  <>
+                                                    <div className="flex gap-1.5">
+                                                      {petSizeCategories.map((size) => (
+                                                        <button
+                                                          key={size.id}
+                                                          type="button"
+                                                          onClick={() => setSelectedEditSizeId(size.id)}
+                                                          className={cn(
+                                                            'flex-1 rounded-lg border-2 py-1.5 px-1 text-center transition-all duration-150',
+                                                            selectedEditSizeId === size.id
+                                                              ? 'border-accent-orange bg-accent-orange/10'
+                                                              : 'border-gray-200 bg-white hover:border-gray-300'
+                                                          )}
+                                                        >
+                                                          <PawPrint
+                                                            className={cn(
+                                                              'mx-auto mb-0.5',
+                                                              size.name.toLowerCase() === 'small' ? 'w-3.5 h-3.5' :
+                                                              size.name.toLowerCase() === 'medium' ? 'w-5 h-5' : 'w-6 h-6',
+                                                              selectedEditSizeId === size.id ? 'text-accent-orange' : 'text-gray-400'
+                                                            )}
+                                                          />
+                                                          <p className={cn(
+                                                            'text-xs font-semibold capitalize',
+                                                            selectedEditSizeId === size.id ? 'text-accent-orange' : 'text-gray-600'
+                                                          )}>
+                                                            {size.name}
+                                                          </p>
+                                                          <p className="text-[10px] text-neutral-gray">
+                                                            {formatPetSizeRange(size.min, size.max)}
+                                                          </p>
+                                                        </button>
+                                                      ))}
+                                                    </div>
+
+                                                    <div className="flex gap-2">
+                                                      <Button
+                                                        type="button"
+                                                        variant="outline"
+                                                        size="sm"
+                                                        className="flex-1 h-7 text-xs"
+                                                        onClick={() => { setEditingPetId(null); setEditingPetDetail(null) }}
+                                                        disabled={savingSize}
+                                                      >
+                                                        Cancel
+                                                      </Button>
+                                                      <Button
+                                                        type="button"
+                                                        size="sm"
+                                                        className="flex-1 h-7 text-xs bg-accent-orange hover:bg-accent-orange/90"
+                                                        onClick={handleSavePetSize}
+                                                        disabled={savingSize || selectedEditSizeId === undefined}
+                                                      >
+                                                        {savingSize ? (
+                                                          <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                                                        ) : 'Save'}
+                                                      </Button>
+                                                    </div>
+                                                  </>
+                                                )}
+                                              </div>
+                                            ) : (
+                                              <div className="flex items-center justify-between">
+                                                <div className="flex items-center gap-1.5">
+                                                  <span className="text-xs font-medium text-amber-800">
+                                                    {pet.name}
+                                                  </span>
+                                                  {sizeCategory ? (
+                                                    <span className="text-xs text-amber-600 capitalize">
+                                                      · {sizeCategory.name} ({formatPetSizeRange(sizeCategory.min, sizeCategory.max)})
+                                                    </span>
+                                                  ) : (
+                                                    <span className="text-xs text-amber-400">· no size set</span>
+                                                  )}
+                                                </div>
+                                                <button
+                                                  type="button"
+                                                  onClick={() => handleEditPetSize(pet)}
+                                                  className="flex items-center gap-1 text-xs font-medium text-amber-700 hover:text-amber-900"
+                                                >
+                                                  <Pencil className="w-3 h-3" />
+                                                  Edit
+                                                </button>
+                                              </div>
+                                            )}
+                                          </div>
+                                        )
+                                      })}
+                                  </div>
+                                </motion.div>
+                              )}
+                            </AnimatePresence>
                           </div>
                         </motion.div>
                       )}
@@ -518,11 +711,7 @@ export function BookingSearchBar({
                                   >
                                     <p className="text-sm font-semibold capitalize">{size.name}</p>
                                     <p className="text-xs text-neutral-gray">
-                                      {size.max === 0
-                                        ? `0 kg`
-                                        : size.min === 0
-                                        ? `0–${size.max} kg`
-                                        : `${size.min}–${size.max} kg`}
+                                      {formatPetSizeRange(size.min, size.max)}
                                     </p>
                                   </button>
                                 ))}

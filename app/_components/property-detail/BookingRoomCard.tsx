@@ -1,7 +1,7 @@
 'use client'
 
 import { RoomCategories } from '@/types'
-import { getPetPolicy, assetPath } from '@/lib/utils'
+import { getPetPolicy, assetPath, formatPetSizeRange } from '@/lib/utils'
 import Image from 'next/image'
 import {
   Select,
@@ -73,7 +73,7 @@ export function BookingRoomCard({
                   {cat.numberOfPets} pets max{' '}
                   {cat.petSizeCategory && (
                     <span className="ml-1 capitalize">
-                      · {cat.petSizeCategory.name} ({cat.petSizeCategory.min}–{cat.petSizeCategory.max} kg)
+                      · {cat.petSizeCategory.name} ({formatPetSizeRange(cat.petSizeCategory.min, cat.petSizeCategory.max)})
                     </span>
                   )}
                 </p>

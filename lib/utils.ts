@@ -60,6 +60,12 @@ export function isPasswordValid(password: string): boolean {
   )
 }
 
+export function formatPetSizeRange(min: number, max: number): string {
+  if (max >= 999) return `${min}+ kg`
+  if (min === 0) return `0–${max} kg`
+  return `${min}–${max} kg`
+}
+
 export function getPetPolicy(pets: Pet[] | undefined): string | null {
   if (!pets || pets.length === 0) {
     return null
