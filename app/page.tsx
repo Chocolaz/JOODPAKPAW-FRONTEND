@@ -6,7 +6,9 @@ import { PageHeader } from './_components/PageHeader'
 import { PropertyList } from './_components/PropertyList'
 import { PropertyCard } from './_components/PropertyCard'
 import { SearchBar } from '@/app/_components/SearchBar'
+import { FilterPanel, FilterState, defaultFilters } from '@/app/_components/FilterPanel'
 import { getProperties } from '@/lib/api'
+import { getLowestPrice } from '@/lib/utils'
 import { PropertiesResponse, Property } from '@/types'
 import { useAuth } from './_components/AuthContext'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -81,6 +83,8 @@ export default function Home() {
   const [properties, setProperties] = useState<Property[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
+  const [filters, setFilters] = useState<FilterState>(defaultFilters)
+  const [isFilterOpen, setIsFilterOpen] = useState(false)
   const { isAuthenticated } = useAuth()
 
   useEffect(() => {
@@ -104,30 +108,65 @@ export default function Home() {
     fetchProperties()
   }, [searchQuery, isAuthenticated])
 
+  const activeFilterCount = useMemo(() => {
+    let count = 0
+    if (filters.petTypes.length > 0) count++
+    if (filters.minRating > 0) count++
+    if (filters.maxPrice !== '') count++
+    return count
+  }, [filters])
+
+  const filteredProperties = useMemo(() => {
+    return properties.filter((p) => {
+      if (filters.petTypes.length > 0) {
+        const names = (p.pets || []).map((pet) => pet.name.toLowerCase())
+        if (!filters.petTypes.some((t) => names.includes(t))) return false
+      }
+      if (filters.minRating > 0 && p.avgRating < filters.minRating) return false
+      if (filters.maxPrice !== '') {
+        const price = getLowestPrice(p.roomCategories)
+        if (price !== null && price > Number(filters.maxPrice)) return false
+      }
+      return true
+    })
+  }, [properties, filters])
+
   const topRated = useMemo(
     () =>
-      [...properties]
+      [...filteredProperties]
         .filter((p) => p.avgRating >= TOP_RATED_MIN)
         .sort((a, b) => b.avgRating - a.avgRating)
         .slice(0, SECTION_LIMIT),
-    [properties]
+    [filteredProperties]
   )
 
   const newListings = useMemo(
     () =>
-      [...properties]
+      [...filteredProperties]
         .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
         .slice(0, SECTION_LIMIT),
-    [properties]
+    [filteredProperties]
   )
 
   return (
     <div className="bg-white text-foreground min-h-screen flex flex-col">
       {/* Hero: search + header */}
       <div className="px-5 lg:px-12 lg:border-b lg:border-gray-100 lg:bg-gradient-to-br lg:from-white lg:to-off-white/40">
-        <SearchBar onSearch={setSearchQuery} value={searchQuery} />
+        <SearchBar
+          onSearch={setSearchQuery}
+          value={searchQuery}
+          onFilterClick={() => setIsFilterOpen(true)}
+          activeFilterCount={activeFilterCount}
+        />
         <PageHeader />
       </div>
+
+      <FilterPanel
+        isOpen={isFilterOpen}
+        onOpenChange={setIsFilterOpen}
+        filters={filters}
+        onApply={setFilters}
+      />
 
       <main className="flex-1 px-5 lg:px-12 mt-6 lg:mt-0 pb-28 lg:pb-16">
         {/* Search results header */}
@@ -145,7 +184,7 @@ export default function Home() {
                   transition={{ duration: 0.2 }}
                   className="text-sm lg:text-lg xl:text-xl text-neutral-gray"
                 >
-                  {properties.length} {properties.length === 1 ? 'place' : 'places'}
+                  {filteredProperties.length} {filteredProperties.length === 1 ? 'place' : 'places'}
                 </motion.span>
               )}
             </AnimatePresence>
@@ -173,7 +212,7 @@ export default function Home() {
                 </div>
               ))}
             </motion.div>
-          ) : properties.length === 0 ? (
+          ) : filteredProperties.length === 0 ? (
             <motion.div
               key="empty"
               initial={{ opacity: 0, scale: 0.95 }}
@@ -198,8 +237,8 @@ export default function Home() {
               >
                 <p className="font-semibold text-gray-700 lg:text-xl xl:text-2xl">No properties found</p>
                 <p className="text-sm lg:text-lg xl:text-xl text-neutral-gray">
-                  {searchQuery
-                    ? `No results for "${searchQuery}". Try a different keyword.`
+                  {searchQuery || activeFilterCount > 0
+                    ? 'Try adjusting your search or filters.'
                     : 'No properties available right now.'}
                 </p>
               </motion.div>
@@ -214,7 +253,7 @@ export default function Home() {
               transition={{ duration: 0.25 }}
             >
               <PropertyList
-                properties={properties}
+                properties={filteredProperties}
                 className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-4 lg:gap-6"
                 showPetPolicyChip={true}
                 showHeartIcon={isAuthenticated}
@@ -255,12 +294,12 @@ export default function Home() {
                       All Properties
                     </h5>
                     <span className="text-sm lg:text-base xl:text-lg text-neutral-gray">
-                      ({properties.length} {properties.length === 1 ? 'place' : 'places'})
+                      ({filteredProperties.length} {filteredProperties.length === 1 ? 'place' : 'places'})
                     </span>
                   </div>
                 </div>
                 <PropertyList
-                  properties={properties}
+                  properties={filteredProperties}
                   className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-4 lg:gap-6"
                   showPetPolicyChip={true}
                   showHeartIcon={isAuthenticated}

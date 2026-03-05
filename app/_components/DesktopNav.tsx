@@ -1,9 +1,11 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { useNormalizedPathname } from '@/app/_hooks/useNormalizedPathname'
 import { useNotifications } from '@/app/_components/NotificationContext'
 import { Home, Heart, Bell, User } from 'lucide-react'
+import { assetPath } from '@/lib/utils'
 
 const navItems = [
   { href: '/', label: 'Home', icon: Home },
@@ -22,11 +24,19 @@ export function DesktopNav() {
 
   return (
     <nav className="hidden lg:block sticky top-0 z-50 w-full bg-white border-b border-gray-100 shadow-sm">
-      <div className="max-w-[1440px] mx-auto px-6 lg:px-12 flex items-center justify-between h-16">
+      <div className="max-w-[1440px] mx-auto px-6 flex items-center justify-between h-16 lg:h-20 xl:h-24">
         {/* Logo */}
-        <span className="text-deep-teal font-bold text-xl baloo2 tracking-wide">
-          JOODPAKPAW
-        </span>
+        <Link href="/" className="flex items-center shrink-0">
+          <div className="relative lg:w-[260px] xl:w-[320px] h-16 lg:h-20 xl:h-24 overflow-hidden">
+            <Image
+              src={assetPath('/icons/JOODPAK.svg')}
+              alt="JoodPakPaw logo"
+              fill
+              style={{ objectFit: 'cover', objectPosition: 'center' }}
+              priority
+            />
+          </div>
+        </Link>
 
         {/* Nav links */}
         <div className="flex items-center gap-1">
@@ -38,7 +48,7 @@ export function DesktopNav() {
               <Link
                 key={href}
                 href={href}
-                className={`relative flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-colors duration-200 ${
+                className={`relative flex items-center gap-2 px-4 py-2 rounded-full text-sm lg:text-base xl:text-lg font-medium transition-colors duration-200 ${
                   isActive
                     ? 'bg-accent-orange/10 text-accent-orange'
                     : 'text-neutral-gray hover:bg-gray-50 hover:text-deep-teal'

@@ -2,7 +2,6 @@
 
 import { Property } from '@/types'
 import { PropertyCard } from './PropertyCard'
-import { motion } from 'framer-motion'
 
 interface PropertyListProps {
   properties: Property[]
@@ -12,24 +11,6 @@ interface PropertyListProps {
   showStatusIcon?: boolean
   showPetPolicyChip?: boolean
   showHeartIcon?: boolean
-}
-
-const containerVariants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.08,
-    },
-  },
-}
-
-const itemVariants = {
-  hidden: { y: 20, opacity: 0 },
-  visible: {
-    y: 0,
-    opacity: 1,
-  },
 }
 
 export function PropertyList({
@@ -42,24 +23,18 @@ export function PropertyList({
   showHeartIcon,
 }: PropertyListProps) {
   return (
-    <motion.div
-      className={className}
-      variants={containerVariants}
-      initial="hidden"
-      animate="visible"
-    >
+    <div className={className}>
       {properties.map((property) => (
-        <motion.div key={property.id} variants={itemVariants}>
-          <PropertyCard
-            property={property}
-            href={buildHref ? buildHref(property) : undefined}
-            showRoomCount={showRoomCount}
-            showStatusIcon={showStatusIcon}
-            showPetPolicyChip={showPetPolicyChip}
-            showHeartIcon={showHeartIcon}
-          />
-        </motion.div>
+        <PropertyCard
+          key={property.id}
+          property={property}
+          href={buildHref ? buildHref(property) : undefined}
+          showRoomCount={showRoomCount}
+          showStatusIcon={showStatusIcon}
+          showPetPolicyChip={showPetPolicyChip}
+          showHeartIcon={showHeartIcon}
+        />
       ))}
-    </motion.div>
+    </div>
   )
 }

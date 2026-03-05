@@ -170,12 +170,12 @@ export function PropertyCard({
         {/* Content */}
         <Link href={finalHref}>
           <div className="mt-2 px-0.5">
-            <p className="text-sm md:text-base font-medium text-deep-teal truncate">
+            <p className="text-sm md:text-base lg:text-lg xl:text-xl font-medium text-deep-teal truncate">
               {property.title}
             </p>
 
             <div className="flex items-center justify-between">
-              <p className="text-xs md:text-sm text-neutral-gray truncate">
+              <p className="text-xs md:text-sm lg:text-base xl:text-lg text-neutral-gray truncate">
                 {property.province}, {property.district}
               </p>
               <div className="flex items-center gap-0.5 shrink-0">
@@ -187,7 +187,7 @@ export function PropertyCard({
                       : 'text-gray-300'
                   )}
                 />
-                <span className="text-xs md:text-sm font-medium text-gray-700">
+                <span className="text-xs md:text-sm lg:text-base xl:text-lg font-medium text-gray-700">
                   {property.avgRating > 0 ? property.avgRating.toFixed(1) : 'New'}
                 </span>
               </div>
@@ -201,7 +201,7 @@ export function PropertyCard({
             )}
 
             {lowestPrice !== null && (
-              <p className="font-bold text-xs md:text-sm text-deep-teal">
+              <p className="font-bold text-xs md:text-sm lg:text-base xl:text-lg text-deep-teal">
                 THB {lowestPrice}
               </p>
             )}

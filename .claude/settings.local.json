@@ -10,7 +10,8 @@
       "mcp__ide__getDiagnostics",
       "Bash(./node_modules/.bin/tsc:*)",
       "Bash(cd:*)",
-      "Bash(cd /d/Project/joodpakpaw/joodpakpaw && npm run build 2>&1)"
+      "Bash(cd /d/Project/joodpakpaw/joodpakpaw && npm run build 2>&1)",
+      "Bash(grep:*)"
     ]
   }
 }
