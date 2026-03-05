@@ -1,21 +1,15 @@
-'use client' // Convert to client component to use hooks
+'use client'
 
-import type { Metadata } from 'next'
-import { usePathname } from 'next/navigation' // Import usePathname
+import { usePathname } from 'next/navigation'
 import './globals.css'
 import { afacad, baloo2 } from './fonts'
 import { BottomNav } from '@/app/_components/BottomNav'
+import { DesktopNav } from '@/app/_components/DesktopNav'
 import { AuthWrapper } from '@/app/_components/AuthWrapper'
 import { Toaster } from '@/components/ui/sonner'
 import { BookingProvider } from './_context/BookingContext'
 import { AuthModalProvider } from './_components/AuthModalProvider'
 import { NotificationProvider } from './_components/NotificationContext'
-
-// Metadata can still be exported from a client component layout
-// export const metadata: Metadata = {
-//   title: 'JOODPAKPAW',
-//   description: 'Booking petsitting made easy',
-// }
 
 export default function RootLayout({
   children,
@@ -35,13 +29,14 @@ export default function RootLayout({
         <AuthWrapper>
           <AuthModalProvider>
             <NotificationProvider>
-            <BookingProvider>
-              <div className="max-w-[500px] md:max-w-3xl lg:max-w-5xl mx-auto flex flex-col min-h-screen ">
-                <main className="flex-1">{children}</main>
-                {showBottomNav && <BottomNav />}
-              </div>
-              <Toaster />
-            </BookingProvider>
+              <BookingProvider>
+                <DesktopNav />
+                <div className="max-w-[1440px] mx-auto flex flex-col min-h-screen w-full">
+                  <main className="flex-1">{children}</main>
+                  {showBottomNav && <BottomNav />}
+                </div>
+                <Toaster />
+              </BookingProvider>
             </NotificationProvider>
           </AuthModalProvider>
         </AuthWrapper>

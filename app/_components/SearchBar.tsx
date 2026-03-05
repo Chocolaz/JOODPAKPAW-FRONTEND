@@ -21,11 +21,12 @@ export function SearchBar({ onSearch, value }: SearchBarProps) {
   }
 
   return (
-    <div className="sticky top-4 z-50 w-full">
-      <div className="md:max-w-xl lg:max-w-2xl md:mx-auto">
-        <div className="bg-white/95 rounded-full backdrop-blur shadow-sm">
+    /* Mobile: sticky floating pill. Desktop: static, left-aligned */
+    <div className="sticky top-4 z-40 lg:static lg:top-auto lg:z-auto w-full lg:py-2">
+      <div className="lg:max-w-lg">
+        <div className="bg-white/95 lg:bg-white rounded-full backdrop-blur shadow-sm lg:shadow-md lg:border lg:border-gray-100">
           <form onSubmit={handleSubmit} className="relative flex w-full h-12 md:h-14 items-center">
-            <Search className="absolute left-4 h-5 w-5 md:h-5 md:w-5 text-muted-foreground" />
+            <Search className="absolute left-4 h-5 w-5 text-muted-foreground" />
             <Input
               placeholder="Search properties…"
               className="pl-11 pr-14 h-full rounded-full border-0 bg-transparent focus-visible:ring-0 text-sm md:text-base"

@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
+import Link from 'next/link'
 import { PageHeader } from './_components/PageHeader'
 import { PropertyList } from './_components/PropertyList'
 import { PropertyCard } from './_components/PropertyCard'
@@ -11,8 +12,8 @@ import { useAuth } from './_components/AuthContext'
 import { motion, AnimatePresence } from 'framer-motion'
 import { SearchX, Sparkles, Star } from 'lucide-react'
 
-const SKELETON_COUNT = 10
-const SECTION_LIMIT = 10
+const SKELETON_COUNT = 12
+const SECTION_LIMIT = 8
 const TOP_RATED_MIN = 4.0
 
 interface PropertySectionProps {
@@ -21,6 +22,7 @@ interface PropertySectionProps {
   properties: Property[]
   showHeartIcon?: boolean
   showPetPolicyChip?: boolean
+  seeAllHref?: string
 }
 
 function PropertySection({
@@ -29,6 +31,7 @@ function PropertySection({
   properties,
   showHeartIcon,
   showPetPolicyChip,
+  seeAllHref,
 }: PropertySectionProps) {
   if (properties.length === 0) return null
   return (
@@ -36,19 +39,31 @@ function PropertySection({
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
-      className="mb-8 md:mb-10"
+      className="mb-10 lg:mb-0 lg:py-10 lg:border-b lg:border-gray-100"
     >
-      <div className="flex items-center gap-2 mb-3 md:mb-4">
-        {icon}
-        <h5 className="text-lg md:text-xl font-semibold text-deep-teal">{title}</h5>
-        <span className="text-sm text-neutral-gray">({properties.length})</span>
+      {/* Section header */}
+      <div className="flex items-center justify-between mb-4 lg:mb-6">
+        <div className="flex items-center gap-2">
+          {icon}
+          <h5 className="text-lg lg:text-2xl xl:text-3xl font-semibold text-deep-teal">{title}</h5>
+          <span className="text-sm lg:text-base xl:text-lg text-neutral-gray">({properties.length})</span>
+        </div>
+        {seeAllHref && (
+          <Link
+            href={seeAllHref}
+            className="hidden lg:inline-flex text-sm font-medium text-accent-orange hover:underline"
+          >
+            See all
+          </Link>
+        )}
       </div>
-      {/* Mobile: horizontal scroll row; md+: regular grid */}
-      <div className="flex gap-3 overflow-x-auto scrollbar-hide pb-2 -mx-5 px-5 snap-x snap-mandatory md:mx-0 md:px-0 md:overflow-x-visible md:grid md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 md:gap-5 lg:gap-6">
+
+      {/* Mobile: horizontal scroll; Desktop: responsive grid */}
+      <div className="flex gap-3 overflow-x-auto scrollbar-hide pb-2 -mx-5 px-5 snap-x snap-mandatory lg:mx-0 lg:px-0 lg:overflow-x-visible lg:grid md:grid-cols-3 xl:grid-cols-5 lg:gap-6">
         {properties.map((property) => (
           <div
             key={property.id}
-            className="w-44 shrink-0 snap-start md:w-auto md:shrink"
+            className="w-44 shrink-0 snap-start lg:w-auto lg:shrink"
           >
             <PropertyCard
               property={property}
@@ -108,17 +123,17 @@ export default function Home() {
 
   return (
     <div className="bg-white text-foreground min-h-screen flex flex-col">
-      {/* Header + search — constrained on desktop */}
-      <div className="px-5 md:px-6 lg:px-10 xl:px-16">
+      {/* Hero: search + header */}
+      <div className="px-5 lg:px-12 lg:border-b lg:border-gray-100 lg:bg-gradient-to-br lg:from-white lg:to-off-white/40">
         <SearchBar onSearch={setSearchQuery} value={searchQuery} />
         <PageHeader />
       </div>
 
-      <main className="mt-5 pb-24 flex-1 px-5 md:px-6 lg:px-10 xl:px-16">
+      <main className="flex-1 px-5 lg:px-12 mt-6 lg:mt-0 pb-28 lg:pb-16">
         {/* Search results header */}
         {searchQuery && (
-          <div className="flex items-center justify-between mb-4 md:mb-6">
-            <h5 className="text-xl md:text-2xl font-medium text-deep-teal">
+          <div className="flex items-center justify-between mb-4 lg:mb-8 lg:pt-10">
+            <h5 className="text-xl lg:text-3xl xl:text-4xl font-medium text-deep-teal">
               Results for &ldquo;{searchQuery}&rdquo;
             </h5>
             <AnimatePresence>
@@ -128,7 +143,7 @@ export default function Home() {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0 }}
                   transition={{ duration: 0.2 }}
-                  className="text-sm md:text-base text-neutral-gray"
+                  className="text-sm lg:text-lg xl:text-xl text-neutral-gray"
                 >
                   {properties.length} {properties.length === 1 ? 'place' : 'places'}
                 </motion.span>
@@ -145,7 +160,7 @@ export default function Home() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.2 }}
-              className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-5 lg:gap-6"
+              className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-4 lg:gap-6 lg:pt-10"
             >
               {Array.from({ length: SKELETON_COUNT }).map((_, i) => (
                 <div key={i} className="animate-pulse">
@@ -165,24 +180,24 @@ export default function Home() {
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
               transition={{ duration: 0.3, ease: 'easeOut' }}
-              className="flex flex-col items-center justify-center min-h-[40vh] gap-4 md:gap-6 text-center"
+              className="flex flex-col items-center justify-center min-h-[40vh] gap-4 lg:gap-6 text-center"
             >
               <motion.div
                 initial={{ scale: 0.8, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 transition={{ delay: 0.1, duration: 0.4, ease: 'easeOut' }}
-                className="w-20 h-20 md:w-28 md:h-28 rounded-full bg-gray-100 flex items-center justify-center"
+                className="w-20 h-20 lg:w-28 lg:h-28 rounded-full bg-gray-100 flex items-center justify-center"
               >
-                <SearchX className="w-9 h-9 md:w-12 md:h-12 text-gray-300" />
+                <SearchX className="w-9 h-9 lg:w-12 lg:h-12 text-gray-300" />
               </motion.div>
               <motion.div
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2, duration: 0.3 }}
-                className="space-y-1 md:space-y-2"
+                className="space-y-1 lg:space-y-2"
               >
-                <p className="font-semibold text-gray-700 md:text-lg">No properties found</p>
-                <p className="text-sm md:text-base text-neutral-gray">
+                <p className="font-semibold text-gray-700 lg:text-xl xl:text-2xl">No properties found</p>
+                <p className="text-sm lg:text-lg xl:text-xl text-neutral-gray">
                   {searchQuery
                     ? `No results for "${searchQuery}". Try a different keyword.`
                     : 'No properties available right now.'}
@@ -200,7 +215,7 @@ export default function Home() {
             >
               <PropertyList
                 properties={properties}
-                className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-5 lg:gap-6"
+                className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-4 lg:gap-6"
                 showPetPolicyChip={true}
                 showHeartIcon={isAuthenticated}
               />
@@ -213,6 +228,7 @@ export default function Home() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.25 }}
+              className="lg:pt-2"
             >
               <PropertySection
                 title="Top Rated"
@@ -220,6 +236,7 @@ export default function Home() {
                 properties={topRated}
                 showHeartIcon={isAuthenticated}
                 showPetPolicyChip={true}
+                seeAllHref="/"
               />
               <PropertySection
                 title="New Listings"
@@ -227,19 +244,24 @@ export default function Home() {
                 properties={newListings}
                 showHeartIcon={isAuthenticated}
                 showPetPolicyChip={true}
+                seeAllHref="/"
               />
-              <section className="mb-8 md:mb-10">
-                <div className="flex items-center justify-between mb-3 md:mb-4">
-                  <h5 className="text-lg md:text-xl font-semibold text-deep-teal">
-                    All Properties
-                  </h5>
-                  <span className="text-sm md:text-base text-neutral-gray">
-                    {properties.length} {properties.length === 1 ? 'place' : 'places'}
-                  </span>
+
+              {/* All Properties */}
+              <section className="mb-8 lg:py-10">
+                <div className="flex items-center justify-between mb-4 lg:mb-6">
+                  <div className="flex items-center gap-2">
+                    <h5 className="text-lg lg:text-2xl xl:text-3xl font-semibold text-deep-teal">
+                      All Properties
+                    </h5>
+                    <span className="text-sm lg:text-base xl:text-lg text-neutral-gray">
+                      ({properties.length} {properties.length === 1 ? 'place' : 'places'})
+                    </span>
+                  </div>
                 </div>
                 <PropertyList
                   properties={properties}
-                  className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-5 lg:gap-6"
+                  className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-4 lg:gap-6"
                   showPetPolicyChip={true}
                   showHeartIcon={isAuthenticated}
                 />

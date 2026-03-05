@@ -10,24 +10,26 @@ export function PageHeader({ title, isHost }: PageHeaderProps) {
   const imageSrc = assetPath('/graphics/home.svg')
 
   return (
-    <header className="md:flex md:items-center md:gap-8 md:py-4 lg:py-6">
+    <header className="flex items-center gap-8 lg:gap-16 py-4 lg:py-10">
       {/* Text side */}
-      <div className="md:flex-1">
+      <div className="flex-1 lg:max-w-[480px]">
         {title ? (
-          <h1 className="mt-7 md:mt-0 text-deep-teal text-2xl md:text-4xl lg:text-5xl font-bold">
+          <h1 className="mt-7 lg:mt-0 text-deep-teal text-2xl lg:text-4xl xl:text-5xl font-bold">
             {title}
           </h1>
         ) : (
-          <div className="flex items-center gap-2 md:block md:space-y-3">
-            <h4 className="mt-7 md:mt-0 text-deep-teal md:text-2xl lg:text-3xl md:leading-snug">
-              Discover Local Pet Hotels & Care Homes Near You
-            </h4>
-            {isHost && (
-              <span className="mt-7 md:mt-0 rounded-full bg-orange-500 px-3 py-1 text-sm font-semibold text-white">
-                Host
-              </span>
-            )}
-            <p className="hidden md:block text-neutral-gray md:text-base lg:text-lg mt-2">
+          <div className="lg:space-y-4">
+            <div className="flex items-center gap-2 lg:block">
+              <h4 className="mt-7 lg:mt-0 text-deep-teal text-xl lg:text-4xl xl:text-5xl lg:leading-tight font-bold">
+                Discover Local Pet Hotels &amp; Care Homes Near You
+              </h4>
+              {isHost && (
+                <span className="mt-7 lg:mt-0 rounded-full bg-orange-500 px-3 py-1 text-sm font-semibold text-white shrink-0">
+                  Host
+                </span>
+              )}
+            </div>
+            <p className="hidden lg:block text-neutral-gray text-lg lg:text-xl mt-3">
               Find the perfect home away from home for your furry friends.
             </p>
           </div>
@@ -36,7 +38,7 @@ export function PageHeader({ title, isHost }: PageHeaderProps) {
 
       {/* Image side */}
       <div
-        className="relative mt-4 md:mt-0 w-full md:w-1/2 lg:w-2/5 shrink-0"
+        className="relative w-1/2 lg:w-[45%] shrink-0 mt-4 lg:mt-0"
         style={{ aspectRatio: '390/144' }}
       >
         <Image

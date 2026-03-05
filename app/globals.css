@@ -56,34 +56,46 @@ button {
   font-family: var(--font-baloo2);
 }
 
-h1 {
-  font-size: 32px;
-  font-weight: 600; /* semibold */
-}
-
-h2 {
-  font-size: 22px;
-  font-weight: 500; /* medium */
-}
-
-h3 {
-  font-size: 20px;
-  font-weight: 600; /* semibold */
-}
-
-h4 {
-  font-size: 18px;
-  font-weight: 600; /* semibold */
-}
-
-h5 {
-  font-size: 16px;
-  font-weight: 500; /* medium */
-}
-
+/* Base (mobile) */
 body {
   font-family: var(--font-afacad);
-  font-size: 16px;
+  font-size: 14px;
+}
+
+h1 { font-size: 24px; font-weight: 600; }
+h2 { font-size: 19px; font-weight: 500; }
+h3 { font-size: 17px; font-weight: 600; }
+h4 { font-size: 16px; font-weight: 600; }
+h5 { font-size: 14px; font-weight: 500; }
+
+/* md: 768px (tablet) */
+@media (min-width: 768px) {
+  body { font-size: 15px; }
+  h1   { font-size: 28px; }
+  h2   { font-size: 21px; }
+  h3   { font-size: 19px; }
+  h4   { font-size: 17px; }
+  h5   { font-size: 15px; }
+}
+
+/* lg: 1024px (small desktop) */
+@media (min-width: 1024px) {
+  body { font-size: 16px; }
+  h1   { font-size: 32px; }
+  h2   { font-size: 22px; }
+  h3   { font-size: 20px; }
+  h4   { font-size: 18px; }
+  h5   { font-size: 16px; }
+}
+
+/* xl: 1280px (large desktop) */
+@media (min-width: 1280px) {
+  body { font-size: 17px; }
+  h1   { font-size: 38px; }
+  h2   { font-size: 26px; }
+  h3   { font-size: 23px; }
+  h4   { font-size: 20px; }
+  h5   { font-size: 18px; }
 }
 
 .title {
