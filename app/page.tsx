@@ -8,15 +8,34 @@ import { PropertyCard } from './_components/PropertyCard'
 import { SearchBar } from '@/app/_components/SearchBar'
 import { FilterPanel, FilterState, defaultFilters } from '@/app/_components/FilterPanel'
 import { getProperties } from '@/lib/api'
-import { getLowestPrice } from '@/lib/utils'
+import { getLowestPrice, cn } from '@/lib/utils'
 import { PropertiesResponse, Property } from '@/types'
 import { useAuth } from './_components/AuthContext'
 import { motion, AnimatePresence } from 'framer-motion'
-import { SearchX, Sparkles, Star } from 'lucide-react'
+import { SearchX, Sparkles, Star, Dog, Cat, Banknote } from 'lucide-react'
 
 const SKELETON_COUNT = 12
 const SECTION_LIMIT = 8
 const TOP_RATED_MIN = 4.0
+
+const QUICK_PET_CHIPS = [
+  { label: 'Dog', value: 'dog', Icon: Dog },
+  { label: 'Cat', value: 'cat', Icon: Cat },
+]
+const QUICK_RATING_CHIPS = [
+  { label: '4★+', value: 4 },
+  { label: '4.5★+', value: 4.5 },
+]
+const QUICK_PRICE_CHIPS = [
+  { label: '฿500', value: 500 },
+  { label: '฿1,000', value: 1000 },
+  { label: '฿2,000', value: 2000 },
+  { label: '฿3,500', value: 3500 },
+]
+
+const chipBase = 'flex items-center gap-1.5 shrink-0 px-3.5 py-1.5 rounded-full border text-sm font-medium transition-colors shadow-sm'
+const chipActive = 'bg-accent-orange text-white border-accent-orange'
+const chipInactive = 'bg-white border-gray-200 text-neutral-gray hover:border-deep-teal hover:text-deep-teal'
 
 interface PropertySectionProps {
   title: string
@@ -167,6 +186,68 @@ export default function Home() {
         filters={filters}
         onApply={setFilters}
       />
+
+      {/* Quick filter chip strip */}
+      <div className="bg-white border-b border-gray-100">
+        <div className="relative">
+          <div className="flex gap-2 overflow-x-auto scrollbar-hide py-3 px-5 lg:px-12 lg:flex-wrap">
+            {QUICK_PET_CHIPS.map(({ label, value, Icon }) => {
+              const active = filters.petTypes.includes(value)
+              return (
+                <button
+                  key={value}
+                  type="button"
+                  onClick={() => setFilters((f) => ({
+                    ...f,
+                    petTypes: active ? f.petTypes.filter((p) => p !== value) : [...f.petTypes, value],
+                  }))}
+                  className={cn(chipBase, active ? chipActive : chipInactive)}
+                >
+                  <Icon className="w-3.5 h-3.5" />
+                  {label}
+                </button>
+              )
+            })}
+
+            <span className="shrink-0 self-center w-px h-4 bg-gray-200 mx-0.5" />
+
+            {QUICK_RATING_CHIPS.map(({ label, value }) => {
+              const active = filters.minRating === value
+              return (
+                <button
+                  key={value}
+                  type="button"
+                  onClick={() => setFilters((f) => ({ ...f, minRating: active ? 0 : value }))}
+                  className={cn(chipBase, active ? chipActive : chipInactive)}
+                >
+                  <Star className="w-3.5 h-3.5" />
+                  {label}
+                </button>
+              )
+            })}
+
+            <span className="shrink-0 self-center w-px h-4 bg-gray-200 mx-0.5" />
+
+            {QUICK_PRICE_CHIPS.map(({ label, value }) => {
+              const active = filters.maxPrice === String(value)
+              return (
+                <button
+                  key={value}
+                  type="button"
+                  onClick={() => setFilters((f) => ({ ...f, maxPrice: active ? '' : String(value) }))}
+                  className={cn(chipBase, active ? chipActive : chipInactive)}
+                >
+                  <Banknote className="w-3.5 h-3.5" />
+                  {label}
+                </button>
+              )
+            })}
+          </div>
+
+          {/* Right-edge fade for mobile scroll */}
+          <div className="absolute right-0 top-0 bottom-0 w-10 bg-gradient-to-l from-white to-transparent pointer-events-none lg:hidden" />
+        </div>
+      </div>
 
       <main className="flex-1 px-5 lg:px-12 mt-6 lg:mt-0 pb-28 lg:pb-16">
         {/* Search results header */}
