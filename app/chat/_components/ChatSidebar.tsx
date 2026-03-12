@@ -105,12 +105,16 @@ export function ChatSidebar({ activeRoomId }: ChatSidebarProps) {
   const router = useRouter()
   const [query, setQuery] = useState('')
 
+  const sorted = [...rooms].sort(
+    (a, b) => new Date(b.lastMessageAt).getTime() - new Date(a.lastMessageAt).getTime()
+  )
+
   const filtered = query.trim()
-    ? rooms.filter((r) => {
+    ? sorted.filter((r) => {
         const name = `${r.otherUser.firstName} ${r.otherUser.lastName}`.toLowerCase()
         return name.includes(query.toLowerCase())
       })
-    : rooms
+    : sorted
 
   return (
     <div className="flex flex-col h-full">

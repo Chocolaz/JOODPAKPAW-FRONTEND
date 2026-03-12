@@ -18,23 +18,24 @@ export function PropertyFacilities({
 
   return (
     <div className="border-t pt-8 mb-10">
-      <h3 className="text-xl font-semibold text-deep-teal mb-2">
+      <h3 className="text-lg lg:text-xl font-semibold text-deep-teal mb-5">
         What this place offers
       </h3>
-      <ul className="flex flex-col gap-3">
+
+      <div className="grid grid-cols-2 lg:grid-cols-3 gap-x-4 gap-y-2 mb-6">
         {facilities.map((f) => (
-          <li
-            key={f.id}
-            className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 transition"
-          >
-            <CheckCircle className="w-5 h-5 text-accent-orange shrink-0" />
-            <span className="text-neutral-dark">{f.name}</span>
-          </li>
+          <div key={f.id} className="flex items-center gap-2.5 py-1.5">
+            <CheckCircle className="w-4 h-4 lg:w-5 lg:h-5 text-accent-orange shrink-0" />
+            <span className="text-sm lg:text-base text-gray-700">{f.name}</span>
+          </div>
         ))}
-      </ul>
-      <p className="mt-4 leading-relaxed">
-        {description || 'No description provided.'}
-      </p>
+      </div>
+
+      {description && (
+        <p className="text-sm lg:text-base text-neutral-gray leading-relaxed border-t pt-4">
+          {description}
+        </p>
+      )}
     </div>
   )
 }

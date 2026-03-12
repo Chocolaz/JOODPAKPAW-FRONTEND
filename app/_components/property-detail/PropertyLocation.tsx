@@ -32,7 +32,7 @@ export function PropertyLocation({ property }: PropertyLocationProps) {
   return (
     <div className="mt-10 border-t pt-8">
       <div className="mb-4">
-        <h3 className="text-xl font-semibold text-deep-teal">Location</h3>
+        <h3 className="text-lg lg:text-xl font-semibold text-deep-teal">Location</h3>
         <p className="text-neutral-gray">
           {property.district}, {property.province}
         </p>

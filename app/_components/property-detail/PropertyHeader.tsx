@@ -1,6 +1,6 @@
 'use client'
 
-import { Star } from 'lucide-react'
+import { Star, MapPin, Sparkles } from 'lucide-react'
 import { Property } from '@/types'
 
 interface PropertyHeaderProps {
@@ -12,26 +12,36 @@ interface PropertyHeaderProps {
 
 export function PropertyHeader({ property }: PropertyHeaderProps) {
   return (
-    <div className="mb-6 text-deep-teal">
-      <h2 className="text-deep-teal">{property.title}</h2>
-      <div className="flex justify-between items-center">
-        <p>
-          {property.district}, {property.province}
-        </p>
-        <p className="flex items-center gap-1">
-          <Star
-            className={`w-5 h-5 ${property.avgRating > 0 ? 'text-yellow-400' : 'text-gray-300'}`}
-            fill="currentColor"
-            strokeWidth={0}
-          />
-          <span>
-            {property.avgRating > 0
-              ? `${property.avgRating.toFixed(1)} (${property.reviewCount})`
-              : 'New'}
+    <div className="mb-6">
+      <h2 className="text-2xl lg:text-3xl font-bold text-deep-teal leading-snug mb-3">
+        {property.title}
+      </h2>
+
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex items-center gap-1.5 text-neutral-gray">
+          <MapPin className="w-4 h-4 text-accent-orange shrink-0" />
+          <span className="text-sm lg:text-base">
+            {property.district}, {property.province}, {property.country}
           </span>
-        </p>
+        </div>
+
+        {property.avgRating > 0 ? (
+          <div className="flex items-center gap-1.5 bg-yellow-50 border border-yellow-200 rounded-full px-3 py-1">
+            <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" strokeWidth={0} />
+            <span className="text-sm font-semibold text-gray-800">
+              {property.avgRating.toFixed(1)}
+            </span>
+            <span className="text-xs text-gray-500">
+              ({property.reviewCount} {property.reviewCount === 1 ? 'review' : 'reviews'})
+            </span>
+          </div>
+        ) : (
+          <div className="flex items-center gap-1.5 bg-gray-50 border border-gray-200 rounded-full px-3 py-1">
+            <Sparkles className="w-4 h-4 text-yellow-400" />
+            <span className="text-xs text-gray-400">New listing</span>
+          </div>
+        )}
       </div>
-      <p>{property.country}</p>
     </div>
   )
 }

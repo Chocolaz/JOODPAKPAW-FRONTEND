@@ -31,6 +31,7 @@ interface ChatContextType {
   markRoomAsRead: (roomId: number) => void
   markAsRead: (roomId: number) => void
   deleteRoom: (roomId: number) => Promise<void>
+  refreshRooms: () => Promise<void>
 }
 
 const ChatContext = createContext<ChatContextType>({
@@ -43,6 +44,7 @@ const ChatContext = createContext<ChatContextType>({
   markRoomAsRead: () => {},
   markAsRead: () => {},
   deleteRoom: async () => {},
+  refreshRooms: async () => {},
 })
 
 export const useChat = () => useContext(ChatContext)
@@ -109,7 +111,11 @@ export function ChatProvider({ children }: { children: ReactNode }) {
         if (room) roomId = room.id
       }
 
-      if (!roomId || !message) return
+      if (!roomId || !message) {
+        // New room not yet in state — refresh the room list
+        fetchRooms()
+        return
+      }
 
       const rid = roomId
       const msg = message
@@ -138,7 +144,7 @@ export function ChatProvider({ children }: { children: ReactNode }) {
     } catch {
       // ignore
     }
-  }, [user?.id])
+  }, [user?.id, fetchRooms])
 
   const onMessagesRead = useCallback((data: unknown) => {
     try {
@@ -256,7 +262,7 @@ export function ChatProvider({ children }: { children: ReactNode }) {
 
   return (
     <ChatContext.Provider
-      value={{ rooms, roomMessages, unreadCount, isLoading, loadRoom, sendMessage, markRoomAsRead, markAsRead, deleteRoom }}
+      value={{ rooms, roomMessages, unreadCount, isLoading, loadRoom, sendMessage, markRoomAsRead, markAsRead, deleteRoom, refreshRooms: fetchRooms }}
     >
       {children}
     </ChatContext.Provider>

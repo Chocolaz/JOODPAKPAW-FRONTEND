@@ -129,7 +129,7 @@ export function PropertyReviews({
 
   return (
     <div className="mt-10 border-t pt-8">
-      <h3 className="text-xl font-semibold text-deep-teal mb-6">Reviews</h3>
+      <h3 className="text-lg lg:text-xl font-semibold text-deep-teal mb-6">Reviews</h3>
 
       {/* Summary card */}
       <div className="bg-off-white/80 rounded-2xl p-5 mb-6 shadow-sm border border-gray-200">
@@ -159,7 +159,7 @@ export function PropertyReviews({
 
       {/* Top 3 reviews */}
       {topReviews.length > 0 ? (
-        <div className="space-y-3">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
           {topReviews.map((review, index) => (
             <ReviewCard key={index} review={review} />
           ))}

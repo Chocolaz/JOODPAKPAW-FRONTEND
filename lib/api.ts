@@ -304,6 +304,24 @@ export interface ChatRoomDetail {
   messages: ChatMessage[]
 }
 
+export const createChatRoom = (
+  participantId: number,
+  content?: string,
+  images?: File[]
+): Promise<ChatRoom> => {
+  const formData = new FormData()
+  formData.append('participantId', String(participantId))
+  if (content) formData.append('content', content)
+  if (images) images.forEach((img) => formData.append('images', img))
+  return request<ChatRoom>({
+    endpoint: 'api/v1/chat-rooms',
+    method: 'POST',
+    body: formData,
+    requiresAuth: true,
+    errorContext: 'Create Chat Room',
+  })
+}
+
 export const getChatRooms = (): Promise<ChatRoomsResponse> => {
   return request<ChatRoomsResponse>({
     endpoint: 'api/v1/chat-rooms',
