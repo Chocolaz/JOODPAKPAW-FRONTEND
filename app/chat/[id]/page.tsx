@@ -1,6 +1,8 @@
 'use client'
 
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import Lightbox from 'yet-another-react-lightbox'
+import 'yet-another-react-lightbox/styles.css'
 import { useParams, useRouter } from 'next/navigation'
 import Image from 'next/image'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -54,6 +56,12 @@ function MessageBubble({
   showReadAt: boolean
   showIcon: boolean
 }) {
+  const [lightboxIndex, setLightboxIndex] = useState(-1)
+
+  const attachmentUrls = (message.attachments ?? []).map((att) =>
+    typeof att === 'string' ? att : (att.url ?? att.path ?? att.filePath ?? att.file ?? '')
+  )
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 8 }}
@@ -82,17 +90,27 @@ function MessageBubble({
       <div
         className={`max-w-[72%] lg:max-w-[65%] flex flex-col gap-0.5 ${isOwn ? 'items-end' : 'items-start'}`}
       >
-        {message.attachments?.length > 0 && (
-          <div className={`flex flex-col gap-1 ${message.content ? 'mb-1' : ''}`}>
-            {message.attachments.map((att, i) => {
-              const url = typeof att === 'string' ? att : (att.url ?? att.path ?? att.filePath ?? att.file ?? '')
-              return (
-                <a key={i} href={url} target="_blank" rel="noopener noreferrer">
+        {attachmentUrls.length > 0 && (
+          <>
+            <div className={`flex flex-col gap-1 ${message.content ? 'mb-1' : ''}`}>
+              {attachmentUrls.map((url, i) => (
+                <button key={i} type="button" onClick={() => setLightboxIndex(i)}>
                   <img src={url} alt="attachment" className="w-48 h-48 lg:w-60 lg:h-60 rounded-2xl object-cover" />
-                </a>
-              )
-            })}
-          </div>
+                </button>
+              ))}
+            </div>
+            <Lightbox
+              open={lightboxIndex >= 0}
+              close={() => setLightboxIndex(-1)}
+              index={lightboxIndex}
+              slides={attachmentUrls.map((src) => ({ src }))}
+              on={{ view: ({ index }) => setLightboxIndex(index) }}
+              carousel={{ finite: attachmentUrls.length <= 1, imageFit: 'contain' }}
+              controller={{ closeOnBackdropClick: true }}
+              render={{ buttonPrev: () => null, buttonNext: () => null }}
+              styles={{ root: { '--yarl__color_backdrop': 'rgba(0,0,0,0.85)' } }}
+            />
+          </>
         )}
         {message.content && (
           <div
