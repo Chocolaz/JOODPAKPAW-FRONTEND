@@ -4,23 +4,26 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { useNormalizedPathname } from '@/app/_hooks/useNormalizedPathname'
 import { useNotifications } from '@/app/_components/NotificationContext'
-import { Home, Heart, Bell, User } from 'lucide-react'
+import { useChat } from '@/app/_components/ChatContext'
+import { Home, Heart, Bell, User, MessageCircle } from 'lucide-react'
 import { assetPath } from '@/lib/utils'
 
 const navItems = [
   { href: '/', label: 'Home', icon: Home },
   { href: '/favorites', label: 'Favorites', icon: Heart },
+  { href: '/chat', label: 'Chat', icon: MessageCircle },
   { href: '/notifications', label: 'Notifications', icon: Bell },
   { href: '/profile', label: 'Profile', icon: User },
 ]
 
-const VISIBLE_PATHS = ['/', '/profile', '/favorites', '/notifications']
+const VISIBLE_PATHS = ['/', '/profile', '/favorites', '/notifications', '/chat']
 
 export function DesktopNav() {
   const normalizedPath = useNormalizedPathname()
   const { unreadCount } = useNotifications()
+  const { unreadCount: chatUnreadCount } = useChat()
 
-  if (!VISIBLE_PATHS.includes(normalizedPath)) return null
+  if (!VISIBLE_PATHS.includes(normalizedPath) && !normalizedPath.startsWith('/chat')) return null
 
   return (
     <nav className="hidden lg:block sticky top-0 z-50 w-full bg-white border-b border-gray-100 shadow-sm">
@@ -41,8 +44,13 @@ export function DesktopNav() {
         {/* Nav links */}
         <div className="flex items-center gap-1">
           {navItems.map(({ href, label, icon: Icon }) => {
-            const isActive = normalizedPath === href
-            const showBadge = href === '/notifications' && unreadCount > 0
+            const isActive = href === '/chat'
+              ? normalizedPath === '/chat' || normalizedPath.startsWith('/chat/')
+              : normalizedPath === href
+            const badgeCount =
+              href === '/notifications' ? unreadCount :
+              href === '/chat' ? chatUnreadCount : 0
+            const showBadge = badgeCount > 0
 
             return (
               <Link
@@ -59,7 +67,7 @@ export function DesktopNav() {
                 {showBadge && (
                   <span className="absolute -top-0.5 right-1.5 min-w-4 h-4 px-0.5 bg-accent-orange rounded-full flex items-center justify-center">
                     <span className="text-white text-[9px] font-bold leading-none">
-                      {unreadCount > 9 ? '9+' : unreadCount}
+                      {badgeCount > 9 ? '9+' : badgeCount}
                     </span>
                   </span>
                 )}

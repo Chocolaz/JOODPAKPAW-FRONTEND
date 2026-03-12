@@ -6,6 +6,16 @@ const SOCKET_PATH = '/capstone25/cp25nk2/api/socket.io'
 
 let socket: Socket | null = null
 
+// Listeners registered here are automatically re-attached to every new socket instance
+type Listener = (...args: unknown[]) => void
+const persistentListeners = new Map<string, Set<Listener>>()
+
+function applyPersistentListeners(s: Socket) {
+  persistentListeners.forEach((listeners, event) => {
+    listeners.forEach((fn) => s.on(event, fn))
+  })
+}
+
 export function connectSocket(): Socket | null {
   if (typeof window === 'undefined') return null
 
@@ -30,6 +40,8 @@ export function connectSocket(): Socket | null {
     reconnectionDelayMax: 10000,
   })
 
+  applyPersistentListeners(socket)
+
   return socket
 }
 
@@ -42,4 +54,24 @@ export function disconnectSocket(): void {
 
 export function getSocket(): Socket | null {
   return socket
+}
+
+/** Register a listener that survives socket reconnects. Returns an unsubscribe fn. */
+export function addSocketListener(event: string, fn: Listener): () => void {
+  if (!persistentListeners.has(event)) {
+    persistentListeners.set(event, new Set())
+  }
+  persistentListeners.get(event)!.add(fn)
+  socket?.on(event, fn)
+
+  return () => removeSocketListener(event, fn)
+}
+
+export function removeSocketListener(event: string, fn: Listener): void {
+  persistentListeners.get(event)?.delete(fn)
+  socket?.off(event, fn)
+}
+
+export function emitSocketEvent(event: string, data?: unknown): void {
+  socket?.emit(event, data)
 }

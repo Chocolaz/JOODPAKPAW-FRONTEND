@@ -2,9 +2,11 @@
 
 import { useNormalizedPathname } from '@/app/_hooks/useNormalizedPathname'
 import { useNotifications } from '@/app/_components/NotificationContext'
+import { useChat } from '@/app/_components/ChatContext'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 import BellIcon from '@/public/icons/nav/Bell.svg'
+import ChatIcon from '@/public/icons/nav/Chat.svg'
 import HeartIcon from '@/public/icons/nav/Heart.svg'
 import HomeIcon from '@/public/icons/nav/Home.svg'
 import ProfileIcon from '@/public/icons/nav/Profile.svg'
@@ -12,8 +14,9 @@ import ProfileIcon from '@/public/icons/nav/Profile.svg'
 export function BottomNav() {
   const normalizedPath = useNormalizedPathname()
   const { unreadCount } = useNotifications()
+  const { unreadCount: chatUnreadCount } = useChat()
 
-  const visiblePaths = ['/', '/profile', '/favorites', '/notifications']
+  const visiblePaths = ['/', '/profile', '/favorites', '/notifications', '/chat']
 
   if (!visiblePaths.includes(normalizedPath)) {
     return null
@@ -22,6 +25,7 @@ export function BottomNav() {
   const navItems = [
     { href: '/', label: 'Home', icon: HomeIcon },
     { href: '/favorites', label: 'Favorites', icon: HeartIcon },
+    { href: '/chat', label: 'Chat', icon: ChatIcon },
     { href: '/notifications', label: 'Notifications', icon: BellIcon },
     { href: '/profile', label: 'Profile', icon: ProfileIcon },
   ]
@@ -30,8 +34,13 @@ export function BottomNav() {
     <nav className="lg:hidden fixed bottom-4 left-0 right-0 mx-auto bg-white border border-black/20 shadow-lg rounded-[10px] max-w-[500px] w-[90%]">
       <div className="flex justify-around items-center">
         {navItems.map((item) => {
-          const isActive = normalizedPath === item.href
-          const showBadge = item.href === '/notifications' && unreadCount > 0
+          const isActive = item.href === '/chat'
+            ? normalizedPath === '/chat' || normalizedPath.startsWith('/chat/')
+            : normalizedPath === item.href
+          const badgeCount =
+            item.href === '/notifications' ? unreadCount :
+            item.href === '/chat' ? chatUnreadCount : 0
+          const showBadge = badgeCount > 0
 
           return (
             <Link
@@ -62,7 +71,7 @@ export function BottomNav() {
                     className="absolute -top-1.5 -right-1.5 min-w-4 h-4 px-0.5 bg-accent-orange rounded-full flex items-center justify-center"
                   >
                     <span className="text-white text-[9px] font-bold leading-none">
-                      {unreadCount > 9 ? '9+' : unreadCount}
+                      {badgeCount > 9 ? '9+' : badgeCount}
                     </span>
                   </motion.span>
                 )}

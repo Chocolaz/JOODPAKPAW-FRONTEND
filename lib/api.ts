@@ -265,6 +265,85 @@ export const getPetSizeCategories = (): Promise<PetSizeCategoriesResponse> => {
   })
 }
 
+// --- Chat Functions ---
+export interface ChatUser {
+  id: number
+  firstName: string
+  lastName: string
+  avatar: string
+}
+
+export interface ChatMessage {
+  id: number
+  content: string
+  readAt: string | null
+  createdAt: string
+  sender: ChatUser
+  attachments: string[]
+}
+
+export interface ChatRoom {
+  id: number
+  lastMessageAt: string
+  lastMessage: {
+    id: number
+    content: string
+    readAt: string | null
+  }
+  otherUser: ChatUser
+}
+
+export interface ChatRoomsResponse {
+  chatRooms: ChatRoom[]
+}
+
+export interface ChatRoomDetail {
+  id: number
+  lastMessageAt: string
+  otherUser: ChatUser
+  messages: ChatMessage[]
+}
+
+export const getChatRooms = (): Promise<ChatRoomsResponse> => {
+  return request<ChatRoomsResponse>({
+    endpoint: 'api/v1/chat-rooms',
+    method: 'GET',
+    requiresAuth: true,
+    errorContext: 'Get Chat Rooms',
+  })
+}
+
+export const getChatRoomById = (id: number): Promise<ChatRoomDetail> => {
+  return request<ChatRoomDetail>({
+    endpoint: `api/v1/chat-rooms/${id}`,
+    method: 'GET',
+    requiresAuth: true,
+    errorContext: 'Get Chat Room',
+  })
+}
+
+export const sendChatMessage = (
+  roomId: number,
+  content: string
+): Promise<ChatMessage> => {
+  return request<ChatMessage>({
+    endpoint: `api/v1/chat-rooms/${roomId}/messages`,
+    method: 'POST',
+    body: { content },
+    requiresAuth: true,
+    errorContext: 'Send Message',
+  })
+}
+
+export const markChatMessagesAsRead = (roomId: number): Promise<void> => {
+  return request<void>({
+    endpoint: `api/v1/chat-rooms/${roomId}/messages/read`,
+    method: 'PATCH',
+    requiresAuth: true,
+    errorContext: 'Mark Messages Read',
+  })
+}
+
 export const deleteRoomCategory = (
   propertyId: number,
   roomCategoryId: number

@@ -56,6 +56,21 @@ button {
   font-family: var(--font-baloo2);
 }
 
+/* Thin scrollbar for chat and sidebar */
+.scrollbar-thin::-webkit-scrollbar {
+  width: 4px;
+}
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: transparent;
+}
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: #e5e7eb;
+  border-radius: 99px;
+}
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background: #d1d5db;
+}
+
 /* Base (mobile) */
 body {
   font-family: var(--font-afacad);
