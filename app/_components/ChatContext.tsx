@@ -16,6 +16,7 @@ import {
   getChatRoomById,
   sendChatMessage,
   markChatMessagesAsRead,
+  deleteChatRoom,
   type ChatRoom,
   type ChatMessage,
 } from '@/lib/api'
@@ -26,9 +27,10 @@ interface ChatContextType {
   unreadCount: number
   isLoading: boolean
   loadRoom: (id: number) => Promise<void>
-  sendMessage: (roomId: number, content: string) => Promise<void>
+  sendMessage: (roomId: number, content: string, images?: File[]) => Promise<void>
   markRoomAsRead: (roomId: number) => void
   markAsRead: (roomId: number) => void
+  deleteRoom: (roomId: number) => Promise<void>
 }
 
 const ChatContext = createContext<ChatContextType>({
@@ -40,6 +42,7 @@ const ChatContext = createContext<ChatContextType>({
   sendMessage: async () => {},
   markRoomAsRead: () => {},
   markAsRead: () => {},
+  deleteRoom: async () => {},
 })
 
 export const useChat = () => useContext(ChatContext)
@@ -97,7 +100,7 @@ export function ChatProvider({ children }: { children: ReactNode }) {
         message = raw.message as ChatMessage
       }
       // Format B: flat message object { id, content, sender, ... }
-      else if (raw?.id && raw?.content && raw?.sender) {
+      else if (raw?.id && raw?.sender) {
         message = raw as unknown as ChatMessage
         // Echo of own sent message — already added optimistically, skip
         if (message.sender.id === user?.id) return
@@ -200,8 +203,8 @@ export function ChatProvider({ children }: { children: ReactNode }) {
     }
   }, [])
 
-  const sendMessage = useCallback(async (roomId: number, content: string) => {
-    const newMsg = await sendChatMessage(roomId, content)
+  const sendMessage = useCallback(async (roomId: number, content: string, images?: File[]) => {
+    const newMsg = await sendChatMessage(roomId, content, images)
     setRoomMessages((prev) => {
       const existing = prev[roomId] ?? []
       if (existing.some((m) => m.id === newMsg.id)) return prev
@@ -231,6 +234,16 @@ export function ChatProvider({ children }: { children: ReactNode }) {
     )
   }, [])
 
+  const deleteRoom = useCallback(async (roomId: number) => {
+    await deleteChatRoom(roomId)
+    setRooms((prev) => prev.filter((r) => r.id !== roomId))
+    setRoomMessages((prev) => {
+      const next = { ...prev }
+      delete next[roomId]
+      return next
+    })
+  }, [])
+
   /** Mark messages as read locally + via API, suppressing the self-echo from socket */
   const markAsRead = useCallback((roomId: number) => {
     markRoomAsRead(roomId)
@@ -243,7 +256,7 @@ export function ChatProvider({ children }: { children: ReactNode }) {
 
   return (
     <ChatContext.Provider
-      value={{ rooms, roomMessages, unreadCount, isLoading, loadRoom, sendMessage, markRoomAsRead, markAsRead }}
+      value={{ rooms, roomMessages, unreadCount, isLoading, loadRoom, sendMessage, markRoomAsRead, markAsRead, deleteRoom }}
     >
       {children}
     </ChatContext.Provider>

@@ -2,8 +2,9 @@
 
 import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { MessageCircle } from 'lucide-react'
+import Image from 'next/image'
 import { useAuth } from '@/app/_components/AuthContext'
+import { assetPath } from '@/lib/utils'
 import { AppHeader } from '@/app/_components/AppHeader'
 import { ChatSidebar } from './_components/ChatSidebar'
 
@@ -26,13 +27,11 @@ export default function ChatPage() {
       </div>
 
       {/* Desktop: right-panel empty state (sidebar in layout handles the list) */}
-      <div className="hidden lg:flex h-full flex-col items-center justify-center gap-4 text-neutral-gray">
-        <div className="w-20 h-20 rounded-full bg-gray-100 flex items-center justify-center">
-          <MessageCircle className="w-10 h-10 text-gray-300" />
-        </div>
+      <div className="hidden lg:flex h-full flex-col items-center justify-center gap-3">
+        <Image src={assetPath('/graphics/no-chat.png')} alt="No chat selected" width={160} height={160} className="opacity-90" />
         <div className="text-center">
-          <p className="text-base font-medium text-gray-500">เลือกการสนทนา</p>
-          <p className="text-sm text-gray-400 mt-1">เลือกจากรายการทางซ้ายเพื่อเริ่มแชท</p>
+          <p className="text-base font-medium text-gray-500">Select a conversation</p>
+          <p className="text-sm text-gray-400 mt-1">Choose from the list on the left to start chatting</p>
         </div>
       </div>
     </>

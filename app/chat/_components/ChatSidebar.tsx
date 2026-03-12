@@ -3,9 +3,10 @@
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import { motion, AnimatePresence } from 'framer-motion'
-import { MessageCircle, Search } from 'lucide-react'
+import { Search, ImageIcon } from 'lucide-react'
 import { useState } from 'react'
 import { useChat } from '@/app/_components/ChatContext'
+import { assetPath } from '@/lib/utils'
 import type { ChatRoom } from '@/lib/api'
 
 function formatTime(dateStr: string): string {
@@ -68,8 +69,13 @@ function RoomItem({
             {formatTime(room.lastMessageAt)}
           </span>
         </div>
-        <p className={`text-xs lg:text-sm truncate mt-0.5 ${isUnread ? 'text-gray-700 font-medium' : 'text-neutral-gray'}`}>
-          {room.lastMessage.content}
+        <p className={`text-xs lg:text-sm truncate mt-0.5 flex items-center gap-1 ${isUnread ? 'text-gray-700 font-medium' : 'text-neutral-gray'}`}>
+          {room.lastMessage.content || (
+            <>
+              <ImageIcon className="w-3.5 h-3.5 shrink-0" />
+              <span>Photo</span>
+            </>
+          )}
         </p>
       </div>
 
@@ -136,8 +142,8 @@ export function ChatSidebar({ activeRoomId }: ChatSidebarProps) {
               animate={{ opacity: 1 }}
               className="flex flex-col items-center justify-center py-16 gap-2 text-neutral-gray"
             >
-              <MessageCircle className="w-10 h-10 text-gray-200" />
-              <p className="text-sm">{query ? 'ไม่พบผลลัพธ์' : 'ยังไม่มีข้อความ'}</p>
+              <Image src={assetPath('/graphics/no-chat.png')} alt="No messages" width={100} height={100} className="opacity-80" />
+              <p className="text-sm">{query ? 'No results found' : 'No messages yet'}</p>
             </motion.div>
           ) : (
             <motion.div key="list" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>

@@ -1,14 +1,32 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
-import { useParams } from 'next/navigation'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { useParams, useRouter } from 'next/navigation'
 import Image from 'next/image'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Send, Check, CheckCheck } from 'lucide-react'
+import { Send, Check, CheckCheck, Trash2, ImagePlus } from 'lucide-react'
+import { assetPath } from '@/lib/utils'
 import { useChat } from '@/app/_components/ChatContext'
 import { useAuth } from '@/app/_components/AuthContext'
 import { AppHeader } from '@/app/_components/AppHeader'
+import { ConfirmationModal } from '@/app/_components/ConfirmationModal'
+import { ImageManager } from '@/app/_components/ImageManager'
 import type { ChatMessage } from '@/lib/api'
+
+function formatDateLabel(dateStr: string): string {
+  const date = new Date(dateStr.replace(' ', 'T'))
+  const now = new Date()
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+  const d = new Date(date.getFullYear(), date.getMonth(), date.getDate())
+  const diffDays = Math.round((today.getTime() - d.getTime()) / (1000 * 60 * 60 * 24))
+  if (diffDays === 0) return 'Today'
+  if (diffDays === 1) return 'Yesterday'
+  return date.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: diffDays > 365 ? 'numeric' : undefined })
+}
+
+function getDateKey(dateStr: string): string {
+  return new Date(dateStr.replace(' ', 'T')).toDateString()
+}
 
 function formatTime(dateStr: string): string {
   const date = new Date(dateStr.replace(' ', 'T'))
@@ -53,7 +71,7 @@ function MessageBubble({
             />
           ) : (
             <div className="w-7 h-7 lg:w-8 lg:h-8 rounded-full bg-deep-teal/10 flex items-center justify-center">
-              <span className="text-deep-teal text-xs font-semibold">
+              <span className="text-deep-teal text-sm font-semibold">
                 {message.sender.firstName.charAt(0)}
               </span>
             </div>
@@ -64,19 +82,33 @@ function MessageBubble({
       <div
         className={`max-w-[72%] lg:max-w-[65%] flex flex-col gap-0.5 ${isOwn ? 'items-end' : 'items-start'}`}
       >
-        <div
-          className={`px-3.5 py-2 lg:px-5 lg:py-3 rounded-2xl text-sm lg:text-base leading-relaxed ${
-            isOwn
-              ? 'bg-accent-orange text-white rounded-br-sm'
-              : 'bg-white border border-gray-100 shadow-sm text-gray-800 rounded-bl-sm'
-          }`}
-        >
-          {message.content}
-        </div>
+        {message.attachments?.length > 0 && (
+          <div className={`flex flex-col gap-1 ${message.content ? 'mb-1' : ''}`}>
+            {message.attachments.map((att, i) => {
+              const url = typeof att === 'string' ? att : (att.url ?? att.path ?? att.filePath ?? att.file ?? '')
+              return (
+                <a key={i} href={url} target="_blank" rel="noopener noreferrer">
+                  <img src={url} alt="attachment" className="w-48 h-48 lg:w-60 lg:h-60 rounded-2xl object-cover" />
+                </a>
+              )
+            })}
+          </div>
+        )}
+        {message.content && (
+          <div
+            className={`px-3.5 py-2 lg:px-5 lg:py-3 rounded-2xl text-base leading-relaxed ${
+              isOwn
+                ? 'bg-accent-orange text-white rounded-br-sm'
+                : 'bg-white border border-gray-100 shadow-sm text-gray-800 rounded-bl-sm'
+            }`}
+          >
+            {message.content}
+          </div>
+        )}
         <div
           className={`flex items-center gap-0.5 px-1 ${isOwn ? 'flex-row-reverse' : 'flex-row'}`}
         >
-          <span className="text-[10px] lg:text-xs text-neutral-gray">
+          <span className="text-xs lg:text-xs text-neutral-gray">
             {formatTime(message.createdAt)}
           </span>
           {isOwn && showIcon &&
@@ -87,7 +119,7 @@ function MessageBubble({
             ))}
         </div>
         {isOwn && showReadAt && message.readAt && (
-          <span className="text-[10px] lg:text-xs text-accent-orange px-1">
+          <span className="text-xs lg:text-xs text-accent-orange px-1">
             {formatReadAt(message.readAt)}
           </span>
         )}
@@ -99,12 +131,16 @@ function MessageBubble({
 export default function ChatRoomPage() {
   const { id } = useParams<{ id: string }>()
   const roomId = Number(id)
-  const { roomMessages, loadRoom, sendMessage, markAsRead, rooms } =
+  const { roomMessages, loadRoom, sendMessage, markAsRead, deleteRoom, rooms } =
     useChat()
-  const { user, requireAuth } = useAuth()
+  const { user, requireAuth, isAuthenticated, loading: authLoading } = useAuth()
+  const router = useRouter()
   const [input, setInput] = useState('')
   const [isSending, setIsSending] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  const [showDeleteModal, setShowDeleteModal] = useState(false)
+  const [pendingImages, setPendingImages] = useState<File[]>([])
+  const fileInputRef = useRef<HTMLInputElement>(null)
   const scrollContainerRef = useRef<HTMLDivElement>(null)
   const initialScrollDone = useRef(false)
 
@@ -115,13 +151,14 @@ export default function ChatRoomPage() {
     : '...'
 
   useEffect(() => {
+    if (authLoading) return
     if (!requireAuth()) return
     initialScrollDone.current = false
     prevMessagesLengthRef.current = 0
     setIsLoading(true)
     loadRoom(roomId).finally(() => setIsLoading(false))
     markAsRead(roomId)
-  }, [roomId])
+  }, [roomId, isAuthenticated, authLoading])
 
   // Mark as read only when a NEW message from the other user arrives after initial load
   const prevMessagesLengthRef = useRef(0)
@@ -136,30 +173,23 @@ export default function ChatRoomPage() {
     prevMessagesLengthRef.current = messages.length
   }, [messages.length, isLoading, roomId])
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (messages.length === 0 || isLoading) return
     const el = scrollContainerRef.current
     if (!el) return
-    if (!initialScrollDone.current) {
-      // Double rAF ensures the browser has fully laid out all message elements
-      requestAnimationFrame(() =>
-        requestAnimationFrame(() => {
-          el.scrollTop = el.scrollHeight
-          initialScrollDone.current = true
-        })
-      )
-    } else {
-      el.scrollTop = el.scrollHeight
-    }
+    el.scrollTop = el.scrollHeight
+    initialScrollDone.current = true
   }, [messages.length, isLoading])
 
   async function handleSend() {
     const content = input.trim()
-    if (!content || isSending) return
+    if ((!content && pendingImages.length === 0) || isSending) return
     setInput('')
+    const images = pendingImages
+    setPendingImages([])
     setIsSending(true)
     try {
-      await sendMessage(roomId, content)
+      await sendMessage(roomId, content, images.length > 0 ? images : undefined)
     } catch (e) {
       console.error(e)
     } finally {
@@ -167,12 +197,32 @@ export default function ChatRoomPage() {
     }
   }
 
+  function handleImagePick(e: React.ChangeEvent<HTMLInputElement>) {
+    const files = Array.from(e.target.files ?? [])
+    if (files.length === 0) return
+    setPendingImages((prev) => [...prev, ...files].slice(0, 5))
+    e.target.value = ''
+  }
+
+  async function handleDelete() {
+    await deleteRoom(roomId)
+    router.push('/chat')
+  }
+
   return (
     /* Mobile: full dvh. Desktop: fill the right panel (parent controls height) */
     <div className="flex flex-col h-[100dvh] lg:h-full">
       {/* Mobile header */}
       <div className="lg:hidden shrink-0">
-        <AppHeader title={otherUserName} backPath="/chat" />
+        <AppHeader
+          title={otherUserName}
+          backPath="/chat"
+          menu={
+            <button onClick={() => setShowDeleteModal(true)} className="p-2 text-red-400 hover:text-red-500 transition-colors">
+              <Trash2 className="w-5 h-5" />
+            </button>
+          }
+        />
       </div>
 
       {/* Desktop header */}
@@ -193,8 +243,20 @@ export default function ChatRoomPage() {
             </span>
           </div>
         )}
-        <p className="font-semibold text-deep-teal">{otherUserName}</p>
+        <p className="font-semibold text-deep-teal flex-1">{otherUserName}</p>
+        <button onClick={() => setShowDeleteModal(true)} className="p-2 text-red-400 hover:text-red-500 transition-colors rounded-lg hover:bg-red-50">
+          <Trash2 className="w-5 h-5" />
+        </button>
       </div>
+
+      <ConfirmationModal
+        isOpen={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        onConfirm={handleDelete}
+        title="Delete Conversation"
+        message={`Are you sure you want to delete your conversation with <strong>${otherUserName}</strong>? This cannot be undone.`}
+        confirmButtonClassName="bg-red-500 hover:bg-red-600 text-white"
+      />
 
       {/* Messages */}
       <div
@@ -227,32 +289,77 @@ export default function ChatRoomPage() {
                   msg.sender.id === user?.id ? i : acc,
                 -1
               )
-              return messages.map((msg, i) => (
-                <MessageBubble
-                  key={msg.id}
-                  message={msg}
-                  isOwn={msg.sender.id === user?.id}
-                  showReadAt={i === lastReadOwnIdx}
-                  showIcon={i === lastOwnIdx}
-                />
-              ))
+              let lastDateKey = ''
+              return messages.flatMap((msg, i) => {
+                const dateKey = getDateKey(msg.createdAt)
+                const items = []
+                if (dateKey !== lastDateKey) {
+                  lastDateKey = dateKey
+                  items.push(
+                    <div key={`date-${dateKey}`} className="flex items-center gap-3 my-2">
+                      <div className="flex-1 h-px bg-gray-200" />
+                      <span className="text-xs lg:text-xs text-neutral-gray shrink-0">
+                        {formatDateLabel(msg.createdAt)}
+                      </span>
+                      <div className="flex-1 h-px bg-gray-200" />
+                    </div>
+                  )
+                }
+                items.push(
+                  <MessageBubble
+                    key={msg.id}
+                    message={msg}
+                    isOwn={msg.sender.id === user?.id}
+                    showReadAt={i === lastReadOwnIdx}
+                    showIcon={i === lastOwnIdx}
+                  />
+                )
+                return items
+              })
             })()}
           </AnimatePresence>
         )}
       </div>
 
+      {/* Image previews */}
+      {pendingImages.length > 0 && (
+        <div className="shrink-0 px-4 lg:px-6 pt-2 bg-white">
+          <ImageManager
+            existingImages={[]}
+            newFiles={pendingImages}
+            onExistingImagesChange={() => {}}
+            onNewFilesChange={setPendingImages}
+            renderAsGridAddButton
+          />
+        </div>
+      )}
+
       {/* Input bar */}
       <div className="shrink-0 flex items-center gap-2 px-4 lg:px-6 py-3 lg:py-4 bg-white border-t border-gray-100">
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          multiple
+          className="hidden"
+          onChange={handleImagePick}
+        />
+        <button
+          onClick={() => fileInputRef.current?.click()}
+          className="shrink-0 w-10 h-10 rounded-full flex items-center justify-center text-neutral-gray hover:bg-gray-100 transition-colors"
+        >
+          <ImagePlus className="w-5 h-5" />
+        </button>
         <input
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && handleSend()}
           placeholder="Type a message..."
-          className="flex-1 rounded-full border border-gray-200 px-4 py-2.5 lg:py-3 text-sm lg:text-base outline-none focus:border-accent-orange transition-colors"
+          className="flex-1 rounded-full border border-gray-200 px-4 py-2.5 lg:py-3 text-base outline-none focus:border-accent-orange transition-colors"
         />
         <button
           onClick={handleSend}
-          disabled={!input.trim() || isSending}
+          disabled={(!input.trim() && pendingImages.length === 0) || isSending}
           className="w-10 h-10 lg:w-12 lg:h-12 rounded-full bg-accent-orange flex items-center justify-center shrink-0 disabled:opacity-40 transition-opacity hover:bg-accent-orange/90"
         >
           <Send className="w-4 h-4 lg:w-5 lg:h-5 text-white" />

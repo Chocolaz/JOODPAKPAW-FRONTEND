@@ -279,7 +279,7 @@ export interface ChatMessage {
   readAt: string | null
   createdAt: string
   sender: ChatUser
-  attachments: string[]
+  attachments: (string | { url?: string; path?: string; filePath?: string; file?: string })[]
 }
 
 export interface ChatRoom {
@@ -324,8 +324,21 @@ export const getChatRoomById = (id: number): Promise<ChatRoomDetail> => {
 
 export const sendChatMessage = (
   roomId: number,
-  content: string
+  content: string,
+  images?: File[]
 ): Promise<ChatMessage> => {
+  if (images && images.length > 0) {
+    const formData = new FormData()
+    if (content) formData.append('content', content)
+    images.forEach((img) => formData.append('images', img))
+    return request<ChatMessage>({
+      endpoint: `api/v1/chat-rooms/${roomId}/messages`,
+      method: 'POST',
+      body: formData,
+      requiresAuth: true,
+      errorContext: 'Send Message',
+    })
+  }
   return request<ChatMessage>({
     endpoint: `api/v1/chat-rooms/${roomId}/messages`,
     method: 'POST',
@@ -341,6 +354,15 @@ export const markChatMessagesAsRead = (roomId: number): Promise<void> => {
     method: 'PATCH',
     requiresAuth: true,
     errorContext: 'Mark Messages Read',
+  })
+}
+
+export const deleteChatRoom = (roomId: number): Promise<void> => {
+  return request<void>({
+    endpoint: `api/v1/chat-rooms/${roomId}`,
+    method: 'DELETE',
+    requiresAuth: true,
+    errorContext: 'Delete Chat Room',
   })
 }
 

@@ -2,7 +2,7 @@
 
 import { useAddProperty } from '../../_context/AddPropertyContext'
 import { StepNavigation } from '../StepNavigation'
-import { ImageManager } from '@/app/profile/host/_components/ImageManager'
+import { ImageManager } from '@/app/_components/ImageManager'
 
 export function Step6({
   onNext,
