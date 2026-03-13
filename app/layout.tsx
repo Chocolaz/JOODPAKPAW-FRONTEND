@@ -2,7 +2,7 @@
 
 import { usePathname } from 'next/navigation'
 import './globals.css'
-import { afacad, baloo2 } from './fonts'
+import { afacad, baloo2, sarabun, prompt } from './fonts'
 import { BottomNav } from '@/app/_components/BottomNav'
 import { DesktopNav } from '@/app/_components/DesktopNav'
 import { AuthWrapper } from '@/app/_components/AuthWrapper'
@@ -26,7 +26,7 @@ export default function RootLayout({
         <title>JOODPAKPAW</title>
         <meta name="description" content="Booking petsitting made easy" />
       </head>
-      <body className={`${afacad.variable} ${baloo2.variable} bg-white`}>
+      <body className={`${afacad.variable} ${baloo2.variable} ${sarabun.variable} ${prompt.variable} bg-white`}>
         <AuthWrapper>
           <AuthModalProvider>
             <NotificationProvider>

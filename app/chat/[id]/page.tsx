@@ -6,14 +6,13 @@ import 'yet-another-react-lightbox/styles.css'
 import { useParams, useRouter } from 'next/navigation'
 import Image from 'next/image'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Send, Check, CheckCheck, Trash2, ImagePlus } from 'lucide-react'
-import { assetPath } from '@/lib/utils'
+import { Send, Check, CheckCheck, Trash2, ImagePlus, ArrowLeft, X } from 'lucide-react'
 import { useChat } from '@/app/_components/ChatContext'
 import { useAuth } from '@/app/_components/AuthContext'
-import { AppHeader } from '@/app/_components/AppHeader'
 import { ConfirmationModal } from '@/app/_components/ConfirmationModal'
-import { ImageManager } from '@/app/_components/ImageManager'
 import type { ChatMessage } from '@/lib/api'
+
+/* ─── helpers ─── */
 
 function formatDateLabel(dateStr: string): string {
   const date = new Date(dateStr.replace(' ', 'T'))
@@ -31,11 +30,7 @@ function getDateKey(dateStr: string): string {
 }
 
 function formatTime(dateStr: string): string {
-  const date = new Date(dateStr.replace(' ', 'T'))
-  return date.toLocaleTimeString('th-TH', {
-    hour: '2-digit',
-    minute: '2-digit',
-  })
+  return new Date(dateStr.replace(' ', 'T')).toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' })
 }
 
 function formatReadAt(readAt: string): string {
@@ -45,16 +40,44 @@ function formatReadAt(readAt: string): string {
   return `Read ${date.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' })}`
 }
 
+/* ─── pending image thumbnail ─── */
+
+function PendingImageThumb({ file, onRemove }: { file: File; onRemove: () => void }) {
+  const [src, setSrc] = useState('')
+  useEffect(() => {
+    const url = URL.createObjectURL(file)
+    setSrc(url)
+    return () => URL.revokeObjectURL(url)
+  }, [file])
+  if (!src) return null
+  return (
+    <div className="relative shrink-0 w-16 h-16 rounded-xl overflow-hidden border border-gray-200 shadow-sm">
+      <img src={src} alt="" className="w-full h-full object-cover" />
+      <button
+        type="button"
+        onClick={onRemove}
+        className="absolute top-0.5 right-0.5 w-5 h-5 bg-black/60 hover:bg-black/80 rounded-full flex items-center justify-center transition-colors"
+      >
+        <X className="w-3 h-3 text-white" />
+      </button>
+    </div>
+  )
+}
+
+/* ─── message bubble ─── */
+
 function MessageBubble({
   message,
   isOwn,
   showReadAt,
   showIcon,
+  showAvatar,
 }: {
   message: ChatMessage
   isOwn: boolean
   showReadAt: boolean
   showIcon: boolean
+  showAvatar: boolean
 }) {
   const [lightboxIndex, setLightboxIndex] = useState(-1)
 
@@ -64,38 +87,55 @@ function MessageBubble({
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 8 }}
+      initial={{ opacity: 0, y: 6 }}
       animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.15 }}
       className={`flex items-end gap-2 ${isOwn ? 'flex-row-reverse' : 'flex-row'}`}
     >
-      {!isOwn && (
-        <div className="w-7 h-7 lg:w-8 lg:h-8 shrink-0 relative mb-1">
-          {message.sender.avatar ? (
-            <Image
-              src={message.sender.avatar}
-              alt={message.sender.firstName}
-              fill
-              className="rounded-full object-cover"
-            />
+      {/* Other user avatar — placeholder keeps spacing consistent */}
+      <div className="w-7 h-7 lg:w-8 lg:h-8 shrink-0 mb-1">
+        {!isOwn && showAvatar && (
+          message.sender.avatar ? (
+            <div className="relative w-7 h-7 lg:w-8 lg:h-8">
+              <Image
+                src={message.sender.avatar}
+                alt={message.sender.firstName}
+                fill
+                unoptimized
+                className="rounded-full object-cover"
+              />
+            </div>
           ) : (
             <div className="w-7 h-7 lg:w-8 lg:h-8 rounded-full bg-deep-teal/10 flex items-center justify-center">
-              <span className="text-deep-teal text-sm font-semibold">
+              <span className="text-deep-teal text-xs font-semibold">
                 {message.sender.firstName.charAt(0)}
               </span>
             </div>
-          )}
-        </div>
-      )}
+          )
+        )}
+      </div>
 
-      <div
-        className={`max-w-[72%] lg:max-w-[65%] flex flex-col gap-0.5 ${isOwn ? 'items-end' : 'items-start'}`}
-      >
+      <div className={`max-w-[72%] lg:max-w-[60%] flex flex-col gap-0.5 ${isOwn ? 'items-end' : 'items-start'}`}>
+        {/* Attachments */}
         {attachmentUrls.length > 0 && (
           <>
-            <div className={`flex flex-col gap-1 ${message.content ? 'mb-1' : ''}`}>
+            <div className={`flex flex-wrap gap-1.5 ${message.content ? 'mb-1' : ''}`}>
               {attachmentUrls.map((url, i) => (
-                <button key={i} type="button" onClick={() => setLightboxIndex(i)}>
-                  <img src={url} alt="attachment" className="w-48 h-48 lg:w-60 lg:h-60 rounded-2xl object-cover" />
+                <button
+                  key={i}
+                  type="button"
+                  onClick={() => setLightboxIndex(i)}
+                  className="rounded-2xl overflow-hidden shadow-sm hover:opacity-95 transition-opacity"
+                >
+                  <img
+                    src={url}
+                    alt="attachment"
+                    className={`object-cover ${
+                      attachmentUrls.length === 1
+                        ? 'w-52 h-52 lg:w-64 lg:h-64'
+                        : 'w-36 h-36 lg:w-44 lg:h-44'
+                    }`}
+                  />
                 </button>
               ))}
             </div>
@@ -108,49 +148,74 @@ function MessageBubble({
               carousel={{ finite: attachmentUrls.length <= 1, imageFit: 'contain' }}
               controller={{ closeOnBackdropClick: true }}
               render={{ buttonPrev: () => null, buttonNext: () => null }}
-              styles={{ root: { '--yarl__color_backdrop': 'rgba(0,0,0,0.85)' } }}
+              styles={{ root: { '--yarl__color_backdrop': 'rgba(0,0,0,0.9)' } }}
             />
           </>
         )}
+
+        {/* Text bubble */}
         {message.content && (
           <div
-            className={`px-3.5 py-2 lg:px-5 lg:py-3 rounded-2xl text-base leading-relaxed ${
+            className={`px-4 py-2.5 lg:px-5 lg:py-3 text-sm lg:text-base leading-relaxed shadow-sm ${
               isOwn
-                ? 'bg-accent-orange text-white rounded-br-sm'
-                : 'bg-white border border-gray-100 shadow-sm text-gray-800 rounded-bl-sm'
+                ? 'bg-accent-orange text-white rounded-2xl rounded-br-md'
+                : 'bg-white border border-gray-100 text-gray-800 rounded-2xl rounded-bl-md'
             }`}
           >
             {message.content}
           </div>
         )}
-        <div
-          className={`flex items-center gap-0.5 px-1 ${isOwn ? 'flex-row-reverse' : 'flex-row'}`}
-        >
-          <span className="text-xs lg:text-xs text-neutral-gray">
+
+        {/* Time + unread check */}
+        <div className={`flex items-center gap-1 px-1 ${isOwn ? 'flex-row-reverse' : 'flex-row'}`}>
+          <span className="text-[10px] lg:text-xs text-neutral-gray/70">
             {formatTime(message.createdAt)}
           </span>
-          {isOwn && showIcon &&
-            (message.readAt ? (
-              <CheckCheck className="w-3.5 h-3.5 lg:w-4 lg:h-4 text-accent-orange" />
-            ) : (
-              <Check className="w-3.5 h-3.5 lg:w-4 lg:h-4 text-neutral-gray/60" />
-            ))}
+          {isOwn && showIcon && !message.readAt && (
+            <Check className="w-3.5 h-3.5 text-neutral-gray/40" />
+          )}
         </div>
+
+        {/* Read receipt: double-check + time together */}
         {isOwn && showReadAt && message.readAt && (
-          <span className="text-xs lg:text-xs text-accent-orange px-1">
-            {formatReadAt(message.readAt)}
-          </span>
+          <div className="flex items-center gap-1 px-1">
+            <CheckCheck className="w-3.5 h-3.5 text-accent-orange" />
+            <span className="text-[10px] lg:text-xs text-accent-orange/80">
+              {formatReadAt(message.readAt)}
+            </span>
+          </div>
         )}
       </div>
     </motion.div>
   )
 }
 
+/* ─── skeleton ─── */
+
+function MessageSkeleton() {
+  return (
+    <div className="flex flex-col gap-3 px-4 lg:px-6 py-4 animate-pulse">
+      {[false, true, false, false, true, true].map((isOwn, i) => (
+        <div key={i} className={`flex items-end gap-2 ${isOwn ? 'flex-row-reverse' : 'flex-row'}`}>
+          {!isOwn && <div className="w-7 h-7 rounded-full bg-gray-200 shrink-0 mb-1" />}
+          <div
+            className={`h-9 rounded-2xl bg-gray-200 ${
+              isOwn ? 'rounded-br-md' : 'rounded-bl-md'
+            }`}
+            style={{ width: `${[38, 26, 50, 32, 20, 44][i]}%` }}
+          />
+        </div>
+      ))}
+    </div>
+  )
+}
+
+/* ─── main page ─── */
+
 export default function ChatRoomPage() {
   const { id } = useParams<{ id: string }>()
   const roomId = Number(id)
-  const { roomMessages, loadRoom, sendMessage, markAsRead, deleteRoom, rooms } =
-    useChat()
+  const { roomMessages, loadRoom, sendMessage, markAsRead, deleteRoom, rooms } = useChat()
   const { user, requireAuth, isAuthenticated, loading: authLoading } = useAuth()
   const router = useRouter()
   const [input, setInput] = useState('')
@@ -161,12 +226,11 @@ export default function ChatRoomPage() {
   const fileInputRef = useRef<HTMLInputElement>(null)
   const scrollContainerRef = useRef<HTMLDivElement>(null)
   const initialScrollDone = useRef(false)
+  const prevMessagesLengthRef = useRef(0)
 
   const messages = roomMessages[roomId] ?? []
   const room = rooms.find((r) => r.id === roomId)
-  const otherUserName = room
-    ? `${room.otherUser.firstName} ${room.otherUser.lastName}`
-    : '...'
+  const otherUserName = room ? `${room.otherUser.firstName} ${room.otherUser.lastName}` : '...'
 
   useEffect(() => {
     if (authLoading) return
@@ -178,15 +242,11 @@ export default function ChatRoomPage() {
     markAsRead(roomId)
   }, [roomId, isAuthenticated, authLoading])
 
-  // Mark as read only when a NEW message from the other user arrives after initial load
-  const prevMessagesLengthRef = useRef(0)
   useEffect(() => {
     if (isLoading || messages.length === 0) return
     if (messages.length > prevMessagesLengthRef.current && initialScrollDone.current) {
       const lastMsg = messages[messages.length - 1]
-      if (lastMsg && lastMsg.sender.id !== user?.id) {
-        markAsRead(roomId)
-      }
+      if (lastMsg && lastMsg.sender.id !== user?.id) markAsRead(roomId)
     }
     prevMessagesLengthRef.current = messages.length
   }, [messages.length, isLoading, roomId])
@@ -227,43 +287,51 @@ export default function ChatRoomPage() {
     router.push('/chat')
   }
 
-  return (
-    /* Mobile: full dvh. Desktop: fill the right panel (parent controls height) */
-    <div className="flex flex-col h-[100dvh] lg:h-full">
-      {/* Mobile header */}
-      <div className="lg:hidden shrink-0">
-        <AppHeader
-          title={otherUserName}
-          backPath="/chat"
-          menu={
-            <button onClick={() => setShowDeleteModal(true)} className="p-2 text-red-400 hover:text-red-500 transition-colors">
-              <Trash2 className="w-5 h-5" />
-            </button>
-          }
-        />
-      </div>
+  const canSend = (input.trim().length > 0 || pendingImages.length > 0) && !isSending
 
-      {/* Desktop header */}
-      <div className="hidden lg:flex items-center gap-3 px-6 py-4 bg-white border-b border-gray-100 shrink-0">
-        {room?.otherUser.avatar ? (
-          <div className="relative w-11 h-11 shrink-0">
-            <Image
-              src={room.otherUser.avatar}
-              alt={otherUserName}
-              fill
-              className="rounded-full object-cover"
-            />
-          </div>
-        ) : (
-          <div className="w-11 h-11 rounded-full bg-deep-teal/10 flex items-center justify-center shrink-0">
-            <span className="text-deep-teal font-semibold">
-              {otherUserName.charAt(0)}
-            </span>
-          </div>
-        )}
-        <p className="font-semibold text-deep-teal flex-1">{otherUserName}</p>
-        <button onClick={() => setShowDeleteModal(true)} className="p-2 text-red-400 hover:text-red-500 transition-colors rounded-lg hover:bg-red-50">
-          <Trash2 className="w-5 h-5" />
+  return (
+    <div className="flex flex-col h-[100dvh] lg:h-full bg-white">
+
+      {/* ── Header ── */}
+      <div className="shrink-0 flex items-center gap-3 px-3 lg:px-5 py-3 lg:py-3.5 bg-white border-b border-gray-100 shadow-sm">
+        {/* Back — always visible */}
+        <button
+          onClick={() => router.push('/chat')}
+          className="w-9 h-9 rounded-full flex items-center justify-center text-gray-500 hover:bg-gray-100 transition-colors shrink-0"
+        >
+          <ArrowLeft className="w-5 h-5" />
+        </button>
+
+        {/* Avatar */}
+        <div className="relative shrink-0">
+          {room?.otherUser.avatar ? (
+            <div className="relative w-10 h-10 lg:w-11 lg:h-11">
+              <Image
+                src={room.otherUser.avatar}
+                alt={otherUserName}
+                fill
+                unoptimized
+                className="rounded-full object-cover"
+              />
+            </div>
+          ) : (
+            <div className="w-10 h-10 lg:w-11 lg:h-11 rounded-full bg-deep-teal/10 flex items-center justify-center">
+              <span className="text-deep-teal font-semibold text-sm">{otherUserName.charAt(0)}</span>
+            </div>
+          )}
+        </div>
+
+        {/* Name */}
+        <div className="flex-1 min-w-0">
+          <p className="font-semibold text-deep-teal text-sm lg:text-base truncate">{otherUserName}</p>
+        </div>
+
+        {/* Delete */}
+        <button
+          onClick={() => setShowDeleteModal(true)}
+          className="w-9 h-9 rounded-full flex items-center justify-center text-red-400 hover:text-red-500 hover:bg-red-50 transition-colors shrink-0"
+        >
+          <Trash2 className="w-4.5 h-4.5" />
         </button>
       </div>
 
@@ -276,53 +344,45 @@ export default function ChatRoomPage() {
         confirmButtonClassName="bg-red-500 hover:bg-red-600 text-white"
       />
 
-      {/* Messages */}
+      {/* ── Messages ── */}
       <div
         ref={scrollContainerRef}
-        className="flex-1 overflow-y-auto scrollbar-thin px-4 lg:px-6 py-4 space-y-3 bg-gray-50/60"
+        className="flex-1 overflow-y-auto scrollbar-thin px-3 lg:px-5 py-4 space-y-1"
+        style={{ background: 'linear-gradient(180deg, #f9f7f4 0%, #f4f2ef 100%)' }}
       >
         {isLoading ? (
-          <div className="flex flex-col gap-3 animate-pulse">
-            {Array.from({ length: 5 }).map((_, i) => (
-              <div
-                key={i}
-                className={`flex ${i % 2 === 0 ? 'justify-start' : 'justify-end'}`}
-              >
-                <div
-                  className={`h-8 rounded-2xl bg-gray-200 ${i % 2 === 0 ? 'w-2/5' : 'w-1/3'}`}
-                />
-              </div>
-            ))}
-          </div>
+          <MessageSkeleton />
         ) : (
           <AnimatePresence initial={false}>
             {(() => {
               const lastReadOwnIdx = messages.reduce(
-                (acc, msg, i) =>
-                  msg.sender.id === user?.id && msg.readAt ? i : acc,
+                (acc, msg, i) => (msg.sender.id === user?.id && msg.readAt ? i : acc),
                 -1
               )
               const lastOwnIdx = messages.reduce(
-                (acc, msg, i) =>
-                  msg.sender.id === user?.id ? i : acc,
+                (acc, msg, i) => (msg.sender.id === user?.id ? i : acc),
                 -1
               )
               let lastDateKey = ''
               return messages.flatMap((msg, i) => {
                 const dateKey = getDateKey(msg.createdAt)
-                const items = []
+                const items: React.ReactNode[] = []
+
                 if (dateKey !== lastDateKey) {
                   lastDateKey = dateKey
                   items.push(
-                    <div key={`date-${dateKey}`} className="flex items-center gap-3 my-2">
-                      <div className="flex-1 h-px bg-gray-200" />
-                      <span className="text-xs lg:text-xs text-neutral-gray shrink-0">
+                    <div key={`date-${dateKey}`} className="flex justify-center my-4">
+                      <span className="text-[11px] text-neutral-gray bg-black/6 rounded-full px-3 py-1 select-none">
                         {formatDateLabel(msg.createdAt)}
                       </span>
-                      <div className="flex-1 h-px bg-gray-200" />
                     </div>
                   )
                 }
+
+                // Show avatar only on the last consecutive message from same sender
+                const nextMsg = messages[i + 1]
+                const showAvatar = !nextMsg || nextMsg.sender.id !== msg.sender.id
+
                 items.push(
                   <MessageBubble
                     key={msg.id}
@@ -330,6 +390,7 @@ export default function ChatRoomPage() {
                     isOwn={msg.sender.id === user?.id}
                     showReadAt={i === lastReadOwnIdx}
                     showIcon={i === lastOwnIdx}
+                    showAvatar={showAvatar}
                   />
                 )
                 return items
@@ -339,21 +400,30 @@ export default function ChatRoomPage() {
         )}
       </div>
 
-      {/* Image previews */}
-      {pendingImages.length > 0 && (
-        <div className="shrink-0 px-4 lg:px-6 pt-2 bg-white">
-          <ImageManager
-            existingImages={[]}
-            newFiles={pendingImages}
-            onExistingImagesChange={() => {}}
-            onNewFilesChange={setPendingImages}
-            renderAsGridAddButton
-          />
-        </div>
-      )}
+      {/* ── Pending image strip ── */}
+      <AnimatePresence>
+        {pendingImages.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            className="shrink-0 overflow-hidden bg-white border-t border-gray-100"
+          >
+            <div className="flex gap-2 px-4 lg:px-6 py-2.5 overflow-x-auto scrollbar-hide">
+              {pendingImages.map((file, i) => (
+                <PendingImageThumb
+                  key={i}
+                  file={file}
+                  onRemove={() => setPendingImages((prev) => prev.filter((_, idx) => idx !== i))}
+                />
+              ))}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-      {/* Input bar */}
-      <div className="shrink-0 flex items-center gap-2 px-4 lg:px-6 py-3 lg:py-4 bg-white border-t border-gray-100">
+      {/* ── Input bar ── */}
+      <div className="shrink-0 flex items-center gap-2 px-3 lg:px-5 py-3 lg:py-3.5 bg-white border-t border-gray-100">
         <input
           ref={fileInputRef}
           type="file"
@@ -362,26 +432,36 @@ export default function ChatRoomPage() {
           className="hidden"
           onChange={handleImagePick}
         />
+
+        {/* Image attach */}
         <button
+          type="button"
           onClick={() => fileInputRef.current?.click()}
-          className="shrink-0 w-10 h-10 rounded-full flex items-center justify-center text-neutral-gray hover:bg-gray-100 transition-colors"
+          className="shrink-0 w-10 h-10 rounded-full flex items-center justify-center text-neutral-gray hover:text-deep-teal hover:bg-gray-100 transition-colors"
         >
           <ImagePlus className="w-5 h-5" />
         </button>
+
+        {/* Text input */}
         <input
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && handleSend()}
-          placeholder="Type a message..."
-          className="flex-1 rounded-full border border-gray-200 px-4 py-2.5 lg:py-3 text-base outline-none focus:border-accent-orange transition-colors"
+          placeholder="Type a message…"
+          className="flex-1 rounded-full bg-gray-100 border border-transparent px-4 py-2.5 lg:py-3 text-sm lg:text-base outline-none focus:bg-white focus:border-accent-orange/40 transition-all"
         />
-        <button
+
+        {/* Send */}
+        <motion.button
+          type="button"
           onClick={handleSend}
-          disabled={(!input.trim() && pendingImages.length === 0) || isSending}
-          className="w-10 h-10 lg:w-12 lg:h-12 rounded-full bg-accent-orange flex items-center justify-center shrink-0 disabled:opacity-40 transition-opacity hover:bg-accent-orange/90"
+          disabled={!canSend}
+          animate={{ scale: canSend ? 1 : 0.9, opacity: canSend ? 1 : 0.4 }}
+          transition={{ duration: 0.15 }}
+          className="shrink-0 w-10 h-10 lg:w-11 lg:h-11 rounded-full bg-accent-orange flex items-center justify-center hover:bg-accent-orange/90 transition-colors"
         >
           <Send className="w-4 h-4 lg:w-5 lg:h-5 text-white" />
-        </button>
+        </motion.button>
       </div>
     </div>
   )

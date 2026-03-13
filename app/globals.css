@@ -53,7 +53,7 @@ h4,
 h5,
 h6,
 button {
-  font-family: var(--font-baloo2);
+  font-family: var(--font-baloo2), var(--font-prompt), sans-serif;
 }
 
 /* Thin scrollbar for chat and sidebar */
@@ -73,7 +73,7 @@ button {
 
 /* Base (mobile) */
 body {
-  font-family: var(--font-afacad);
+  font-family: var(--font-afacad), var(--font-sarabun), sans-serif;
   font-size: 14px;
 }
 
