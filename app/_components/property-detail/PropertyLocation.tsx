@@ -20,19 +20,14 @@ export function PropertyLocation({ property }: PropertyLocationProps) {
   })
   const googleMapsUrl = `https://www.google.com/maps?q=${property.latitude},${property.longitude}`
 
-  console.log('[PropertyLocation]', {
-    latitude: property.latitude,
-    longitude: property.longitude,
-    apiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY,
-    mapUrl,
-  })
-
   if (!mapUrl) return null
 
   return (
     <div className="mt-10 border-t pt-8">
       <div className="mb-4">
-        <h3 className="text-lg lg:text-xl font-semibold text-deep-teal">Location</h3>
+        <h3 className="text-lg lg:text-xl font-semibold text-deep-teal">
+          Location
+        </h3>
         <p className="text-neutral-gray">
           {property.district}, {property.province}
         </p>

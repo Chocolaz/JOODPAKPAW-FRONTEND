@@ -3,6 +3,15 @@
 import { usePathname } from 'next/navigation'
 import './globals.css'
 import { afacad, baloo2, sarabun, prompt } from './fonts'
+
+// Suppress vaul's spurious pointer-capture error (upstream bug, cosmetic only)
+if (typeof window !== 'undefined') {
+  const _consoleError = console.error.bind(console)
+  console.error = (...args: unknown[]) => {
+    if (typeof args[0] === 'string' && args[0].includes('releasePointerCapture')) return
+    _consoleError(...args)
+  }
+}
 import { BottomNav } from '@/app/_components/BottomNav'
 import { DesktopNav } from '@/app/_components/DesktopNav'
 import { AuthWrapper } from '@/app/_components/AuthWrapper'

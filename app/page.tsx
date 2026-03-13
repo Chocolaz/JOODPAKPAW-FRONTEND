@@ -1,7 +1,6 @@
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
-import Link from 'next/link'
 import { PageHeader } from './_components/PageHeader'
 import { PropertyList } from './_components/PropertyList'
 import { PropertyCard } from './_components/PropertyCard'
@@ -15,7 +14,8 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { SearchX, Sparkles, Star, Dog, Cat, Banknote, Heart } from 'lucide-react'
 
 const SKELETON_COUNT = 12
-const SECTION_LIMIT = 8
+const SECTION_LIMIT = 10
+const RECOMMEND_LIMIT = 10
 const TOP_RATED_MIN = 4.0
 
 const QUICK_PET_CHIPS = [
@@ -41,20 +41,27 @@ interface PropertySectionProps {
   title: string
   icon?: React.ReactNode
   properties: Property[]
+  totalCount?: number
   showHeartIcon?: boolean
   showPetPolicyChip?: boolean
-  seeAllHref?: string
+  isExpanded?: boolean
+  onSeeAll?: () => void
 }
 
 function PropertySection({
   title,
   icon,
   properties,
+  totalCount,
   showHeartIcon,
   showPetPolicyChip,
-  seeAllHref,
+  isExpanded = false,
+  onSeeAll,
 }: PropertySectionProps) {
   if (properties.length === 0) return null
+  const count = totalCount ?? properties.length
+  const showSeeAll = !isExpanded && onSeeAll && count > SECTION_LIMIT
+
   return (
     <motion.section
       initial={{ opacity: 0, y: 16 }}
@@ -67,33 +74,49 @@ function PropertySection({
         <div className="flex items-center gap-2">
           {icon}
           <h5 className="text-lg lg:text-2xl xl:text-3xl font-semibold text-deep-teal">{title}</h5>
-          <span className="text-sm lg:text-base xl:text-lg text-neutral-gray">({properties.length})</span>
+          <span className="text-sm lg:text-base xl:text-lg text-neutral-gray">({count})</span>
         </div>
-        {seeAllHref && (
-          <Link
-            href={seeAllHref}
-            className="hidden lg:inline-flex text-sm font-medium text-accent-orange hover:underline"
+        {showSeeAll && (
+          <button
+            onClick={onSeeAll}
+            className="text-sm font-medium text-accent-orange hover:underline shrink-0"
           >
             See all
-          </Link>
+          </button>
         )}
       </div>
 
-      {/* Mobile: horizontal scroll; Desktop: responsive grid */}
-      <div className="flex gap-3 overflow-x-auto scrollbar-hide pb-2 -mx-5 px-5 snap-x snap-mandatory lg:mx-0 lg:px-0 lg:overflow-x-visible lg:grid md:grid-cols-3 xl:grid-cols-5 lg:gap-6">
-        {properties.map((property) => (
-          <div
-            key={property.id}
-            className="w-44 shrink-0 snap-start lg:w-auto lg:shrink"
-          >
+      {isExpanded ? (
+        /* Expanded: full grid on all screen sizes */
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.25 }}
+          className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-4 lg:gap-6"
+        >
+          {properties.map((property) => (
             <PropertyCard
+              key={property.id}
               property={property}
               showPetPolicyChip={showPetPolicyChip}
               showHeartIcon={showHeartIcon}
             />
-          </div>
-        ))}
-      </div>
+          ))}
+        </motion.div>
+      ) : (
+        /* Default: horizontal scroll on mobile, grid on desktop */
+        <div className="flex gap-3 overflow-x-auto scrollbar-hide pb-2 -mx-5 px-5 snap-x snap-mandatory lg:mx-0 lg:px-0 lg:overflow-x-visible lg:grid md:grid-cols-3 xl:grid-cols-5 lg:gap-6">
+          {properties.map((property) => (
+            <div key={property.id} className="w-44 shrink-0 snap-start lg:w-auto lg:shrink">
+              <PropertyCard
+                property={property}
+                showPetPolicyChip={showPetPolicyChip}
+                showHeartIcon={showHeartIcon}
+              />
+            </div>
+          ))}
+        </div>
+      )}
     </motion.section>
   )
 }
@@ -105,6 +128,10 @@ export default function Home() {
   const [filters, setFilters] = useState<FilterState>(defaultFilters)
   const [isFilterOpen, setIsFilterOpen] = useState(false)
   const [recommendedProperties, setRecommendedProperties] = useState<Property[]>([])
+  const [recommendedTotal, setRecommendedTotal] = useState(0)
+  const [expandedTopRated, setExpandedTopRated] = useState(false)
+  const [expandedNewListings, setExpandedNewListings] = useState(false)
+  const [expandedRecommended, setExpandedRecommended] = useState(false)
   const { isAuthenticated } = useAuth()
 
   useEffect(() => {
@@ -125,18 +152,40 @@ export default function Home() {
       }
     }
 
+    setExpandedTopRated(false)
+    setExpandedNewListings(false)
     fetchProperties()
   }, [searchQuery, isAuthenticated])
 
   useEffect(() => {
     if (!isAuthenticated) {
       setRecommendedProperties([])
+      setRecommendedTotal(0)
+      setExpandedRecommended(false)
       return
     }
-    getRecommendedProperties()
-      .then((res) => setRecommendedProperties(res.data.slice(0, SECTION_LIMIT)))
-      .catch(() => setRecommendedProperties([]))
+    getRecommendedProperties(1, RECOMMEND_LIMIT)
+      .then((res) => {
+        setRecommendedProperties(res.data)
+        setRecommendedTotal(res.totalRows)
+      })
+      .catch(() => {
+        setRecommendedProperties([])
+        setRecommendedTotal(0)
+      })
   }, [isAuthenticated])
+
+  const handleSeeAllRecommended = async () => {
+    setExpandedRecommended(true)
+    if (recommendedProperties.length < recommendedTotal) {
+      try {
+        const res = await getRecommendedProperties(1, recommendedTotal)
+        setRecommendedProperties(res.data)
+      } catch {
+        // keep current data
+      }
+    }
+  }
 
   const activeFilterCount = useMemo(() => {
     let count = 0
@@ -161,21 +210,29 @@ export default function Home() {
     })
   }, [properties, filters])
 
-  const topRated = useMemo(
+  const allTopRated = useMemo(
     () =>
       [...filteredProperties]
         .filter((p) => p.avgRating >= TOP_RATED_MIN)
-        .sort((a, b) => b.avgRating - a.avgRating)
-        .slice(0, SECTION_LIMIT),
+        .sort((a, b) => b.avgRating - a.avgRating),
     [filteredProperties]
   )
 
-  const newListings = useMemo(
+  const allNewListings = useMemo(
     () =>
       [...filteredProperties]
-        .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-        .slice(0, SECTION_LIMIT),
+        .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()),
     [filteredProperties]
+  )
+
+  const topRated = useMemo(
+    () => expandedTopRated ? allTopRated : allTopRated.slice(0, SECTION_LIMIT),
+    [allTopRated, expandedTopRated]
+  )
+
+  const newListings = useMemo(
+    () => expandedNewListings ? allNewListings : allNewListings.slice(0, SECTION_LIMIT),
+    [allNewListings, expandedNewListings]
   )
 
   return (
@@ -366,25 +423,32 @@ export default function Home() {
                   title="Recommended for You"
                   icon={<Heart className="w-5 h-5 fill-accent-orange text-accent-orange" />}
                   properties={recommendedProperties}
+                  totalCount={recommendedTotal}
                   showHeartIcon={true}
                   showPetPolicyChip={true}
+                  isExpanded={expandedRecommended}
+                  onSeeAll={handleSeeAllRecommended}
                 />
               )}
               <PropertySection
                 title="Top Rated"
                 icon={<Star className="w-5 h-5 fill-yellow-400 text-yellow-500" />}
                 properties={topRated}
+                totalCount={allTopRated.length}
                 showHeartIcon={isAuthenticated}
                 showPetPolicyChip={true}
-                seeAllHref="/"
+                isExpanded={expandedTopRated}
+                onSeeAll={() => setExpandedTopRated(true)}
               />
               <PropertySection
                 title="New Listings"
                 icon={<Sparkles className="w-5 h-5 text-deep-teal" />}
                 properties={newListings}
+                totalCount={allNewListings.length}
                 showHeartIcon={isAuthenticated}
                 showPetPolicyChip={true}
-                seeAllHref="/"
+                isExpanded={expandedNewListings}
+                onSeeAll={() => setExpandedNewListings(true)}
               />
 
               {/* All Properties */}

@@ -63,7 +63,9 @@ export function PropertyCard({
 
   const handleCardClick = () => {
     if (user) {
-      trackPropertyView(user.id, [property.id]).catch(() => {})
+      trackPropertyView(property.id)
+        .then(() => console.log(`[trackPropertyView] property ${property.id} tracked for user ${user.id}`))
+        .catch(() => {})
     }
   }
 
