@@ -7,12 +7,12 @@ import { PropertyList } from './_components/PropertyList'
 import { PropertyCard } from './_components/PropertyCard'
 import { SearchBar } from '@/app/_components/SearchBar'
 import { FilterPanel, FilterState, defaultFilters } from '@/app/_components/FilterPanel'
-import { getProperties } from '@/lib/api'
+import { getProperties, getRecommendedProperties } from '@/lib/api'
 import { getLowestPrice, cn } from '@/lib/utils'
 import { PropertiesResponse, Property } from '@/types'
 import { useAuth } from './_components/AuthContext'
 import { motion, AnimatePresence } from 'framer-motion'
-import { SearchX, Sparkles, Star, Dog, Cat, Banknote } from 'lucide-react'
+import { SearchX, Sparkles, Star, Dog, Cat, Banknote, Heart } from 'lucide-react'
 
 const SKELETON_COUNT = 12
 const SECTION_LIMIT = 8
@@ -104,6 +104,7 @@ export default function Home() {
   const [searchQuery, setSearchQuery] = useState('')
   const [filters, setFilters] = useState<FilterState>(defaultFilters)
   const [isFilterOpen, setIsFilterOpen] = useState(false)
+  const [recommendedProperties, setRecommendedProperties] = useState<Property[]>([])
   const { isAuthenticated } = useAuth()
 
   useEffect(() => {
@@ -126,6 +127,16 @@ export default function Home() {
 
     fetchProperties()
   }, [searchQuery, isAuthenticated])
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      setRecommendedProperties([])
+      return
+    }
+    getRecommendedProperties()
+      .then((res) => setRecommendedProperties(res.data.slice(0, SECTION_LIMIT)))
+      .catch(() => setRecommendedProperties([]))
+  }, [isAuthenticated])
 
   const activeFilterCount = useMemo(() => {
     let count = 0
@@ -350,6 +361,15 @@ export default function Home() {
               transition={{ duration: 0.25 }}
               className="lg:pt-2"
             >
+              {isAuthenticated && recommendedProperties.length > 0 && (
+                <PropertySection
+                  title="Recommended for You"
+                  icon={<Heart className="w-5 h-5 fill-accent-orange text-accent-orange" />}
+                  properties={recommendedProperties}
+                  showHeartIcon={true}
+                  showPetPolicyChip={true}
+                />
+              )}
               <PropertySection
                 title="Top Rated"
                 icon={<Star className="w-5 h-5 fill-yellow-400 text-yellow-500" />}

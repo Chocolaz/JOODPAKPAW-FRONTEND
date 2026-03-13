@@ -196,6 +196,25 @@ export const getPropertyById = (
   })
 }
 
+export const getRecommendedProperties = (): Promise<PropertiesResponse> => {
+  return request<PropertiesResponse>({
+    endpoint: 'api/v1/properties/recommend',
+    method: 'GET',
+    requiresAuth: true,
+    errorContext: 'Get Recommended Properties',
+  })
+}
+
+export const trackPropertyView = (userId: number, viewedIds: number[]): Promise<void> => {
+  return request<void>({
+    endpoint: `ml/recommend/session/${userId}`,
+    method: 'POST',
+    body: { viewed_ids: viewedIds },
+    requiresAuth: true,
+    errorContext: 'Track Property View',
+  })
+}
+
 export const getHostProperties = (): Promise<HostPropertiesResponse> => {
   return request<HostPropertiesResponse>({
     endpoint: 'api/v1/hosts/properties/all',

@@ -12,7 +12,9 @@
       "Bash(cd:*)",
       "Bash(cd /d/Project/joodpakpaw/joodpakpaw && npm run build 2>&1)",
       "Bash(grep:*)",
-      "Bash(node:*)"
+      "Bash(node:*)",
+      "Bash(find \"D:\\\\Project\\\\joodpakpaw\\\\joodpakpaw/app\" -type d -name \"[propertyId]\" -o -type d -name \"property-detail\" 2>/dev/null | head -20)",
+      "Bash(cd \"D:\\\\Project\\\\joodpakpaw\\\\joodpakpaw\" && bash \"C:\\\\Users\\\\sirak\\\\.claude\\\\plugins\\\\cache\\\\claude-plugins-official\\\\superpowers\\\\5.0.2\\\\skills\\\\brainstorming\\\\scripts\\\\start-server.sh\" --project-dir \"D:\\\\Project\\\\joodpakpaw\\\\joodpakpaw\")"
     ]
   }
 }

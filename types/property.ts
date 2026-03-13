@@ -66,12 +66,21 @@ export interface PropertyReview {
   rating: number
 }
 
+export interface PropertyHost {
+  id: number
+  firstName: string
+  lastName: string
+  avatar: string
+  hostAvgRating: number
+}
+
 export interface Property {
   id: number
   title: string
   description: string
   province: string
   district: string
+  subdistrict?: string
   country: string
   latitude: string
   longitude: string
@@ -91,6 +100,7 @@ export interface Property {
   facilities?: Facility[]
   totalRoomCategories?: number
   pets?: Pet[]
+  host?: PropertyHost
 }
 
 export interface PropertiesResponse {

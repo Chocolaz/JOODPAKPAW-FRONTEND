@@ -11,6 +11,7 @@ import { PropertyReviews } from '@/app/_components/property-detail/PropertyRevie
 import { useRouter, useSearchParams } from 'next/navigation'
 import { PageHeaderButtons } from '@/app/_components/property-detail/PageHeaderButtons'
 import { PropertyRoomCategories } from '@/app/_components/property-detail/PropertyRoomCategories'
+import { PropertyHost } from '@/app/_components/property-detail/PropertyHost'
 import { normalizeRoomCategories } from '@/lib/utils'
 import { BookingDrawer } from '@/app/_components/property-detail/BookingDrawer'
 import { ContactHostButton } from '@/app/_components/property-detail/ContactHostButton'
@@ -58,6 +59,19 @@ function PropertyDetailSkeleton() {
             </div>
             <Skeleton className="h-4 w-full" />
             <Skeleton className="h-4 w-5/6" />
+          </div>
+
+          {/* Host card */}
+          <div className="border-t pt-8 mb-10">
+            <Skeleton className="h-5 w-36 mb-5" />
+            <div className="flex items-center gap-4 rounded-2xl p-5 border border-gray-100">
+              <Skeleton className="w-16 h-16 rounded-full shrink-0" />
+              <div className="flex-1 space-y-2">
+                <Skeleton className="h-5 w-32" />
+                <Skeleton className="h-4 w-24" />
+              </div>
+              <Skeleton className="h-9 w-24 rounded-lg shrink-0" />
+            </div>
           </div>
 
           {/* Room categories */}
@@ -191,7 +205,13 @@ export default function PropertyDetailPage() {
             />
           </motion.div>
 
-          <motion.div custom={3} variants={fadeUp} initial="hidden" animate="visible">
+          {property.host && (
+            <motion.div custom={3} variants={fadeUp} initial="hidden" animate="visible">
+              <PropertyHost host={property.host} />
+            </motion.div>
+          )}
+
+          <motion.div custom={4} variants={fadeUp} initial="hidden" animate="visible">
             <PropertyRoomCategories
               propertyId={property.id}
               roomCategories={roomCategoriesArray}
@@ -200,7 +220,7 @@ export default function PropertyDetailPage() {
             />
           </motion.div>
 
-          <motion.div custom={4} variants={fadeUp} initial="hidden" animate="visible">
+          <motion.div custom={5} variants={fadeUp} initial="hidden" animate="visible">
             <PropertyReviews
               avgRating={property.avgRating}
               reviewCount={property.reviewCount ?? 0}
@@ -208,7 +228,7 @@ export default function PropertyDetailPage() {
             />
           </motion.div>
 
-          <motion.div custom={5} variants={fadeUp} initial="hidden" animate="visible">
+          <motion.div custom={6} variants={fadeUp} initial="hidden" animate="visible">
             <PropertyLocation property={property} />
           </motion.div>
         </div>

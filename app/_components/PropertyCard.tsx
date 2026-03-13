@@ -12,6 +12,7 @@ import {
   getFavoriteFolders,
   addFavorite,
   deleteFavoriteProperty,
+  trackPropertyView,
 } from '@/lib/api'
 import { ApiError } from '@/lib/errorHandling'
 import { toast } from 'sonner'
@@ -59,6 +60,12 @@ export function PropertyCard({
 
   const lowestPrice = getLowestPrice(property.roomCategories)
   const petPolicy = getPetPolicy(property.pets)
+
+  const handleCardClick = () => {
+    if (user) {
+      trackPropertyView(user.id, [property.id]).catch(() => {})
+    }
+  }
 
   const handleHeartClick = async (e: React.MouseEvent) => {
     e.preventDefault()
@@ -118,7 +125,7 @@ export function PropertyCard({
       <div className="transition-transform duration-300 ease-out group-hover:-translate-y-1.5">
         {/* Image Box */}
         <div className="w-full aspect-square relative">
-          <Link href={finalHref} className="relative block w-full h-full">
+          <Link href={finalHref} className="relative block w-full h-full" onClick={handleCardClick}>
             <Image
               src={imgSrc}
               alt={property.title}
@@ -168,7 +175,7 @@ export function PropertyCard({
         </div>
 
         {/* Content */}
-        <Link href={finalHref}>
+        <Link href={finalHref} onClick={handleCardClick}>
           <div className="mt-2 px-0.5">
             <p className="text-sm md:text-base lg:text-lg xl:text-xl font-medium text-deep-teal truncate">
               {property.title}
