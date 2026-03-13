@@ -1,11 +1,13 @@
 'use client'
 
 import { useState } from 'react'
+import { usePathname } from 'next/navigation'
+import Image from 'next/image'
 import { SearchBar } from '@/app/_components/SearchBar'
 import { FilterPanel } from '@/app/_components/FilterPanel'
 import { useBrowseFilters } from '@/app/_hooks/useBrowseFilters'
 import { Dog, Cat, Star, Banknote } from 'lucide-react'
-import { cn } from '@/lib/utils'
+import { cn, assetPath } from '@/lib/utils'
 
 const QUICK_PET_CHIPS = [
   { label: 'Dog', value: 'dog', Icon: Dog },
@@ -33,17 +35,54 @@ interface BrowseLayoutClientProps {
 export function BrowseLayoutClient({ children }: BrowseLayoutClientProps) {
   const [isFilterOpen, setIsFilterOpen] = useState(false)
   const { searchQuery, filters, activeFilterCount, setFilter, applyFilters, setSearchQuery } = useBrowseFilters()
+  const pathname = usePathname()
+  const isHome = pathname === '/'
 
   return (
     <>
-      {/* Hero: search bar */}
+      {/* Hero section */}
       <div className="px-5 lg:px-12 lg:border-b lg:border-gray-100 lg:bg-gradient-to-br lg:from-white lg:to-off-white/40">
-        <SearchBar
-          onSearch={setSearchQuery}
-          value={searchQuery}
-          onFilterClick={() => setIsFilterOpen(true)}
-          activeFilterCount={activeFilterCount}
-        />
+        {/* Mobile: always show sticky search bar */}
+        <div className={isHome ? 'lg:hidden' : ''}>
+          <SearchBar
+            onSearch={setSearchQuery}
+            value={searchQuery}
+            onFilterClick={() => setIsFilterOpen(true)}
+            activeFilterCount={activeFilterCount}
+          />
+        </div>
+
+        {/* Desktop home: unified hero with heading + search bar + graphic */}
+        {isHome && (
+          <div className="hidden lg:flex items-center gap-12 xl:gap-20 py-10">
+            {/* Left: text + search bar */}
+            <div className="flex-1 max-w-[480px] space-y-5">
+              <div className="space-y-3">
+                <h4 className="text-deep-teal text-4xl xl:text-5xl leading-tight font-bold">
+                  Discover Local Pet Hotels &amp; Care Homes Near You
+                </h4>
+                <p className="text-neutral-gray text-lg xl:text-xl">
+                  Find the perfect home away from home for your furry friends.
+                </p>
+              </div>
+              <SearchBar
+                onSearch={setSearchQuery}
+                value={searchQuery}
+                onFilterClick={() => setIsFilterOpen(true)}
+                activeFilterCount={activeFilterCount}
+              />
+            </div>
+            {/* Right: graphic */}
+            <div className="relative flex-1 shrink-0" style={{ aspectRatio: '390/144' }}>
+              <Image
+                src={assetPath('/graphics/home.svg')}
+                alt="Illustration of pets and a house"
+                fill
+                priority
+              />
+            </div>
+          </div>
+        )}
       </div>
 
       <FilterPanel

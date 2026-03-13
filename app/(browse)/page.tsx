@@ -95,8 +95,8 @@ export default function Home() {
 
   return (
     <div>
-      {/* Hero header — PageHeader sits below the layout's search bar + chips */}
-      <div className="px-5 lg:px-12 lg:border-b lg:border-gray-100 lg:bg-gradient-to-br lg:from-white lg:to-off-white/40">
+      {/* Mobile only: heading text (desktop hero is in BrowseLayoutClient) */}
+      <div className="px-5 lg:hidden">
         <PageHeader />
       </div>
 
