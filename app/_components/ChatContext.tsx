@@ -146,6 +146,19 @@ export function ChatProvider({ children }: { children: ReactNode }) {
     }
   }, [user?.id, fetchRooms])
 
+  const onNewChatRoom = useCallback((data: unknown) => {
+    try {
+      const room = (typeof data === 'string' ? JSON.parse(data) : data) as ChatRoom
+      if (!room?.id) return
+      setRooms((prev) => {
+        if (prev.some((r) => r.id === room.id)) return prev
+        return [room, ...prev]
+      })
+    } catch {
+      // ignore
+    }
+  }, [])
+
   const onMessagesRead = useCallback((data: unknown) => {
     try {
       const raw = typeof data === 'string'
@@ -194,11 +207,13 @@ export function ChatProvider({ children }: { children: ReactNode }) {
     if (!isAuthenticated) return
     const unsubNew = addSocketListener('new_message', onNewMessage)
     const unsubRead = addSocketListener('messages_read', onMessagesRead)
+    const unsubRoom = addSocketListener('new_chat_room', onNewChatRoom)
     return () => {
       unsubNew()
       unsubRead()
+      unsubRoom()
     }
-  }, [isAuthenticated, onNewMessage, onMessagesRead])
+  }, [isAuthenticated, onNewMessage, onMessagesRead, onNewChatRoom])
 
   const loadRoom = useCallback(async (id: number) => {
     try {
