@@ -1,7 +1,9 @@
 'use client'
 
 import { useState } from 'react'
+import { usePathname } from 'next/navigation'
 import Image from 'next/image'
+import { motion } from 'framer-motion'
 import { SearchBar } from '@/app/_components/SearchBar'
 import { FilterPanel } from '@/app/_components/FilterPanel'
 import { useBrowseFilters } from '@/app/_hooks/useBrowseFilters'
@@ -34,6 +36,7 @@ interface BrowseLayoutClientProps {
 export function BrowseLayoutClient({ children }: BrowseLayoutClientProps) {
   const [isFilterOpen, setIsFilterOpen] = useState(false)
   const { searchQuery, filters, activeFilterCount, setFilter, applyFilters, setSearchQuery } = useBrowseFilters()
+  const pathname = usePathname()
 
   return (
     <>
@@ -153,8 +156,15 @@ export function BrowseLayoutClient({ children }: BrowseLayoutClientProps) {
         </div>
       </div>
 
-      {/* Page content */}
-      {children}
+      {/* Page content with route transition */}
+      <motion.div
+        key={pathname}
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.2, ease: 'easeOut' }}
+      >
+        {children}
+      </motion.div>
     </>
   )
 }
