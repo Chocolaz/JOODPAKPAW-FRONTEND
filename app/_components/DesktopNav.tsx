@@ -16,7 +16,7 @@ const navItems = [
   { href: '/profile', label: 'Profile', icon: User },
 ]
 
-const VISIBLE_PATHS = ['/', '/profile', '/favorites', '/notifications', '/chat']
+const VISIBLE_PATHS = ['/', '/profile', '/favorites', '/notifications', '/chat', '/top-rated', '/new-listings', '/recommended']
 
 export function DesktopNav() {
   const normalizedPath = useNormalizedPathname()
