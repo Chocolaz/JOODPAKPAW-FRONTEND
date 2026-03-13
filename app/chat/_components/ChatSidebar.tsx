@@ -39,7 +39,7 @@ function RoomItem({
       exit={{ opacity: 0 }}
       onClick={onClick}
       className={`flex items-center gap-3 w-full px-4 py-3 text-left transition-colors duration-150 ${
-        isActive ? 'bg-accent-orange/8' : 'hover:bg-gray-50'
+        isActive ? 'bg-accent-orange/8' : isUnread ? 'bg-accent-orange/5 hover:bg-accent-orange/10' : 'hover:bg-gray-50'
       }`}
     >
       <div className="relative shrink-0">
