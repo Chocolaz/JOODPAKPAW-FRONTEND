@@ -34,6 +34,7 @@ export default function RootLayout({
       <head>
         <title>JOODPAKPAW</title>
         <meta name="description" content="Booking petsitting made easy" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
       </head>
       <body className={`${afacad.variable} ${baloo2.variable} ${sarabun.variable} ${prompt.variable} bg-white`}>
         <AuthWrapper>
