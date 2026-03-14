@@ -7,7 +7,7 @@ import { motion } from 'framer-motion'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { PropertyCard } from '@/app/_components/PropertyCard'
 import { Property } from '@/types'
-import { assetPath } from '@/lib/utils'
+import { assetPath, cn } from '@/lib/utils'
 
 const SECTION_LIMIT = 6
 
@@ -72,8 +72,8 @@ export function BrowseSection({
           <span className="text-sm lg:text-base xl:text-lg text-neutral-gray">({count})</span>
         </div>
 
-        {/* Desktop arrow controls */}
-        <div className="hidden lg:flex items-center gap-1">
+        {/* Desktop arrow controls — only when see-all exists */}
+        <div className={cn("items-center gap-1", seeAllHref && count > SECTION_LIMIT ? "hidden lg:flex" : "hidden")}>
           <button
             onClick={() => scroll('left')}
             className="w-8 h-8 flex items-center justify-center rounded-full border border-gray-200 text-neutral-gray hover:border-deep-teal hover:text-deep-teal transition-colors"

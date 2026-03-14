@@ -38,11 +38,14 @@ export function BrowseLayoutClient({ children }: BrowseLayoutClientProps) {
   const { searchQuery, filters, activeFilterCount, setFilter, applyFilters, setSearchQuery } = useBrowseFilters()
   const pathname = usePathname()
 
+  const SEE_ALL_PATHS = ['/top-rated', '/new-listings', '/recommended']
+  const isSeeAllPage = SEE_ALL_PATHS.includes(pathname)
+
   return (
     <>
       {/* Hero section */}
       <div className="px-5 lg:px-12 lg:border-b lg:border-gray-100">
-        {/* Mobile: sticky search bar */}
+        {/* Mobile: search bar + hero on see-all pages */}
         <div className="lg:hidden">
           <SearchBar
             onSearch={setSearchQuery}
@@ -50,6 +53,26 @@ export function BrowseLayoutClient({ children }: BrowseLayoutClientProps) {
             onFilterClick={() => setIsFilterOpen(true)}
             activeFilterCount={activeFilterCount}
           />
+          {isSeeAllPage && (
+            <div className="mt-4 pb-4 flex flex-col gap-3">
+              <div className="relative w-full" style={{ aspectRatio: '390/144' }}>
+                <Image
+                  src={assetPath('/graphics/home.svg')}
+                  alt="Illustration of pets and a house"
+                  fill
+                  priority
+                />
+              </div>
+              <div className="space-y-1">
+                <h4 className="text-deep-teal text-2xl font-bold leading-tight">
+                  Discover Local Pet Hotels &amp; Care Homes Near You
+                </h4>
+                <p className="text-neutral-gray text-sm">
+                  Find the perfect home away from home for your furry friends.
+                </p>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Desktop: unified hero with heading + search bar + graphic */}
