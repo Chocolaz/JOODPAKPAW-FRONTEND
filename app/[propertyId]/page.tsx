@@ -27,7 +27,10 @@ function PropertyDetailSkeleton() {
         <Skeleton className="w-full aspect-square rounded-none" />
       </div>
       {/* Desktop */}
-      <div className="hidden lg:grid grid-cols-2 gap-2 rounded-2xl overflow-hidden pb-4" style={{ height: 480 }}>
+      <div
+        className="hidden lg:grid grid-cols-2 gap-2 rounded-2xl overflow-hidden pb-4"
+        style={{ height: 480 }}
+      >
         <Skeleton className="w-full h-full rounded-none" />
         <div className="grid grid-rows-2 gap-2">
           <Skeleton className="w-full h-full rounded-none" />
@@ -168,9 +171,10 @@ export default function PropertyDetailPage() {
   if (!property) return <ErrorState message="Property not found." />
 
   const roomCategoriesArray = normalizeRoomCategories(property.roomCategories)
-  const startingPrice = roomCategoriesArray.length > 0
-    ? Math.min(...roomCategoriesArray.map((r) => r.basePrice))
-    : undefined
+  const startingPrice =
+    roomCategoriesArray.length > 0
+      ? Math.min(...roomCategoriesArray.map((r) => r.basePrice))
+      : undefined
 
   return (
     <div className="max-w-6xl mx-auto relative pb-32 lg:pb-10">
@@ -187,18 +191,36 @@ export default function PropertyDetailPage() {
 
       {/* Body */}
       <div className="px-4 lg:px-2 lg:grid lg:grid-cols-[1fr_380px] lg:gap-10 lg:items-start lg:mt-2">
-
         {/* Left: content — each section staggers in */}
         <div className="min-w-0">
-          <motion.div custom={0} variants={fadeUp} initial="hidden" animate="visible">
+          <motion.div
+            custom={0}
+            variants={fadeUp}
+            initial="hidden"
+            animate="visible"
+          >
             <PropertyHeader property={property} />
           </motion.div>
 
-          <motion.div custom={1} variants={fadeUp} initial="hidden" animate="visible" className="lg:hidden mb-6">
-            <ContactHostButton hostId={property.hostId} hasExistingChat={property.hasExistingChat} />
+          <motion.div
+            custom={1}
+            variants={fadeUp}
+            initial="hidden"
+            animate="visible"
+            className="lg:hidden mb-6"
+          >
+            <ContactHostButton
+              hostId={property.hostId}
+              hasExistingChat={property.hasExistingChat}
+            />
           </motion.div>
 
-          <motion.div custom={2} variants={fadeUp} initial="hidden" animate="visible">
+          <motion.div
+            custom={2}
+            variants={fadeUp}
+            initial="hidden"
+            animate="visible"
+          >
             <PropertyFacilities
               facilities={property.facilities}
               description={property.description}
@@ -206,7 +228,12 @@ export default function PropertyDetailPage() {
           </motion.div>
 
           {property.host && (
-            <motion.div custom={3} variants={fadeUp} initial="hidden" animate="visible">
+            <motion.div
+              custom={3}
+              variants={fadeUp}
+              initial="hidden"
+              animate="visible"
+            >
               <PropertyHost
                 host={property.host}
                 hostAvgRating={property.hostAvgRating}
@@ -215,7 +242,12 @@ export default function PropertyDetailPage() {
             </motion.div>
           )}
 
-          <motion.div custom={4} variants={fadeUp} initial="hidden" animate="visible">
+          <motion.div
+            custom={4}
+            variants={fadeUp}
+            initial="hidden"
+            animate="visible"
+          >
             <PropertyRoomCategories
               propertyId={property.id}
               roomCategories={roomCategoriesArray}
@@ -224,7 +256,12 @@ export default function PropertyDetailPage() {
             />
           </motion.div>
 
-          <motion.div custom={5} variants={fadeUp} initial="hidden" animate="visible">
+          <motion.div
+            custom={5}
+            variants={fadeUp}
+            initial="hidden"
+            animate="visible"
+          >
             <PropertyReviews
               avgRating={property.avgRating}
               reviewCount={property.reviewCount ?? 0}
@@ -232,7 +269,12 @@ export default function PropertyDetailPage() {
             />
           </motion.div>
 
-          <motion.div custom={6} variants={fadeUp} initial="hidden" animate="visible">
+          <motion.div
+            custom={6}
+            variants={fadeUp}
+            initial="hidden"
+            animate="visible"
+          >
             <PropertyLocation property={property} />
           </motion.div>
         </div>

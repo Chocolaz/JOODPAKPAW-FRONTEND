@@ -41,7 +41,7 @@ export default function NewListingsPage() {
         }
         return true
       })
-      .sort((a, b) => b.id - a.id)
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
   }, [properties, filters])
 
   return (

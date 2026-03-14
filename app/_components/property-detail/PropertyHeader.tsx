@@ -6,7 +6,13 @@ import { Property } from '@/types'
 interface PropertyHeaderProps {
   property: Pick<
     Property,
-    'title' | 'district' | 'subdistrict' | 'province' | 'country' | 'avgRating' | 'reviewCount'
+    | 'title'
+    | 'district'
+    | 'subdistrict'
+    | 'province'
+    | 'country'
+    | 'avgRating'
+    | 'reviewCount'
   >
 }
 
@@ -34,18 +40,22 @@ export function PropertyHeader({ property }: PropertyHeaderProps) {
 
         {property.avgRating > 0 ? (
           <div className="flex items-center gap-1.5 bg-yellow-50 border border-yellow-200 rounded-full px-3 py-1">
-            <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" strokeWidth={0} />
+            <Star
+              className="w-4 h-4 fill-yellow-400 text-yellow-400"
+              strokeWidth={0}
+            />
             <span className="text-sm font-semibold text-gray-800">
               {property.avgRating.toFixed(1)}
             </span>
             <span className="text-xs text-gray-500">
-              ({property.reviewCount} {property.reviewCount === 1 ? 'review' : 'reviews'})
+              ({property.reviewCount}{' '}
+              {property.reviewCount === 1 ? 'review' : 'reviews'})
             </span>
           </div>
         ) : (
           <div className="flex items-center gap-1.5 bg-gray-50 border border-gray-200 rounded-full px-3 py-1">
             <Sparkles className="w-4 h-4 text-yellow-400" />
-            <span className="text-xs text-gray-400">New listing</span>
+            <span className="text-xs">New listing</span>
           </div>
         )}
       </div>
