@@ -1,15 +1,12 @@
 'use client'
 
-import { useEffect, useRef, useState, useCallback } from 'react'
-import { createPortal } from 'react-dom'
+import { useEffect, useRef, useState } from 'react'
 import Image from 'next/image'
-import Cropper from 'react-easy-crop'
-import type { Area } from 'react-easy-crop'
 import { assetPath } from '@/lib/utils'
-import { Input } from '@/components/ui/input'
-import { X, Plus, Check, ImagePlus } from 'lucide-react'
+import { X, Plus, ImagePlus } from 'lucide-react'
 import { toast } from 'sonner'
 import { PropertyImage } from '@/types'
+import { CropModal } from '@/app/_components/CropModal'
 
 const MAX_FILES = 10
 const MAX_TOTAL_MB = 20
@@ -27,29 +24,6 @@ interface ImageManagerProps {
 interface FileEntry { file: File; id: number; url: string }
 interface CropSession { file: File; src: string }
 
-async function getCroppedImg(src: string, cropArea: Area, fileName: string): Promise<File> {
-  const img = await new Promise<HTMLImageElement>((resolve, reject) => {
-    const image = new window.Image()
-    image.addEventListener('load', () => resolve(image))
-    image.addEventListener('error', reject)
-    image.src = src
-  })
-  const canvas = document.createElement('canvas')
-  canvas.width = cropArea.width
-  canvas.height = cropArea.height
-  const ctx = canvas.getContext('2d')!
-  ctx.drawImage(img, cropArea.x, cropArea.y, cropArea.width, cropArea.height, 0, 0, cropArea.width, cropArea.height)
-  return new Promise((resolve, reject) => {
-    canvas.toBlob(
-      (blob) => {
-        if (!blob) { reject(new Error('Crop failed')); return }
-        resolve(new File([blob], fileName.replace(/\.[^.]+$/, '.jpg'), { type: 'image/jpeg' }))
-      },
-      'image/jpeg', 0.92,
-    )
-  })
-}
-
 export function ImageManager({
   existingImages = [],
   newFiles = [],
@@ -61,28 +35,7 @@ export function ImageManager({
   const entryCacheRef = useRef<Map<File, FileEntry>>(new Map())
 
   const [cropQueue, setCropQueue] = useState<CropSession[]>([])
-  const [crop, setCrop] = useState({ x: 0, y: 0 })
-  const [zoom, setZoom] = useState(1)
-  const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null)
-  const [cropping, setCropping] = useState(false)
   const pendingCroppedRef = useRef<File[]>([])
-
-  const onCropComplete = useCallback((_: Area, pixels: Area) => setCroppedAreaPixels(pixels), [])
-
-  // Lock body interaction while crop modal is open
-  useEffect(() => {
-    if (cropQueue.length > 0) {
-      document.body.style.pointerEvents = 'none'
-      document.body.style.overflow = 'hidden'
-    } else {
-      document.body.style.pointerEvents = ''
-      document.body.style.overflow = ''
-    }
-    return () => {
-      document.body.style.pointerEvents = ''
-      document.body.style.overflow = ''
-    }
-  }, [cropQueue.length])
 
   // Create URLs synchronously during render so thumbnails appear immediately.
   // Revoke stale URLs (removed files) in an effect.
@@ -107,37 +60,24 @@ export function ImageManager({
     return () => { for (const e of entryCacheRef.current.values()) URL.revokeObjectURL(e.url) }
   }, [])
 
-  const resetCropState = () => { setCrop({ x: 0, y: 0 }); setZoom(1); setCroppedAreaPixels(null) }
-
   const commitPending = () => {
     const all = [...pendingCroppedRef.current]
     if (all.length > 0) onNewFilesChange([...newFiles, ...all])
     pendingCroppedRef.current = []
   }
 
-  const handleCropConfirm = async () => {
-    if (!croppedAreaPixels || !cropQueue[0]) return
-    setCropping(true)
-    try {
-      const file = await getCroppedImg(cropQueue[0].src, croppedAreaPixels, cropQueue[0].file.name)
-      URL.revokeObjectURL(cropQueue[0].src)
-      pendingCroppedRef.current.push(file)
-      const next = cropQueue.slice(1)
-      setCropQueue(next)
-      resetCropState()
-      if (next.length === 0) commitPending()
-    } catch {
-      toast.error('Failed to crop image.')
-    } finally {
-      setCropping(false)
-    }
+  const handleCropConfirm = (file: File) => {
+    URL.revokeObjectURL(cropQueue[0].src)
+    pendingCroppedRef.current.push(file)
+    const next = cropQueue.slice(1)
+    setCropQueue(next)
+    if (next.length === 0) commitPending()
   }
 
   const handleCancelAll = () => {
     cropQueue.forEach((s) => URL.revokeObjectURL(s.src))
     setCropQueue([])
     pendingCroppedRef.current = []
-    resetCropState()
   }
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -167,7 +107,6 @@ export function ImageManager({
 
     pendingCroppedRef.current = []
     setCropQueue(valid.map((file) => ({ file, src: URL.createObjectURL(file) })))
-    resetCropState()
   }
 
   const removeNewFile = (file: File) => onNewFilesChange(newFiles.filter((f) => f !== file))
@@ -182,10 +121,6 @@ export function ImageManager({
 
   const fileInputRef = useRef<HTMLInputElement>(null)
   const triggerUpload = () => fileInputRef.current?.click()
-
-  const fileInputEl = (
-    <input ref={fileInputRef} type="file" multiple accept="image/*" onChange={handleFileChange} className="hidden" />
-  )
 
   // Shared thumbnail renderer
   const renderThumbnail = (
@@ -214,47 +149,20 @@ export function ImageManager({
 
   return (
     <>
-      {/* ── Crop modal — portalled to body to escape parent transforms ── */}
-      {currentSession && createPortal(
-        <div className="fixed inset-0 z-[9999] flex flex-col bg-black/75 pointer-events-auto">
-          <div className="relative flex-1 min-h-0">
-            <Cropper
-              image={currentSession.src}
-              crop={crop}
-              zoom={zoom}
-              aspect={CROP_ASPECT}
-              onCropChange={setCrop}
-              onZoomChange={setZoom}
-              onCropComplete={onCropComplete}
-              style={{ containerStyle: { background: 'transparent' } }}
-            />
-          </div>
-          <div className="shrink-0 flex items-center justify-between px-8 py-6">
-            <button
-              onClick={handleCancelAll}
-              className="w-11 h-11 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 transition-colors"
-            >
-              <X className="w-5 h-5 text-white" />
-            </button>
-            {queueTotal > 1 && (
-              <span className="text-white/30 text-xs tabular-nums">{queueIndex} / {queueTotal}</span>
-            )}
-            <button
-              onClick={handleCropConfirm}
-              disabled={cropping}
-              className="w-11 h-11 flex items-center justify-center rounded-full bg-white disabled:opacity-40 transition-opacity"
-            >
-              <Check className="w-5 h-5 text-black" />
-            </button>
-          </div>
-        </div>,
-        document.body,
-      )}
+      {/* Crop modal */}
+      <CropModal
+        src={currentSession?.src}
+        aspect={CROP_ASPECT}
+        fileName={currentSession?.file.name}
+        counter={queueTotal > 1 ? { current: queueIndex, total: queueTotal } : undefined}
+        onConfirm={handleCropConfirm}
+        onCancel={handleCancelAll}
+      />
 
       {/* ── Main UI ── */}
       <div className="w-full">
         {/* Single hidden file input */}
-        {fileInputEl}
+        <input ref={fileInputRef} type="file" multiple accept="image/*" onChange={handleFileChange} className="hidden" />
 
         {/* Empty upload zone (Step6 style) */}
         {showEmptyZone && (

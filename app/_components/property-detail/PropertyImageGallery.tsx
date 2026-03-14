@@ -82,8 +82,7 @@ export function PropertyImageGallery({ images: propImages }: PropertyImageGaller
       return (
         <Thumb
           src={images[0]} index={0} onClick={openLightbox}
-          className="w-full rounded-2xl"
-          style={{ height: 480 } as React.CSSProperties}
+          className="w-full rounded-2xl h-[480px]"
         />
       )
     }

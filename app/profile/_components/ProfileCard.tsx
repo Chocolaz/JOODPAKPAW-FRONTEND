@@ -1,10 +1,9 @@
 'use client'
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
+import { Card, CardContent } from '@/components/ui/card'
 import { UserProfile } from '@/types'
-import { Button } from '@/components/ui/button'
-// Removed import getConfig from 'next/config'
+import { Mail, Phone, ShieldCheck, BadgeCheck } from 'lucide-react'
 
 export const ProfileCard = ({
   profile,
@@ -13,50 +12,73 @@ export const ProfileCard = ({
   profile: UserProfile
   onPasswordChangeClick: () => void
 }) => {
-  // Removed const { publicRuntimeConfig } = getConfig()
   const basePath = process.env.NEXT_PUBLIC_BASE_PATH || ''
   const guestAvatarSrc = `${basePath}/graphics/guest.jpg`
+  const roleLabel = profile.role?.map(r => r.name).join(', ') || (profile.isBecomeToHost ? 'Host' : 'Guest')
+  const isHost = profile.role?.some(r => r.name === 'host') || profile.isBecomeToHost
+
   return (
-    <Card className="my-2">
-      <CardHeader className="flex flex-col items-center text-center">
-        <Avatar className="w-24 h-24 mb-4 border border-gray-200 ring-1 ring-gray-200 ring-offset-10 ring-offset-background">
-          <AvatarImage
-            src={profile.avatar || guestAvatarSrc}
-            alt={`${profile.firstName} ${profile.lastName}`}
-          />
-          <AvatarFallback className="text-3xl">
-            {profile.firstName?.charAt(0)}
-            {profile.lastName?.charAt(0)}
-          </AvatarFallback>
-        </Avatar>
-        <CardTitle className="space-y-2">
-          <h3 className="mt-2">
-            {profile.firstName} {profile.lastName}
-          </h3>
-          <div className="flex justify-center">
-            <span className="text-neutral-gray font-normal">
-              {profile.isBecomeToHost ? 'Host' : 'Guest'}
-            </span>
+    <div className="space-y-4 py-2">
+      {/* Profile card with banner */}
+      <Card className="w-full overflow-hidden">
+        {/* Gradient banner */}
+        <div className="h-20 relative bg-gradient-to-br from-deep-teal via-deep-teal/80 to-positive-green/60">
+          <div className="absolute top-2 right-6 w-16 h-16 rounded-full bg-white/10" />
+          <div className="absolute -bottom-2 left-8 w-10 h-10 rounded-full bg-white/5" />
+        </div>
+
+        <CardContent className="px-5 pb-5 pt-0 relative">
+          {/* Avatar overlapping banner */}
+          <Avatar className="w-18 h-18 ring-4 ring-white shadow-lg -mt-10">
+            <AvatarImage src={profile.avatar || guestAvatarSrc} alt={`${profile.firstName} ${profile.lastName}`} />
+            <AvatarFallback className="text-2xl bg-gray-100 text-deep-teal font-semibold">
+              {profile.firstName?.charAt(0)}{profile.lastName?.charAt(0)}
+            </AvatarFallback>
+          </Avatar>
+
+          {/* Name + role */}
+          <div className="mt-3">
+            <div className="flex items-center gap-2">
+              <h3 className="text-xl font-semibold text-deep-teal leading-tight">
+                {profile.firstName} {profile.lastName}
+              </h3>
+              {isHost && (
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-positive-green/15 text-positive-green text-xs font-medium">
+                  <BadgeCheck className="w-3 h-3" />
+                  Host
+                </span>
+              )}
+            </div>
+            <div className="flex items-center gap-1.5 mt-1.5">
+              <Mail className="w-3.5 h-3.5 text-neutral-gray/70 shrink-0" />
+              <p className="text-sm text-neutral-gray truncate">{profile.email}</p>
+            </div>
           </div>
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="flex justify-between">
-          <span className="font-medium text-neutral-gray">Email</span>
-          <span>{profile.email}</span>
+        </CardContent>
+      </Card>
+
+      {/* Info rows */}
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm divide-y divide-gray-50">
+        <div className="flex items-center justify-between px-4 py-3.5">
+          <div className="flex items-center gap-3">
+            <Phone className="w-4 h-4 text-neutral-gray" />
+            <span className="text-sm text-neutral-gray">Phone</span>
+          </div>
+          <span className="text-sm text-gray-800">{profile.phone || '—'}</span>
         </div>
-        <div className="flex justify-between">
-          <span className="font-medium text-neutral-gray">Phone</span>
-          <span>{profile.phone}</span>
+        <div className="flex items-center justify-between px-4 py-3.5">
+          <div className="flex items-center gap-3">
+            <ShieldCheck className="w-4 h-4 text-neutral-gray" />
+            <span className="text-sm text-neutral-gray">Password</span>
+          </div>
+          <button
+            onClick={onPasswordChangeClick}
+            className="text-sm text-deep-teal font-medium hover:underline"
+          >
+            Change
+          </button>
         </div>
-        <Button
-          variant="outline"
-          className="w-full"
-          onClick={onPasswordChangeClick}
-        >
-          Change Password
-        </Button>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   )
 }

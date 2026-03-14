@@ -26,7 +26,7 @@ export function DesktopNav() {
   if (
     !VISIBLE_PATHS.includes(normalizedPath) &&
     !normalizedPath.startsWith('/chat') &&
-    !normalizedPath.startsWith('/profile/host')
+    !normalizedPath.startsWith('/profile/')
   ) return null
 
   return (
