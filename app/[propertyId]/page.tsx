@@ -195,7 +195,7 @@ export default function PropertyDetailPage() {
           </motion.div>
 
           <motion.div custom={1} variants={fadeUp} initial="hidden" animate="visible" className="lg:hidden mb-6">
-            <ContactHostButton hostId={property.hostId} />
+            <ContactHostButton hostId={property.hostId} hasExistingChat={property.hasExistingChat} />
           </motion.div>
 
           <motion.div custom={2} variants={fadeUp} initial="hidden" animate="visible">
@@ -207,7 +207,11 @@ export default function PropertyDetailPage() {
 
           {property.host && (
             <motion.div custom={3} variants={fadeUp} initial="hidden" animate="visible">
-              <PropertyHost host={property.host} />
+              <PropertyHost
+                host={property.host}
+                hostAvgRating={property.hostAvgRating}
+                hasExistingChat={property.hasExistingChat}
+              />
             </motion.div>
           )}
 

@@ -71,24 +71,26 @@ export interface PropertyHost {
   firstName: string
   lastName: string
   avatar: string
-  hostAvgRating: number
+  hostAvgRating?: number
 }
 
 export interface Property {
   id: number
   title: string
   description: string
+  address?: string
   province: string
   district: string
   subdistrict?: string
   country: string
-  latitude: string
-  longitude: string
+  latitude: number | string
+  longitude: number | string
   zipcode: string
   isActive: boolean
   isFavorite: boolean
   avgRating: number
   hostId: number
+  hostAvgRating?: number
   propertyTypeId: number
   images: PropertyImage[]
   roomCategories?: RoomCategories | RoomCategories[]
@@ -101,6 +103,7 @@ export interface Property {
   totalRoomCategories?: number
   pets?: Pet[]
   host?: PropertyHost
+  hasExistingChat?: boolean
 }
 
 export interface PropertiesResponse {

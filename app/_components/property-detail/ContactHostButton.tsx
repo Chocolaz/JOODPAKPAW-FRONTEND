@@ -25,16 +25,19 @@ import { useAuth } from '@/app/_components/AuthContext'
 import { useChat } from '@/app/_components/ChatContext'
 import { createChatRoom } from '@/lib/api'
 import { useMediaQuery } from '@/app/_hooks/useMediaQuery'
+import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 
 interface ContactHostButtonProps {
   hostId: number
   compact?: boolean
+  hasExistingChat?: boolean
 }
 
-export function ContactHostButton({ hostId, compact }: ContactHostButtonProps) {
+export function ContactHostButton({ hostId, compact, hasExistingChat }: ContactHostButtonProps) {
   const { requireAuth, user } = useAuth()
-  const { refreshRooms } = useChat()
+  const { refreshRooms, rooms } = useChat()
+  const router = useRouter()
   const [open, setOpen] = useState(false)
   const [message, setMessage] = useState('')
   const [isSending, setIsSending] = useState(false)
@@ -44,6 +47,11 @@ export function ContactHostButton({ hostId, compact }: ContactHostButtonProps) {
 
   const handleOpen = () => {
     if (!requireAuth()) return
+    if (hasExistingChat) {
+      const existingRoom = rooms?.find((r) => r.otherUser?.id === hostId)
+      router.push(existingRoom ? `/chat/${existingRoom.id}` : '/chat')
+      return
+    }
     setOpen(true)
   }
 
@@ -96,7 +104,7 @@ export function ContactHostButton({ hostId, compact }: ContactHostButtonProps) {
         onClick={handleOpen}
       >
         <MessageCircle className="w-4 h-4" />
-        {compact ? 'Message' : 'Message Host'}
+        {hasExistingChat ? 'View Chat' : compact ? 'Message' : 'Message Host'}
       </Button>
 
       {/* Desktop: Dialog */}

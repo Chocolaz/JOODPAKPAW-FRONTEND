@@ -7,9 +7,12 @@ import { ContactHostButton } from './ContactHostButton'
 
 interface PropertyHostProps {
   host: PropertyHostType
+  hostAvgRating?: number
+  hasExistingChat?: boolean
 }
 
-export function PropertyHost({ host }: PropertyHostProps) {
+export function PropertyHost({ host, hostAvgRating, hasExistingChat }: PropertyHostProps) {
+  const rating = hostAvgRating ?? host.hostAvgRating
   return (
     <div className="border-t pt-8 mb-10">
       <h3 className="text-lg lg:text-xl font-semibold text-deep-teal mb-5">
@@ -37,14 +40,14 @@ export function PropertyHost({ host }: PropertyHostProps) {
           <p className="font-semibold text-deep-teal text-base lg:text-lg truncate">
             {host.firstName} {host.lastName}
           </p>
-          {host.hostAvgRating > 0 && (
+          {!!rating && rating > 0 && (
             <div className="flex items-center gap-1.5 mt-1">
               <Star
                 className="w-3.5 h-3.5 fill-yellow-400 text-yellow-400"
                 strokeWidth={0}
               />
               <span className="text-sm font-medium text-gray-700">
-                {host.hostAvgRating.toFixed(1)}
+                {rating.toFixed(1)}
               </span>
               <span className="text-xs text-neutral-gray">host rating</span>
             </div>
@@ -52,7 +55,7 @@ export function PropertyHost({ host }: PropertyHostProps) {
         </div>
 
         {/* Message button */}
-        <ContactHostButton hostId={host.id} compact />
+        <ContactHostButton hostId={host.id} compact hasExistingChat={hasExistingChat} />
       </div>
     </div>
   )
