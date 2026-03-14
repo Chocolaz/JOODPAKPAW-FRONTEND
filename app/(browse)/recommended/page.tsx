@@ -54,9 +54,9 @@ export default function RecommendedPage() {
         </Link>
         <div className="flex items-center gap-2">
           <Heart className="w-5 h-5 fill-accent-orange text-accent-orange" />
-          <h1 className="text-xl lg:text-3xl font-semibold text-deep-teal">Recommended for You</h1>
+          <h1 className="text-xl lg:text-xl font-semibold text-deep-teal">Recommended for You</h1>
           {!isLoading && (
-            <span className="text-sm lg:text-base text-neutral-gray">({filtered.length})</span>
+            <span className="text-sm lg:text-sm text-neutral-gray">({filtered.length})</span>
           )}
         </div>
       </div>

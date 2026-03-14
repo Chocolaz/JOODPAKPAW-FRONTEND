@@ -33,7 +33,8 @@ export default function NewListingsPage() {
           const names = (p.pets || []).map((pet) => pet.name.toLowerCase())
           if (!filters.petTypes.some((t) => names.includes(t))) return false
         }
-        if (filters.minRating > 0 && p.avgRating < filters.minRating) return false
+        if (filters.minRating > 0 && p.avgRating < filters.minRating)
+          return false
         if (filters.maxPrice !== '') {
           const price = getLowestPrice(p.roomCategories)
           if (price !== null && price > Number(filters.maxPrice)) return false
@@ -46,14 +47,21 @@ export default function NewListingsPage() {
   return (
     <div className="px-5 lg:px-12 pb-28 lg:pb-16 mt-6 lg:mt-10">
       <div className="flex items-center gap-3 mb-6">
-        <Link href={buildSeeAllUrl('/')} className="text-neutral-gray hover:text-deep-teal transition-colors">
+        <Link
+          href={buildSeeAllUrl('/')}
+          className="text-neutral-gray hover:text-deep-teal transition-colors"
+        >
           <ArrowLeft className="w-5 h-5" />
         </Link>
         <div className="flex items-center gap-2">
           <Sparkles className="w-5 h-5 text-deep-teal" />
-          <h1 className="text-xl lg:text-3xl font-semibold text-deep-teal">New Listings</h1>
+          <h1 className="text-xl! lg:text-xl! font-semibold text-deep-teal">
+            New Listings
+          </h1>
           {!isLoading && (
-            <span className="text-sm lg:text-base text-neutral-gray">({filtered.length})</span>
+            <span className="text-sm lg:text-sm text-neutral-gray">
+              ({filtered.length})
+            </span>
           )}
         </div>
       </div>

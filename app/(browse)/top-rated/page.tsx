@@ -52,9 +52,9 @@ export default function TopRatedPage() {
         </Link>
         <div className="flex items-center gap-2">
           <Star className="w-5 h-5 fill-yellow-400 text-yellow-500" />
-          <h1 className="text-xl lg:text-3xl font-semibold text-deep-teal">Top Rated</h1>
+          <h1 className="text-xl lg:text-xl font-semibold text-deep-teal">Top Rated</h1>
           {!isLoading && (
-            <span className="text-sm lg:text-base text-neutral-gray">({filtered.length})</span>
+            <span className="text-sm lg:text-sm text-neutral-gray">({filtered.length})</span>
           )}
         </div>
       </div>

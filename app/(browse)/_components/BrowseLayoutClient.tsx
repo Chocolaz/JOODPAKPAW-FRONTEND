@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { usePathname } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { SearchBar } from '@/app/_components/SearchBar'
@@ -46,6 +46,10 @@ export function BrowseLayoutClient({ children }: BrowseLayoutClientProps) {
     setSearchQuery,
   } = useBrowseFilters()
   const pathname = usePathname()
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'instant' })
+  }, [pathname])
 
   const SEE_ALL_PATHS = ['/top-rated', '/new-listings', '/recommended']
   const isSeeAllPage = SEE_ALL_PATHS.includes(pathname)
