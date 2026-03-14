@@ -1,6 +1,7 @@
 'use client'
 
 import Image from 'next/image'
+import Link from 'next/link'
 import { Star, UserCircle } from 'lucide-react'
 import { PropertyHost as PropertyHostType } from '@/types/property'
 import { cn } from '@/lib/utils'
@@ -22,8 +23,8 @@ export function PropertyHost({ host, hostAvgRating, chatRoomId, onChatSuccess }:
       </h3>
 
       <div className="flex items-center gap-4 bg-off-white/60 rounded-2xl p-5 border border-gray-100 shadow-sm">
-        {/* Avatar */}
-        <div className="relative w-16 h-16 lg:w-20 lg:h-20 rounded-full overflow-hidden bg-gray-100 shrink-0 ring-2 ring-deep-teal/20 shadow-sm">
+        {/* Avatar — tappable, navigates to host profile */}
+        <Link href={`/host-profile/${host.id}`} className="relative w-16 h-16 lg:w-20 lg:h-20 rounded-full overflow-hidden bg-gray-100 shrink-0 ring-2 ring-deep-teal/20 shadow-sm hover:ring-accent-orange transition-all">
           {host.avatar ? (
             <Image
               src={host.avatar}
@@ -35,13 +36,15 @@ export function PropertyHost({ host, hostAvgRating, chatRoomId, onChatSuccess }:
           ) : (
             <UserCircle className="w-full h-full text-gray-300" />
           )}
-        </div>
+        </Link>
 
         {/* Info */}
         <div className="flex-1 min-w-0">
-          <p className="font-semibold text-deep-teal text-base lg:text-lg truncate">
-            {host.firstName} {host.lastName}
-          </p>
+          <Link href={`/host-profile/${host.id}`} className="group">
+            <p className="font-semibold text-deep-teal text-base lg:text-lg truncate group-hover:underline underline-offset-2">
+              {host.firstName} {host.lastName}
+            </p>
+          </Link>
           <div className="flex items-center gap-1.5 mt-1">
             {rating > 0 ? (
               <div className="flex items-center gap-1.5 bg-white border border-gray-200 rounded-full px-2 py-0.5">

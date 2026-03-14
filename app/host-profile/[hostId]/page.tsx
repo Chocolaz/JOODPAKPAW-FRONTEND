@@ -1,0 +1,114 @@
+'use client'
+
+import { useEffect, useState } from 'react'
+import { useParams, useRouter } from 'next/navigation'
+import { motion } from 'framer-motion'
+import { ChevronLeft } from 'lucide-react'
+import { getHostProfile, getHostReviews } from '@/lib/api'
+import { HostProfile, HostReview } from '@/types/hostProfile'
+import { ErrorState } from '@/app/profile/_components/ErrorState'
+import { HostProfileSkeleton } from './_components/HostProfileSkeleton'
+import { HostProfileHero } from './_components/HostProfileHero'
+import { HostPropertiesSection } from './_components/HostPropertiesSection'
+import { HostReviewsSection } from './_components/HostReviewsSection'
+
+const fadeUp = {
+  hidden: { opacity: 0, y: 16 },
+  visible: (i: number) => ({
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.4, delay: i * 0.07, ease: 'easeOut' as const },
+  }),
+}
+
+export default function HostProfilePage() {
+  const { hostId } = useParams<{ hostId: string }>()
+  const router = useRouter()
+
+  const [host, setHost] = useState<HostProfile | null>(null)
+  const [profileLoading, setProfileLoading] = useState(true)
+  const [profileError, setProfileError] = useState<string | null>(null)
+
+  const [reviews, setReviews] = useState<HostReview[]>([])
+  const [reviewPage, setReviewPage] = useState(1)
+  const [totalPages, setTotalPages] = useState(1)
+  const [totalRows, setTotalRows] = useState(0)
+  const [reviewsLoading, setReviewsLoading] = useState(true)
+
+  // Initial parallel fetch
+  useEffect(() => {
+    if (!hostId) return
+    setProfileLoading(true)
+    setReviewsLoading(true)
+
+    Promise.allSettled([
+      getHostProfile(hostId),
+      getHostReviews(hostId, 1, 6),
+    ]).then(([profileResult, reviewsResult]) => {
+      if (profileResult.status === 'fulfilled') {
+        setHost(profileResult.value.host)
+      } else {
+        setProfileError('Failed to load host profile.')
+      }
+      setProfileLoading(false)
+
+      if (reviewsResult.status === 'fulfilled') {
+        setReviews(reviewsResult.value.data)
+        setTotalPages(reviewsResult.value.totalPages)
+        setTotalRows(reviewsResult.value.totalRows)
+      }
+      setReviewsLoading(false)
+    })
+  }, [hostId])
+
+  // Paginated review fetch
+  const handlePageChange = (page: number) => {
+    if (!hostId || page === reviewPage) return
+    setReviewPage(page)
+    setReviewsLoading(true)
+    getHostReviews(hostId, page, 6)
+      .then((res) => {
+        setReviews(res.data)
+        setTotalPages(res.totalPages)
+        setTotalRows(res.totalRows)
+      })
+      .catch(() => {})
+      .finally(() => setReviewsLoading(false))
+  }
+
+  if (profileLoading) return <HostProfileSkeleton />
+  if (profileError || !host) return <ErrorState message={profileError ?? 'Host not found.'} />
+
+  return (
+    <div className="max-w-5xl mx-auto pb-24 lg:pb-10 relative">
+      {/* Back button */}
+      <button
+        onClick={() => router.back()}
+        className="fixed top-4 left-4 z-10 p-2 bg-white/80 backdrop-blur-sm rounded-full shadow hover:bg-gray-100 transition"
+      >
+        <ChevronLeft className="w-6 h-6 text-gray-800" />
+      </button>
+
+      <motion.div custom={0} variants={fadeUp} initial="hidden" animate="visible">
+        <HostProfileHero host={host} />
+      </motion.div>
+
+      <motion.div custom={1} variants={fadeUp} initial="hidden" animate="visible">
+        <HostPropertiesSection properties={host.properties} />
+      </motion.div>
+
+      <motion.div custom={2} variants={fadeUp} initial="hidden" animate="visible">
+        <HostReviewsSection
+          reviews={reviews}
+          page={reviewPage}
+          totalPages={totalPages}
+          totalRows={totalRows}
+          avgRating={host.avgRating}
+          reviewCount={host.reviewCount}
+          loading={reviewsLoading}
+          onPageChange={handlePageChange}
+        />
+      </motion.div>
+    </div>
+  )
+}

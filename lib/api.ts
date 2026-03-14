@@ -30,6 +30,7 @@ import {
 } from '@/types'
 import { FavoriteFolderDetail } from '@/types/favorite'
 import type { PropertiesResponse } from '@/types/property'
+import type { HostProfileResponse, HostReviewsResponse } from '@/types/hostProfile'
 
 // --- Auth Functions ---
 export const signIn = (
@@ -192,7 +193,30 @@ export const getPropertyById = (
   return request<{ property: Property }>({
     endpoint: `api/v1/properties/${propertyId}`,
     method: 'GET',
+    sendAuthIfAvailable: true,
     errorContext: 'Get Property By Id',
+  })
+}
+
+export const getHostProfile = (hostId: string): Promise<HostProfileResponse> => {
+  return request<HostProfileResponse>({
+    endpoint: `api/v1/properties/hosts/${hostId}/profile`,
+    method: 'GET',
+    sendAuthIfAvailable: true,
+    errorContext: 'Get Host Profile',
+  })
+}
+
+export const getHostReviews = (
+  hostId: string,
+  page = 1,
+  limit = 10
+): Promise<HostReviewsResponse> => {
+  return request<HostReviewsResponse>({
+    endpoint: `api/v1/properties/hosts/${hostId}/reviews?page=${page}&limit=${limit}`,
+    method: 'GET',
+    sendAuthIfAvailable: true,
+    errorContext: 'Get Host Reviews',
   })
 }
 

@@ -135,7 +135,7 @@ export function ChatProvider({ children }: { children: ReactNode }) {
                 lastMessage: {
                   id: msg.id,
                   content: msg.content,
-                  readAt: msg.sender.id === user?.id ? msg.readAt : null,
+                  readAt: msg.sender.id === user?.id ? (msg.readAt ?? new Date().toISOString()) : null,
                 },
               }
             : r
