@@ -109,24 +109,7 @@ function LayoutContent({ children }: { children: ReactNode }) {
       return null
     }
     if (normalizedPath === '/profile/host') {
-      const { properties, error } = hostProperties
-
-      if (error) {
-        return null // or some error indicator
-      }
-
-      const publishedCount = properties.filter((p) => p.isActive).length
-      const draftCount = properties.length - publishedCount
-
-      return (
-        <HostBanner
-          summary={{
-            total: properties.length,
-            published: publishedCount,
-            draft: draftCount,
-          }}
-        />
-      )
+      return null // Banner is rendered inside the host page
     }
     if (normalizedPath === '/profile/pets') {
       const { pets, error } = petProfiles
@@ -142,8 +125,10 @@ function LayoutContent({ children }: { children: ReactNode }) {
     <main className="flex justify-center">
       <div className="w-full">
         {headerProps && <div className="lg:hidden"><ProfileHeader {...headerProps} menu={menu} /></div>}
-        {renderBanner()}
-        {children}
+        <div className={headerProps ? 'pt-14 lg:pt-0' : ''}>
+          {renderBanner()}
+          {children}
+        </div>
       </div>
     </main>
   )

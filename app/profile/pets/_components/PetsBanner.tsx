@@ -12,7 +12,7 @@ export function PetsBanner({ summary }: PetsBannerProps) {
   const { user } = useAuth()
 
   return (
-    <div className="sticky top-14 z-9 bg-off-white p-10 rounded-bl-4xl rounded-br-4xl shadow-sm border-b w-full">
+    <div className="bg-off-white p-10 rounded-bl-4xl rounded-br-4xl shadow-sm border-b w-full">
       <div className="min-h-[60px]">
         <p className="text-lg text-accent-orange">
           Hello {user?.firstName} {user?.lastName}

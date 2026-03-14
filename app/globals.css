@@ -71,6 +71,25 @@ button {
   background: #d1d5db;
 }
 
+/* Modern minimal scrollbar */
+.scrollbar-modern {
+  scrollbar-width: thin;
+  scrollbar-color: #d1d5db transparent;
+}
+.scrollbar-modern::-webkit-scrollbar {
+  width: 3px;
+}
+.scrollbar-modern::-webkit-scrollbar-track {
+  background: transparent;
+}
+.scrollbar-modern::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 99px;
+}
+.scrollbar-modern::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
+}
+
 /* Base (mobile) */
 body {
   font-family: var(--font-afacad), var(--font-sarabun), sans-serif;

@@ -9,12 +9,13 @@ import { useRouter } from 'next/navigation'
 import { parseISO } from 'date-fns'
 import { BookingCard } from '@/app/profile/bookings/_components/BookingCard'
 import { cn } from '@/lib/utils'
-import { History } from 'lucide-react'
+import { History, Check } from 'lucide-react'
+import { PropertyFilterDropdown } from './PropertyFilterDropdown'
 
 const HISTORY_FILTERS = [
   { value: 'ALL', label: 'All' },
-  { value: 'SUCCESSFUL', label: 'Completed', color: 'bg-green-100 text-green-700 border-green-300' },
-  { value: 'CANCELLED', label: 'Cancelled', color: 'bg-red-100 text-red-700 border-red-300' },
+  { value: 'SUCCESSFUL', label: 'Completed' },
+  { value: 'CANCELLED', label: 'Cancelled' },
 ] as const
 
 export function HostBookingHistoryList() {
@@ -22,6 +23,7 @@ export function HostBookingHistoryList() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [statusFilter, setStatusFilter] = useState('ALL')
+  const [propertyFilter, setPropertyFilter] = useState('ALL')
   const router = useRouter()
 
   useEffect(() => {
@@ -31,9 +33,7 @@ export function HostBookingHistoryList() {
         const response: BookingsResponse = await getHostBookings()
         setBookings(response.bookings)
       } catch (err: unknown) {
-        setError(
-          err instanceof Error ? err.message : 'Failed to fetch host bookings'
-        )
+        setError(err instanceof Error ? err.message : 'Failed to fetch host bookings')
       } finally {
         setLoading(false)
       }
@@ -48,29 +48,29 @@ export function HostBookingHistoryList() {
     })
   }, [bookings])
 
+  const propertyNames = useMemo(() => {
+    const names = new Set(historyBookings.map((b) => b.property?.title).filter(Boolean))
+    return Array.from(names).sort() as string[]
+  }, [historyBookings])
+
   const filteredBookings = useMemo(() => {
     const statusOrder = ['SUCCESSFUL', 'CANCELLED']
-
     return historyBookings
       .filter((booking) => {
         const status = booking.bookingStatus.toUpperCase()
-        return statusFilter === 'ALL' || status === statusFilter
+        const matchesStatus = statusFilter === 'ALL' || status === statusFilter
+        const matchesProperty = propertyFilter === 'ALL' || booking.property?.title === propertyFilter
+        return matchesStatus && matchesProperty
       })
       .sort((a, b) => {
         const statusA = a.bookingStatus.toUpperCase()
         const statusB = b.bookingStatus.toUpperCase()
-
         const orderA = statusOrder.indexOf(statusA)
         const orderB = statusOrder.indexOf(statusB)
-
-        if (orderA !== -1 && orderB !== -1 && orderA !== orderB) {
-          return orderA - orderB
-        }
-        return (
-          new Date(b.checkInDate).getTime() - new Date(a.checkInDate).getTime()
-        )
+        if (orderA !== -1 && orderB !== -1 && orderA !== orderB) return orderA - orderB
+        return new Date(b.checkInDate).getTime() - new Date(a.checkInDate).getTime()
       })
-  }, [historyBookings, statusFilter])
+  }, [historyBookings, statusFilter, propertyFilter])
 
   const statusCounts = useMemo(() => {
     const counts: Record<string, number> = { ALL: 0 }
@@ -82,9 +82,26 @@ export function HostBookingHistoryList() {
     return counts
   }, [historyBookings])
 
-  if (error) {
-    return <ErrorState message={error} />
+  const completedCount = statusCounts.SUCCESSFUL || 0
+  const cancelledCount = statusCounts.CANCELLED || 0
+
+  const filterStyle = (value: string, isActive: boolean) => {
+    if (value === 'ALL') {
+      return isActive
+        ? 'bg-deep-teal text-white border-deep-teal shadow-sm'
+        : 'bg-white text-deep-teal border-deep-teal/40 hover:border-deep-teal hover:bg-deep-teal/10 hover:scale-105'
+    }
+    if (value === 'SUCCESSFUL') {
+      return isActive
+        ? 'bg-positive-green text-white border-positive-green shadow-sm'
+        : 'bg-white text-positive-green border-positive-green/40 hover:border-positive-green hover:bg-positive-green/10 hover:scale-105'
+    }
+    return isActive
+      ? 'bg-red-500 text-white border-red-500 shadow-sm'
+      : 'bg-white text-red-600 border-red-300 hover:border-red-500 hover:bg-red-50 hover:scale-105'
   }
+
+  if (error) return <ErrorState message={error} />
 
   return (
     <AnimatePresence mode="wait">
@@ -95,35 +112,44 @@ export function HostBookingHistoryList() {
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.2 }}
-          className="flex flex-col h-full"
+          className="flex flex-col h-full overflow-y-auto px-4 md:px-6 lg:px-12 pt-6 pb-12"
         >
-          {/* Skeleton filter chips */}
-          <div className="flex gap-2 px-3 sm:px-4 py-2.5 border-b border-gray-100">
-            {Array.from({ length: 3 }).map((_, i) => (
-              <div key={i} className="animate-pulse">
-                <div className="h-8 rounded-full bg-gray-200" style={{ width: `${56 + i * 20}px` }} />
-              </div>
+          {/* Skeleton header */}
+          <div className="hidden lg:flex items-center justify-between mb-6">
+            <div className="space-y-2">
+              <div className="h-6 bg-gray-200 rounded w-40 animate-pulse" />
+              <div className="h-4 bg-gray-200 rounded w-56 animate-pulse" />
+            </div>
+            <div className="flex gap-2">
+              {[80, 100, 90].map((w, i) => (
+                <div key={i} className="h-8 rounded-full bg-gray-200 animate-pulse" style={{ width: w }} />
+              ))}
+            </div>
+          </div>
+          {/* Mobile skeleton chips */}
+          <div className="flex gap-2 mb-4 lg:hidden">
+            {[80, 100, 90].map((w, i) => (
+              <div key={i} className="h-8 rounded-full bg-gray-200 animate-pulse" style={{ width: w }} />
             ))}
           </div>
-          {/* Skeleton booking cards */}
-          <div className="p-3 sm:p-4 md:p-6 grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
-            {Array.from({ length: 3 }).map((_, i) => (
-              <div key={i} className="animate-pulse rounded-xl border border-gray-100 p-4 sm:p-5 space-y-3">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 lg:gap-4">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className="animate-pulse rounded-xl border border-gray-100 p-5 space-y-3">
                 <div className="flex justify-between">
                   <div className="h-4 bg-gray-200 rounded w-1/2" />
-                  <div className="h-5 bg-gray-200 rounded-full w-16" />
+                  <div className="h-5 bg-gray-200 rounded-full w-20" />
                 </div>
                 <div className="flex gap-3">
                   <div className="h-3 bg-gray-200 rounded w-16" />
                   <div className="h-3 bg-gray-200 rounded w-16" />
-                  <div className="h-3 bg-gray-200 rounded w-14" />
                 </div>
-                <div className="grid grid-cols-2 gap-3 bg-gray-100 rounded-lg p-3">
-                  <div className="space-y-1.5">
+                <div className="flex items-center gap-2 bg-gray-100 rounded-lg p-3">
+                  <div className="flex-1 space-y-1.5">
                     <div className="h-2.5 bg-gray-200 rounded w-12" />
                     <div className="h-3.5 bg-gray-200 rounded w-20" />
                   </div>
-                  <div className="space-y-1.5">
+                  <div className="w-4 h-4 bg-gray-200 rounded" />
+                  <div className="flex-1 space-y-1.5">
                     <div className="h-2.5 bg-gray-200 rounded w-14" />
                     <div className="h-3.5 bg-gray-200 rounded w-20" />
                   </div>
@@ -144,48 +170,116 @@ export function HostBookingHistoryList() {
           transition={{ duration: 0.3, ease: 'easeOut' }}
           className="flex flex-col h-full"
         >
-          {/* Filter chips */}
-          <div className="flex gap-2 px-3 sm:px-4 py-2.5 overflow-x-auto hide-scrollbar border-b border-gray-100">
-            {HISTORY_FILTERS.map((filter) => {
-              const count = statusCounts[filter.value] || 0
-              const isActive = statusFilter === filter.value
+          {/* Desktop header + filters — fixed, not scrollable */}
+          <div className="shrink-0 px-4 md:px-6 lg:px-12 pt-4 lg:pt-8">
+          {/* Desktop header */}
+          <div className="hidden lg:flex items-center justify-between mb-6">
+            <div>
+              <h2 className="text-xl font-semibold text-deep-teal">Booking History</h2>
+              <p className="text-sm text-neutral-gray mt-0.5">
+                {historyBookings.length} total
+                {completedCount > 0 && ` · ${completedCount} completed`}
+                {cancelledCount > 0 && ` · ${cancelledCount} cancelled`}
+              </p>
+            </div>
 
-              return (
-                <button
-                  key={filter.value}
-                  onClick={() => setStatusFilter(filter.value)}
-                  className={cn(
-                    'flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium border whitespace-nowrap transition-all duration-200',
-                    isActive
-                      ? filter.value === 'ALL'
-                        ? 'bg-deep-teal text-white border-deep-teal'
-                        : filter.color
-                      : 'bg-white text-gray-500 border-gray-200'
-                  )}
-                >
-                  {filter.label}
-                  {count > 0 && (
-                    <span
-                      className={cn(
-                        'text-xs rounded-full min-w-[20px] h-5 flex items-center justify-center px-1.5',
-                        isActive
-                          ? filter.value === 'ALL'
-                            ? 'bg-white/20'
-                            : 'bg-black/10'
-                          : 'bg-gray-100'
-                      )}
-                    >
-                      {count}
-                    </span>
-                  )}
-                </button>
-              )
-            })}
+            {historyBookings.length > 0 && (
+              <div className="flex items-center gap-3">
+                <PropertyFilterDropdown
+                  value={propertyFilter}
+                  onChange={setPropertyFilter}
+                  propertyNames={propertyNames}
+                />
+
+                {/* Status chips */}
+                <div className="flex items-center gap-2">
+                  {HISTORY_FILTERS.map((filter) => {
+                    const count = statusCounts[filter.value] || 0
+                    const isActive = statusFilter === filter.value
+                    if (filter.value !== 'ALL' && count === 0) return null
+                    return (
+                      <button
+                        key={filter.value}
+                        onClick={() => setStatusFilter(filter.value)}
+                        className={cn(
+                          'inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-sm font-medium border transition-all duration-150 cursor-pointer active:scale-95',
+                          filterStyle(filter.value, isActive)
+                        )}
+                      >
+                        {isActive && <Check className="w-3.5 h-3.5" />}
+                        {filter.label}
+                        {count > 0 && (
+                          <span className={cn(
+                            'text-xs rounded-full min-w-[20px] h-5 flex items-center justify-center px-1.5',
+                            isActive ? 'bg-white/25' : 'bg-gray-100 text-gray-500'
+                          )}>
+                            {count}
+                          </span>
+                        )}
+                      </button>
+                    )
+                  })}
+                </div>
+              </div>
+            )}
           </div>
 
-          <div className="grow overflow-y-auto p-3 sm:p-4 md:p-6">
+          {/* Mobile filter row */}
+          {historyBookings.length > 0 && (
+            <div className="flex flex-col gap-2 mb-4 lg:hidden">
+              <PropertyFilterDropdown
+                value={propertyFilter}
+                onChange={setPropertyFilter}
+                propertyNames={propertyNames}
+                className="w-fit"
+              />
+
+              {/* Status chips */}
+              <div className="flex gap-2 overflow-x-auto hide-scrollbar">
+                {HISTORY_FILTERS.map((filter) => {
+                  const count = statusCounts[filter.value] || 0
+                  const isActive = statusFilter === filter.value
+                  if (filter.value !== 'ALL' && count === 0) return null
+                  return (
+                    <button
+                      key={filter.value}
+                      onClick={() => setStatusFilter(filter.value)}
+                      className={cn(
+                        'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium border whitespace-nowrap transition-all duration-150 cursor-pointer active:scale-95',
+                        filterStyle(filter.value, isActive)
+                      )}
+                    >
+                      {isActive && <Check className="w-3 h-3" />}
+                      {filter.label}
+                      {count > 0 && (
+                        <span className={cn(
+                          'text-xs rounded-full min-w-[18px] flex items-center justify-center px-1',
+                          isActive ? 'bg-white/25' : 'bg-gray-100 text-gray-500'
+                        )}>
+                          {count}
+                        </span>
+                      )}
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+          )}
+
+          </div>{/* end fixed header */}
+
+          {/* Scrollable card area */}
+          <div className="flex-1 min-h-0 overflow-y-auto scrollbar-modern px-4 md:px-6 lg:px-12 pb-28 lg:pb-8">
+          <AnimatePresence mode="wait">
             {filteredBookings.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
+              <motion.div
+                key={`${statusFilter}-${propertyFilter}`}
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -6 }}
+                transition={{ duration: 0.2 }}
+                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 lg:gap-4"
+              >
                 {filteredBookings.map((booking) => (
                   <BookingCard
                     key={booking.id}
@@ -193,19 +287,25 @@ export function HostBookingHistoryList() {
                     onClick={(id) => router.push(`/profile/host/booking/${id}`)}
                   />
                 ))}
-              </div>
+              </motion.div>
             ) : (
-              <div className="flex flex-col items-center justify-center py-16 text-center px-6">
+              <motion.div
+                key="empty"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.2 }}
+                className="flex flex-col items-center justify-center py-20 text-center px-6"
+              >
                 <History className="w-12 h-12 text-gray-300 mb-3" />
-                <h4 className="text-base font-semibold text-gray-600">
-                  No history yet
-                </h4>
+                <h4 className="text-base font-semibold text-gray-600">No history yet</h4>
                 <p className="text-sm text-gray-400 mt-1 max-w-[240px]">
                   Completed and cancelled bookings will appear here.
                 </p>
-              </div>
+              </motion.div>
             )}
-          </div>
+          </AnimatePresence>
+          </div>{/* end scrollable area */}
         </motion.div>
       )}
     </AnimatePresence>

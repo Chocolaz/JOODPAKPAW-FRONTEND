@@ -43,7 +43,7 @@ export default function RootLayout({
               <ChatProvider>
               <BookingProvider>
                 <DesktopNav />
-                <div className="max-w-[1440px] mx-auto flex flex-col min-h-screen lg:min-h-[calc(100vh-5rem)] xl:min-h-[calc(100vh-6rem)] w-full">
+                <div className="max-w-[1440px] mx-auto flex flex-col min-h-screen lg:pt-20 xl:pt-24 w-full">
                   <main className="flex-1">{children}</main>
                   {showBottomNav && <BottomNav />}
                 </div>

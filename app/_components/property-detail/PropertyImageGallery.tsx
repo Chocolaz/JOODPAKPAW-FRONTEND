@@ -1,14 +1,14 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Image from 'next/image'
 import {
   Carousel,
   CarouselContent,
   CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
+  type CarouselApi,
 } from '@/components/ui/carousel'
+import { cn } from '@/lib/utils'
 import Lightbox from 'yet-another-react-lightbox'
 import 'yet-another-react-lightbox/styles.css'
 import { Property } from '@/types'
@@ -49,6 +49,14 @@ export function PropertyImageGallery({
 }: PropertyImageGalleryProps) {
   const [lightboxOpen, setLightboxOpen] = useState(false)
   const [currentIndex, setCurrentIndex] = useState(0)
+  const [carouselApi, setCarouselApi] = useState<CarouselApi>()
+  const [currentSlide, setCurrentSlide] = useState(0)
+
+  useEffect(() => {
+    if (!carouselApi) return
+    setCurrentSlide(carouselApi.selectedScrollSnap())
+    carouselApi.on('select', () => setCurrentSlide(carouselApi.selectedScrollSnap()))
+  }, [carouselApi])
 
   const images = propImages?.length
     ? propImages.map((img) => {
@@ -151,12 +159,12 @@ export function PropertyImageGallery({
     <>
       {/* Mobile: carousel */}
       <div className="lg:hidden w-full pb-2">
-        <Carousel className="w-full">
+        <Carousel className="w-full" setApi={setCarouselApi}>
           <CarouselContent>
             {images.map((src, i) => (
               <CarouselItem key={i}>
                 <div
-                  className="relative w-full aspect-square overflow-hidden cursor-pointer"
+                  className="relative w-full aspect-[4/3] overflow-hidden cursor-pointer"
                   onClick={() => openLightbox(i)}
                 >
                   <Image src={src} alt={`Image ${i}`} fill unoptimized className="object-cover" />
@@ -164,13 +172,20 @@ export function PropertyImageGallery({
               </CarouselItem>
             ))}
           </CarouselContent>
-          {count > 1 && (
-            <>
-              <CarouselPrevious className="left-2 bg-white/80 backdrop-blur-sm shadow rounded-full" />
-              <CarouselNext className="right-2 bg-white/80 backdrop-blur-sm shadow rounded-full" />
-            </>
-          )}
         </Carousel>
+        {count > 1 && (
+          <div className="flex justify-center items-center gap-1.5 mt-2.5">
+            {images.map((_, i) => (
+              <div
+                key={i}
+                className={cn(
+                  'h-1.5 rounded-full transition-all duration-300',
+                  i === currentSlide ? 'w-4 bg-deep-teal' : 'w-1.5 bg-gray-300',
+                )}
+              />
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Desktop: adaptive grid */}
