@@ -12,7 +12,6 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { SearchX, Sparkles, Star, Heart } from 'lucide-react'
 import { useBrowseFilters } from '@/app/_hooks/useBrowseFilters'
 import { BrowseSection } from './_components/BrowseSection'
-import { RecommendedCTA } from './_components/RecommendedCTA'
 
 const fuseOptions = {
   keys: [
@@ -90,6 +89,11 @@ export default function Home() {
       return true
     })
   }, [searchedProperties, filters])
+
+  const randomProperties = useMemo(() => {
+    if (isAuthenticated) return []
+    return [...properties].sort(() => Math.random() - 0.5).slice(0, RECOMMEND_LIMIT)
+  }, [properties, isAuthenticated])
 
   const topRated = useMemo(
     () =>
@@ -215,7 +219,16 @@ export default function Home() {
                         />
                       )
                     ) : (
-                      <RecommendedCTA />
+                      randomProperties.length > 0 && (
+                        <BrowseSection
+                          title="Recommended for You"
+                          icon={<Heart className="w-5 h-5 fill-accent-orange text-accent-orange" />}
+                          properties={randomProperties}
+                          totalCount={randomProperties.length}
+                          showHeartIcon={false}
+                          showPetPolicyChip={true}
+                        />
+                      )
                     )}
 
                     {filteredProperties.length === 0 ? (

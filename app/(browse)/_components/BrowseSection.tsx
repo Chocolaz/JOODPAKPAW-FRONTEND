@@ -9,7 +9,7 @@ import { PropertyCard } from '@/app/_components/PropertyCard'
 import { Property } from '@/types'
 import { assetPath, cn } from '@/lib/utils'
 
-const SECTION_LIMIT = 6
+const SECTION_LIMIT = 7
 
 interface BrowseSectionProps {
   title: string
@@ -92,13 +92,13 @@ export function BrowseSection({
       {/* Cards — horizontal scroll on mobile, fixed-width row on desktop */}
       <div
         ref={scrollRef}
-        className="flex gap-4 overflow-x-auto scrollbar-hide pb-2 -mx-5 px-5 pr-10 snap-x snap-mandatory lg:mx-0 lg:px-0 lg:pr-0 lg:overflow-x-hidden"
+        className="flex gap-4 overflow-x-auto scrollbar-hide pb-2 -mx-5 px-5 pr-10 snap-x snap-mandatory lg:mx-0 lg:px-0 lg:pr-10"
       >
         {displayProperties.map((property) => (
           <div
             key={property.id}
             data-card
-            className="w-44 shrink-0 snap-start lg:w-[calc((100%-5*1rem)/6)]"
+            className="w-44 shrink-0 snap-start lg:w-[calc((100%-6*1rem)/7)]"
           >
             <PropertyCard
               property={property}
@@ -112,7 +112,7 @@ export function BrowseSection({
         {seeAllHref && count > SECTION_LIMIT && (
           <div
             data-card
-            className="w-44 shrink-0 snap-start lg:w-[calc((100%-5*1rem)/6)]"
+            className="w-44 shrink-0 snap-start lg:w-[calc((100%-6*1rem)/7)]"
           >
             <Link
               href={seeAllHref}
