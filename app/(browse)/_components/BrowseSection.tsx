@@ -56,7 +56,19 @@ export function BrowseSection({
       <div className="flex items-center justify-between mb-4 lg:mb-6">
         <div className="flex items-center gap-2">
           {icon}
-          <h5 className="text-lg lg:text-2xl xl:text-3xl font-semibold text-deep-teal">{title}</h5>
+          {seeAllHref && count > SECTION_LIMIT ? (
+            <Link
+              href={seeAllHref}
+              className="group flex items-center gap-1.5"
+            >
+              <h5 className="text-lg lg:text-2xl xl:text-3xl font-semibold text-deep-teal underline-offset-4 group-hover:underline group-hover:text-accent-orange transition-colors">
+                {title}
+              </h5>
+              <ChevronRight className="w-4 h-4 lg:w-5 lg:h-5 text-neutral-gray group-hover:text-accent-orange transition-colors translate-x-0 group-hover:translate-x-0.5 duration-200" />
+            </Link>
+          ) : (
+            <h5 className="text-lg lg:text-2xl xl:text-3xl font-semibold text-deep-teal">{title}</h5>
+          )}
           <span className="text-sm lg:text-base xl:text-lg text-neutral-gray">({count})</span>
         </div>
 
