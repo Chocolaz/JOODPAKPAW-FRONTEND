@@ -68,7 +68,7 @@ export default function NewListingsPage() {
         >
           <PropertyList
             properties={filtered}
-            className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 lg:gap-6"
+            className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4"
             showPetPolicyChip={true}
             showHeartIcon={isAuthenticated}
           />
@@ -80,7 +80,7 @@ export default function NewListingsPage() {
 
 function BrowseSkeleton({ count }: { count: number }) {
   return (
-    <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 lg:gap-6">
+    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
       {Array.from({ length: count }).map((_, i) => (
         <div key={i} className="animate-pulse">
           <div className="aspect-square w-full bg-gray-200 rounded-[20px]" />

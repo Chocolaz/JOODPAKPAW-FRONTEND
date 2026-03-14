@@ -3,7 +3,7 @@ import { motion } from 'framer-motion'
 import { PropertyCard } from '@/app/_components/PropertyCard'
 import { Property } from '@/types'
 
-const SECTION_LIMIT = 7
+const SECTION_LIMIT = 6
 
 interface BrowseSectionProps {
   title: string
@@ -55,7 +55,7 @@ export function BrowseSection({
       {/* Horizontal scroll on mobile, grid on desktop */}
       {/* pr-10 on mobile clips the last card slightly — signals more content off-screen */}
       {/* Note: properties prop is the full array; BrowseSection slices at SECTION_LIMIT internally */}
-      <div className="flex gap-3 overflow-x-auto scrollbar-hide pb-2 -mx-5 px-5 pr-10 snap-x snap-mandatory lg:mx-0 lg:px-0 lg:pr-0 lg:overflow-x-visible lg:grid lg:grid-cols-7 lg:gap-4">
+      <div className="flex gap-3 overflow-x-auto scrollbar-hide pb-2 -mx-5 px-5 pr-10 snap-x snap-mandatory lg:mx-0 lg:px-0 lg:pr-0 lg:overflow-x-visible lg:grid lg:grid-cols-6 lg:gap-4">
         {properties.slice(0, SECTION_LIMIT).map((property) => (
           <div key={property.id} className="w-44 shrink-0 snap-start lg:w-auto lg:shrink">
             <PropertyCard
