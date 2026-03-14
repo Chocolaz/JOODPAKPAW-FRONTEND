@@ -75,7 +75,7 @@ export default function NotificationsPage() {
 
   return (
     <div>
-      <AppHeader title="Notifications" menu={connectionMenu} />
+      <div className="lg:hidden"><AppHeader title="Notifications" menu={connectionMenu} /></div>
 
       {/* Centered content container for tablet/desktop */}
       <div className="md:max-w-2xl lg:max-w-3xl md:mx-auto md:mt-4 md:px-4 lg:px-0">

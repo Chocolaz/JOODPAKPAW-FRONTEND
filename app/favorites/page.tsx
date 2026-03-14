@@ -260,7 +260,7 @@ export default function FavoritesPage() {
 
   return (
     <div>
-      <AppHeader title="Favorites" />
+      <div className="lg:hidden"><AppHeader title="Favorites" /></div>
       <div className="container mx-auto px-5 pt-8 mb-30">{renderContent()}</div>
 
       {/* Create Folder Drawer */}
