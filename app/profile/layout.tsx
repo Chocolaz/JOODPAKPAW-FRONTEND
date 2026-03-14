@@ -141,7 +141,7 @@ function LayoutContent({ children }: { children: ReactNode }) {
   return (
     <main className="flex justify-center">
       <div className="w-full">
-        {headerProps && <ProfileHeader {...headerProps} menu={menu} />}
+        {headerProps && <div className="lg:hidden"><ProfileHeader {...headerProps} menu={menu} /></div>}
         {renderBanner()}
         {children}
       </div>
