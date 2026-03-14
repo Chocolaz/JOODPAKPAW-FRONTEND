@@ -40,7 +40,10 @@ export default function NewListingsPage() {
         }
         return true
       })
-      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+      .sort((a, b) => {
+        const diff = new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        return diff !== 0 ? diff : b.id - a.id
+      })
   }, [properties, filters])
 
   return (
