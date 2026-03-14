@@ -88,7 +88,7 @@ export default function FavoriteFolderDetailPage() {
             property={property}
             showHeartIcon={true}
             favoriteFolderId={Number(folderId)}
-            href={`/${property.id}?fromFavorites=true&folderId=${folderId}`}
+            href={`/detail/${property.id}?fromFavorites=true&folderId=${folderId}`}
           />
         ))}
       </div>

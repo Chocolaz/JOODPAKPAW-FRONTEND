@@ -56,7 +56,7 @@ export function PropertyCard({
   }, [property.isFavorite])
 
   const finalHref =
-    href || (isOwner ? `/profile/host/${property.id}` : `/${property.id}`)
+    href || (isOwner ? `/profile/host/${property.id}` : `/detail/${property.id}`)
 
   const lowestPrice = getLowestPrice(property.roomCategories)
   const petPolicy = getPetPolicy(property.pets)
