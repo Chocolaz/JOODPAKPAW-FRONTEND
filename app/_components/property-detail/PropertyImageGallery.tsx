@@ -19,23 +19,25 @@ interface PropertyImageGalleryProps {
   images: Property['images']
 }
 
-function GalleryThumb({
+function Thumb({
   src,
   index,
   onClick,
+  className,
 }: {
   src: string
   index: number
   onClick: (i: number) => void
+  className?: string
 }) {
   return (
     <div
-      className="relative w-full h-full cursor-pointer overflow-hidden group"
+      className={cn('relative cursor-pointer overflow-hidden group', className)}
       onClick={() => onClick(index)}
     >
       <Image
         src={src}
-        alt={`Image ${index}`}
+        alt={`Image ${index + 1}`}
         fill
         unoptimized
         className="object-cover transition-transform duration-500 group-hover:scale-105"
@@ -44,9 +46,7 @@ function GalleryThumb({
   )
 }
 
-export function PropertyImageGallery({
-  images: propImages,
-}: PropertyImageGalleryProps) {
+export function PropertyImageGallery({ images: propImages }: PropertyImageGalleryProps) {
   const [lightboxOpen, setLightboxOpen] = useState(false)
   const [currentIndex, setCurrentIndex] = useState(0)
   const [carouselApi, setCarouselApi] = useState<CarouselApi>()
@@ -76,72 +76,66 @@ export function PropertyImageGallery({
 
   const count = images.length
 
-  // Desktop grid layout per image count
+  // Desktop adaptive grid — height fixed at 480px
   const renderDesktopGrid = () => {
-    // 1 image — full width
     if (count === 1) {
       return (
-        <div
-          className="relative w-full rounded-2xl overflow-hidden cursor-pointer group"
-          style={{ height: 480 }}
-          onClick={() => openLightbox(0)}
-        >
-          <Image src={images[0]} alt="Property" fill unoptimized
-            className="object-cover transition-transform duration-500 group-hover:scale-105" />
-        </div>
+        <Thumb
+          src={images[0]} index={0} onClick={openLightbox}
+          className="w-full rounded-2xl"
+          style={{ height: 480 } as React.CSSProperties}
+        />
       )
     }
 
-    // 2 images — 50/50 side by side
     if (count === 2) {
       return (
         <div className="grid grid-cols-2 gap-2 rounded-2xl overflow-hidden" style={{ height: 480 }}>
-          {images.map((src, i) => <GalleryThumb key={i} src={src} index={i} onClick={openLightbox} />)}
+          <Thumb src={images[0]} index={0} onClick={openLightbox} className="w-full h-full" />
+          <Thumb src={images[1]} index={1} onClick={openLightbox} className="w-full h-full" />
         </div>
       )
     }
 
-    // 3 images — large left + 2 stacked right
     if (count === 3) {
       return (
         <div className="grid grid-cols-2 gap-2 rounded-2xl overflow-hidden" style={{ height: 480 }}>
-          <GalleryThumb src={images[0]} index={0} onClick={openLightbox} />
+          <Thumb src={images[0]} index={0} onClick={openLightbox} className="w-full h-full" />
           <div className="grid grid-rows-2 gap-2">
-            <GalleryThumb src={images[1]} index={1} onClick={openLightbox} />
-            <GalleryThumb src={images[2]} index={2} onClick={openLightbox} />
+            <Thumb src={images[1]} index={1} onClick={openLightbox} className="w-full h-full" />
+            <Thumb src={images[2]} index={2} onClick={openLightbox} className="w-full h-full" />
           </div>
         </div>
       )
     }
 
-    // 4 images — large left + 3-cell right (top full + bottom 2)
     if (count === 4) {
       return (
         <div className="grid grid-cols-2 gap-2 rounded-2xl overflow-hidden" style={{ height: 480 }}>
-          <GalleryThumb src={images[0]} index={0} onClick={openLightbox} />
+          <Thumb src={images[0]} index={0} onClick={openLightbox} className="w-full h-full" />
           <div className="grid grid-rows-2 gap-2">
-            <GalleryThumb src={images[1]} index={1} onClick={openLightbox} />
+            <Thumb src={images[1]} index={1} onClick={openLightbox} className="w-full h-full" />
             <div className="grid grid-cols-2 gap-2">
-              <GalleryThumb src={images[2]} index={2} onClick={openLightbox} />
-              <GalleryThumb src={images[3]} index={3} onClick={openLightbox} />
+              <Thumb src={images[2]} index={2} onClick={openLightbox} className="w-full h-full" />
+              <Thumb src={images[3]} index={3} onClick={openLightbox} className="w-full h-full" />
             </div>
           </div>
         </div>
       )
     }
 
-    // 5+ images — large left + 2x2 right grid + "show all" button
+    // 5+ — large left + 2×2 grid right + "show all" button
     return (
       <div className="relative grid grid-cols-2 gap-2 rounded-2xl overflow-hidden" style={{ height: 480 }}>
-        <GalleryThumb src={images[0]} index={0} onClick={openLightbox} />
+        <Thumb src={images[0]} index={0} onClick={openLightbox} className="w-full h-full" />
         <div className="grid grid-rows-2 gap-2">
           <div className="grid grid-cols-2 gap-2">
-            <GalleryThumb src={images[1]} index={1} onClick={openLightbox} />
-            <GalleryThumb src={images[2]} index={2} onClick={openLightbox} />
+            <Thumb src={images[1]} index={1} onClick={openLightbox} className="w-full h-full" />
+            <Thumb src={images[2]} index={2} onClick={openLightbox} className="w-full h-full" />
           </div>
           <div className="grid grid-cols-2 gap-2">
-            <GalleryThumb src={images[3]} index={3} onClick={openLightbox} />
-            <GalleryThumb src={images[4]} index={4} onClick={openLightbox} />
+            <Thumb src={images[3]} index={3} onClick={openLightbox} className="w-full h-full" />
+            <Thumb src={images[4]} index={4} onClick={openLightbox} className="w-full h-full" />
           </div>
         </div>
         <button
@@ -157,7 +151,7 @@ export function PropertyImageGallery({
 
   return (
     <>
-      {/* Mobile: carousel */}
+      {/* Mobile: swipeable carousel + dot indicators */}
       <div className="lg:hidden w-full pb-2">
         <Carousel className="w-full" setApi={setCarouselApi}>
           <CarouselContent>
@@ -167,7 +161,7 @@ export function PropertyImageGallery({
                   className="relative w-full aspect-[4/3] overflow-hidden cursor-pointer"
                   onClick={() => openLightbox(i)}
                 >
-                  <Image src={src} alt={`Image ${i}`} fill unoptimized className="object-cover" />
+                  <Image src={src} alt={`Image ${i + 1}`} fill unoptimized className="object-cover" />
                 </div>
               </CarouselItem>
             ))}
