@@ -104,7 +104,7 @@ export function BrowseSection({
           >
             <Link
               href={seeAllHref}
-              className="group flex flex-col items-center justify-center gap-3 aspect-square w-full rounded-[20px] bg-white border border-gray-100 hover:border-deep-teal hover:shadow-md transition-all duration-300 overflow-hidden relative"
+              className="group flex flex-col items-center justify-center gap-3 aspect-square w-full rounded-[20px] bg-white border border-gray-100 shadow-sm hover:border-deep-teal hover:shadow-md transition-all duration-300 overflow-hidden relative"
             >
               <div className="relative w-3/4 aspect-square">
                 <Image
