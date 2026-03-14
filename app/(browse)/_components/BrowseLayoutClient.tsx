@@ -25,9 +25,11 @@ const QUICK_PRICE_CHIPS = [
   { label: '฿3,500', value: 3500 },
 ]
 
-const chipBase = 'flex items-center gap-1.5 shrink-0 px-3.5 py-1.5 rounded-full border text-sm font-medium transition-colors shadow-sm'
+const chipBase =
+  'flex items-center gap-1.5 shrink-0 px-3.5 py-1.5 rounded-full border text-sm font-medium transition-colors shadow-sm'
 const chipActive = 'bg-accent-orange text-white border-accent-orange'
-const chipInactive = 'bg-white border-gray-200 text-neutral-gray hover:border-deep-teal hover:text-deep-teal'
+const chipInactive =
+  'bg-white border-gray-200 text-neutral-gray hover:border-deep-teal hover:text-deep-teal'
 
 interface BrowseLayoutClientProps {
   children: React.ReactNode
@@ -35,7 +37,14 @@ interface BrowseLayoutClientProps {
 
 export function BrowseLayoutClient({ children }: BrowseLayoutClientProps) {
   const [isFilterOpen, setIsFilterOpen] = useState(false)
-  const { searchQuery, filters, activeFilterCount, setFilter, applyFilters, setSearchQuery } = useBrowseFilters()
+  const {
+    searchQuery,
+    filters,
+    activeFilterCount,
+    setFilter,
+    applyFilters,
+    setSearchQuery,
+  } = useBrowseFilters()
   const pathname = usePathname()
 
   const SEE_ALL_PATHS = ['/top-rated', '/new-listings', '/recommended']
@@ -44,7 +53,7 @@ export function BrowseLayoutClient({ children }: BrowseLayoutClientProps) {
   return (
     <>
       {/* Hero section */}
-      <div className="px-5 lg:px-12 lg:border-b lg:border-gray-100">
+      <div className="px-5 pt-3 lg:px-12 lg:border-b lg:border-gray-100">
         {/* Mobile: search bar + hero on see-all pages */}
         <div className="lg:hidden">
           <SearchBar
@@ -130,7 +139,9 @@ export function BrowseLayoutClient({ children }: BrowseLayoutClientProps) {
                 <button
                   key={value}
                   type="button"
-                  onClick={() => setFilter('maxPrice', active ? '' : String(value))}
+                  onClick={() =>
+                    setFilter('maxPrice', active ? '' : String(value))
+                  }
                   className={cn(chipBase, active ? chipActive : chipInactive)}
                 >
                   <Banknote className="w-3.5 h-3.5" />
