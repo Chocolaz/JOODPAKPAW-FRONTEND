@@ -7,7 +7,6 @@ import { assetPath } from '@/lib/utils'
 import { CropModal } from '@/app/_components/CropModal'
 import { useUserProfile } from '@/app/profile/_hooks/useUserProfile'
 import { useProfileContext } from '@/app/profile/ProfileContext'
-import { LoadingState } from '@/app/profile/_components/LoadingState'
 import { ErrorState } from '@/app/profile/_components/ErrorState'
 import {
   Drawer,
@@ -169,17 +168,23 @@ export default function UserProfilePage() {
     }
   }
 
-  if (loading) return <LoadingState />
   if (error) return <ErrorState message={error} />
-  if (!profile) return null
 
   const displayAvatar = avatarPreview || guestAvatarSrc
   const roleLabel =
-    profile.role?.map((r) => r.name).join(', ') ||
-    (profile.isBecomeToHost ? 'Host' : 'Guest')
+    profile?.role?.map((r) => r.name).join(', ') ||
+    (profile?.isBecomeToHost ? 'Host' : 'Guest')
 
   return (
-    <>
+    <AnimatePresence mode="wait">
+    {!profile ? null : (
+    <motion.div
+      key="profile"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.25, ease: 'easeOut' }}
+    >
+
       {/* ── Mobile ── */}
       <div className="lg:hidden">
         <Drawer open={isEditDrawerOpen} onOpenChange={setIsEditDrawerOpen}>
@@ -471,7 +476,9 @@ export default function UserProfilePage() {
           <ChangePasswordForm onCloseDrawer={() => setIsPasswordOpen(false)} />
         </DialogContent>
       </Dialog>
-    </>
+    </motion.div>
+    )}
+    </AnimatePresence>
   )
 }
 
