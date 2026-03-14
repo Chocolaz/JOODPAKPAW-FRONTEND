@@ -96,15 +96,15 @@ export function BrowseSection({
           </div>
         ))}
 
-        {/* See All card — always the last slot */}
-        {seeAllHref && (
+        {/* See All card — only when there are more properties than the limit */}
+        {seeAllHref && count > SECTION_LIMIT && (
           <div
             data-card
             className="w-44 shrink-0 snap-start lg:w-[calc((100%-5*1rem)/6)]"
           >
             <Link
               href={seeAllHref}
-              className="group flex flex-col items-center justify-center gap-3 aspect-square w-full rounded-[20px] bg-off-white border border-gray-100 hover:border-deep-teal hover:shadow-md transition-all duration-300 overflow-hidden relative"
+              className="group flex flex-col items-center justify-center gap-3 aspect-square w-full rounded-[20px] bg-white border border-gray-100 hover:border-deep-teal hover:shadow-md transition-all duration-300 overflow-hidden relative"
             >
               <div className="relative w-3/4 aspect-square">
                 <Image
@@ -115,7 +115,7 @@ export function BrowseSection({
                 />
               </div>
               <span className="text-sm font-semibold text-deep-teal group-hover:text-accent-orange transition-colors">
-                See All ({count})
+                See All
               </span>
             </Link>
           </div>
