@@ -2,13 +2,13 @@
 
 import { useState } from 'react'
 import { usePathname } from 'next/navigation'
-import Image from 'next/image'
 import { motion } from 'framer-motion'
 import { SearchBar } from '@/app/_components/SearchBar'
 import { FilterPanel } from '@/app/_components/FilterPanel'
 import { useBrowseFilters } from '@/app/_hooks/useBrowseFilters'
 import { Dog, Cat, Star, Banknote } from 'lucide-react'
-import { cn, assetPath } from '@/lib/utils'
+import { cn } from '@/lib/utils'
+import { BrowseHero } from './BrowseHero'
 
 const QUICK_PET_CHIPS = [
   { label: 'Dog', value: 'dog', Icon: Dog },
@@ -53,56 +53,22 @@ export function BrowseLayoutClient({ children }: BrowseLayoutClientProps) {
             onFilterClick={() => setIsFilterOpen(true)}
             activeFilterCount={activeFilterCount}
           />
-          {isSeeAllPage && (
-            <div className="mt-4 pb-4 flex flex-col gap-3">
-              <div className="relative w-full" style={{ aspectRatio: '390/144' }}>
-                <Image
-                  src={assetPath('/graphics/home.svg')}
-                  alt="Illustration of pets and a house"
-                  fill
-                  priority
-                />
-              </div>
-              <div className="space-y-1">
-                <h4 className="text-deep-teal text-2xl font-bold leading-tight">
-                  Discover Local Pet Hotels &amp; Care Homes Near You
-                </h4>
-                <p className="text-neutral-gray text-sm">
-                  Find the perfect home away from home for your furry friends.
-                </p>
-              </div>
-            </div>
-          )}
+          {isSeeAllPage && <BrowseHero layout="column" />}
         </div>
 
         {/* Desktop: unified hero with heading + search bar + graphic */}
-        <div className="hidden lg:flex items-center gap-12 xl:gap-20 py-10">
-          {/* Left: text + search bar */}
-          <div className="flex-1 max-w-[480px] space-y-5">
-            <div className="space-y-3">
-              <h4 className="text-deep-teal text-4xl xl:text-5xl leading-tight font-bold">
-                Discover Local Pet Hotels &amp; Care Homes Near You
-              </h4>
-              <p className="text-neutral-gray text-lg xl:text-xl">
-                Find the perfect home away from home for your furry friends.
-              </p>
-            </div>
-            <SearchBar
-              onSearch={setSearchQuery}
-              value={searchQuery}
-              onFilterClick={() => setIsFilterOpen(true)}
-              activeFilterCount={activeFilterCount}
-            />
-          </div>
-          {/* Right: graphic */}
-          <div className="relative flex-1 shrink-0" style={{ aspectRatio: '390/144' }}>
-            <Image
-              src={assetPath('/graphics/home.svg')}
-              alt="Illustration of pets and a house"
-              fill
-              priority
-            />
-          </div>
+        <div className="hidden lg:block">
+          <BrowseHero
+            layout="row"
+            searchBar={
+              <SearchBar
+                onSearch={setSearchQuery}
+                value={searchQuery}
+                onFilterClick={() => setIsFilterOpen(true)}
+                activeFilterCount={activeFilterCount}
+              />
+            }
+          />
         </div>
       </div>
 
