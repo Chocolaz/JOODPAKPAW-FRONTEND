@@ -3,15 +3,17 @@
 import Image from 'next/image'
 import { Star, UserCircle } from 'lucide-react'
 import { PropertyHost as PropertyHostType } from '@/types/property'
+import { cn } from '@/lib/utils'
 import { ContactHostButton } from './ContactHostButton'
 
 interface PropertyHostProps {
   host: PropertyHostType
   hostAvgRating?: number
-  hasExistingChat?: boolean
+  chatRoomId?: number | null
+  onChatSuccess?: () => void
 }
 
-export function PropertyHost({ host, hostAvgRating, hasExistingChat }: PropertyHostProps) {
+export function PropertyHost({ host, hostAvgRating, chatRoomId, onChatSuccess }: PropertyHostProps) {
   const rating = hostAvgRating ?? host.hostAvgRating
   return (
     <div className="border-t pt-8 mb-10">
@@ -40,22 +42,32 @@ export function PropertyHost({ host, hostAvgRating, hasExistingChat }: PropertyH
           <p className="font-semibold text-deep-teal text-base lg:text-lg truncate">
             {host.firstName} {host.lastName}
           </p>
-          {!!rating && rating > 0 && (
-            <div className="flex items-center gap-1.5 mt-1">
-              <Star
-                className="w-3.5 h-3.5 fill-yellow-400 text-yellow-400"
-                strokeWidth={0}
-              />
-              <span className="text-sm font-medium text-gray-700">
-                {rating.toFixed(1)}
-              </span>
-              <span className="text-xs text-neutral-gray">host rating</span>
-            </div>
-          )}
+          <div className="flex items-center gap-1.5 mt-1">
+            {rating > 0 ? (
+              <div className="flex items-center gap-1.5 bg-white border border-gray-200 rounded-full px-2 py-0.5">
+                <div className="flex gap-0.5">
+                  {[1, 2, 3, 4, 5].map((s) => (
+                    <Star
+                      key={s}
+                      className={cn('w-3.5 h-3.5', s <= Math.round(rating) ? 'fill-yellow-400 text-yellow-400' : 'fill-gray-300 text-gray-300')}
+                      strokeWidth={0}
+                    />
+                  ))}
+                </div>
+                <span className="text-sm font-medium text-gray-700">{rating.toFixed(1)}</span>
+              </div>
+            ) : (
+              <div className="flex gap-0.5 bg-white border border-gray-200 rounded-full px-2 py-0.5">
+                {[1, 2, 3, 4, 5].map((s) => (
+                  <Star key={s} className="w-3.5 h-3.5 fill-gray-300 text-gray-300" strokeWidth={0} />
+                ))}
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Message button */}
-        <ContactHostButton hostId={host.id} compact hasExistingChat={hasExistingChat} />
+        <ContactHostButton hostId={host.id} compact chatRoomId={chatRoomId} onSuccess={onChatSuccess} />
       </div>
     </div>
   )

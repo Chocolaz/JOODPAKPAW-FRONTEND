@@ -31,12 +31,13 @@ import { toast } from 'sonner'
 interface ContactHostButtonProps {
   hostId: number
   compact?: boolean
-  hasExistingChat?: boolean
+  chatRoomId?: number | null
+  onSuccess?: () => void
 }
 
-export function ContactHostButton({ hostId, compact, hasExistingChat }: ContactHostButtonProps) {
+export function ContactHostButton({ hostId, compact, chatRoomId, onSuccess }: ContactHostButtonProps) {
   const { requireAuth, user } = useAuth()
-  const { refreshRooms, rooms } = useChat()
+  const { refreshRooms } = useChat()
   const router = useRouter()
   const [open, setOpen] = useState(false)
   const [message, setMessage] = useState('')
@@ -47,9 +48,8 @@ export function ContactHostButton({ hostId, compact, hasExistingChat }: ContactH
 
   const handleOpen = () => {
     if (!requireAuth()) return
-    if (hasExistingChat) {
-      const existingRoom = rooms?.find((r) => r.otherUser?.id === hostId)
-      router.push(existingRoom ? `/chat/${existingRoom.id}` : '/chat')
+    if (chatRoomId) {
+      router.push(`/chat/${chatRoomId}`)
       return
     }
     setOpen(true)
@@ -64,6 +64,7 @@ export function ContactHostButton({ hostId, compact, hasExistingChat }: ContactH
       setOpen(false)
       setMessage('')
       toast.success('Message sent!')
+      onSuccess?.()
     } catch {
       toast.error('Failed to send message. Please try again.')
     } finally {
@@ -104,7 +105,7 @@ export function ContactHostButton({ hostId, compact, hasExistingChat }: ContactH
         onClick={handleOpen}
       >
         <MessageCircle className="w-4 h-4" />
-        {hasExistingChat ? 'View Chat' : compact ? 'Message' : 'Message Host'}
+        {chatRoomId ? 'View Chat' : compact ? 'Message' : 'Message Host'}
       </Button>
 
       {/* Desktop: Dialog */}

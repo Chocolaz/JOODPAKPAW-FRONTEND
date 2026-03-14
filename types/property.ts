@@ -103,7 +103,7 @@ export interface Property {
   totalRoomCategories?: number
   pets?: Pet[]
   host?: PropertyHost
-  hasExistingChat?: boolean
+  chatRoomId?: number | null
 }
 
 export interface PropertiesResponse {

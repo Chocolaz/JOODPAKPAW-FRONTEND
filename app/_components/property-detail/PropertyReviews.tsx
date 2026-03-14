@@ -165,9 +165,15 @@ export function PropertyReviews({
           ))}
         </div>
       ) : (
-        <p className="text-sm text-neutral-gray text-center py-6">
-          No reviews yet. Be the first to review!
-        </p>
+        <div className="flex flex-col items-center gap-2 py-8 text-center">
+          <div className="flex gap-1">
+            {[1, 2, 3, 4, 5].map((s) => (
+              <Star key={s} className="w-5 h-5 text-gray-200 fill-gray-200" />
+            ))}
+          </div>
+          <p className="font-medium text-gray-700">No reviews yet</p>
+          <p className="text-sm text-neutral-gray">Be the first to stay and leave a review.</p>
+        </div>
       )}
 
       {/* Show all reviews button */}

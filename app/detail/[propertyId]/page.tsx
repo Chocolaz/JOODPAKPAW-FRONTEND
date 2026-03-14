@@ -14,7 +14,6 @@ import { PropertyRoomCategories } from '@/app/_components/property-detail/Proper
 import { PropertyHost } from '@/app/_components/property-detail/PropertyHost'
 import { normalizeRoomCategories } from '@/lib/utils'
 import { BookingDrawer } from '@/app/_components/property-detail/BookingDrawer'
-import { ContactHostButton } from '@/app/_components/property-detail/ContactHostButton'
 import { Skeleton } from '@/components/ui/skeleton'
 import { motion } from 'framer-motion'
 
@@ -207,19 +206,6 @@ export default function PropertyDetailPage() {
             variants={fadeUp}
             initial="hidden"
             animate="visible"
-            className="lg:hidden mb-6"
-          >
-            <ContactHostButton
-              hostId={property.hostId}
-              hasExistingChat={property.hasExistingChat}
-            />
-          </motion.div>
-
-          <motion.div
-            custom={2}
-            variants={fadeUp}
-            initial="hidden"
-            animate="visible"
           >
             <PropertyFacilities
               facilities={property.facilities}
@@ -237,7 +223,8 @@ export default function PropertyDetailPage() {
               <PropertyHost
                 host={property.host}
                 hostAvgRating={property.hostAvgRating}
-                hasExistingChat={property.hasExistingChat}
+                chatRoomId={property.chatRoomId}
+                onChatSuccess={refreshProperty}
               />
             </motion.div>
           )}
@@ -294,7 +281,6 @@ export default function PropertyDetailPage() {
               avgRating={property.avgRating}
               reviewCount={property.reviewCount ?? 0}
             />
-            <ContactHostButton hostId={property.hostId} />
           </div>
         </motion.div>
       </div>
