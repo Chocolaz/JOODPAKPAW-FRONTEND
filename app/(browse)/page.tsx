@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
+import Fuse from 'fuse.js'
 import { PageHeader } from '@/app/_components/PageHeader'
 import { PropertyList } from '@/app/_components/PropertyList'
 import { getProperties, getRecommendedProperties } from '@/lib/api'
@@ -12,6 +13,18 @@ import { SearchX, Sparkles, Star, Heart } from 'lucide-react'
 import { useBrowseFilters } from '@/app/_hooks/useBrowseFilters'
 import { BrowseSection } from './_components/BrowseSection'
 import { RecommendedCTA } from './_components/RecommendedCTA'
+
+const fuseOptions = {
+  keys: [
+    { name: 'title', weight: 0.5 },
+    { name: 'province', weight: 0.25 },
+    { name: 'district', weight: 0.15 },
+    { name: 'description', weight: 0.1 },
+  ],
+  threshold: 0.4,
+  includeScore: true,
+  ignoreLocation: true,
+}
 
 const SKELETON_COUNT = 12
 const RECOMMEND_LIMIT = 10
@@ -29,12 +42,7 @@ export default function Home() {
     const fetchProperties = async () => {
       try {
         setIsLoading(true)
-        const response = (await getProperties(
-          1,
-          1000,
-          searchQuery || undefined,
-          searchQuery ? 'title' : undefined
-        )) as PropertiesResponse
+        const response = (await getProperties(1, 1000)) as PropertiesResponse
         setProperties(response.data)
       } catch (error) {
         console.error(error)
@@ -43,7 +51,7 @@ export default function Home() {
       }
     }
     fetchProperties()
-  }, [searchQuery, isAuthenticated])
+  }, [isAuthenticated])
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -62,8 +70,14 @@ export default function Home() {
       })
   }, [isAuthenticated])
 
+  const searchedProperties = useMemo(() => {
+    if (!searchQuery.trim()) return properties
+    const fuse = new Fuse(properties, fuseOptions)
+    return fuse.search(searchQuery).map((r) => r.item)
+  }, [properties, searchQuery])
+
   const filteredProperties = useMemo(() => {
-    return properties.filter((p) => {
+    return searchedProperties.filter((p) => {
       if (filters.petTypes.length > 0) {
         const names = (p.pets || []).map((pet) => pet.name.toLowerCase())
         if (!filters.petTypes.some((t) => names.includes(t))) return false
@@ -75,7 +89,7 @@ export default function Home() {
       }
       return true
     })
-  }, [properties, filters])
+  }, [searchedProperties, filters])
 
   const topRated = useMemo(
     () =>
