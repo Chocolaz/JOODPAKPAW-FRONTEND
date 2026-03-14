@@ -14,7 +14,7 @@ interface PropertyHostProps {
 }
 
 export function PropertyHost({ host, hostAvgRating, chatRoomId, onChatSuccess }: PropertyHostProps) {
-  const rating = hostAvgRating ?? host.hostAvgRating
+  const rating = hostAvgRating ?? host.hostAvgRating ?? 0
   return (
     <div className="border-t pt-8 mb-10">
       <h3 className="text-lg lg:text-xl font-semibold text-deep-teal mb-5">
