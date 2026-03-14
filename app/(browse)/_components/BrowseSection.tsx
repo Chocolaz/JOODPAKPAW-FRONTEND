@@ -1,7 +1,13 @@
+'use client'
+
+import { useRef } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { motion } from 'framer-motion'
+import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { PropertyCard } from '@/app/_components/PropertyCard'
 import { Property } from '@/types'
+import { assetPath } from '@/lib/utils'
 
 const SECTION_LIMIT = 6
 
@@ -25,8 +31,19 @@ export function BrowseSection({
   seeAllHref,
 }: BrowseSectionProps) {
   if (properties.length === 0) return null
+
   const count = totalCount ?? properties.length
-  const showSeeAll = seeAllHref && count > SECTION_LIMIT
+  const scrollRef = useRef<HTMLDivElement>(null)
+
+  const scroll = (dir: 'left' | 'right') => {
+    if (!scrollRef.current) return
+    const card = scrollRef.current.querySelector('[data-card]') as HTMLElement
+    if (!card) return
+    const amount = card.offsetWidth + 16 // card width + gap-4
+    scrollRef.current.scrollBy({ left: dir === 'right' ? amount : -amount, behavior: 'smooth' })
+  }
+
+  const displayProperties = properties.slice(0, SECTION_LIMIT)
 
   return (
     <motion.section
@@ -42,22 +59,35 @@ export function BrowseSection({
           <h5 className="text-lg lg:text-2xl xl:text-3xl font-semibold text-deep-teal">{title}</h5>
           <span className="text-sm lg:text-base xl:text-lg text-neutral-gray">({count})</span>
         </div>
-        {showSeeAll && (
-          <Link
-            href={seeAllHref}
-            className="text-sm font-medium text-accent-orange hover:underline shrink-0"
+
+        {/* Desktop arrow controls */}
+        <div className="hidden lg:flex items-center gap-1">
+          <button
+            onClick={() => scroll('left')}
+            className="w-8 h-8 flex items-center justify-center rounded-full border border-gray-200 text-neutral-gray hover:border-deep-teal hover:text-deep-teal transition-colors"
           >
-            See all
-          </Link>
-        )}
+            <ChevronLeft className="w-4 h-4" />
+          </button>
+          <button
+            onClick={() => scroll('right')}
+            className="w-8 h-8 flex items-center justify-center rounded-full border border-gray-200 text-neutral-gray hover:border-deep-teal hover:text-deep-teal transition-colors"
+          >
+            <ChevronRight className="w-4 h-4" />
+          </button>
+        </div>
       </div>
 
-      {/* Horizontal scroll on mobile, grid on desktop */}
-      {/* pr-10 on mobile clips the last card slightly — signals more content off-screen */}
-      {/* Note: properties prop is the full array; BrowseSection slices at SECTION_LIMIT internally */}
-      <div className="flex gap-3 overflow-x-auto scrollbar-hide pb-2 -mx-5 px-5 pr-10 snap-x snap-mandatory lg:mx-0 lg:px-0 lg:pr-0 lg:overflow-x-visible lg:grid lg:grid-cols-6 lg:gap-4">
-        {properties.slice(0, SECTION_LIMIT).map((property) => (
-          <div key={property.id} className="w-44 shrink-0 snap-start lg:w-auto lg:shrink">
+      {/* Cards — horizontal scroll on mobile, fixed-width row on desktop */}
+      <div
+        ref={scrollRef}
+        className="flex gap-4 overflow-x-auto scrollbar-hide pb-2 -mx-5 px-5 pr-10 snap-x snap-mandatory lg:mx-0 lg:px-0 lg:pr-0 lg:overflow-x-hidden"
+      >
+        {displayProperties.map((property) => (
+          <div
+            key={property.id}
+            data-card
+            className="w-44 shrink-0 snap-start lg:w-[calc((100%-5*1rem)/6)]"
+          >
             <PropertyCard
               property={property}
               showPetPolicyChip={showPetPolicyChip}
@@ -65,6 +95,31 @@ export function BrowseSection({
             />
           </div>
         ))}
+
+        {/* See All card — always the last slot */}
+        {seeAllHref && (
+          <div
+            data-card
+            className="w-44 shrink-0 snap-start lg:w-[calc((100%-5*1rem)/6)]"
+          >
+            <Link
+              href={seeAllHref}
+              className="group flex flex-col items-center justify-center gap-3 aspect-square w-full rounded-[20px] bg-off-white border border-gray-100 hover:border-deep-teal hover:shadow-md transition-all duration-300 overflow-hidden relative"
+            >
+              <div className="relative w-3/4 aspect-square">
+                <Image
+                  src={assetPath('/graphics/see-all.png')}
+                  alt="See all"
+                  fill
+                  className="object-contain transition-transform duration-300 group-hover:scale-105"
+                />
+              </div>
+              <span className="text-sm font-semibold text-deep-teal group-hover:text-accent-orange transition-colors">
+                See All ({count})
+              </span>
+            </Link>
+          </div>
+        )}
       </div>
     </motion.section>
   )
