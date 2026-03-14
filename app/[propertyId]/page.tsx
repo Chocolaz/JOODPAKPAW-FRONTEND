@@ -1,9 +1,10 @@
 import { redirect } from 'next/navigation'
 
-export default function LegacyPropertyRedirect({
+export default async function LegacyPropertyRedirect({
   params,
 }: {
-  params: { propertyId: string }
+  params: Promise<{ propertyId: string }>
 }) {
-  redirect(`/detail/${params.propertyId}`)
+  const { propertyId } = await params
+  redirect(`/detail/${propertyId}`)
 }
