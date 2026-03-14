@@ -189,7 +189,7 @@ export default function Home() {
                     ) : (
                       <PropertyList
                         properties={filteredProperties}
-                        className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 lg:gap-6"
+                        className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-7 gap-4 lg:gap-6"
                         showPetPolicyChip={true}
                         showHeartIcon={isAuthenticated}
                       />
