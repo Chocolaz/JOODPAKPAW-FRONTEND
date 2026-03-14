@@ -114,124 +114,140 @@ export default function Home() {
 
       {/* IMPORTANT: use <div> not <main> — root layout already wraps in <main> */}
       <div className="px-5 lg:px-12 mt-6 lg:mt-0 pb-28 lg:pb-16">
-        {/* Search results header */}
-        {searchQuery && (
-          <div className="flex items-center justify-between mb-4 lg:mb-8 lg:pt-10">
-            <h5 className="text-xl lg:text-3xl xl:text-4xl font-medium text-deep-teal">
-              Results for &ldquo;{searchQuery}&rdquo;
-            </h5>
-            <AnimatePresence>
-              {!isLoading && (
-                <motion.span
-                  initial={{ opacity: 0, y: -4 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.2 }}
-                  className="text-sm lg:text-lg xl:text-xl text-neutral-gray"
-                >
-                  {filteredProperties.length}{' '}
-                  {filteredProperties.length === 1 ? 'place' : 'places'}
-                </motion.span>
-              )}
-            </AnimatePresence>
-          </div>
-        )}
+        {(() => {
+          const hasActiveFilters = filters.petTypes.length > 0 || filters.minRating > 0 || filters.maxPrice !== ''
+          const isFiltering = !!searchQuery || hasActiveFilters
 
-        <AnimatePresence mode="wait">
-          {isLoading ? (
-            <motion.div
-              key="skeleton"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.2 }}
-              className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 lg:gap-6 lg:pt-10"
-            >
-              {Array.from({ length: SKELETON_COUNT }).map((_, i) => (
-                <div key={i} className="animate-pulse">
-                  <div className="aspect-square w-full bg-gray-200 rounded-[20px]" />
-                  <div className="mt-2 space-y-2">
-                    <div className="h-4 bg-gray-200 rounded w-3/4" />
-                    <div className="h-3 bg-gray-200 rounded w-1/2" />
-                    <div className="h-3 bg-gray-200 rounded w-1/3" />
-                  </div>
+          const filterLabel = [
+            searchQuery ? `"${searchQuery}"` : null,
+            filters.petTypes.length > 0 ? filters.petTypes.map((t) => t.charAt(0).toUpperCase() + t.slice(1)).join(' & ') : null,
+            filters.minRating > 0 ? `${filters.minRating}★+` : null,
+            filters.maxPrice ? `฿${Number(filters.maxPrice).toLocaleString()} max` : null,
+          ].filter(Boolean).join(' · ')
+
+          return (
+            <>
+              {/* Flat results header — shown when searching or filtering */}
+              {isFiltering && (
+                <div className="flex items-center justify-between mb-4 lg:mb-8 lg:pt-10">
+                  <h5 className="text-xl lg:text-3xl xl:text-4xl font-medium text-deep-teal truncate mr-4">
+                    {filterLabel}
+                  </h5>
+                  <AnimatePresence>
+                    {!isLoading && (
+                      <motion.span
+                        initial={{ opacity: 0, y: -4 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.2 }}
+                        className="text-sm lg:text-lg xl:text-xl text-neutral-gray shrink-0"
+                      >
+                        {filteredProperties.length}{' '}
+                        {filteredProperties.length === 1 ? 'place' : 'places'}
+                      </motion.span>
+                    )}
+                  </AnimatePresence>
                 </div>
-              ))}
-            </motion.div>
-          ) : searchQuery ? (
-            /* Flat search results */
-            <motion.div
-              key="search-results"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.25 }}
-            >
-              {filteredProperties.length === 0 ? (
-                <EmptyState searchQuery={searchQuery} hasFilters={false} />
-              ) : (
-                <PropertyList
-                  properties={filteredProperties}
-                  className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 lg:gap-6"
-                  showPetPolicyChip={true}
-                  showHeartIcon={isAuthenticated}
-                />
-              )}
-            </motion.div>
-          ) : (
-            /* Sectioned browse */
-            <motion.div
-              key="sections"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.25 }}
-              className="lg:pt-2"
-            >
-              {/* Recommended slot — always renders (CTA for logged-out, cards for logged-in) */}
-              {isAuthenticated ? (
-                recommendedProperties.length > 0 && (
-                  <BrowseSection
-                    title="Recommended for You"
-                    icon={<Heart className="w-5 h-5 fill-accent-orange text-accent-orange" />}
-                    properties={recommendedProperties}
-                    totalCount={recommendedTotal}
-                    showHeartIcon={true}
-                    showPetPolicyChip={true}
-                    seeAllHref={buildSeeAllUrl('/recommended')}
-                  />
-                )
-              ) : (
-                <RecommendedCTA />
               )}
 
-              {filteredProperties.length === 0 ? (
-                <EmptyState searchQuery="" hasFilters={filters.petTypes.length > 0 || filters.minRating > 0 || filters.maxPrice !== ''} />
-              ) : (
-                <>
-                  <BrowseSection
-                    title="Top Rated"
-                    icon={<Star className="w-5 h-5 fill-yellow-400 text-yellow-500" />}
-                    properties={topRated}
-                    totalCount={topRated.length}
-                    showHeartIcon={isAuthenticated}
-                    showPetPolicyChip={true}
-                    seeAllHref={buildSeeAllUrl('/top-rated')}
-                  />
-                  <BrowseSection
-                    title="New Listings"
-                    icon={<Sparkles className="w-5 h-5 text-deep-teal" />}
-                    properties={newListings}
-                    totalCount={newListings.length}
-                    showHeartIcon={isAuthenticated}
-                    showPetPolicyChip={true}
-                    seeAllHref={buildSeeAllUrl('/new-listings')}
-                  />
-                </>
-              )}
-            </motion.div>
-          )}
-        </AnimatePresence>
+              <AnimatePresence mode="wait">
+                {isLoading ? (
+                  <motion.div
+                    key="skeleton"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.2 }}
+                    className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 lg:gap-6 lg:pt-10"
+                  >
+                    {Array.from({ length: SKELETON_COUNT }).map((_, i) => (
+                      <div key={i} className="animate-pulse">
+                        <div className="aspect-square w-full bg-gray-200 rounded-[20px]" />
+                        <div className="mt-2 space-y-2">
+                          <div className="h-4 bg-gray-200 rounded w-3/4" />
+                          <div className="h-3 bg-gray-200 rounded w-1/2" />
+                          <div className="h-3 bg-gray-200 rounded w-1/3" />
+                        </div>
+                      </div>
+                    ))}
+                  </motion.div>
+                ) : isFiltering ? (
+                  /* Flat results — search or filter active */
+                  <motion.div
+                    key="filtered-results"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.25 }}
+                  >
+                    {filteredProperties.length === 0 ? (
+                      <EmptyState searchQuery={searchQuery} hasFilters={hasActiveFilters} />
+                    ) : (
+                      <PropertyList
+                        properties={filteredProperties}
+                        className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 lg:gap-6"
+                        showPetPolicyChip={true}
+                        showHeartIcon={isAuthenticated}
+                      />
+                    )}
+                  </motion.div>
+                ) : (
+                  /* Sectioned browse — no active search or filters */
+                  <motion.div
+                    key="sections"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.25 }}
+                    className="lg:pt-2"
+                  >
+                    {/* Recommended slot */}
+                    {isAuthenticated ? (
+                      recommendedProperties.length > 0 && (
+                        <BrowseSection
+                          title="Recommended for You"
+                          icon={<Heart className="w-5 h-5 fill-accent-orange text-accent-orange" />}
+                          properties={recommendedProperties}
+                          totalCount={recommendedTotal}
+                          showHeartIcon={true}
+                          showPetPolicyChip={true}
+                          seeAllHref={buildSeeAllUrl('/recommended')}
+                        />
+                      )
+                    ) : (
+                      <RecommendedCTA />
+                    )}
+
+                    {filteredProperties.length === 0 ? (
+                      <EmptyState searchQuery="" hasFilters={false} />
+                    ) : (
+                      <>
+                        <BrowseSection
+                          title="Top Rated"
+                          icon={<Star className="w-5 h-5 fill-yellow-400 text-yellow-500" />}
+                          properties={topRated}
+                          totalCount={topRated.length}
+                          showHeartIcon={isAuthenticated}
+                          showPetPolicyChip={true}
+                          seeAllHref={buildSeeAllUrl('/top-rated')}
+                        />
+                        <BrowseSection
+                          title="New Listings"
+                          icon={<Sparkles className="w-5 h-5 text-deep-teal" />}
+                          properties={newListings}
+                          totalCount={newListings.length}
+                          showHeartIcon={isAuthenticated}
+                          showPetPolicyChip={true}
+                          seeAllHref={buildSeeAllUrl('/new-listings')}
+                        />
+                      </>
+                    )}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </>
+          )
+        })()}
       </div>
     </div>
   )
