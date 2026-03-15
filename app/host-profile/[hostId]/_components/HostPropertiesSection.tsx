@@ -1,3 +1,5 @@
+'use client'
+
 import { Property } from '@/types'
 import { PropertyCard } from '@/app/_components/PropertyCard'
 import { useAuth } from '@/app/_components/AuthContext'

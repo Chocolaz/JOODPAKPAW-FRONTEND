@@ -22,8 +22,11 @@ export function HostProfileHero({ host }: { host: HostProfile }) {
       <div
         className="h-40 lg:h-52 w-full lg:w-screen lg:ml-[calc(50%-50vw)] relative overflow-hidden bg-gradient-to-br from-[#e8521a] via-accent-orange/80 to-orange-300/60"
       >
-        <div className="absolute top-2 right-6 w-16 h-16 rounded-full bg-white/10" />
-        <div className="absolute -bottom-2 left-8 w-10 h-10 rounded-full bg-white/5" />
+        {/* Decorative circles */}
+        <div className="absolute -top-6 -right-6 w-40 h-40 rounded-full bg-white/10" />
+        <div className="absolute top-4 right-24 w-20 h-20 rounded-full bg-white/10" />
+        <div className="absolute -bottom-8 -left-4 w-36 h-36 rounded-full bg-black/10" />
+        <div className="absolute bottom-4 left-1/2 w-16 h-16 rounded-full bg-white/8" />
       </div>
 
       {/* Below banner */}
@@ -68,7 +71,7 @@ export function HostProfileHero({ host }: { host: HostProfile }) {
         {/* Stats strip */}
         <div className="mt-5 grid grid-cols-3 bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden divide-x divide-gray-100">
           {/* Rating */}
-          <div className="flex flex-col items-center gap-0.5 py-4 px-2">
+          <div className="flex flex-col items-center gap-0.5 py-4 px-4">
             <span className="text-2xl lg:text-3xl font-bold text-deep-teal font-baloo2 leading-none">
               {hasRating ? host.avgRating.toFixed(1) : '—'}
             </span>
@@ -90,7 +93,7 @@ export function HostProfileHero({ host }: { host: HostProfile }) {
           </div>
 
           {/* Reviews */}
-          <div className="flex flex-col items-center justify-center gap-0.5 py-4 px-2">
+          <div className="flex flex-col items-center justify-center gap-0.5 py-4 px-4">
             <span className="text-2xl lg:text-3xl font-bold text-deep-teal font-baloo2 leading-none">
               {host.reviewCount}
             </span>
@@ -100,7 +103,7 @@ export function HostProfileHero({ host }: { host: HostProfile }) {
           </div>
 
           {/* Properties */}
-          <div className="flex flex-col items-center justify-center gap-0.5 py-4 px-2">
+          <div className="flex flex-col items-center justify-center gap-0.5 py-4 px-4">
             <span className="text-2xl lg:text-3xl font-bold text-deep-teal font-baloo2 leading-none">
               {host.totalProperties}
             </span>
