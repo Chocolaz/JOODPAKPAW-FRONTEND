@@ -290,7 +290,13 @@ export default function ChatRoomPage() {
   const canSend = (input.trim().length > 0 || pendingImages.length > 0) && !isSending
 
   return (
-    <div className="flex flex-col h-[100dvh] lg:h-full bg-white">
+    <motion.div
+      className="flex flex-col h-[100dvh] lg:h-full bg-white"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.2, ease: 'easeOut' }}
+      style={{ willChange: 'opacity' }}
+    >
 
       {/* ── Header ── */}
       <div className="shrink-0 flex items-center gap-3 px-3 lg:px-5 py-2.5 lg:py-3 bg-white border-b border-gray-100 shadow-sm">
@@ -325,7 +331,7 @@ export default function ChatRoomPage() {
         <div className="flex-1 min-w-0">
           <p
             className="font-semibold text-deep-teal text-base lg:text-lg truncate cursor-pointer hover:underline"
-            onClick={() => room && router.push(`/host-profile/${room.otherUser.id}`)}
+            onClick={() => room && router.push(`/host-profile/${room.otherUser.id}?from=chat`)}
           >
             {otherUserName}
           </p>
@@ -468,6 +474,6 @@ export default function ChatRoomPage() {
           <Send className="w-4 h-4 lg:w-5 lg:h-5 text-white" />
         </motion.button>
       </div>
-    </div>
+    </motion.div>
   )
 }

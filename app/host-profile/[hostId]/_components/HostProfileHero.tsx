@@ -1,7 +1,8 @@
 'use client'
 
 import Image from 'next/image'
-import { Star, CalendarDays } from 'lucide-react'
+import { Star, CalendarDays, UserCheck } from 'lucide-react'
+import { useSearchParams } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import { HostProfile } from '@/types/hostProfile'
 import { ContactHostButton } from '@/app/_components/property-detail/ContactHostButton'
@@ -15,12 +16,19 @@ function formatMemberSince(dateStr: string) {
 
 export function HostProfileHero({ host }: { host: HostProfile }) {
   const hasRating = host.avgRating > 0
+  const isGuest = host.totalProperties === 0
+  const searchParams = useSearchParams()
+  const fromChat = searchParams.get('from') === 'chat'
 
   return (
     <div className="relative">
       {/* Banner */}
       <div
-        className="h-40 lg:h-52 w-full lg:w-screen lg:ml-[calc(50%-50vw)] relative overflow-hidden bg-gradient-to-br from-[#e8521a] via-accent-orange/80 to-orange-300/60"
+        className={`h-40 lg:h-52 w-full lg:w-screen lg:ml-[calc(50%-50vw)] relative overflow-hidden bg-gradient-to-br ${
+          isGuest
+            ? 'from-[#1a6b3d] via-positive-green/80 to-green-300/60'
+            : 'from-[#e8521a] via-accent-orange/80 to-orange-300/60'
+        }`}
       >
         {/* Decorative circles */}
         <div className="absolute -top-6 -right-6 w-40 h-40 rounded-full bg-white/10" />
@@ -53,9 +61,17 @@ export function HostProfileHero({ host }: { host: HostProfile }) {
 
           {/* Name + meta */}
           <div className="flex-1 mt-3 lg:mt-0 lg:pb-1 text-center lg:text-left">
-            <h1 className="text-2xl! lg:text-3xl! font-bold text-deep-teal font-baloo2 leading-tight">
-              {host.firstName} {host.lastName}
-            </h1>
+            <div className="flex items-center gap-2 justify-center lg:justify-start flex-wrap">
+              <h1 className="text-2xl! lg:text-3xl! font-bold text-deep-teal font-baloo2 leading-tight">
+                {host.firstName} {host.lastName}
+              </h1>
+              {isGuest && (
+                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-positive-green/15 text-positive-green text-xs font-semibold">
+                  <UserCheck className="w-3 h-3" />
+                  Guest
+                </span>
+              )}
+            </div>
             <div className="flex items-center justify-center lg:justify-start gap-1.5 mt-1 text-sm text-neutral-gray">
               <CalendarDays className="w-3.5 h-3.5 shrink-0" />
               <span>Member since {formatMemberSince(host.createdAt)}</span>
@@ -63,9 +79,11 @@ export function HostProfileHero({ host }: { host: HostProfile }) {
           </div>
 
           {/* Contact button — desktop */}
-          <div className="hidden lg:block lg:pb-1 shrink-0">
-            <ContactHostButton hostId={host.id} />
-          </div>
+          {!fromChat && (
+            <div className="hidden lg:block lg:pb-1 shrink-0">
+              <ContactHostButton hostId={host.id} />
+            </div>
+          )}
         </div>
 
         {/* Stats strip */}
@@ -114,9 +132,11 @@ export function HostProfileHero({ host }: { host: HostProfile }) {
         </div>
 
         {/* Contact button — mobile */}
-        <div className="mt-4 lg:hidden">
-          <ContactHostButton hostId={host.id} />
-        </div>
+        {!fromChat && (
+          <div className="mt-4 lg:hidden">
+            <ContactHostButton hostId={host.id} />
+          </div>
+        )}
       </div>
     </div>
   )
