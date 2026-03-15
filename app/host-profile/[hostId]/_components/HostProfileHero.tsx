@@ -1,87 +1,118 @@
 'use client'
 
 import Image from 'next/image'
-import { Star, UserCircle, CalendarDays, Building2, MessageCircle } from 'lucide-react'
+import { Star, CalendarDays } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { HostProfile } from '@/types/hostProfile'
 import { ContactHostButton } from '@/app/_components/property-detail/ContactHostButton'
 
 function formatMemberSince(dateStr: string) {
-  return new Date(dateStr).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+  return new Date(dateStr).toLocaleDateString('en-US', {
+    month: 'long',
+    year: 'numeric',
+  })
 }
 
 export function HostProfileHero({ host }: { host: HostProfile }) {
   const hasRating = host.avgRating > 0
 
   return (
-    <div className="px-5 lg:px-12 pt-16 pb-8">
-      <div className="flex flex-col lg:flex-row lg:items-center lg:gap-10">
-        {/* Avatar */}
-        <div className="relative w-24 h-24 lg:w-32 lg:h-32 rounded-full overflow-hidden bg-gray-100 ring-2 ring-deep-teal/20 shadow-sm shrink-0 mx-auto lg:mx-0">
-          {host.avatar ? (
-            <Image
-              src={host.avatar}
-              alt={`${host.firstName} ${host.lastName}`}
-              fill
-              unoptimized
-              className="object-cover"
-            />
-          ) : (
-            <UserCircle className="w-full h-full text-gray-300" />
-          )}
-        </div>
+    <div className="relative">
+      {/* Banner */}
+      <div
+        className="h-40 lg:h-52 w-full lg:w-screen lg:ml-[calc(50%-50vw)] relative overflow-hidden bg-gradient-to-br from-[#e8521a] via-accent-orange/80 to-orange-300/60"
+      >
+        <div className="absolute top-2 right-6 w-16 h-16 rounded-full bg-white/10" />
+        <div className="absolute -bottom-2 left-8 w-10 h-10 rounded-full bg-white/5" />
+      </div>
 
-        {/* Info */}
-        <div className="flex-1 mt-4 lg:mt-0 text-center lg:text-left">
-          <h1 className="text-2xl lg:text-3xl font-semibold text-deep-teal">
-            {host.firstName} {host.lastName}
-          </h1>
-
-          <div className="flex items-center justify-center lg:justify-start gap-1.5 mt-1 text-sm text-neutral-gray">
-            <CalendarDays className="w-3.5 h-3.5 shrink-0" />
-            <span>Member since {formatMemberSince(host.createdAt)}</span>
-          </div>
-
-          {/* Stats pills */}
-          <div className="flex flex-wrap items-center justify-center lg:justify-start gap-2 mt-4">
-            {/* Rating pill */}
-            <div className="flex items-center gap-1.5 bg-white border border-gray-200 rounded-full px-3 py-1.5 shadow-sm">
-              <div className="flex gap-0.5">
-                {[1, 2, 3, 4, 5].map((s) => (
-                  <Star
-                    key={s}
-                    className={cn(
-                      'w-3.5 h-3.5',
-                      hasRating && s <= Math.round(host.avgRating)
-                        ? 'fill-yellow-400 text-yellow-400'
-                        : 'fill-gray-200 text-gray-200'
-                    )}
-                    strokeWidth={0}
-                  />
-                ))}
+      {/* Below banner */}
+      <div className="px-5 lg:px-12 pb-8">
+        <div className="flex flex-col lg:flex-row lg:items-end lg:gap-6 -mt-14 lg:-mt-16">
+          {/* Avatar */}
+          <div className="relative w-28 h-28 lg:w-32 lg:h-32 rounded-full overflow-hidden bg-gray-100 ring-4 ring-white shadow-xl shrink-0 mx-auto lg:mx-0">
+            {host.avatar ? (
+              <Image
+                src={host.avatar}
+                alt={`${host.firstName} ${host.lastName}`}
+                fill
+                unoptimized
+                className="object-cover"
+              />
+            ) : (
+              <div className="w-full h-full bg-deep-teal/10 flex items-center justify-center">
+                <span className="text-deep-teal font-bold text-4xl font-baloo2">
+                  {host.firstName.charAt(0)}
+                </span>
               </div>
-              <span className="text-sm font-medium text-gray-700">
-                {hasRating ? host.avgRating.toFixed(1) : 'New'}
-              </span>
-              <span className="text-xs text-neutral-gray">
-                · {host.reviewCount} {host.reviewCount === 1 ? 'review' : 'reviews'}
-              </span>
-            </div>
+            )}
+          </div>
 
-            {/* Properties pill */}
-            <div className="flex items-center gap-1.5 bg-white border border-gray-200 rounded-full px-3 py-1.5 shadow-sm">
-              <Building2 className="w-3.5 h-3.5 text-deep-teal" />
-              <span className="text-sm font-medium text-gray-700">{host.totalProperties}</span>
-              <span className="text-xs text-neutral-gray">
-                {host.totalProperties === 1 ? 'property' : 'properties'}
-              </span>
+          {/* Name + meta */}
+          <div className="flex-1 mt-3 lg:mt-0 lg:pb-1 text-center lg:text-left">
+            <h1 className="text-2xl! lg:text-3xl! font-bold text-deep-teal font-baloo2 leading-tight">
+              {host.firstName} {host.lastName}
+            </h1>
+            <div className="flex items-center justify-center lg:justify-start gap-1.5 mt-1 text-sm text-neutral-gray">
+              <CalendarDays className="w-3.5 h-3.5 shrink-0" />
+              <span>Member since {formatMemberSince(host.createdAt)}</span>
             </div>
           </div>
 
-          {/* Message button */}
-          <div className="mt-4 lg:max-w-xs">
+          {/* Contact button — desktop */}
+          <div className="hidden lg:block lg:pb-1 shrink-0">
             <ContactHostButton hostId={host.id} />
           </div>
+        </div>
+
+        {/* Stats strip */}
+        <div className="mt-5 grid grid-cols-3 bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden divide-x divide-gray-100">
+          {/* Rating */}
+          <div className="flex flex-col items-center gap-0.5 py-4 px-2">
+            <span className="text-2xl lg:text-3xl font-bold text-deep-teal font-baloo2 leading-none">
+              {hasRating ? host.avgRating.toFixed(1) : '—'}
+            </span>
+            <div className="flex gap-0.5 mt-1">
+              {[1, 2, 3, 4, 5].map((s) => (
+                <Star
+                  key={s}
+                  className={cn(
+                    'w-3 h-3',
+                    hasRating && s <= Math.round(host.avgRating)
+                      ? 'fill-yellow-400 text-yellow-400'
+                      : 'fill-gray-200 text-gray-200'
+                  )}
+                  strokeWidth={0}
+                />
+              ))}
+            </div>
+            <span className="text-[11px] text-neutral-gray mt-0.5 uppercase tracking-wide font-medium">Rating</span>
+          </div>
+
+          {/* Reviews */}
+          <div className="flex flex-col items-center justify-center gap-0.5 py-4 px-2">
+            <span className="text-2xl lg:text-3xl font-bold text-deep-teal font-baloo2 leading-none">
+              {host.reviewCount}
+            </span>
+            <span className="text-[11px] text-neutral-gray mt-1 uppercase tracking-wide font-medium">
+              {host.reviewCount === 1 ? 'Review' : 'Reviews'}
+            </span>
+          </div>
+
+          {/* Properties */}
+          <div className="flex flex-col items-center justify-center gap-0.5 py-4 px-2">
+            <span className="text-2xl lg:text-3xl font-bold text-deep-teal font-baloo2 leading-none">
+              {host.totalProperties}
+            </span>
+            <span className="text-[11px] text-neutral-gray mt-1 uppercase tracking-wide font-medium">
+              {host.totalProperties === 1 ? 'Property' : 'Properties'}
+            </span>
+          </div>
+        </div>
+
+        {/* Contact button — mobile */}
+        <div className="mt-4 lg:hidden">
+          <ContactHostButton hostId={host.id} />
         </div>
       </div>
     </div>

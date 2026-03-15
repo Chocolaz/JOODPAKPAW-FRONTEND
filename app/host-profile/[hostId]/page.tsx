@@ -80,13 +80,14 @@ export default function HostProfilePage() {
   if (profileError || !host) return <ErrorState message={profileError ?? 'Host not found.'} />
 
   return (
-    <div className="max-w-5xl mx-auto pb-24 lg:pb-10 relative">
+    <div className="max-w-5xl mx-auto pb-24 lg:pb-10 lg:-mt-20 xl:-mt-24 relative">
       {/* Back button */}
       <button
         onClick={() => router.back()}
-        className="fixed top-4 left-4 z-10 p-2 bg-white/80 backdrop-blur-sm rounded-full shadow hover:bg-gray-100 transition"
+        className="fixed top-4 left-4 z-10 flex items-center gap-1.5 pl-2 pr-3 py-2 bg-white/90 backdrop-blur-sm rounded-full shadow-md hover:bg-white hover:shadow-lg transition-all text-sm font-medium text-gray-700"
       >
-        <ChevronLeft className="w-6 h-6 text-gray-800" />
+        <ChevronLeft className="w-4 h-4" />
+        <span>Back</span>
       </button>
 
       <motion.div custom={0} variants={fadeUp} initial="hidden" animate="visible">

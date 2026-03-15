@@ -30,5 +30,8 @@
       "Bash(ls /d/Project/joodpakpaw/joodpakpaw/types 2>/dev/null || ls /d/Project/joodpakpaw/joodpakpaw/app/types 2>/dev/null || find /d/Project/joodpakpaw/joodpakpaw -name \"*.ts\" -path \"*/types*\" -not -path \"*/node_modules/*\" 2>/dev/null | head -20)",
       "Bash(cd \"D:/Project/joodpakpaw/joodpakpaw\" && npm install react-easy-crop)"
     ]
+  },
+  "enabledPlugins": {
+    "superpowers@claude-plugins-official": false
   }
 }

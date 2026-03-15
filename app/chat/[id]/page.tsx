@@ -115,7 +115,7 @@ function MessageBubble({
         )}
       </div>
 
-      <div className={`max-w-[72%] lg:max-w-[60%] flex flex-col gap-0.5 ${isOwn ? 'items-end' : 'items-start'}`}>
+      <div className={`max-w-[65%] lg:max-w-[55%] min-w-0 flex flex-col gap-0.5 ${isOwn ? 'items-end' : 'items-start'}`}>
         {/* Attachments */}
         {attachmentUrls.length > 0 && (
           <>
@@ -156,7 +156,7 @@ function MessageBubble({
         {/* Text bubble */}
         {message.content && (
           <div
-            className={`px-4 py-2.5 lg:px-5 lg:py-3 text-sm lg:text-base leading-relaxed shadow-sm ${
+            className={`px-3.5 py-2 lg:px-4 lg:py-2.5 text-sm leading-relaxed shadow-sm break-words max-w-full ${
               isOwn
                 ? 'bg-accent-orange text-white rounded-2xl rounded-br-md'
                 : 'bg-white border border-gray-100 text-gray-800 rounded-2xl rounded-bl-md'
@@ -293,7 +293,7 @@ export default function ChatRoomPage() {
     <div className="flex flex-col h-[100dvh] lg:h-full bg-white">
 
       {/* ── Header ── */}
-      <div className="shrink-0 flex items-center gap-3 px-3 lg:px-5 py-3 lg:py-3.5 bg-white border-b border-gray-100 shadow-sm">
+      <div className="shrink-0 flex items-center gap-3 px-3 lg:px-5 py-2.5 lg:py-3 bg-white border-b border-gray-100 shadow-sm">
         {/* Back — always visible */}
         <button
           onClick={() => router.push('/chat')}
@@ -323,7 +323,12 @@ export default function ChatRoomPage() {
 
         {/* Name */}
         <div className="flex-1 min-w-0">
-          <p className="font-semibold text-deep-teal text-sm lg:text-base truncate">{otherUserName}</p>
+          <p
+            className="font-semibold text-deep-teal text-base lg:text-lg truncate cursor-pointer hover:underline"
+            onClick={() => room && router.push(`/host-profile/${room.otherUser.id}`)}
+          >
+            {otherUserName}
+          </p>
         </div>
 
         {/* Delete */}
@@ -347,7 +352,7 @@ export default function ChatRoomPage() {
       {/* ── Messages ── */}
       <div
         ref={scrollContainerRef}
-        className="flex-1 overflow-y-auto scrollbar-thin px-3 lg:px-5 py-4 space-y-1"
+        className="flex-1 overflow-y-auto scrollbar-thin px-3 lg:px-5 py-3 space-y-1"
         style={{ background: 'linear-gradient(180deg, #f9f7f4 0%, #f4f2ef 100%)' }}
       >
         {isLoading ? (
@@ -423,7 +428,7 @@ export default function ChatRoomPage() {
       </AnimatePresence>
 
       {/* ── Input bar ── */}
-      <div className="shrink-0 flex items-center gap-2 px-3 lg:px-5 py-3 lg:py-3.5 bg-white border-t border-gray-100">
+      <div className="shrink-0 flex items-center gap-2 px-3 lg:px-5 py-2.5 lg:py-3 bg-white border-t border-gray-100">
         <input
           ref={fileInputRef}
           type="file"
@@ -448,7 +453,7 @@ export default function ChatRoomPage() {
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && handleSend()}
           placeholder="Type a message…"
-          className="flex-1 rounded-full bg-gray-100 border border-transparent px-4 py-2.5 lg:py-3 text-sm lg:text-base outline-none focus:bg-white focus:border-accent-orange/40 transition-all"
+          className="flex-1 rounded-full bg-gray-100 border border-transparent px-4 py-2.5 text-sm outline-none focus:bg-white focus:border-accent-orange/40 transition-all"
         />
 
         {/* Send */}

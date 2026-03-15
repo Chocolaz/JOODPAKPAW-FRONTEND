@@ -31,58 +31,69 @@ export function HostReviewsSection({
   onPageChange,
 }: HostReviewsSectionProps) {
   return (
-    <section className="px-5 lg:px-12 mt-2 border-t pt-8 lg:pt-10 pb-8">
-      <h2 className="text-lg lg:text-xl font-semibold text-deep-teal mb-5">Reviews</h2>
+    <section className="px-5 lg:px-12 mt-2 border-t border-gray-100 pt-7 lg:pt-9 pb-8">
+      {/* Section header */}
+      <div className="flex items-center gap-3 mb-5">
+        <div className="w-1 h-6 rounded-full bg-accent-orange shrink-0" />
+        <h2 className="text-lg! font-bold text-deep-teal font-baloo2">
+          Reviews
+          {reviewCount > 0 && (
+            <span className="ml-2 text-sm font-medium text-neutral-gray">({totalRows})</span>
+          )}
+        </h2>
+      </div>
 
       {/* Summary card */}
-      <div className="bg-off-white/80 rounded-2xl p-5 mb-6 shadow-sm border border-gray-200">
-        <div className="flex items-center gap-6">
+      <div className="bg-white rounded-2xl p-5 mb-6 shadow-sm border border-gray-100">
+        <div className="flex items-center gap-5 lg:gap-8">
           {/* Score */}
           <div className="flex flex-col items-center gap-1 shrink-0">
-            <span className="text-5xl font-bold text-gray-900">
-              {avgRating > 0 ? avgRating.toFixed(1) : '-'}
+            <span className="text-5xl font-bold text-deep-teal font-baloo2 leading-none">
+              {avgRating > 0 ? avgRating.toFixed(1) : '—'}
             </span>
-            <div className="flex gap-0.5">
+            <div className="flex gap-0.5 mt-1">
               {[1, 2, 3, 4, 5].map((s) => (
                 <Star
                   key={s}
                   className={cn(
                     'w-4 h-4',
-                    s <= Math.round(avgRating) ? 'fill-yellow-400 text-yellow-400' : 'fill-gray-200 text-gray-200'
+                    s <= Math.round(avgRating)
+                      ? 'fill-yellow-400 text-yellow-400'
+                      : 'fill-gray-200 text-gray-200'
                   )}
                   strokeWidth={0}
                 />
               ))}
             </div>
-            <span className="text-xs text-neutral-gray mt-0.5">
-              {reviewCount} {reviewCount === 1 ? 'review' : 'reviews'}
-            </span>
             {avgRating > 0 && (
-              <span className="text-xs font-semibold text-deep-teal">
+              <span className="text-xs font-semibold text-deep-teal mt-0.5">
                 {RATING_LABELS[Math.round(avgRating)] || ''}
               </span>
             )}
+            <span className="text-[11px] text-neutral-gray">
+              {reviewCount} {reviewCount === 1 ? 'review' : 'reviews'}
+            </span>
           </div>
 
           {/* Divider */}
-          <div className="w-px self-stretch bg-gray-200 shrink-0" />
+          <div className="w-px self-stretch bg-gray-100 shrink-0" />
 
           {/* Bar breakdown */}
-          <div className="flex-1 space-y-1.5">
+          <div className="flex-1 space-y-2">
             {[5, 4, 3, 2, 1].map((star) => {
               const count = reviews.filter((r) => r.rating === star).length
               const percentage = reviews.length > 0 ? (count / reviews.length) * 100 : 0
               return (
                 <div key={star} className="flex items-center gap-2 text-xs">
-                  <span className="w-3 text-right text-gray-500 font-medium">{star}</span>
+                  <span className="w-3 text-right text-gray-500 font-medium shrink-0">{star}</span>
                   <Star className="w-3 h-3 fill-yellow-400 text-yellow-400 shrink-0" strokeWidth={0} />
-                  <div className="flex-1 h-2 bg-white border border-gray-200 rounded-full overflow-hidden">
+                  <div className="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
                     <div
                       className="h-full bg-yellow-400 rounded-full transition-all duration-500"
                       style={{ width: `${percentage}%` }}
                     />
                   </div>
-                  <span className="w-4 text-right text-gray-400">{count}</span>
+                  <span className="w-4 text-right text-gray-400 shrink-0">{count}</span>
                 </div>
               )
             })}
@@ -102,7 +113,7 @@ export function HostReviewsSection({
             className="grid grid-cols-1 lg:grid-cols-3 gap-3"
           >
             {Array.from({ length: 5 }).map((_, i) => (
-              <Skeleton key={i} className="h-28 w-full rounded-xl" />
+              <Skeleton key={i} className="h-28 w-full rounded-2xl" />
             ))}
           </motion.div>
         ) : reviews.length === 0 ? (
@@ -112,14 +123,14 @@ export function HostReviewsSection({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="flex flex-col items-center gap-2 py-8 text-center"
+            className="flex flex-col items-center gap-2 py-10 text-center"
           >
             <div className="flex gap-1">
               {[1, 2, 3, 4, 5].map((s) => (
                 <Star key={s} className="w-5 h-5 fill-gray-200 text-gray-200" strokeWidth={0} />
               ))}
             </div>
-            <p className="font-medium text-gray-700">No reviews yet</p>
+            <p className="font-medium text-gray-700 mt-1">No reviews yet</p>
             <p className="text-sm text-neutral-gray">Be the first to stay and leave a review.</p>
           </motion.div>
         ) : (
