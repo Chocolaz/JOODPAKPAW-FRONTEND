@@ -225,11 +225,10 @@
 
       /* ── Priority flag ── */
       .priority-flag {
-        display: inline-flex; align-items: center; gap: 4px;
-        padding: 2px 7px; border-radius: 3px; font-size: 10.5px; font-weight: 700;
-        font-family: var(--mono); border: 1.5px solid #999; background: var(--light);
-        color: var(--dark); text-transform: uppercase; letter-spacing: .05em;
-        vertical-align: middle; margin-left: 6px;
+        display: inline-flex; align-items: center;
+        padding: 1px 5px; border-radius: 3px; font-size: 11px; font-weight: 700;
+        border: 1.5px solid #999; background: var(--light);
+        color: var(--dark); vertical-align: middle; margin-left: 6px;
       }
 
       /* ── Reason badge ── */
@@ -501,95 +500,166 @@
 
           <!-- REPORTS -->
           <div class="page" id="page-reports">
-            <div class="filter-tabs">
-              <button class="tab-btn active" onclick="filterReports('all', this)">All <span class="count">10</span></button>
-              <button class="tab-btn" onclick="filterReports('pending', this)">Pending <span class="count">7</span></button>
-              <button class="tab-btn" onclick="filterReports('resolved', this)">Resolved <span class="count">2</span></button>
-              <button class="tab-btn" onclick="filterReports('dismissed', this)">Dismissed <span class="count">1</span></button>
+            <!-- Type tabs -->
+            <div class="filter-tabs" style="margin-bottom:20px;border-bottom:1.5px solid var(--border);padding-bottom:14px;">
+              <button class="tab-btn active" onclick="switchReportType('property', this)">Property Reports <span class="count">9</span></button>
+              <button class="tab-btn" onclick="switchReportType('review', this)">Review Reports <span class="count">3</span></button>
             </div>
-            <div class="table-wrap">
-              <table>
-                <thead>
-                  <tr><th>ID</th><th>Type</th><th>Reported By</th><th>Target</th><th>Reason</th><th>Status</th><th>Date</th><th>Actions</th></tr>
-                </thead>
-                <tbody id="reports-tbody">
-                  <tr>
-                    <td><span class="mono">RPT-001</span></td>
-                    <td><span class="badge-type property">property</span></td>
-                    <td>Malee S. <span class="mono">#88</span></td>
-                    <td>Property #142 — <em>Cozy Cat Villa</em> <span class="priority-flag">3 reports</span></td>
-                    <td><span class="reason-tag">misleading_photos</span></td>
-                    <td><span class="badge-status pending">pending</span></td>
-                    <td><span class="mono">2025-03-15</span></td>
-                    <td><button class="btn" onclick="openReport({id:'RPT-001',type:'property',reporterName:'Malee S.',reporterId:88,reporterEmail:'malee@mail.com',targetTitle:'Cozy Cat Villa',targetId:142,ownerName:'Nattaya P.',ownerEmail:'nattaya@mail.com',reason:'misleading_photos',detail:'The main photo shows a large garden but when I arrived, there was no garden at all. Very misleading.',status:'pending',date:'2025-03-15',targetReportCount:3})">View</button></td>
-                  </tr>
-                  <tr>
-                    <td><span class="mono">RPT-002</span></td>
-                    <td><span class="badge-type review">review</span></td>
-                    <td>Tanawat K. <span class="mono">#203</span></td>
-                    <td>Review #501 by User #77</td>
-                    <td><span class="reason-tag">inappropriate_content</span></td>
-                    <td><span class="badge-status pending">pending</span></td>
-                    <td><span class="mono">2025-03-15</span></td>
-                    <td><button class="btn" onclick="openReport({id:'RPT-002',type:'review',reporterName:'Tanawat K.',reporterId:203,reporterEmail:'tanawat@mail.com',targetTitle:'Review #501',targetId:501,ownerName:'Nattaya P.',ownerEmail:'nattaya@mail.com',reason:'inappropriate_content',detail:'This review contains personal insults and profanity targeting the host directly.',status:'pending',date:'2025-03-15',reviewAuthorId:203,reviewAuthorName:'Tanawat K.',reviewAuthorEmail:'tanawat@mail.com',propertyId:142,propertyTitle:'Cozy Cat Villa',targetReportCount:1})">View</button></td>
-                  </tr>
-                  <tr>
-                    <td><span class="mono">RPT-003</span></td>
-                    <td><span class="badge-type property">property</span></td>
-                    <td>Niran A. <span class="mono">#415</span></td>
-                    <td>Property #87 — <em>Dog Paradise Resort</em> <span class="priority-flag">4 reports</span></td>
-                    <td><span class="reason-tag">scam_fraud</span></td>
-                    <td><span class="badge-status pending">pending</span></td>
-                    <td><span class="mono">2025-03-14</span></td>
-                    <td><button class="btn" onclick="openReport({id:'RPT-003',type:'property',reporterName:'Niran A.',reporterId:415,reporterEmail:'niran@mail.com',targetTitle:'Dog Paradise Resort',targetId:87,ownerName:'Somchai W.',ownerEmail:'somchai@mail.com',reason:'scam_fraud',detail:'Paid full amount but host disappeared and never provided check-in details. Unable to contact.',status:'pending',date:'2025-03-14',targetReportCount:4})">View</button></td>
-                  </tr>
-                  <tr>
-                    <td><span class="mono">RPT-004</span></td>
-                    <td><span class="badge-type review">review</span></td>
-                    <td>Supatra L. <span class="mono">#310</span></td>
-                    <td>Review #488 by User #55</td>
-                    <td><span class="reason-tag">fake_review</span></td>
-                    <td><span class="badge-status pending">pending</span></td>
-                    <td><span class="mono">2025-03-14</span></td>
-                    <td><button class="btn" onclick="openReport({id:'RPT-004',type:'review',reporterName:'Supatra L.',reporterId:310,reporterEmail:'supatra@mail.com',targetTitle:'Review #488',targetId:488,ownerName:'Supatra L.',ownerEmail:'supatra@mail.com',reason:'fake_review',detail:'This review was posted by someone who never completed a booking at my property.',status:'pending',date:'2025-03-14',reviewAuthorId:55,reviewAuthorName:'User #55',reviewAuthorEmail:'user55@mail.com',propertyId:201,propertyTitle:'Happy Paws Inn',targetReportCount:1})">View</button></td>
-                  </tr>
-                  <tr>
-                    <td><span class="mono">RPT-005</span></td>
-                    <td><span class="badge-type property">property</span></td>
-                    <td>Wirut P. <span class="mono">#612</span></td>
-                    <td>Property #201 — <em>Happy Paws Inn</em></td>
-                    <td><span class="reason-tag">wrong_location</span></td>
-                    <td><span class="badge-status pending">pending</span></td>
-                    <td><span class="mono">2025-03-12</span></td>
-                    <td><button class="btn" onclick="openReport({id:'RPT-005',type:'property',reporterName:'Wirut P.',reporterId:612,reporterEmail:'wirut@mail.com',targetTitle:'Happy Paws Inn',targetId:201,ownerName:'Arisa T.',ownerEmail:'arisa@mail.com',reason:'wrong_location',detail:'The address listed is incorrect. The actual location is about 15km from what is shown on the map.',status:'pending',date:'2025-03-12',targetReportCount:1})">View</button></td>
-                  </tr>
-                  <tr>
-                    <td><span class="mono">RPT-006</span></td>
-                    <td><span class="badge-type review">review</span></td>
-                    <td>Pimchanok R. <span class="mono">#180</span></td>
-                    <td>Review #472 by User #44</td>
-                    <td><span class="reason-tag">hate_speech</span></td>
-                    <td><span class="badge-status resolved">resolved</span></td>
-                    <td><span class="mono">2025-03-10</span></td>
-                    <td><button class="btn" onclick="openReport({id:'RPT-006',type:'review',reporterName:'Pimchanok R.',reporterId:180,reporterEmail:'pimchanok@mail.com',targetTitle:'Review #472',targetId:472,ownerName:'Somchai W.',ownerEmail:'somchai@mail.com',reason:'hate_speech',detail:'Review contains discriminatory language targeting the reporter based on nationality.',status:'resolved',date:'2025-03-10',reviewAuthorId:44,reviewAuthorName:'User #44',reviewAuthorEmail:'user44@mail.com',propertyId:87,propertyTitle:'Dog Paradise Resort',targetReportCount:2})">View</button></td>
-                  </tr>
-                  <tr>
-                    <td><span class="mono">RPT-007</span></td>
-                    <td><span class="badge-type property">property</span></td>
-                    <td>Anan T. <span class="mono">#900</span></td>
-                    <td>Property #55 — <em>Rabbit Garden</em></td>
-                    <td><span class="reason-tag">inaccurate_info</span></td>
-                    <td><span class="badge-status dismissed">dismissed</span></td>
-                    <td><span class="mono">2025-03-08</span></td>
-                    <td><button class="btn" onclick="openReport({id:'RPT-007',type:'property',reporterName:'Anan T.',reporterId:900,reporterEmail:'anan@mail.com',targetTitle:'Rabbit Garden',targetId:55,ownerName:'Pornchai B.',ownerEmail:'pornchai@mail.com',reason:'inaccurate_info',detail:'Claimed the listing price is outdated but after review the host updated it within 30 days which is within policy.',status:'dismissed',date:'2025-03-08',targetReportCount:1})">View</button></td>
-                  </tr>
-                </tbody>
-              </table>
+
+            <!-- Property Reports -->
+            <div id="report-type-property">
+              <div class="filter-tabs">
+                <button class="tab-btn active" onclick="filterReports('all', this, 'property')">All <span class="count">9</span></button>
+                <button class="tab-btn" onclick="filterReports('pending', this, 'property')">Pending <span class="count">8</span></button>
+                <button class="tab-btn" onclick="filterReports('resolved', this, 'property')">Resolved <span class="count">0</span></button>
+                <button class="tab-btn" onclick="filterReports('dismissed', this, 'property')">Dismissed <span class="count">1</span></button>
+              </div>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr><th>ID</th><th>Reported By</th><th>Property</th><th>Reason</th><th>Reports</th><th>Status</th><th>Date</th><th>Actions</th></tr>
+                  </thead>
+                  <tbody id="reports-tbody-property">
+                    <tr>
+                      <td><span class="mono">RPT-001</span></td>
+                      <td>Malee S. <span class="mono">#88</span></td>
+                      <td>Property #142 — <em>Cozy Cat Villa</em></td>
+                      <td><span class="reason-tag">misleading_photos</span></td>
+                      <td><span class="priority-flag">3</span></td>
+                      <td><span class="badge-status pending">pending</span></td>
+                      <td><span class="mono">2025-03-15</span></td>
+                      <td><button class="btn" onclick="openReport({id:'RPT-001',type:'property',reporterName:'Malee S.',reporterId:88,reporterEmail:'malee@mail.com',targetTitle:'Cozy Cat Villa',targetId:142,ownerName:'Nattaya P.',ownerEmail:'nattaya@mail.com',reason:'misleading_photos',detail:'The main photo shows a large garden but when I arrived, there was no garden at all. Very misleading.',status:'pending',date:'2025-03-15',targetReportCount:3})">View</button></td>
+                    </tr>
+                    <tr>
+                      <td><span class="mono">RPT-003</span></td>
+                      <td>Niran A. <span class="mono">#415</span></td>
+                      <td>Property #87 — <em>Dog Paradise Resort</em></td>
+                      <td><span class="reason-tag">scam_fraud</span></td>
+                      <td><span class="priority-flag">4</span></td>
+                      <td><span class="badge-status pending">pending</span></td>
+                      <td><span class="mono">2025-03-14</span></td>
+                      <td><button class="btn" onclick="openReport({id:'RPT-003',type:'property',reporterName:'Niran A.',reporterId:415,reporterEmail:'niran@mail.com',targetTitle:'Dog Paradise Resort',targetId:87,ownerName:'Somchai W.',ownerEmail:'somchai@mail.com',reason:'scam_fraud',detail:'Paid full amount but host disappeared and never provided check-in details. Unable to contact.',status:'pending',date:'2025-03-14',targetReportCount:4})">View</button></td>
+                    </tr>
+                    <tr>
+                      <td><span class="mono">RPT-005</span></td>
+                      <td>Wirut P. <span class="mono">#612</span></td>
+                      <td>Property #201 — <em>Happy Paws Inn</em></td>
+                      <td><span class="reason-tag">wrong_location</span></td>
+                      <td><span class="mono">1</span></td>
+                      <td><span class="badge-status pending">pending</span></td>
+                      <td><span class="mono">2025-03-12</span></td>
+                      <td><button class="btn" onclick="openReport({id:'RPT-005',type:'property',reporterName:'Wirut P.',reporterId:612,reporterEmail:'wirut@mail.com',targetTitle:'Happy Paws Inn',targetId:201,ownerName:'Arisa T.',ownerEmail:'arisa@mail.com',reason:'wrong_location',detail:'The address listed is incorrect. The actual location is about 15km from what is shown on the map.',status:'pending',date:'2025-03-12',targetReportCount:1})">View</button></td>
+                    </tr>
+                    <tr>
+                      <td><span class="mono">RPT-007</span></td>
+                      <td>Anan T. <span class="mono">#900</span></td>
+                      <td>Property #55 — <em>Rabbit Garden</em></td>
+                      <td><span class="reason-tag">inaccurate_info</span></td>
+                      <td><span class="mono">1</span></td>
+                      <td><span class="badge-status dismissed">dismissed</span></td>
+                      <td><span class="mono">2025-03-08</span></td>
+                      <td><button class="btn" onclick="openReport({id:'RPT-007',type:'property',reporterName:'Anan T.',reporterId:900,reporterEmail:'anan@mail.com',targetTitle:'Rabbit Garden',targetId:55,ownerName:'Pornchai B.',ownerEmail:'pornchai@mail.com',reason:'inaccurate_info',detail:'Claimed the listing price is outdated but after review the host updated it within 30 days which is within policy.',status:'dismissed',date:'2025-03-08',targetReportCount:1})">View</button></td>
+                    </tr>
+                    <tr>
+                      <td><span class="mono">RPT-008</span></td>
+                      <td>Chalerm K. <span class="mono">#505</span></td>
+                      <td>Property #142 — <em>Cozy Cat Villa</em></td>
+                      <td><span class="reason-tag">scam_fraud</span></td>
+                      <td><span class="mono">2</span></td>
+                      <td><span class="badge-status pending">pending</span></td>
+                      <td><span class="mono">2025-03-13</span></td>
+                      <td><button class="btn" onclick="openReport({id:'RPT-008',type:'property',reporterName:'Chalerm K.',reporterId:505,reporterEmail:'chalerm@mail.com',targetTitle:'Cozy Cat Villa',targetId:142,ownerName:'Nattaya P.',ownerEmail:'nattaya@mail.com',reason:'scam_fraud',detail:'I paid a deposit but the host stopped responding and the property was unavailable on arrival.',status:'pending',date:'2025-03-13',targetReportCount:3})">View</button></td>
+                    </tr>
+                    <tr>
+                      <td><span class="mono">RPT-009</span></td>
+                      <td>Suda M. <span class="mono">#720</span></td>
+                      <td>Property #142 — <em>Cozy Cat Villa</em></td>
+                      <td><span class="reason-tag">wrong_location</span></td>
+                      <td><span class="mono">1</span></td>
+                      <td><span class="badge-status pending">pending</span></td>
+                      <td><span class="mono">2025-03-11</span></td>
+                      <td><button class="btn" onclick="openReport({id:'RPT-009',type:'property',reporterName:'Suda M.',reporterId:720,reporterEmail:'suda@mail.com',targetTitle:'Cozy Cat Villa',targetId:142,ownerName:'Nattaya P.',ownerEmail:'nattaya@mail.com',reason:'wrong_location',detail:'The pin on the map is completely wrong. The actual location is in a different district entirely.',status:'pending',date:'2025-03-11',targetReportCount:3})">View</button></td>
+                    </tr>
+                    <tr>
+                      <td><span class="mono">RPT-010</span></td>
+                      <td>Kanya R. <span class="mono">#330</span></td>
+                      <td>Property #87 — <em>Dog Paradise Resort</em></td>
+                      <td><span class="reason-tag">misleading_photos</span></td>
+                      <td><span class="priority-flag">3</span></td>
+                      <td><span class="badge-status pending">pending</span></td>
+                      <td><span class="mono">2025-03-13</span></td>
+                      <td><button class="btn" onclick="openReport({id:'RPT-010',type:'property',reporterName:'Kanya R.',reporterId:330,reporterEmail:'kanya@mail.com',targetTitle:'Dog Paradise Resort',targetId:87,ownerName:'Somchai W.',ownerEmail:'somchai@mail.com',reason:'misleading_photos',detail:'All photos show a luxury resort but the real place is a small dirty room. Nothing matches the listing.',status:'pending',date:'2025-03-13',targetReportCount:4})">View</button></td>
+                    </tr>
+                    <tr>
+                      <td><span class="mono">RPT-011</span></td>
+                      <td>Thana B. <span class="mono">#445</span></td>
+                      <td>Property #87 — <em>Dog Paradise Resort</em></td>
+                      <td><span class="reason-tag">scam_fraud</span></td>
+                      <td><span class="mono">2</span></td>
+                      <td><span class="badge-status pending">pending</span></td>
+                      <td><span class="mono">2025-03-12</span></td>
+                      <td><button class="btn" onclick="openReport({id:'RPT-011',type:'property',reporterName:'Thana B.',reporterId:445,reporterEmail:'thana@mail.com',targetTitle:'Dog Paradise Resort',targetId:87,ownerName:'Somchai W.',ownerEmail:'somchai@mail.com',reason:'scam_fraud',detail:'Host collected full payment via transfer then blocked me on all channels. No refund, no response.',status:'pending',date:'2025-03-12',targetReportCount:4})">View</button></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Review Reports -->
+            <div id="report-type-review" style="display:none">
+              <div class="filter-tabs">
+                <button class="tab-btn active" onclick="filterReports('all', this, 'review')">All <span class="count">3</span></button>
+                <button class="tab-btn" onclick="filterReports('pending', this, 'review')">Pending <span class="count">2</span></button>
+                <button class="tab-btn" onclick="filterReports('resolved', this, 'review')">Resolved <span class="count">1</span></button>
+                <button class="tab-btn" onclick="filterReports('dismissed', this, 'review')">Dismissed <span class="count">0</span></button>
+              </div>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr><th>ID</th><th>Reported By</th><th>Review Author</th><th>On Property</th><th>Reason</th><th>Status</th><th>Date</th><th>Actions</th></tr>
+                  </thead>
+                  <tbody id="reports-tbody-review">
+                    <tr>
+                      <td><span class="mono">RPT-002</span></td>
+                      <td>Tanawat K. <span class="mono">#203</span></td>
+                      <td>Tanawat K. <span class="mono">#203</span></td>
+                      <td><em>Cozy Cat Villa</em> <span class="mono">#142</span></td>
+                      <td><span class="reason-tag">inappropriate_content</span></td>
+                      <td><span class="badge-status pending">pending</span></td>
+                      <td><span class="mono">2025-03-15</span></td>
+                      <td><button class="btn" onclick="openReport({id:'RPT-002',type:'review',reporterName:'Tanawat K.',reporterId:203,reporterEmail:'tanawat@mail.com',targetTitle:'Review #501',targetId:501,ownerName:'Nattaya P.',ownerEmail:'nattaya@mail.com',reason:'inappropriate_content',detail:'This review contains personal insults and profanity targeting the host directly.',status:'pending',date:'2025-03-15',reviewAuthorId:203,reviewAuthorName:'Tanawat K.',reviewAuthorEmail:'tanawat@mail.com',propertyId:142,propertyTitle:'Cozy Cat Villa',targetReportCount:1})">View</button></td>
+                    </tr>
+                    <tr>
+                      <td><span class="mono">RPT-004</span></td>
+                      <td>Supatra L. <span class="mono">#310</span></td>
+                      <td>User <span class="mono">#55</span></td>
+                      <td><em>Happy Paws Inn</em> <span class="mono">#201</span></td>
+                      <td><span class="reason-tag">fake_review</span></td>
+                      <td><span class="badge-status pending">pending</span></td>
+                      <td><span class="mono">2025-03-14</span></td>
+                      <td><button class="btn" onclick="openReport({id:'RPT-004',type:'review',reporterName:'Supatra L.',reporterId:310,reporterEmail:'supatra@mail.com',targetTitle:'Review #488',targetId:488,ownerName:'Supatra L.',ownerEmail:'supatra@mail.com',reason:'fake_review',detail:'This review was posted by someone who never completed a booking at my property.',status:'pending',date:'2025-03-14',reviewAuthorId:55,reviewAuthorName:'User #55',reviewAuthorEmail:'user55@mail.com',propertyId:201,propertyTitle:'Happy Paws Inn',targetReportCount:1})">View</button></td>
+                    </tr>
+                    <tr>
+                      <td><span class="mono">RPT-006</span></td>
+                      <td>Pimchanok R. <span class="mono">#180</span></td>
+                      <td>User <span class="mono">#44</span></td>
+                      <td><em>Dog Paradise Resort</em> <span class="mono">#87</span></td>
+                      <td><span class="reason-tag">hate_speech</span></td>
+                      <td><span class="badge-status resolved">resolved</span></td>
+                      <td><span class="mono">2025-03-10</span></td>
+                      <td><button class="btn" onclick="openReport({id:'RPT-006',type:'review',reporterName:'Pimchanok R.',reporterId:180,reporterEmail:'pimchanok@mail.com',targetTitle:'Review #472',targetId:472,ownerName:'Somchai W.',ownerEmail:'somchai@mail.com',reason:'hate_speech',detail:'Review contains discriminatory language targeting the reporter based on nationality.',status:'resolved',date:'2025-03-10',reviewAuthorId:44,reviewAuthorName:'User #44',reviewAuthorEmail:'user44@mail.com',propertyId:87,propertyTitle:'Dog Paradise Resort',targetReportCount:2})">View</button></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
 
           <!-- USERS -->
           <div class="page" id="page-users">
+            <div style="display:inline-flex;align-items:center;gap:8px;padding:8px 14px;border:1.5px dashed var(--border);border-radius:4px;font-size:12px;font-family:var(--mono);color:var(--muted);margin-bottom:16px;">
+              ⬡ User detail panel — <strong>to be implemented later</strong> &nbsp;·&nbsp; View button will open full violation history (warnings, bans, linked reports)
+            </div>
             <div class="search-row">
               <input class="search-input" placeholder="Search by name, email, or user ID…" />
               <button class="btn primary">Search</button>
@@ -774,13 +844,15 @@
             <p style="color:var(--muted);margin-bottom:24px;font-size:13.5px;line-height:1.7">Expected API response shapes — use these as a contract for backend implementation.</p>
             <div style="display:flex;flex-direction:column;gap:24px">
               <div>
-                <div class="api-label">GET /admin/reports &amp; GET /admin/reports/:id</div>
+                <div class="api-label">GET /admin/reports?type=property|review &amp;&amp; GET /admin/reports/:id</div>
                 <div class="api-box"><pre>{
+  <span class="key">// ?type=property returns only property reports; ?type=review returns only review reports</span>
+  <span class="key">// omit ?type to get all reports (not recommended for large datasets)</span>
   <span class="key">"id"</span>: <span class="str">"RPT-001"</span>,
   <span class="key">"type"</span>: <span class="str">"property"</span> | <span class="str">"review"</span>,
   <span class="key">"status"</span>: <span class="str">"pending"</span> | <span class="str">"resolved"</span> | <span class="str">"dismissed"</span>,
   <span class="key">"reason"</span>: <span class="str">"misleading_photos"</span> | <span class="str">"wrong_location"</span> | <span class="str">"scam_fraud"</span> | <span class="str">"inaccurate_info"</span> | <span class="str">"inappropriate_content"</span> | <span class="str">"fake_review"</span> | <span class="str">"hate_speech"</span> | <span class="str">"spam"</span> | <span class="str">"other"</span>,
-  <span class="key">"targetReportCount"</span>: <span class="num">3</span>,  <span class="key">// total reports on this target — flag as high priority if >= 3</span>
+  <span class="key">"targetReportCount"</span>: <span class="num">3</span>,  <span class="key">// only for type === "property" — joined count of reports against this property; show HIGH PRIORITY if >= 3. Omit or null for review reports (only owner can report a review)</span>
   <span class="key">"detail"</span>: <span class="str">"Full description written by reporter..."</span>,
   <span class="key">"createdAt"</span>: <span class="str">"2025-03-15T10:22:00Z"</span>,
   <span class="key">"resolvedAt"</span>: <span class="kw">null</span> | <span class="str">"2025-03-16T08:00:00Z"</span>,
@@ -804,7 +876,12 @@
               </div>
               <div>
                 <div class="api-label">PATCH /admin/reports/:id</div>
-                <div class="api-box"><pre>{ <span class="key">"status"</span>: <span class="str">"resolved"</span>, <span class="key">"actionTaken"</span>: <span class="str">"dismissed"</span> | <span class="str">"user_warned"</span> | <span class="str">"user_banned"</span> | <span class="str">"property_deactivated"</span> | <span class="str">"review_deleted"</span>, <span class="key">"adminNote"</span>: <span class="str">"optional"</span> }</pre></div>
+                <div class="api-box"><pre>{
+  <span class="key">"status"</span>: <span class="str">"resolved"</span> | <span class="str">"dismissed"</span>,
+  <span class="key">"actionTaken"</span>: <span class="str">"dismissed"</span> | <span class="str">"user_warned"</span> | <span class="str">"user_banned"</span> | <span class="str">"property_deactivated"</span> | <span class="str">"review_deleted"</span>,
+  <span class="key">"adminNote"</span>: <span class="str">"optional"</span>,
+  <span class="key">"notifyReporter"</span>: <span class="kw">true</span> | <span class="kw">false</span>  <span class="key">// if true, send email to reporter.email with the outcome</span>
+}</pre></div>
               </div>
               <div>
                 <div class="api-label">GET /admin/users &amp; GET /admin/users/:id</div>
@@ -887,10 +964,71 @@
         document.getElementById('topbar-title').textContent = titles[name]
       }
 
-      function filterReports(status, btn) {
-        document.querySelectorAll('.filter-tabs .tab-btn').forEach(b => b.classList.remove('active'))
+      function switchReportType(type, btn) {
+        btn.closest('.filter-tabs').querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'))
         btn.classList.add('active')
-        document.querySelectorAll('#reports-tbody tr').forEach(row => {
+        document.getElementById('report-type-property').style.display = type === 'property' ? '' : 'none'
+        document.getElementById('report-type-review').style.display = type === 'review' ? '' : 'none'
+        // reset inner status filter tabs and show all rows
+        const activeDiv = document.getElementById('report-type-' + type)
+        activeDiv.querySelectorAll('.filter-tabs .tab-btn').forEach((b, i) => b.classList.toggle('active', i === 0))
+        activeDiv.querySelectorAll('tbody tr').forEach(row => row.style.display = '')
+      }
+
+      function filterByTarget(targetId, targetTitle, type) {
+        closePanel()
+        // switch to reports page
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'))
+        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'))
+        document.getElementById('page-reports').classList.add('active')
+        document.querySelectorAll('.nav-item')[1].classList.add('active')
+        document.getElementById('topbar-title').textContent = `Reports — ${targetTitle}`
+
+        // switch to correct report type tab
+        const typeToUse = type || 'property'
+        document.getElementById('report-type-property').style.display = typeToUse === 'property' ? '' : 'none'
+        document.getElementById('report-type-review').style.display = typeToUse === 'review' ? '' : 'none'
+        document.querySelectorAll('[onclick*="switchReportType"]').forEach(b => {
+          b.classList.toggle('active', b.getAttribute('onclick').includes(`'${typeToUse}'`))
+        })
+
+        // reset inner status filter tabs
+        const activeDiv = document.getElementById('report-type-' + typeToUse)
+        activeDiv.querySelectorAll('.filter-tabs .tab-btn').forEach((b, i) => b.classList.toggle('active', i === 0))
+
+        // filter rows by target
+        const tbodyId = typeToUse === 'review' ? 'reports-tbody-review' : 'reports-tbody-property'
+        document.querySelectorAll('#' + tbodyId + ' tr').forEach(row => {
+          const viewBtn = row.querySelector('.btn')
+          if (!viewBtn) return
+          const match = viewBtn.getAttribute('onclick')?.includes(`targetId:${targetId},`) || viewBtn.getAttribute('onclick')?.includes(`targetId:${targetId}}`)
+          row.style.display = match ? '' : 'none'
+        })
+
+        // show active filter label
+        const existing = document.getElementById('target-filter-label')
+        if (existing) existing.remove()
+        const label = document.createElement('div')
+        label.id = 'target-filter-label'
+        label.style.cssText = 'display:inline-flex;align-items:center;gap:10px;padding:7px 14px;border:1.5px solid var(--border);border-radius:4px;font-size:12px;font-family:var(--mono);color:var(--dark);margin-bottom:12px;background:var(--light);'
+        label.innerHTML = `Filtered: <strong>${targetTitle}</strong> &nbsp;<button onclick="clearTargetFilter('${typeToUse}')" style="background:none;border:none;cursor:pointer;font-family:var(--mono);font-size:11px;color:var(--muted);text-decoration:underline;">clear</button>`
+        const typeTabs = document.querySelector('[onclick*="switchReportType"]').closest('.filter-tabs')
+        document.getElementById('page-reports').insertBefore(label, typeTabs)
+      }
+
+      function clearTargetFilter(type) {
+        const label = document.getElementById('target-filter-label')
+        if (label) label.remove()
+        const tbodyId = (type === 'review') ? 'reports-tbody-review' : 'reports-tbody-property'
+        document.querySelectorAll('#' + tbodyId + ' tr').forEach(row => row.style.display = '')
+        document.getElementById('topbar-title').textContent = 'Report Management'
+      }
+
+      function filterReports(status, btn, type) {
+        btn.closest('.filter-tabs').querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'))
+        btn.classList.add('active')
+        const tbodyId = type === 'review' ? 'reports-tbody-review' : 'reports-tbody-property'
+        document.querySelectorAll('#' + tbodyId + ' tr').forEach(row => {
           const badge = row.querySelector('.badge-status')
           if (!badge) return
           row.style.display = (status === 'all' || badge.classList.contains(status)) ? '' : 'none'
@@ -903,7 +1041,7 @@
           <div class="panel-section">
             <div class="panel-section-title">Report Info</div>
             <div class="info-grid">
-              ${data.targetReportCount >= 3 ? `<div style="background:var(--light);border:1.5px dashed #999;border-radius:6px;padding:10px 14px;font-size:12.5px;font-weight:600;font-family:var(--mono);color:var(--dark);margin-bottom:4px;">⚑ HIGH PRIORITY — this target has been reported ${data.targetReportCount} times</div>` : ''}
+              ${data.type === 'property' && data.targetReportCount >= 3 ? `<div style="background:var(--light);border:1.5px dashed #999;border-radius:6px;padding:10px 14px;font-size:12.5px;font-weight:600;font-family:var(--mono);color:var(--dark);margin-bottom:4px;display:flex;align-items:center;justify-content:space-between;">⚑ HIGH PRIORITY — reported ${data.targetReportCount} times <button onclick="filterByTarget(${data.targetId},'${data.targetTitle}','${data.type}')" style="font-size:11.5px;font-family:var(--mono);font-weight:600;background:var(--white);border:1.5px solid var(--border);border-radius:3px;padding:3px 10px;cursor:pointer;color:var(--dark);">See all ${data.targetReportCount} reports →</button></div>` : ''}
               <div class="info-row"><span class="info-label">Report ID</span><span class="info-value mono">${data.id}</span></div>
               <div class="info-row"><span class="info-label">Report Type</span><span class="info-value"><span class="badge-type ${data.type}">${data.type}</span></span></div>
               <div class="info-row"><span class="info-label">Status</span><span class="info-value"><span class="badge-status ${data.status}">${data.status}</span></span></div>
