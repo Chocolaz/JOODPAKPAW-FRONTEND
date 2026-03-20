@@ -331,6 +331,7 @@ export interface ChatRoom {
     id: number
     content: string
     readAt: string | null
+    senderId: number
   }
   otherUser: ChatUser
 }

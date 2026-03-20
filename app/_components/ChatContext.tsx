@@ -55,7 +55,9 @@ export function ChatProvider({ children }: { children: ReactNode }) {
   const [roomMessages, setRoomMessages] = useState<Record<number, ChatMessage[]>>({})
   const [isLoading, setIsLoading] = useState(false)
 
-  const unreadCount = rooms.filter((r) => !r.lastMessage?.readAt).length
+  const unreadCount = rooms.filter(
+    (r) => !r.lastMessage?.readAt && r.lastMessage?.senderId !== user?.id
+  ).length
 
   // Keep a ref to current rooms so socket handlers can access it without stale closure
   const roomsRef = useRef(rooms)
@@ -136,6 +138,7 @@ export function ChatProvider({ children }: { children: ReactNode }) {
                   id: msg.id,
                   content: msg.content,
                   readAt: msg.sender.id === user?.id ? (msg.readAt ?? new Date().toISOString()) : null,
+                  senderId: msg.sender.id,
                 },
               }
             : r
@@ -238,7 +241,7 @@ export function ChatProvider({ children }: { children: ReactNode }) {
               ...r,
               lastMessageAt: newMsg.createdAt,
               // readAt set to now so the sender's own message doesn't appear as unread in the list
-          lastMessage: { id: newMsg.id, content: newMsg.content, readAt: new Date().toISOString() },
+          lastMessage: { id: newMsg.id, content: newMsg.content, readAt: new Date().toISOString(), senderId: user!.id },
             }
           : r
       )

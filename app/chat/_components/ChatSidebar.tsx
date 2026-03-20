@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Search, ImageIcon } from 'lucide-react'
 import { useState } from 'react'
 import { useChat } from '@/app/_components/ChatContext'
+import { useAuth } from '@/app/_components/AuthContext'
 import { assetPath } from '@/lib/utils'
 import type { ChatRoom } from '@/lib/api'
 
@@ -13,23 +14,25 @@ function formatTime(dateStr: string): string {
   const date = new Date(dateStr.replace(' ', 'T'))
   const now = new Date()
   const diffDays = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24))
-  if (diffDays === 0) return date.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' })
-  if (diffDays === 1) return 'เมื่อวาน'
-  if (diffDays < 7) return date.toLocaleDateString('th-TH', { weekday: 'short' })
-  return date.toLocaleDateString('th-TH', { day: 'numeric', month: 'short' })
+  if (diffDays === 0) return date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
+  if (diffDays === 1) return 'Yesterday'
+  if (diffDays < 7) return date.toLocaleDateString('en-US', { weekday: 'short' })
+  return date.toLocaleDateString('en-US', { day: 'numeric', month: 'short' })
 }
 
 function RoomItem({
   room,
   isActive,
   onClick,
+  currentUserId,
 }: {
   room: ChatRoom
   isActive: boolean
   onClick: () => void
+  currentUserId?: number
 }) {
   const name = `${room.otherUser.firstName} ${room.otherUser.lastName}`
-  const isUnread = !room.lastMessage.readAt
+  const isUnread = room.lastMessage.senderId !== currentUserId && !room.lastMessage.readAt
 
   return (
     <motion.button
@@ -62,7 +65,7 @@ function RoomItem({
 
       <div className="flex-1 min-w-0">
         <div className="flex items-center justify-between gap-1">
-          <span className={`text-sm lg:text-base truncate ${isUnread ? 'font-semibold text-gray-900' : 'font-medium text-gray-700'}`}>
+          <span className={`text-sm lg:text-base truncate min-w-0 ${isUnread ? 'font-semibold text-gray-900' : 'font-medium text-gray-700'}`}>
             {name}
           </span>
           <span className={`text-[10px] lg:text-xs shrink-0 ${isUnread ? 'text-accent-orange font-medium' : 'text-neutral-gray'}`}>
@@ -102,6 +105,7 @@ interface ChatSidebarProps {
 
 export function ChatSidebar({ activeRoomId }: ChatSidebarProps) {
   const { rooms, isLoading } = useChat()
+  const { user } = useAuth()
   const router = useRouter()
   const [query, setQuery] = useState('')
 
@@ -126,7 +130,7 @@ export function ChatSidebar({ activeRoomId }: ChatSidebarProps) {
           <input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="ค้นหา..."
+            placeholder="Search..."
             className="w-full pl-9 pr-3 py-2 lg:py-2.5 text-sm lg:text-base rounded-full bg-gray-100 border-none outline-none focus:ring-2 focus:ring-accent-orange/30 transition-all"
           />
         </div>
@@ -157,6 +161,7 @@ export function ChatSidebar({ activeRoomId }: ChatSidebarProps) {
                   room={room}
                   isActive={room.id === activeRoomId}
                   onClick={() => router.push(`/chat/${room.id}`)}
+                  currentUserId={user?.id}
                 />
               ))}
             </motion.div>

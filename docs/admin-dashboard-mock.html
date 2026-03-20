@@ -360,6 +360,40 @@
       .flex-center { display: flex; align-items: center; gap: 8px; }
       .text-red { color: var(--dark); font-weight: 600; }
       .text-amber { color: var(--dark); font-weight: 600; }
+
+      /* ── Verified badge ── */
+      .badge-verified {
+        display: inline-flex; align-items: center; gap: 3px;
+        padding: 2px 7px; border-radius: 3px; font-size: 10.5px; font-weight: 700;
+        font-family: var(--mono); border: 1.5px solid #999; background: var(--surface);
+        color: var(--dark); letter-spacing: .04em; vertical-align: middle;
+      }
+      .badge-verified svg { width: 10px; height: 10px; stroke: currentColor; fill: none; stroke-width: 2.5; flex-shrink: 0; }
+
+      /* ── Verification status badges ── */
+      .badge-vstatus {
+        display: inline-flex; align-items: center; gap: 5px;
+        padding: 3px 9px; border-radius: 3px; font-size: 11.5px; font-weight: 600;
+        font-family: var(--mono); border: 1.5px solid var(--border);
+        color: var(--muted); background: var(--surface); text-transform: lowercase;
+      }
+      .badge-vstatus::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--border); flex-shrink: 0; }
+      .badge-vstatus.pending  { color: var(--dark); border-style: dashed; }
+      .badge-vstatus.pending::before { background: var(--dark); }
+      .badge-vstatus.approved { background: var(--dark); color: #fff; border-color: var(--dark); }
+      .badge-vstatus.approved::before { background: #fff; }
+      .badge-vstatus.rejected { border-style: dashed; border-color: #999; color: #666; }
+
+      /* ── Document placeholder ── */
+      .doc-placeholder {
+        width: 100%; aspect-ratio: 3/2; border: 1.5px dashed var(--border);
+        border-radius: 4px; background: var(--surface);
+        display: flex; flex-direction: column; align-items: center; justify-content: center;
+        gap: 6px; color: var(--muted); font-size: 11.5px; font-family: var(--mono);
+      }
+      .doc-placeholder svg { width: 28px; height: 28px; stroke: var(--border); fill: none; stroke-width: 1.5; }
+      .doc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 4px; }
+      .doc-label { font-size: 11px; font-family: var(--mono); color: var(--muted); margin-bottom: 4px; text-transform: uppercase; letter-spacing: .06em; }
     </style>
   </head>
   <body>
@@ -383,6 +417,10 @@
           <button class="nav-item" onclick="showPage('reports', this)">
             <span class="icon"><svg viewBox="0 0 24 24"><path d="M3 3h18v13H3z"/><path d="M12 16v5M8 21h8"/><line x1="8" y1="8" x2="16" y2="8"/><line x1="8" y1="12" x2="13" y2="12"/></svg></span> Reports
             <span class="nav-badge orange">7</span>
+          </button>
+          <button class="nav-item" onclick="showPage('verifications', this)">
+            <span class="icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><polyline points="9 12 11 14 15 10"/></svg></span> Verifications
+            <span class="nav-badge orange">3</span>
           </button>
           <button class="nav-item" onclick="showPage('users', this)">
             <span class="icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg></span> Users
@@ -440,6 +478,12 @@
                 <div class="stat-label">Banned Users</div>
                 <div class="stat-value red">5</div>
                 <div class="stat-sub">+1 this month</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><polyline points="9 12 11 14 15 10"/></svg></div>
+                <div class="stat-label">Pending Verifications</div>
+                <div class="stat-value orange">3</div>
+                <div class="stat-sub down">↑ 2 since yesterday</div>
               </div>
             </div>
 
@@ -655,6 +699,60 @@
             </div>
           </div>
 
+          <!-- VERIFICATIONS -->
+          <div class="page" id="page-verifications">
+            <div class="filter-tabs" style="margin-bottom:20px;">
+              <button class="tab-btn active" onclick="filterVerifications('all', this)">All <span class="count">5</span></button>
+              <button class="tab-btn" onclick="filterVerifications('pending', this)">Pending <span class="count">3</span></button>
+              <button class="tab-btn" onclick="filterVerifications('approved', this)">Approved <span class="count">1</span></button>
+              <button class="tab-btn" onclick="filterVerifications('rejected', this)">Rejected <span class="count">1</span></button>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr><th>Host</th><th>Email</th><th>Submitted</th><th>Status</th><th>Actions</th></tr>
+                </thead>
+                <tbody id="verifications-tbody">
+                  <tr>
+                    <td><div class="flex-center"><div style="width:32px;height:32px;border-radius:50%;background:#d0d0d0;border:1.5px solid #bbb;display:flex;align-items:center;justify-content:center;font-family:var(--font);font-weight:700;font-size:13px;color:#555;flex-shrink:0">A</div> Arisa T. <span class="mono">#120</span></div></td>
+                    <td class="mono" style="font-size:12px">arisa@mail.com</td>
+                    <td><span class="mono">2025-03-15</span></td>
+                    <td><span class="badge-vstatus pending">pending</span></td>
+                    <td><button class="btn" onclick="openVerification({id:'VRF-001',hostName:'Arisa T.',hostId:120,hostEmail:'arisa@mail.com',submittedAt:'2025-03-15',status:'pending',rejectionReason:null})">Review</button></td>
+                  </tr>
+                  <tr>
+                    <td><div class="flex-center"><div style="width:32px;height:32px;border-radius:50%;background:#d0d0d0;border:1.5px solid #bbb;display:flex;align-items:center;justify-content:center;font-family:var(--font);font-weight:700;font-size:13px;color:#555;flex-shrink:0">P</div> Pornchai B. <span class="mono">#60</span></div></td>
+                    <td class="mono" style="font-size:12px">pornchai@mail.com</td>
+                    <td><span class="mono">2025-03-13</span></td>
+                    <td><span class="badge-vstatus pending">pending</span></td>
+                    <td><button class="btn" onclick="openVerification({id:'VRF-002',hostName:'Pornchai B.',hostId:60,hostEmail:'pornchai@mail.com',submittedAt:'2025-03-13',status:'pending',rejectionReason:null})">Review</button></td>
+                  </tr>
+                  <tr>
+                    <td><div class="flex-center"><div style="width:32px;height:32px;border-radius:50%;background:#d0d0d0;border:1.5px solid #bbb;display:flex;align-items:center;justify-content:center;font-family:var(--font);font-weight:700;font-size:13px;color:#555;flex-shrink:0">K</div> Kanya M. <span class="mono">#95</span></div></td>
+                    <td class="mono" style="font-size:12px">kanya@mail.com</td>
+                    <td><span class="mono">2025-03-14</span> <span style="font-size:11px;font-family:var(--mono);color:var(--muted)">(resubmit)</span></td>
+                    <td><span class="badge-vstatus pending">pending</span></td>
+                    <td><button class="btn" onclick="openVerification({id:'VRF-003',hostName:'Kanya M.',hostId:95,hostEmail:'kanya@mail.com',submittedAt:'2025-03-14',status:'pending',isResubmission:true,prevRejectionReason:'ID photo is blurry and unreadable. Please resubmit with a clearer image.',rejectionReason:null})">Review</button></td>
+                  </tr>
+                  <tr>
+                    <td><div class="flex-center"><div style="width:32px;height:32px;border-radius:50%;background:#d0d0d0;border:1.5px solid #bbb;display:flex;align-items:center;justify-content:center;font-family:var(--font);font-weight:700;font-size:13px;color:#555;flex-shrink:0">N</div> Nattaya P. <span class="mono">#77</span></div></td>
+                    <td class="mono" style="font-size:12px">nattaya@mail.com</td>
+                    <td><span class="mono">2025-02-20</span></td>
+                    <td><span class="badge-vstatus approved">approved</span></td>
+                    <td><button class="btn" onclick="openVerification({id:'VRF-004',hostName:'Nattaya P.',hostId:77,hostEmail:'nattaya@mail.com',submittedAt:'2025-02-20',status:'approved',rejectionReason:null})">View</button></td>
+                  </tr>
+                  <tr>
+                    <td><div class="flex-center"><div style="width:32px;height:32px;border-radius:50%;background:#d0d0d0;border:1.5px solid #bbb;display:flex;align-items:center;justify-content:center;font-family:var(--font);font-weight:700;font-size:13px;color:#555;flex-shrink:0">S</div> Somchai W. <span class="mono">#44</span></div></td>
+                    <td class="mono" style="font-size:12px">somchai@mail.com</td>
+                    <td><span class="mono">2025-03-01</span></td>
+                    <td><span class="badge-vstatus rejected">rejected</span></td>
+                    <td><button class="btn" onclick="openVerification({id:'VRF-005',hostName:'Somchai W.',hostId:44,hostEmail:'somchai@mail.com',submittedAt:'2025-03-01',status:'rejected',rejectionReason:'Selfie does not clearly match the ID photo provided.'})">View</button></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
           <!-- USERS -->
           <div class="page" id="page-users">
             <div style="display:inline-flex;align-items:center;gap:8px;padding:8px 14px;border:1.5px dashed var(--border);border-radius:4px;font-size:12px;font-family:var(--mono);color:var(--muted);margin-bottom:16px;">
@@ -680,7 +778,7 @@
                     <td><div class="btns"><button class="btn">View</button><button class="btn amber">Unban</button></div></td>
                   </tr>
                   <tr>
-                    <td><div class="flex-center"><div style="width:32px;height:32px;border-radius:50%;background:#d0d0d0;border:1.5px solid #bbb;display:flex;align-items:center;justify-content:center;font-family:var(--font);font-weight:700;font-size:13px;color:#555;flex-shrink:0">N</div> Nattaya P. <span class="mono">#77</span></div></td>
+                    <td><div class="flex-center"><div style="width:32px;height:32px;border-radius:50%;background:#d0d0d0;border:1.5px solid #bbb;display:flex;align-items:center;justify-content:center;font-family:var(--font);font-weight:700;font-size:13px;color:#555;flex-shrink:0">N</div> Nattaya P. <span class="mono">#77</span> <span class="badge-verified"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg> verified</span></div></td>
                     <td class="mono" style="font-size:12px">nattaya@mail.com</td>
                     <td><span class="badge-type host">host</span></td>
                     <td><span class="badge-status warned">warned</span></td>
@@ -786,6 +884,20 @@
                 </thead>
                 <tbody>
                   <tr>
+                    <td><span class="mono">2025-03-15 15:30</span></td>
+                    <td>Admin</td>
+                    <td><span class="reason-tag">verification_rejected</span></td>
+                    <td>Somchai W. <span class="mono">#44</span> (VRF-005)</td>
+                    <td>Selfie does not clearly match the ID photo provided</td>
+                  </tr>
+                  <tr>
+                    <td><span class="mono">2025-02-20 10:15</span></td>
+                    <td>Admin</td>
+                    <td><span class="reason-tag">verification_approved</span></td>
+                    <td>Nattaya P. <span class="mono">#77</span> (VRF-004)</td>
+                    <td>ID and selfie verified successfully</td>
+                  </tr>
+                  <tr>
                     <td><span class="mono">2025-03-15 14:02</span></td>
                     <td>Admin</td>
                     <td><span class="reason-tag">user_banned</span></td>
@@ -885,12 +997,15 @@
               </div>
               <div>
                 <div class="api-label">GET /admin/users &amp; GET /admin/users/:id</div>
-                <div class="api-box"><pre>{
+                <div class="api-box" ><pre>{
   <span class="key">"id"</span>: <span class="num">77</span>, <span class="key">"firstName"</span>: <span class="str">"Nattaya"</span>, <span class="key">"lastName"</span>: <span class="str">"P."</span>,
   <span class="key">"email"</span>: <span class="str">"nattaya@mail.com"</span>, <span class="key">"phone"</span>: <span class="str">"+66 81 234 5678"</span>,
   <span class="key">"status"</span>: <span class="str">"active"</span> | <span class="str">"warned"</span> | <span class="str">"banned"</span>,
   <span class="key">"avatar"</span>: <span class="str">"https://..."</span> | <span class="kw">null</span>,
   <span class="key">"createdAt"</span>: <span class="str">"2024-03-22T00:00:00Z"</span>,
+  <span class="key">"isVerified"</span>: <span class="kw">true</span> | <span class="kw">false</span>,
+  <span class="key">"verificationStatus"</span>: <span class="str">"none"</span> | <span class="str">"pending"</span> | <span class="str">"approved"</span> | <span class="str">"rejected"</span>,
+  <span class="key">"verifiedAt"</span>: <span class="kw">null</span> | <span class="str">"2025-02-20T10:00:00Z"</span>,
   <span class="key">"reportCount"</span>: <span class="num">2</span>, <span class="key">"propertyCount"</span>: <span class="num">3</span>,
   <span class="key">"warnCount"</span>: <span class="num">1</span>,
   <span class="key">"banCount"</span>: <span class="num">0</span>,
@@ -925,11 +1040,38 @@
 }</pre></div>
               </div>
               <div>
+                <div class="api-label">GET /admin/verifications &amp; GET /admin/verifications/:id</div>
+                <div class="api-box"><pre>{
+  <span class="key">"id"</span>: <span class="str">"VRF-001"</span>,
+  <span class="key">"hostId"</span>: <span class="num">120</span>, <span class="key">"hostName"</span>: <span class="str">"Arisa T."</span>, <span class="key">"hostEmail"</span>: <span class="str">"arisa@mail.com"</span>,
+  <span class="key">"status"</span>: <span class="str">"pending"</span> | <span class="str">"approved"</span> | <span class="str">"rejected"</span>,
+  <span class="key">"isResubmission"</span>: <span class="kw">false</span>,  <span class="key">// true if host is resubmitting after a rejection</span>
+  <span class="key">"submittedAt"</span>: <span class="str">"2025-03-15T09:00:00Z"</span>,
+  <span class="key">"reviewedAt"</span>: <span class="kw">null</span> | <span class="str">"2025-03-16T10:00:00Z"</span>,
+  <span class="key">"rejectionReason"</span>: <span class="kw">null</span> | <span class="str">"ID photo is blurry and unreadable."</span>,
+  <span class="key">"documents"</span>: {
+    <span class="key">"idPhoto"</span>: <span class="str">"https://storage/.../id.jpg"</span>,    <span class="key">// government ID image</span>
+    <span class="key">"selfieWithId"</span>: <span class="str">"https://storage/.../selfie.jpg"</span>  <span class="key">// selfie holding the ID</span>
+  }
+}</pre></div>
+              </div>
+              <div>
+                <div class="api-label">PATCH /admin/verifications/:id</div>
+                <div class="api-box"><pre>{
+  <span class="key">"action"</span>: <span class="str">"approve"</span> | <span class="str">"reject"</span>,
+  <span class="key">"rejectionReason"</span>: <span class="str">"..."</span>  <span class="key">// required if action === "reject" — shown to host in email + app</span>
+}
+
+<span class="key">// On approve: user.isVerified = true, user.verifiedAt set, email sent to host</span>
+<span class="key">// On reject: host notified by email with reason, can resubmit (new request, isResubmission: true)</span>
+<span class="key">// Verification is NOT revoked separately — handled by existing ban/deactivate flow</span></pre></div>
+              </div>
+              <div>
                 <div class="api-label">GET /admin/logs</div>
                 <div class="api-box"><pre>{
   <span class="key">"id"</span>: <span class="str">"LOG-001"</span>,
   <span class="key">"adminId"</span>: <span class="num">1</span>, <span class="key">"adminName"</span>: <span class="str">"Admin"</span>,
-  <span class="key">"action"</span>: <span class="str">"user_warned"</span> | <span class="str">"user_banned"</span> | <span class="str">"force_permanent_ban"</span> | <span class="str">"user_unbanned"</span> | <span class="str">"review_deleted"</span> | <span class="str">"property_deactivated"</span> | <span class="str">"dismissed"</span>,
+  <span class="key">"action"</span>: <span class="str">"user_warned"</span> | <span class="str">"user_banned"</span> | <span class="str">"force_permanent_ban"</span> | <span class="str">"user_unbanned"</span> | <span class="str">"review_deleted"</span> | <span class="str">"property_deactivated"</span> | <span class="str">"dismissed"</span> | <span class="str">"verification_approved"</span> | <span class="str">"verification_rejected"</span>,
   <span class="key">"targetType"</span>: <span class="str">"user"</span> | <span class="str">"review"</span> | <span class="str">"property"</span> | <span class="str">"report"</span>,
   <span class="key">"targetId"</span>: <span class="num">77</span>,
   <span class="key">"note"</span>: <span class="str">"Reason or admin note"</span>,
@@ -960,8 +1102,92 @@
         document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'))
         document.getElementById('page-' + name).classList.add('active')
         btn.classList.add('active')
-        const titles = { dashboard: 'Dashboard Overview', reports: 'Report Management', users: 'User Management', properties: 'Property Management', log: 'Admin Action Log', api: 'API Schema Reference' }
+        const titles = { dashboard: 'Dashboard Overview', reports: 'Report Management', verifications: 'Host Verifications', users: 'User Management', properties: 'Property Management', log: 'Admin Action Log', api: 'API Schema Reference' }
         document.getElementById('topbar-title').textContent = titles[name]
+      }
+
+      function filterVerifications(status, btn) {
+        document.querySelectorAll('#page-verifications .filter-tabs .tab-btn').forEach(b => b.classList.remove('active'))
+        btn.classList.add('active')
+        document.querySelectorAll('#verifications-tbody tr').forEach(row => {
+          const badge = row.querySelector('.badge-vstatus')
+          if (!badge) return
+          row.style.display = (status === 'all' || badge.classList.contains(status)) ? '' : 'none'
+        })
+      }
+
+      function openVerification(data) {
+        document.getElementById('panel-title').textContent = `Verification ${data.id}`
+        const isApproved = data.status === 'approved'
+        const isRejected = data.status === 'rejected'
+        const isPending = data.status === 'pending'
+
+        document.getElementById('panel-body').innerHTML = `
+          <div class="panel-section">
+            <div class="panel-section-title">Host Info</div>
+            <div class="info-grid">
+              ${data.isResubmission ? `<div style="background:var(--light);border:1.5px dashed #999;border-radius:6px;padding:10px 14px;font-size:12px;font-family:var(--mono);color:var(--dark);margin-bottom:4px;">↩ Resubmission — previous rejection reason: <em>"${data.prevRejectionReason}"</em></div>` : ''}
+              <div class="info-row"><span class="info-label">Request ID</span><span class="info-value mono">${data.id}</span></div>
+              <div class="info-row"><span class="info-label">Host</span><span class="info-value">${data.hostName} <span class="mono">#${data.hostId}</span></span></div>
+              <div class="info-row"><span class="info-label">Email</span><span class="info-value mono">${data.hostEmail}</span></div>
+              <div class="info-row"><span class="info-label">Submitted</span><span class="info-value mono">${data.submittedAt}</span></div>
+              <div class="info-row"><span class="info-label">Status</span><span class="info-value"><span class="badge-vstatus ${data.status}">${data.status}</span></span></div>
+              ${isRejected ? `<div class="info-row"><span class="info-label">Rejection Reason</span><span class="info-value" style="color:var(--dark);font-weight:500">${data.rejectionReason}</span></div>` : ''}
+            </div>
+          </div>
+          <div class="panel-section">
+            <div class="panel-section-title">Submitted Documents</div>
+            <div class="doc-grid">
+              <div>
+                <div class="doc-label">Government ID</div>
+                <div class="doc-placeholder">
+                  <svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/><line x1="6" y1="14" x2="10" y2="14"/><line x1="6" y1="17" x2="14" y2="17"/></svg>
+                  ID Document
+                </div>
+              </div>
+              <div>
+                <div class="doc-label">Selfie with ID</div>
+                <div class="doc-placeholder">
+                  <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/><rect x="14" y="2" width="8" height="6" rx="1"/><line x1="16" y1="5" x2="20" y2="5"/></svg>
+                  Selfie + ID
+                </div>
+              </div>
+            </div>
+          </div>
+          ${isPending ? `
+          <div class="panel-section">
+            <div class="panel-section-title">Admin Actions</div>
+            <div class="action-grid">
+              <button class="action-btn green" onclick="approveVerification('${data.id}','${data.hostName}')">Approve</button>
+              <button class="action-btn red" onclick="rejectVerification('${data.id}','${data.hostName}')">Reject</button>
+            </div>
+          </div>
+          <div class="panel-section">
+            <div class="api-label">PATCH /admin/verifications/${data.id}</div>
+            <div class="api-box"><pre>{ <span class="key">"action"</span>: <span class="str">"approve"</span> | <span class="str">"reject"</span>, <span class="key">"rejectionReason"</span>: <span class="str">"..."</span> <span class="key">// required if reject</span> }</pre></div>
+          </div>
+          ` : `
+          <div class="panel-section">
+            <div class="api-label">GET /admin/verifications/${data.id}</div>
+            <div class="api-box"><pre>{ <span class="key">"status"</span>: <span class="str">"${data.status}"</span>${data.rejectionReason ? `, <span class="key">"rejectionReason"</span>: <span class="str">"${data.rejectionReason}"</span>` : ''} }</pre></div>
+          </div>
+          `}
+        `
+        document.getElementById('panel-overlay').classList.add('open')
+      }
+
+      function approveVerification(id, hostName) {
+        const confirmed = confirm(`Approve verification for ${hostName}?\n\nThis will mark their account as verified and allow them to list properties.`)
+        if (!confirmed) return
+        alert(`Action sent:\nPATCH /admin/verifications/${id}\n{ action: "approve" }\n\n→ User isVerified set to true\n→ Email sent to host`)
+        closePanel()
+      }
+
+      function rejectVerification(id, hostName) {
+        const reason = prompt(`Reject verification for ${hostName}.\n\nRejection reason is required — the host will see this:\n`)
+        if (!reason || reason.trim() === '') return alert('Cancelled — rejection reason is required.')
+        alert(`Action sent:\nPATCH /admin/verifications/${id}\n{ action: "reject", rejectionReason: "${reason}" }\n\n→ Host notified by email with rejection reason\n→ Host can resubmit`)
+        closePanel()
       }
 
       function switchReportType(type, btn) {
