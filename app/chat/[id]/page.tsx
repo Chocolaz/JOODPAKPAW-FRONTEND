@@ -331,7 +331,7 @@ export default function ChatRoomPage() {
         <div className="flex-1 min-w-0">
           <p
             className="font-semibold text-deep-teal text-base lg:text-lg truncate cursor-pointer hover:underline"
-            onClick={() => room && router.push(`/host-profile/${room.otherUser.id}?from=chat`)}
+            onClick={() => room && router.push(`/hosts/${room.otherUser.id}?from=chat`)}
           >
             {otherUserName}
           </p>

@@ -76,6 +76,19 @@ export default function HostProfilePage() {
       .finally(() => setReviewsLoading(false))
   }
 
+  const handleSeeAll = () => {
+    if (!hostId) return
+    setReviewsLoading(true)
+    getHostReviews(hostId, 1, totalRows)
+      .then((res) => {
+        setReviews(res.data)
+        setTotalPages(1)
+        setReviewPage(1)
+      })
+      .catch(() => {})
+      .finally(() => setReviewsLoading(false))
+  }
+
   if (profileLoading) return <HostProfileSkeleton />
   if (profileError || !host) return <ErrorState message={profileError ?? 'Host not found.'} />
 
@@ -108,6 +121,7 @@ export default function HostProfilePage() {
           reviewCount={host.reviewCount}
           loading={reviewsLoading}
           onPageChange={handlePageChange}
+          onSeeAll={handleSeeAll}
         />
       </motion.div>
     </div>

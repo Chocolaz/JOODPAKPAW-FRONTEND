@@ -18,6 +18,7 @@ interface HostReviewsSectionProps {
   reviewCount: number
   loading: boolean
   onPageChange: (page: number) => void
+  onSeeAll?: () => void
 }
 
 export function HostReviewsSection({
@@ -29,18 +30,29 @@ export function HostReviewsSection({
   reviewCount,
   loading,
   onPageChange,
+  onSeeAll,
 }: HostReviewsSectionProps) {
   return (
     <section className="px-5 lg:px-12 mt-2 border-t border-gray-100 pt-7 lg:pt-9 pb-8">
       {/* Section header */}
-      <div className="flex items-center gap-3 mb-5">
-        <div className="w-1 h-6 rounded-full bg-accent-orange shrink-0" />
-        <h2 className="text-lg! font-bold text-deep-teal font-baloo2">
-          Reviews
-          {reviewCount > 0 && (
-            <span className="ml-2 text-sm font-medium text-neutral-gray">({totalRows})</span>
-          )}
-        </h2>
+      <div className="flex items-center justify-between mb-5">
+        <div className="flex items-center gap-3">
+          <div className="w-1 h-6 rounded-full bg-accent-orange shrink-0" />
+          <h2 className="text-lg! font-bold text-deep-teal font-baloo2">
+            Reviews
+            {reviewCount > 0 && (
+              <span className="ml-2 text-sm font-medium text-neutral-gray">({totalRows})</span>
+            )}
+          </h2>
+        </div>
+        {totalRows > 6 && onSeeAll && (
+          <button
+            onClick={onSeeAll}
+            className="text-sm font-medium text-accent-orange hover:underline underline-offset-2 transition-colors"
+          >
+            See all
+          </button>
+        )}
       </div>
 
       {/* Summary card */}

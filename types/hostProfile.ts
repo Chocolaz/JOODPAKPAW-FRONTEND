@@ -16,12 +16,20 @@ export interface HostProfileResponse {
   host: HostProfile
 }
 
+export interface HostReviewGuest {
+  id: number
+  firstName: string
+  lastName: string
+  avatar: string
+}
+
 export interface HostReview {
   id: number
   rating: number
   comment: string
   propertyName: string
   reviewedAt: string
+  guestProfile: HostReviewGuest
 }
 
 export interface HostReviewsResponse {

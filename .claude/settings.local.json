@@ -28,7 +28,11 @@
       "Bash(cd \"D:\\\\Project\\\\joodpakpaw\\\\joodpakpaw\" && npm run build 2>&1 | tail -30)",
       "Bash(cd \"D:\\\\Project\\\\joodpakpaw\\\\joodpakpaw\" && npm run build 2>&1 | tail -20)",
       "Bash(ls /d/Project/joodpakpaw/joodpakpaw/types 2>/dev/null || ls /d/Project/joodpakpaw/joodpakpaw/app/types 2>/dev/null || find /d/Project/joodpakpaw/joodpakpaw -name \"*.ts\" -path \"*/types*\" -not -path \"*/node_modules/*\" 2>/dev/null | head -20)",
-      "Bash(cd \"D:/Project/joodpakpaw/joodpakpaw\" && npm install react-easy-crop)"
+      "Bash(cd \"D:/Project/joodpakpaw/joodpakpaw\" && npm install react-easy-crop)",
+      "Bash(git:*)",
+      "Bash(cp:*)",
+      "Bash(cp -r app/host-profile app/hosts)",
+      "Bash(rm -rf app/host-profile)"
     ]
   },
   "enabledPlugins": {

@@ -24,7 +24,7 @@ export function PropertyHost({ host, hostAvgRating, chatRoomId, onChatSuccess }:
 
       <div className="flex items-center gap-4 bg-off-white/60 rounded-2xl p-5 border border-gray-100 shadow-sm">
         {/* Avatar — tappable, navigates to host profile */}
-        <Link href={`/host-profile/${host.id}`} className="relative w-16 h-16 lg:w-20 lg:h-20 rounded-full overflow-hidden bg-gray-100 shrink-0 ring-2 ring-deep-teal/20 shadow-sm hover:ring-accent-orange transition-all">
+        <Link href={`/hosts/${host.id}`} className="relative w-16 h-16 lg:w-20 lg:h-20 rounded-full overflow-hidden bg-gray-100 shrink-0 ring-2 ring-deep-teal/20 shadow-sm hover:ring-accent-orange transition-all">
           {host.avatar ? (
             <Image
               src={host.avatar}
@@ -40,7 +40,7 @@ export function PropertyHost({ host, hostAvgRating, chatRoomId, onChatSuccess }:
 
         {/* Info */}
         <div className="flex-1 min-w-0">
-          <Link href={`/host-profile/${host.id}`} className="group">
+          <Link href={`/hosts/${host.id}`} className="group">
             <p className="font-semibold text-deep-teal text-base lg:text-lg truncate group-hover:underline underline-offset-2">
               {host.firstName} {host.lastName}
             </p>
