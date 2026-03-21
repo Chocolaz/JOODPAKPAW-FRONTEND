@@ -78,6 +78,9 @@ function LayoutContent({ children }: { children: ReactNode }) {
         backPath: fromNotifications ? '/notifications' : '/profile/bookings',
       }
     }
+    if (normalizedPath === '/profile/verification') {
+      return { title: 'Verification', backPath: '/profile' }
+    }
     if (normalizedPath.startsWith('/profile/') && normalizedPath !== '/profile') {
       // This covers /profile/[firstName] and other potential sub-pages
       return { title: 'Profile', backPath: '/profile' }

@@ -207,6 +207,43 @@ export const getHostProfile = (hostId: string): Promise<HostProfileResponse> => 
   })
 }
 
+// --- Verification ---
+export interface VerificationData {
+  id: number
+  status: 'pending' | 'approved' | 'rejected'
+  isResubmit: boolean
+  idPhoto: string
+  selfieWithId: string
+  submittedAt: string
+  rejectDescription: string | null
+  previousRejectDescription: string | null
+}
+
+export interface VerificationResponse {
+  verification: VerificationData
+}
+
+export const getVerificationStatus = (): Promise<VerificationResponse> =>
+  request<VerificationResponse>({
+    endpoint: 'api/v1/user-verifications/me',
+    method: 'GET',
+    requiresAuth: true,
+    errorContext: 'Get Verification Status',
+  })
+
+export const submitVerification = (idPhoto: File, selfieWithId: File): Promise<void> => {
+  const formData = new FormData()
+  formData.append('idPhoto', idPhoto)
+  formData.append('selfieWithId', selfieWithId)
+  return request<void>({
+    endpoint: 'api/v1/user-verifications',
+    method: 'POST',
+    body: formData,
+    requiresAuth: true,
+    errorContext: 'Submit Verification',
+  })
+}
+
 export const getHostReviews = (
   hostId: string,
   page = 1,

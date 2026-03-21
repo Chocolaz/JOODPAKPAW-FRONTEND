@@ -7,7 +7,7 @@ import { useRouter } from 'next/navigation'
 import { useAuth } from '@/app/_components/AuthContext'
 import clsx from 'clsx'
 import { assetPath } from '@/lib/utils'
-import { ChevronRight, PawPrint, CalendarClock, House, Mail, BadgeCheck } from 'lucide-react'
+import { ChevronRight, PawPrint, CalendarClock, House, Mail, BadgeCheck, ShieldCheck } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 
 function ProfileCardSkeleton() {
@@ -125,6 +125,8 @@ export default function ProfilePage() {
     }
   }
 
+  const isHost = user?.role?.some((roleItem) => roleItem.name === 'host')
+
   const featureItems = [
     {
       label: 'Pets',
@@ -150,9 +152,15 @@ export default function ProfilePage() {
       color: 'bg-green-50',
       iconColor: 'text-green-600',
     },
+    ...(isHost ? [{
+      label: 'Verification',
+      description: 'Get a verified badge',
+      icon: ShieldCheck,
+      path: '/profile/verification',
+      color: 'bg-blue-50',
+      iconColor: 'text-blue-500',
+    }] : []),
   ]
-
-  const isHost = user?.role?.some((roleItem) => roleItem.name === 'host')
 
   const ProfileCard = (
     <Card
@@ -324,6 +332,24 @@ export default function ProfilePage() {
                   <ChevronRight className="w-5 h-5 text-gray-300 group-hover:text-gray-500 transition-colors shrink-0" />
                 </CardContent>
               </Card>
+
+              {isHost && (
+                <Card
+                  className="shadow-sm cursor-pointer hover:shadow-md active:scale-[0.98] transition-all duration-200 group"
+                  onClick={() => checkAuthAndRedirect('/profile/verification')}
+                >
+                  <CardContent className="flex items-center gap-4 p-4">
+                    <div className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 bg-blue-50">
+                      <ShieldCheck className="w-5 h-5 text-blue-500" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="font-semibold text-deep-teal">Verification</p>
+                      <p className="text-xs text-neutral-gray mt-0.5">Get a verified badge</p>
+                    </div>
+                    <ChevronRight className="w-5 h-5 text-gray-300 group-hover:text-gray-500 transition-colors shrink-0" />
+                  </CardContent>
+                </Card>
+              )}
             </div>
             <SettingsList />
           </div>
@@ -349,7 +375,7 @@ export default function ProfilePage() {
                     <DesktopFeatureCard
                       key={item.label}
                       item={item}
-                      fullWidth={i === featureItems.length - 1}
+                      fullWidth={featureItems.length % 2 !== 0 && i === featureItems.length - 1}
                     />
                   ))}
                 </div>
