@@ -7,7 +7,7 @@ import { useRouter } from 'next/navigation'
 import { useAuth } from '@/app/_components/AuthContext'
 import clsx from 'clsx'
 import { assetPath } from '@/lib/utils'
-import { ChevronRight, PawPrint, CalendarClock, House, Mail, BadgeCheck, ShieldCheck } from 'lucide-react'
+import { ChevronRight, PawPrint, CalendarClock, House, Mail, ShieldCheck, User } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 
 function ProfileCardSkeleton() {
@@ -209,26 +209,24 @@ export default function ProfilePage() {
           )}
         </div>
 
-        {/* Name + role badge */}
+        {/* Name + info */}
         <div className="mt-3 md:mt-5">
-          <div className="flex items-center gap-2 md:gap-3">
-            <h3 className="text-xl md:text-2xl lg:text-3xl font-semibold text-deep-teal leading-tight">
-              {isAuthenticated && user
-                ? `${user.firstName} ${user.lastName}`
-                : 'Guest'}
-            </h3>
-            {isAuthenticated && isHost && (
-              <span className="inline-flex items-center gap-1 px-2 md:px-3 py-0.5 rounded-full bg-positive-green/15 text-positive-green text-xs md:text-sm font-medium">
-                <BadgeCheck className="w-3 h-3 md:w-4 md:h-4" />
-                Host
-              </span>
-            )}
-          </div>
+          <h3 className="text-xl md:text-2xl lg:text-3xl font-semibold text-deep-teal leading-tight">
+            {isAuthenticated && user
+              ? `${user.firstName} ${user.lastName}`
+              : 'Guest'}
+          </h3>
 
           {isAuthenticated && user ? (
-            <div className="flex items-center gap-1.5 mt-1.5 md:mt-2">
-              <Mail className="w-3.5 h-3.5 md:w-4 md:h-4 text-neutral-gray/70 shrink-0" />
-              <p className="text-sm md:text-base text-neutral-gray truncate">{user.email}</p>
+            <div className="mt-1.5 md:mt-2 flex flex-col gap-1 md:gap-1.5">
+              <div className="flex items-center gap-1.5">
+                <User className="w-3.5 h-3.5 md:w-4 md:h-4 text-neutral-gray/70 shrink-0" />
+                <p className="text-sm md:text-base text-neutral-gray">{isHost ? 'Host' : 'Guest'}</p>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <Mail className="w-3.5 h-3.5 md:w-4 md:h-4 text-neutral-gray/70 shrink-0" />
+                <p className="text-sm md:text-base text-neutral-gray truncate">{user.email}</p>
+              </div>
             </div>
           ) : (
             <p className="text-sm md:text-base text-neutral-gray mt-1 md:mt-2">

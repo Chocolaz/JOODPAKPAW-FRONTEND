@@ -239,15 +239,6 @@ export default function UserProfilePage() {
 
       {/* ── Desktop ── */}
       <div className="hidden lg:block px-12 py-8 max-w-3xl mx-auto w-full">
-        {/* Back */}
-        <button
-          onClick={() => router.back()}
-          className="flex items-center gap-1.5 text-sm text-neutral-gray hover:text-deep-teal transition-colors mb-8"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          Back
-        </button>
-
         {/* Main card */}
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
           {/* Banner */}
@@ -255,6 +246,15 @@ export default function UserProfilePage() {
             <div className="absolute top-2 right-6 w-24 h-24 rounded-full bg-white/10" />
             <div className="absolute -bottom-2 left-8 w-16 h-16 rounded-full bg-white/5" />
             <div className="absolute top-4 left-1/2 w-12 h-12 rounded-full bg-white/5" />
+
+            {/* Back — top left of banner */}
+            <button
+              onClick={() => router.back()}
+              className="absolute top-4 left-4 flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-white/20 text-white/80 text-sm hover:bg-white/10 transition-colors"
+            >
+              <ArrowLeft className="w-3.5 h-3.5" />
+              Back
+            </button>
 
             {/* Edit / Save / Cancel — top right of banner */}
             <div className="absolute top-4 right-4 flex items-center gap-2">
@@ -372,13 +372,25 @@ export default function UserProfilePage() {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -4 }}
                   >
-                    <h2 className="text-xl font-semibold text-deep-teal">
-                      {profile.firstName} {profile.lastName}
-                    </h2>
-                    <span className="inline-flex items-center gap-1 mt-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-positive-green/15 text-positive-green">
-                      <BadgeCheck className="w-3 h-3" />
-                      {roleLabel}
-                    </span>
+                    <div className="flex items-center gap-2">
+                      <h2 className="text-xl font-semibold text-deep-teal">
+                        {profile.firstName} {profile.lastName}
+                      </h2>
+                      {profile.isVerifiedHost && (
+                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-50 text-blue-500">
+                          <BadgeCheck className="w-3 h-3" />
+                          Verified Host
+                        </span>
+                      )}
+                    </div>
+                    <div className="mt-1.5 flex flex-col gap-1">
+                      <div className="flex items-center gap-1.5">
+                        <User className="w-3.5 h-3.5 text-neutral-gray/70 shrink-0" />
+                        <span className="text-sm text-neutral-gray">
+                          {(profile.role?.some(r => r.name === 'host') || profile.isBecomeToHost) ? 'Host' : 'Guest'}
+                        </span>
+                      </div>
+                    </div>
                   </motion.div>
                 )}
               </AnimatePresence>
@@ -438,6 +450,13 @@ export default function UserProfilePage() {
                   value={roleLabel}
                   locked
                 />
+                <InfoRow
+                  icon={<ShieldCheck className="w-4 h-4" />}
+                  label="Identity Verification"
+                  value={profile.isVerifiedHost ? 'Verified' : 'Not verified'}
+                  locked
+                  verified={profile.isVerifiedHost}
+                />
                 <div className="flex items-center justify-between py-3.5">
                   <div className="flex items-center gap-3">
                     <span className="text-neutral-gray">
@@ -489,6 +508,7 @@ function InfoRow({
   locked,
   editable,
   editNode,
+  verified,
 }: {
   icon: React.ReactNode
   label: string
@@ -496,6 +516,7 @@ function InfoRow({
   locked?: boolean
   editable?: boolean
   editNode?: React.ReactNode
+  verified?: boolean
 }) {
   return (
     <div className="flex items-center justify-between py-3.5">
@@ -507,7 +528,9 @@ function InfoRow({
         {editable && editNode ? (
           editNode
         ) : (
-          <span className="text-sm text-gray-800">{value}</span>
+          <span className={`text-sm font-medium ${verified === true ? 'text-blue-500' : verified === false ? 'text-neutral-gray' : 'text-gray-800'}`}>
+            {value}
+          </span>
         )}
         {locked && <Lock className="w-3 h-3 text-gray-300" />}
       </div>

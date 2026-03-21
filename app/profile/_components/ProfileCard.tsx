@@ -3,7 +3,7 @@
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
 import { Card, CardContent } from '@/components/ui/card'
 import { UserProfile } from '@/types'
-import { Mail, Phone, ShieldCheck, BadgeCheck } from 'lucide-react'
+import { Mail, Phone, ShieldCheck, BadgeCheck, User } from 'lucide-react'
 
 export const ProfileCard = ({
   profile,
@@ -42,16 +42,22 @@ export const ProfileCard = ({
               <h3 className="text-xl font-semibold text-deep-teal leading-tight">
                 {profile.firstName} {profile.lastName}
               </h3>
-              {isHost && (
-                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-positive-green/15 text-positive-green text-xs font-medium">
+              {profile.isVerifiedHost && (
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-blue-50 text-blue-500 text-xs font-medium">
                   <BadgeCheck className="w-3 h-3" />
-                  Host
+                  Verified
                 </span>
               )}
             </div>
-            <div className="flex items-center gap-1.5 mt-1.5">
-              <Mail className="w-3.5 h-3.5 text-neutral-gray/70 shrink-0" />
-              <p className="text-sm text-neutral-gray truncate">{profile.email}</p>
+            <div className="mt-1.5 flex flex-col gap-1">
+              <div className="flex items-center gap-1.5">
+                <User className="w-3.5 h-3.5 text-neutral-gray/70 shrink-0" />
+                <p className="text-sm text-neutral-gray">{isHost ? 'Host' : 'Guest'}</p>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <Mail className="w-3.5 h-3.5 text-neutral-gray/70 shrink-0" />
+                <p className="text-sm text-neutral-gray truncate">{profile.email}</p>
+              </div>
             </div>
           </div>
         </CardContent>

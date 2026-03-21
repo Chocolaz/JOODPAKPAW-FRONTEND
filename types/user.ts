@@ -20,5 +20,6 @@ export interface UserProfile {
   avatar: string
   phone: string
   isBecomeToHost: boolean
-  role: Role[] // Added role property
+  isVerifiedHost?: boolean
+  role: Role[]
 }
