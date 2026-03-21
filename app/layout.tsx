@@ -27,7 +27,8 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   const pathname = usePathname()
-  const showBottomNav = !pathname.startsWith('/authen')
+  const isAdmin = pathname.startsWith('/admin')
+  const showBottomNav = !pathname.startsWith('/authen') && !isAdmin
 
   return (
     <html lang="en">
@@ -43,7 +44,7 @@ export default function RootLayout({
               <ChatProvider>
               <BookingProvider>
                 <DesktopNav />
-                <div className="max-w-[1440px] mx-auto flex flex-col min-h-screen lg:pt-20 xl:pt-24 w-full">
+                <div className={`flex flex-col min-h-screen w-full${isAdmin ? '' : ' max-w-[1440px] mx-auto lg:pt-20 xl:pt-24'}`}>
                   <main className="flex-1">{children}</main>
                   {showBottomNav && <BottomNav />}
                 </div>

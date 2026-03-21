@@ -856,3 +856,81 @@ export const moveFavorite = async (data: {
   await deleteFavoriteProperty(data.propertyId)
   await addFavorite(data)
 }
+
+// --- Admin: Verification Functions ---
+export interface AdminVerificationUser {
+  id: number
+  firstName: string
+  lastName: string
+  avatar: string
+  email: string
+}
+
+export interface AdminVerificationSummary {
+  id: number
+  user: AdminVerificationUser
+  status: 'pending' | 'approved' | 'rejected'
+  isResubmit: boolean
+  submittedAt: string
+}
+
+export interface AdminVerificationDetail extends AdminVerificationSummary {
+  rejectDescription: string | null
+  previousRejectDescription: string | null
+  idPhoto: string
+  selfieWithId: string
+}
+
+export interface AdminVerificationsResponse {
+  totalRows: number
+  totalPages: number
+  data: AdminVerificationSummary[]
+  limit: number
+  page: number
+  attributes: { status: string }
+}
+
+export const getAdminVerifications = (params?: {
+  status?: string
+  page?: number
+  limit?: number
+}): Promise<AdminVerificationsResponse> => {
+  const query = new URLSearchParams()
+  if (params?.status) query.set('status', params.status)
+  if (params?.page) query.set('page', String(params.page))
+  if (params?.limit) query.set('limit', String(params.limit))
+  return request<AdminVerificationsResponse>({
+    endpoint: `api/v1/admin/user-verifications/paginate?${query}`,
+    requiresAuth: true,
+    errorContext: 'Admin Verifications',
+  })
+}
+
+export const getAdminVerificationById = (
+  id: number
+): Promise<{ code: string; message: string; verification: AdminVerificationDetail }> => {
+  return request({
+    endpoint: `api/v1/admin/user-verifications/${id}`,
+    requiresAuth: true,
+    errorContext: 'Admin Verification Detail',
+  })
+}
+
+export const approveVerification = (id: number): Promise<void> => {
+  return request<void>({
+    endpoint: `api/v1/admin/user-verifications/${id}/approve`,
+    method: 'PATCH',
+    requiresAuth: true,
+    errorContext: 'Approve Verification',
+  })
+}
+
+export const rejectVerification = (id: number, rejectDescription: string): Promise<void> => {
+  return request<void>({
+    endpoint: `api/v1/admin/user-verifications/${id}/reject`,
+    method: 'PATCH',
+    body: { rejectDescription },
+    requiresAuth: true,
+    errorContext: 'Reject Verification',
+  })
+}
