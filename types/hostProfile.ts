@@ -10,6 +10,7 @@ export interface HostProfile {
   reviewCount: number
   totalProperties: number
   properties: Property[]
+  isVerifiedHost?: boolean
 }
 
 export interface HostProfileResponse {

@@ -2,7 +2,7 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
-import { Star, UserCircle } from 'lucide-react'
+import { Star, UserCircle, BadgeCheck } from 'lucide-react'
 import { PropertyHost as PropertyHostType } from '@/types/property'
 import { cn } from '@/lib/utils'
 import { ContactHostButton } from './ContactHostButton'
@@ -41,9 +41,14 @@ export function PropertyHost({ host, hostAvgRating, chatRoomId, onChatSuccess }:
         {/* Info */}
         <div className="flex-1 min-w-0">
           <Link href={`/hosts/${host.id}`} className="group">
-            <p className="font-semibold text-deep-teal text-base lg:text-lg truncate group-hover:underline underline-offset-2">
-              {host.firstName} {host.lastName}
-            </p>
+            <div className="flex items-center gap-1.5">
+              <p className="font-semibold text-deep-teal text-base lg:text-lg truncate group-hover:underline underline-offset-2">
+                {host.firstName} {host.lastName}
+              </p>
+              {host.isVerifiedHost && (
+                <BadgeCheck className="w-4 h-4 lg:w-5 lg:h-5 text-blue-500 shrink-0" />
+              )}
+            </div>
           </Link>
           <div className="flex items-center gap-1.5 mt-1">
             {rating > 0 ? (

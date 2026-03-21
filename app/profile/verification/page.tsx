@@ -32,6 +32,18 @@ export default function VerificationPage() {
     if (currentStatus === 'pending')
       return <PendingView submittedAt={verification?.submittedAt} />
     if (currentStatus === 'approved') return <ApprovedView />
+
+    // Resubmit: rejected but user clicked "Resubmit" — show upload form
+    if (step === 'form') {
+      return (
+        <UploadForm
+          onSubmitted={() =>
+            setVerification({ ...verification, status: 'pending' } as VerificationData)
+          }
+        />
+      )
+    }
+
     if (currentStatus === 'rejected') {
       return (
         <RejectedView
@@ -41,17 +53,10 @@ export default function VerificationPage() {
       )
     }
 
-    if (step === 'intro') return <IntroView onStart={() => setStep('form')} />
-    return (
-      <UploadForm
-        onSubmitted={() =>
-          setVerification({ ...verification, status: 'pending' } as VerificationData)
-        }
-      />
-    )
+    return <IntroView onStart={() => setStep('form')} />
   }
 
-  const showBack = currentStatus == null && step === 'form'
+  const showBack = step === 'form' && currentStatus !== 'pending' && currentStatus !== 'approved'
 
   return (
     <div className="p-5 lg:px-12 max-w-2xl mx-auto w-full">

@@ -1,7 +1,7 @@
 'use client'
 
 import Image from 'next/image'
-import { Star, CalendarDays, UserCheck } from 'lucide-react'
+import { Star, CalendarDays, UserCheck, BadgeCheck } from 'lucide-react'
 import { useSearchParams } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import { HostProfile } from '@/types/hostProfile'
@@ -62,7 +62,7 @@ export function HostProfileHero({ host }: { host: HostProfile }) {
           {/* Name + meta */}
           <div className="flex-1 mt-3 lg:mt-0 lg:pb-1 text-center lg:text-left">
             <div className="flex items-center gap-2 justify-center lg:justify-start flex-wrap">
-              <h1 className="text-2xl! lg:text-3xl! font-bold text-deep-teal font-baloo2 leading-tight">
+              <h1 className="text-2xl! lg:text-2xl! font-bold text-deep-teal font-baloo2 leading-tight">
                 {host.firstName} {host.lastName}
               </h1>
               {isGuest && (
@@ -87,7 +87,9 @@ export function HostProfileHero({ host }: { host: HostProfile }) {
         </div>
 
         {/* Stats strip */}
-        <div className="mt-5 grid grid-cols-3 bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden divide-x divide-gray-100">
+        <div
+          className={`mt-5 grid ${host.isVerifiedHost ? 'grid-cols-4' : 'grid-cols-3'} bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden divide-x divide-gray-100`}
+        >
           {/* Rating */}
           <div className="flex flex-col items-center gap-0.5 py-4 px-4">
             <span className="text-2xl lg:text-3xl font-bold text-deep-teal font-baloo2 leading-none">
@@ -107,7 +109,9 @@ export function HostProfileHero({ host }: { host: HostProfile }) {
                 />
               ))}
             </div>
-            <span className="text-[11px] text-neutral-gray mt-0.5 uppercase tracking-wide font-medium">Rating</span>
+            <span className="text-[11px] text-neutral-gray mt-0.5 uppercase tracking-wide font-medium">
+              Rating
+            </span>
           </div>
 
           {/* Reviews */}
@@ -129,6 +133,16 @@ export function HostProfileHero({ host }: { host: HostProfile }) {
               {host.totalProperties === 1 ? 'Property' : 'Properties'}
             </span>
           </div>
+
+          {/* Verified */}
+          {host.isVerifiedHost && (
+            <div className="flex flex-col items-center justify-center gap-1 py-4 px-4">
+              <BadgeCheck className="w-6 h-6 text-blue-500" />
+              <span className="text-[11px] text-blue-500 mt-0.5 uppercase tracking-wide font-medium">
+                Verified Host
+              </span>
+            </div>
+          )}
         </div>
 
         {/* Contact button — mobile */}

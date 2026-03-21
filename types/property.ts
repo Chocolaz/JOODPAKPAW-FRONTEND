@@ -72,6 +72,7 @@ export interface PropertyHost {
   lastName: string
   avatar: string
   hostAvgRating?: number
+  isVerifiedHost?: boolean
 }
 
 export interface Property {

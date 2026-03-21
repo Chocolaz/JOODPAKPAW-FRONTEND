@@ -894,11 +894,15 @@ export const getAdminVerifications = (params?: {
   status?: string
   page?: number
   limit?: number
+  orderBy?: string
+  sort?: 'asc' | 'desc'
 }): Promise<AdminVerificationsResponse> => {
   const query = new URLSearchParams()
   if (params?.status) query.set('status', params.status)
   if (params?.page) query.set('page', String(params.page))
   if (params?.limit) query.set('limit', String(params.limit))
+  if (params?.orderBy) query.set('orderBy', params.orderBy)
+  if (params?.sort) query.set('sort', params.sort)
   return request<AdminVerificationsResponse>({
     endpoint: `api/v1/admin/user-verifications/paginate?${query}`,
     requiresAuth: true,

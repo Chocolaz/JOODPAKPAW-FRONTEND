@@ -11,7 +11,7 @@ import {
   type AdminVerificationSummary,
   type AdminVerificationDetail,
 } from '@/lib/api'
-import { X, CheckCircle, XCircle, RotateCcw, ChevronLeft, ChevronRight, ZoomIn } from 'lucide-react'
+import { X, CheckCircle, XCircle, RotateCcw, ChevronLeft, ChevronRight, ZoomIn, ChevronUp, ChevronDown, ChevronsUpDown } from 'lucide-react'
 
 // ── Image Lightbox ─────────────────────────────────────────────────────────────
 function ImageLightbox({ src, label, onClose }: { src: string; label: string; onClose: () => void }) {
@@ -362,6 +362,8 @@ function VerificationPanel({
 export default function AdminVerificationsPage() {
   const [status, setStatus] = useState<StatusFilter>('all')
   const [page, setPage] = useState(1)
+  const [orderBy, setOrderBy] = useState('id')
+  const [sort, setSort] = useState<'asc' | 'desc'>('asc')
   const [data, setData] = useState<AdminVerificationSummary[]>([])
   const [totalRows, setTotalRows] = useState(0)
   const [totalPages, setTotalPages] = useState(1)
@@ -370,6 +372,23 @@ export default function AdminVerificationsPage() {
 
   const LIMIT = 20
 
+  const handleSort = (col: string) => {
+    if (orderBy === col) {
+      setSort((s) => (s === 'asc' ? 'desc' : 'asc'))
+    } else {
+      setOrderBy(col)
+      setSort('asc')
+    }
+    setPage(1)
+  }
+
+  const SortIcon = ({ col }: { col: string }) => {
+    if (orderBy !== col) return <ChevronsUpDown className="w-3 h-3 opacity-30" />
+    return sort === 'asc'
+      ? <ChevronUp className="w-3 h-3" />
+      : <ChevronDown className="w-3 h-3" />
+  }
+
   const fetchData = useCallback(async () => {
     setLoading(true)
     try {
@@ -377,6 +396,8 @@ export default function AdminVerificationsPage() {
         status: status === 'all' ? undefined : status,
         page,
         limit: LIMIT,
+        orderBy,
+        sort,
       })
       setData(res.data)
       setTotalRows(res.totalRows)
@@ -386,7 +407,7 @@ export default function AdminVerificationsPage() {
     } finally {
       setLoading(false)
     }
-  }, [status, page])
+  }, [status, page, orderBy, sort])
 
   useEffect(() => {
     setPage(1)
@@ -435,12 +456,23 @@ export default function AdminVerificationsPage() {
         <table className="w-full border-collapse">
           <thead className="bg-[#f5f5f5]">
             <tr>
-              {['Host', 'Email', 'Submitted', 'Type', 'Status', 'Action'].map((h) => (
+              {[
+                { label: 'Host', col: 'id' },
+                { label: 'Email', col: null },
+                { label: 'Submitted', col: 'submittedAt' },
+                { label: 'Type', col: null },
+                { label: 'Status', col: 'status' },
+                { label: 'Action', col: null },
+              ].map(({ label, col }) => (
                 <th
-                  key={h}
-                  className="px-4 py-3 text-left text-[11.5px] font-semibold text-[#777] uppercase tracking-wider border-b-[1.5px] border-[#b8b8b8]"
+                  key={label}
+                  onClick={() => col && handleSort(col)}
+                  className={`px-4 py-3 text-left text-[11.5px] font-semibold text-[#777] uppercase tracking-wider border-b-[1.5px] border-[#b8b8b8] ${col ? 'cursor-pointer hover:text-[#1c1c1c] select-none' : ''}`}
                 >
-                  {h}
+                  <div className="flex items-center gap-1">
+                    {label}
+                    {col && <SortIcon col={col} />}
+                  </div>
                 </th>
               ))}
             </tr>
