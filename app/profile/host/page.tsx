@@ -12,7 +12,7 @@ import { HostBookingList } from './_components/HostBookingList'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { useAuth } from '@/app/_components/AuthContext'
 import { HostBookingHistoryList } from './_components/HostBookingHistoryList'
-import { Plus, LayoutGrid, CalendarDays, History, Check } from 'lucide-react'
+import { Plus, LayoutGrid, CalendarDays, History, Check, ExternalLink, ChevronLeft } from 'lucide-react'
 import { HostBanner } from '@/app/profile/_components/HostBanner'
 
 export default function HostPage() {
@@ -94,7 +94,24 @@ export default function HostPage() {
           <div className="hidden lg:flex items-center justify-between px-12 pt-8 pb-4 shrink-0">
             <div>
               <p className="text-sm text-accent-orange font-medium">Hello, {user?.firstName}!</p>
-              <h2 className="text-xl font-semibold text-deep-teal">My Properties</h2>
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => router.push('/profile')}
+                  className="flex items-center justify-center w-8 h-8 rounded-full hover:bg-gray-100 transition text-gray-500 hover:text-gray-800 -ml-1"
+                >
+                  <ChevronLeft className="w-5 h-5" />
+                </button>
+                <h2 className="text-xl font-semibold text-deep-teal">My Properties</h2>
+                {user?.id && (
+                  <button
+                    onClick={() => router.push(`/hosts/${user.id}`)}
+                    className="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium border border-deep-teal/30 text-deep-teal hover:bg-deep-teal hover:text-white hover:border-deep-teal transition-all duration-150"
+                  >
+                    <ExternalLink className="w-3 h-3" />
+                    View public profile
+                  </button>
+                )}
+              </div>
             </div>
             {!loading && !error && properties.length > 0 && (
               <div className="flex items-center gap-2">

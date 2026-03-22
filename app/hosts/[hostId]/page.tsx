@@ -3,10 +3,11 @@
 import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
-import { ChevronLeft } from 'lucide-react'
+import { ChevronLeft, Eye, Pencil } from 'lucide-react'
 import { getHostProfile, getHostReviews } from '@/lib/api'
 import { HostProfile, HostReview } from '@/types/hostProfile'
 import { ErrorState } from '@/app/profile/_components/ErrorState'
+import { useAuth } from '@/app/_components/AuthContext'
 import { HostProfileSkeleton } from './_components/HostProfileSkeleton'
 import { HostProfileHero } from './_components/HostProfileHero'
 import { HostPropertiesSection } from './_components/HostPropertiesSection'
@@ -24,6 +25,8 @@ const fadeUp = {
 export default function HostProfilePage() {
   const { hostId } = useParams<{ hostId: string }>()
   const router = useRouter()
+  const { user } = useAuth()
+  const isOwner = !!user && String(user.id) === hostId
 
   const [host, setHost] = useState<HostProfile | null>(null)
   const [profileLoading, setProfileLoading] = useState(true)
@@ -102,6 +105,21 @@ export default function HostProfilePage() {
         <ChevronLeft className="w-4 h-4" />
         <span>Back</span>
       </button>
+
+      {/* Owner preview banner */}
+      {isOwner && (
+        <div className="fixed top-4 right-4 z-10 md:left-1/2 md:right-auto md:-translate-x-1/2 flex items-center gap-2.5 px-4 py-2 bg-white/90 backdrop-blur-sm border border-gray-200 rounded-full shadow-md text-sm font-medium whitespace-nowrap text-gray-700">
+          <Eye className="w-4 h-4 shrink-0 text-deep-teal" />
+          <span>Previewing your public profile</span>
+          <button
+            onClick={() => router.push('/profile/host')}
+            className="flex items-center gap-1 pl-2.5 border-l border-gray-200 text-deep-teal hover:text-deep-teal/70 transition text-xs font-medium"
+          >
+            <Pencil className="w-3 h-3" />
+            Edit
+          </button>
+        </div>
+      )}
 
       <motion.div custom={0} variants={fadeUp} initial="hidden" animate="visible">
         <HostProfileHero host={host} />

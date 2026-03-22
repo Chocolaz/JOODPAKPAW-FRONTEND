@@ -4,7 +4,7 @@ import { useAuth } from '@/app/_components/AuthContext'
 import { Progress } from '@/components/ui/progress'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { cn } from '@/lib/utils'
-import { Check } from 'lucide-react'
+import { Check, ExternalLink } from 'lucide-react'
 
 interface HostBannerProps {
   currentStep?: number
@@ -71,10 +71,23 @@ export function HostBanner({ currentStep, totalSteps, summary }: HostBannerProps
         </div>
       ) : (
         <div className="min-h-[60px]">
-          <p className="text-lg text-accent-orange">
-            Hello {user?.firstName} {user?.lastName}
-          </p>
-          <h4 className="text-deep-teal mb-3">Manage your host activities below!</h4>
+          <div className="flex items-start justify-between gap-2 mb-1">
+            <div>
+              <p className="text-lg text-accent-orange">
+                Hello {user?.firstName} {user?.lastName}
+              </p>
+              <h4 className="text-deep-teal mb-3">Manage your host activities below!</h4>
+            </div>
+            {user?.id && (
+              <button
+                onClick={() => router.push(`/hosts/${user.id}`)}
+                className="shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border border-deep-teal/30 text-deep-teal bg-white hover:bg-deep-teal hover:text-white hover:border-deep-teal transition-all duration-150 mt-1"
+              >
+                <ExternalLink className="w-3 h-3" />
+                Public profile
+              </button>
+            )}
+          </div>
 
           {summary && summary.total > 0 && (
             <div className="flex flex-wrap gap-2">

@@ -65,6 +65,9 @@ export function HostProfileHero({ host }: { host: HostProfile }) {
               <h1 className="text-2xl! lg:text-2xl! font-bold text-deep-teal font-baloo2 leading-tight">
                 {host.firstName} {host.lastName}
               </h1>
+              {host.isVerifiedHost && (
+                <BadgeCheck className="w-6 h-6 text-blue-500 shrink-0" />
+              )}
               {isGuest && (
                 <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-positive-green/15 text-positive-green text-xs font-semibold">
                   <UserCheck className="w-3 h-3" />
@@ -139,7 +142,8 @@ export function HostProfileHero({ host }: { host: HostProfile }) {
             <div className="flex flex-col items-center justify-center gap-1 py-4 px-4">
               <BadgeCheck className="w-6 h-6 text-blue-500" />
               <span className="text-[11px] text-blue-500 mt-0.5 uppercase tracking-wide font-medium">
-                Verified Host
+                <span className="sm:hidden">Verified</span>
+                <span className="hidden sm:inline">Verified Host</span>
               </span>
             </div>
           )}
