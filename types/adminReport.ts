@@ -49,6 +49,7 @@ export interface AdminReportDetail {
   adminNote: string | null
   reportCategoryLabel: string
   description: string
+  createdAt: string
   images: AdminReportImage[]
   property?: { id: number; title: string }
   reporter: AdminReportUser & { email: string }
