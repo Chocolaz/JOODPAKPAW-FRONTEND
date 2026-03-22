@@ -1,7 +1,7 @@
 'use client'
 
 import { Property } from '@/types'
-import { ChevronLeft, Share2, Globe, GlobeLock } from 'lucide-react'
+import { ChevronLeft, Share2, Globe, GlobeLock, Flag } from 'lucide-react'
 import { HostActionMenu } from '@/app/profile/host/_components/HostActionMenu'
 
 interface PageHeaderButtonsProps {
@@ -13,6 +13,7 @@ interface PageHeaderButtonsProps {
   isPropertyActive?: boolean
   disablePublish?: boolean
   onDataChange?: () => void
+  onReportClick?: () => void
 }
 
 export function PageHeaderButtons({
@@ -24,6 +25,7 @@ export function PageHeaderButtons({
   isPropertyActive,
   disablePublish,
   onDataChange,
+  onReportClick,
 }: PageHeaderButtonsProps) {
   return (
     <>
@@ -35,6 +37,15 @@ export function PageHeaderButtons({
       </button>
 
       <div className="fixed top-4 right-4 z-10 flex items-center gap-2">
+        {onReportClick && (
+          <button
+            onClick={onReportClick}
+            className="p-2 bg-white/80 backdrop-blur-sm rounded-full shadow hover:bg-gray-100 transition"
+            title="Report this property"
+          >
+            <Flag className="w-5 h-5 text-gray-500" />
+          </button>
+        )}
         <button
           onClick={onShareClick}
           className="p-2 bg-white/80 backdrop-blur-sm rounded-full shadow hover:bg-gray-100 transition"

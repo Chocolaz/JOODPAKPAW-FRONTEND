@@ -39,6 +39,8 @@ export interface AdminReportImage {
   fileSize: number
 }
 
+export type ReportAction = 'dismiss_report' | 'warn_user' | 'deactivate_property' | 'delete_review'
+
 export interface AdminReportDetail {
   id: number
   type: 'property' | 'review'

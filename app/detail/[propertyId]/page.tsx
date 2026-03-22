@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from 'react'
 import { getPropertyById } from '@/lib/api'
 import { ErrorState } from '@/app/profile/_components/ErrorState'
 import { usePropertyLoader } from '@/app/_hooks/usePropertyLoader'
@@ -14,6 +15,8 @@ import { PropertyRoomCategories } from '@/app/_components/property-detail/Proper
 import { PropertyHost } from '@/app/_components/property-detail/PropertyHost'
 import { normalizeRoomCategories } from '@/lib/utils'
 import { BookingDrawer } from '@/app/_components/property-detail/BookingDrawer'
+import { ReportPropertyDrawer } from '@/app/_components/property-detail/ReportPropertyDrawer'
+import { useAuth } from '@/app/_components/AuthContext'
 import { Skeleton } from '@/components/ui/skeleton'
 import { motion } from 'framer-motion'
 
@@ -131,6 +134,8 @@ export default function PropertyDetailPage() {
     usePropertyLoader(getPropertyById)
   const router = useRouter()
   const searchParams = useSearchParams()
+  const { user, isAuthenticated } = useAuth()
+  const [reportOpen, setReportOpen] = useState(false)
 
   const handleShare = async () => {
     if (navigator.share && property) {
@@ -177,7 +182,15 @@ export default function PropertyDetailPage() {
 
   return (
     <div className="max-w-6xl mx-auto relative pb-32 lg:pb-10">
-      <PageHeaderButtons onBackClick={handleBack} onShareClick={handleShare} />
+      <PageHeaderButtons
+        onBackClick={handleBack}
+        onShareClick={handleShare}
+        onReportClick={
+          isAuthenticated && user?.id !== property.hostId
+            ? () => setReportOpen(true)
+            : undefined
+        }
+      />
 
       {/* Gallery — full width, slides in from top */}
       <motion.div
@@ -289,6 +302,12 @@ export default function PropertyDetailPage() {
       <div className="lg:hidden">
         <BookingDrawer propertyId={property.id} />
       </div>
+
+      <ReportPropertyDrawer
+        propertyId={property.id}
+        isOpen={reportOpen}
+        onOpenChange={setReportOpen}
+      />
     </div>
   )
 }

@@ -1,9 +1,9 @@
 'use client'
 
-import { useEffect, useState, useCallback } from 'react'
+import React, { useEffect, useState, useCallback } from 'react'
 import { toast } from 'sonner'
-import { getAdminReports, getAdminReportById } from '@/lib/api'
-import type { AdminReportSummary, AdminReportDetail } from '@/types/adminReport'
+import { getAdminReports, getAdminReportById, takeReportAction } from '@/lib/api'
+import type { AdminReportSummary, AdminReportDetail, ReportAction } from '@/types/adminReport'
 import {
   X,
   ChevronLeft,
@@ -12,6 +12,10 @@ import {
   Clock,
   CheckCircle2,
   XCircle,
+  AlertTriangle,
+  ShieldOff,
+  Trash2,
+  Ban,
 } from 'lucide-react'
 
 // ── Helpers ─────────────────────────────────────────────────────────────────
@@ -63,6 +67,51 @@ const STATUS_TABS: { key: StatusFilter; label: string }[] = [
   { key: 'resolved', label: 'Resolved' },
   { key: 'dismissed', label: 'Dismissed' },
 ]
+
+const ACTION_CONFIG: Record<
+  ReportAction,
+  {
+    label: string
+    description: string
+    icon: React.ElementType
+    buttonClass: string
+    confirmClass: string
+    appliesTo: Array<'property' | 'review'>
+  }
+> = {
+  dismiss_report: {
+    label: 'Dismiss Report',
+    description: 'Mark as dismissed — no action taken against the reported content.',
+    icon: XCircle,
+    buttonClass: 'border border-gray-200 text-gray-600 hover:bg-gray-50',
+    confirmClass: 'bg-gray-700 text-white hover:bg-gray-800',
+    appliesTo: ['property', 'review'],
+  },
+  warn_user: {
+    label: 'Warn User',
+    description: 'Send a warning notification to the reporter and property owner.',
+    icon: AlertTriangle,
+    buttonClass: 'border border-amber-200 text-amber-700 bg-amber-50 hover:bg-amber-100',
+    confirmClass: 'bg-amber-600 text-white hover:bg-amber-700',
+    appliesTo: ['property'],
+  },
+  deactivate_property: {
+    label: 'Deactivate Property',
+    description: 'Resolve report and ban the property — host will not be able to reactivate it.',
+    icon: Ban,
+    buttonClass: 'border border-red-200 text-red-700 bg-red-50 hover:bg-red-100',
+    confirmClass: 'bg-red-600 text-white hover:bg-red-700',
+    appliesTo: ['property'],
+  },
+  delete_review: {
+    label: 'Delete Review',
+    description: 'Resolve report and permanently delete the review.',
+    icon: Trash2,
+    buttonClass: 'border border-red-200 text-red-700 bg-red-50 hover:bg-red-100',
+    confirmClass: 'bg-red-600 text-white hover:bg-red-700',
+    appliesTo: ['review'],
+  },
+}
 
 // ── Sub-components ────────────────────────────────────────────────────────────
 function StatusBadge({ status }: { status: string }) {
@@ -161,13 +210,18 @@ function ImageLightbox({
 function ReportPanel({
   id,
   onClose,
+  onUpdated,
 }: {
   id: number
   onClose: () => void
+  onUpdated: () => void
 }) {
   const [detail, setDetail] = useState<AdminReportDetail | null>(null)
   const [loading, setLoading] = useState(true)
   const [lightbox, setLightbox] = useState<{ src: string; label: string } | null>(null)
+  const [pendingAction, setPendingAction] = useState<ReportAction | null>(null)
+  const [adminNote, setAdminNote] = useState('')
+  const [acting, setActing] = useState(false)
 
   useEffect(() => {
     setLoading(true)
@@ -176,6 +230,26 @@ function ReportPanel({
       .catch(() => toast.error('Failed to load report.'))
       .finally(() => setLoading(false))
   }, [id])
+
+  const handleConfirmAction = async () => {
+    if (!detail || !pendingAction) return
+    setActing(true)
+    try {
+      await takeReportAction(id, pendingAction, adminNote.trim() || undefined)
+      toast.success(`Action taken: ${ACTION_CONFIG[pendingAction].label}`)
+      onUpdated()
+      onClose()
+    } catch {
+      toast.error('Failed to take action.')
+    } finally {
+      setActing(false)
+    }
+  }
+
+  const handleCancelAction = () => {
+    setPendingAction(null)
+    setAdminNote('')
+  }
 
   const cfg = detail
     ? STATUS_CONFIG[detail.status as keyof typeof STATUS_CONFIG]
@@ -359,6 +433,81 @@ function ReportPanel({
                   </div>
                 </section>
               )}
+
+              {/* Actions — pending only */}
+              {detail.status === 'pending' && (
+                <section className="pb-2">
+                  <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-3">
+                    Take Action
+                  </p>
+
+                  {pendingAction ? (
+                    // Confirmation view
+                    <div className="flex flex-col gap-3">
+                      <div className="bg-gray-50 border border-gray-200 rounded-xl p-4">
+                        <p className="text-sm font-semibold text-gray-800 mb-1">
+                          {ACTION_CONFIG[pendingAction].label}
+                        </p>
+                        <p className="text-xs text-gray-500 leading-relaxed">
+                          {ACTION_CONFIG[pendingAction].description}
+                        </p>
+                      </div>
+                      <div>
+                        <label className="text-xs font-medium text-gray-500 mb-1.5 block">
+                          Admin note <span className="text-gray-400">(optional)</span>
+                        </label>
+                        <textarea
+                          value={adminNote}
+                          onChange={(e) => setAdminNote(e.target.value)}
+                          placeholder="Internal note about this decision…"
+                          rows={3}
+                          className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm text-gray-800 bg-white resize-none focus:outline-none focus:ring-1 focus:ring-gray-300 focus:border-gray-300"
+                        />
+                      </div>
+                      <div className="grid grid-cols-2 gap-2">
+                        <button
+                          onClick={handleCancelAction}
+                          disabled={acting}
+                          className="py-2.5 rounded-lg border border-gray-200 bg-white text-gray-600 text-sm font-semibold hover:bg-gray-50 transition-all cursor-pointer disabled:opacity-40"
+                        >
+                          Cancel
+                        </button>
+                        <button
+                          onClick={handleConfirmAction}
+                          disabled={acting}
+                          className={`flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-semibold transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed ${ACTION_CONFIG[pendingAction].confirmClass}`}
+                        >
+                          {acting ? (
+                            <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                          ) : (
+                            React.createElement(ACTION_CONFIG[pendingAction].icon, { className: 'w-4 h-4' })
+                          )}
+                          Confirm
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    // Action buttons
+                    <div className="grid grid-cols-2 gap-2">
+                      {(Object.entries(ACTION_CONFIG) as [ReportAction, typeof ACTION_CONFIG[ReportAction]][])
+                        .filter(([, cfg]) => cfg.appliesTo.includes(detail.type))
+                        .map(([action, cfg]) => {
+                          const Icon = cfg.icon
+                          return (
+                            <button
+                              key={action}
+                              onClick={() => setPendingAction(action)}
+                              className={`flex items-center gap-3 w-full px-4 py-3 rounded-xl text-sm font-semibold transition-all cursor-pointer ${cfg.buttonClass}`}
+                            >
+                              <Icon className="w-4 h-4 shrink-0" />
+                              <span className="text-left">{cfg.label}</span>
+                            </button>
+                          )
+                        })}
+                    </div>
+                  )}
+                </section>
+              )}
             </div>
           ) : (
             <div className="p-6 text-center text-sm text-gray-400">
@@ -416,13 +565,10 @@ export default function AdminReportsPage() {
   const fetchData = useCallback(async () => {
     setLoading(true)
     try {
-      const res = await getAdminReports({
-        type,
-        status: status === 'all' ? undefined : status,
-        page,
-        limit: LIMIT,
-      })
-      setData(res.data)
+      const res = await getAdminReports({ type, page, limit: LIMIT })
+      const filtered =
+        status === 'all' ? res.data : res.data.filter((r) => r.status === status)
+      setData(filtered)
       setTotalRows(res.totalRows)
       setTotalPages(res.totalPages)
     } catch {
@@ -703,7 +849,11 @@ export default function AdminReportsPage() {
       </div>
 
       {selectedId !== null && (
-        <ReportPanel id={selectedId} onClose={() => setSelectedId(null)} />
+        <ReportPanel
+          id={selectedId}
+          onClose={() => setSelectedId(null)}
+          onUpdated={fetchData}
+        />
       )}
     </div>
   )

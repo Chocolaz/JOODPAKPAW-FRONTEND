@@ -31,7 +31,8 @@ import {
 import { FavoriteFolderDetail } from '@/types/favorite'
 import type { PropertiesResponse } from '@/types/property'
 import type { HostProfileResponse, HostReviewsResponse } from '@/types/hostProfile'
-import type { AdminReportsResponse, AdminReportDetail } from '@/types/adminReport'
+import type { AdminReportsResponse, AdminReportDetail, ReportAction } from '@/types/adminReport'
+import type { ReportCategoriesResponse } from '@/types/report'
 import type { VerificationData, VerificationResponse } from '@/types/verification'
 import type {
   ChatUser,
@@ -817,6 +818,36 @@ export const moveFavorite = async (data: {
   await addFavorite(data)
 }
 
+// --- Report Functions ---
+export const getReportCategories = (type: string): Promise<ReportCategoriesResponse> => {
+  return request({
+    endpoint: `api/v1/report-categories?type=${type}`,
+    method: 'GET',
+    requiresAuth: true,
+    errorContext: 'Get Report Categories',
+  })
+}
+
+export const submitPropertyReport = (
+  propertyId: number,
+  reportCategoryId: number,
+  description: string,
+  images?: File[]
+): Promise<void> => {
+  const formData = new FormData()
+  formData.append('propertyId', String(propertyId))
+  formData.append('reportCategoryId', String(reportCategoryId))
+  formData.append('description', description)
+  if (images) images.forEach((img) => formData.append('images', img))
+  return request<void>({
+    endpoint: 'api/v1/reports/property',
+    method: 'POST',
+    body: formData,
+    requiresAuth: true,
+    errorContext: 'Submit Property Report',
+  })
+}
+
 // --- Admin: Report Functions ---
 export const getAdminReports = (params?: {
   type?: string
@@ -841,6 +872,20 @@ export const getAdminReportById = (id: number): Promise<AdminReportDetail> => {
     endpoint: `api/v1/admin/reports/${id}`,
     requiresAuth: true,
     errorContext: 'Admin Report Detail',
+  })
+}
+
+export const takeReportAction = (
+  id: number,
+  action: ReportAction,
+  adminNote?: string
+): Promise<void> => {
+  return request<void>({
+    endpoint: `api/v1/admin/reports/${id}/action`,
+    method: 'PATCH',
+    body: { action, ...(adminNote ? { adminNote } : {}) },
+    requiresAuth: true,
+    errorContext: 'Take Report Action',
   })
 }
 
