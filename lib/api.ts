@@ -31,6 +31,20 @@ import {
 import { FavoriteFolderDetail } from '@/types/favorite'
 import type { PropertiesResponse } from '@/types/property'
 import type { HostProfileResponse, HostReviewsResponse } from '@/types/hostProfile'
+import type { AdminReportsResponse, AdminReportDetail } from '@/types/adminReport'
+import type { VerificationData, VerificationResponse } from '@/types/verification'
+import type {
+  ChatUser,
+  ChatMessage,
+  ChatRoom,
+  ChatRoomsResponse,
+  ChatRoomDetail,
+} from '@/types/chat'
+import type {
+  AdminVerificationSummary,
+  AdminVerificationDetail,
+  AdminVerificationsResponse,
+} from '@/types/adminVerification'
 
 // --- Auth Functions ---
 export const signIn = (
@@ -208,21 +222,6 @@ export const getHostProfile = (hostId: string): Promise<HostProfileResponse> => 
 }
 
 // --- Verification ---
-export interface VerificationData {
-  id: number
-  status: 'pending' | 'approved' | 'rejected'
-  isResubmit: boolean
-  idPhoto: string
-  selfieWithId: string
-  submittedAt: string
-  rejectDescription: string | null
-  previousRejectDescription: string | null
-}
-
-export interface VerificationResponse {
-  verification: VerificationData
-}
-
 export const getVerificationStatus = (): Promise<VerificationResponse> =>
   request<VerificationResponse>({
     endpoint: 'api/v1/user-verifications/me',
@@ -345,45 +344,6 @@ export const getPetSizeCategories = (): Promise<PetSizeCategoriesResponse> => {
 }
 
 // --- Chat Functions ---
-export interface ChatUser {
-  id: number
-  firstName: string
-  lastName: string
-  avatar: string
-}
-
-export interface ChatMessage {
-  id: number
-  content: string
-  readAt: string | null
-  createdAt: string
-  sender: ChatUser
-  attachments: (string | { url?: string; path?: string; filePath?: string; file?: string })[]
-}
-
-export interface ChatRoom {
-  id: number
-  lastMessageAt: string
-  lastMessage: {
-    id: number
-    content: string
-    readAt: string | null
-    senderId: number
-  }
-  otherUser: ChatUser
-}
-
-export interface ChatRoomsResponse {
-  chatRooms: ChatRoom[]
-}
-
-export interface ChatRoomDetail {
-  id: number
-  lastMessageAt: string
-  otherUser: ChatUser
-  messages: ChatMessage[]
-}
-
 export const createChatRoom = (
   participantId: number,
   content?: string,
@@ -857,39 +817,34 @@ export const moveFavorite = async (data: {
   await addFavorite(data)
 }
 
+// --- Admin: Report Functions ---
+export const getAdminReports = (params?: {
+  type?: string
+  status?: string
+  page?: number
+  limit?: number
+}): Promise<AdminReportsResponse> => {
+  const query = new URLSearchParams()
+  if (params?.type) query.set('type', params.type)
+  if (params?.status) query.set('status', params.status)
+  if (params?.page) query.set('page', String(params.page))
+  if (params?.limit) query.set('limit', String(params.limit))
+  return request<AdminReportsResponse>({
+    endpoint: `api/v1/admin/reports/paginate?${query}`,
+    requiresAuth: true,
+    errorContext: 'Admin Reports',
+  })
+}
+
+export const getAdminReportById = (id: number): Promise<AdminReportDetail> => {
+  return request<AdminReportDetail>({
+    endpoint: `api/v1/admin/reports/${id}`,
+    requiresAuth: true,
+    errorContext: 'Admin Report Detail',
+  })
+}
+
 // --- Admin: Verification Functions ---
-export interface AdminVerificationUser {
-  id: number
-  firstName: string
-  lastName: string
-  avatar: string
-  email: string
-}
-
-export interface AdminVerificationSummary {
-  id: number
-  user: AdminVerificationUser
-  status: 'pending' | 'approved' | 'rejected'
-  isResubmit: boolean
-  submittedAt: string
-}
-
-export interface AdminVerificationDetail extends AdminVerificationSummary {
-  rejectDescription: string | null
-  previousRejectDescription: string | null
-  idPhoto: string
-  selfieWithId: string
-}
-
-export interface AdminVerificationsResponse {
-  totalRows: number
-  totalPages: number
-  data: AdminVerificationSummary[]
-  limit: number
-  page: number
-  attributes: { status: string }
-}
-
 export const getAdminVerifications = (params?: {
   status?: string
   page?: number
@@ -938,3 +893,4 @@ export const rejectVerification = (id: number, rejectDescription: string): Promi
     errorContext: 'Reject Verification',
   })
 }
+

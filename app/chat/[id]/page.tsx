@@ -10,7 +10,7 @@ import { Send, Check, CheckCheck, Trash2, ImagePlus, ArrowLeft, X } from 'lucide
 import { useChat } from '@/app/_components/ChatContext'
 import { useAuth } from '@/app/_components/AuthContext'
 import { ConfirmationModal } from '@/app/_components/ConfirmationModal'
-import type { ChatMessage } from '@/lib/api'
+import type { ChatMessage } from '@/types/chat'
 
 /* ─── helpers ─── */
 

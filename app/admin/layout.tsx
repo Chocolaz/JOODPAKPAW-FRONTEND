@@ -8,6 +8,26 @@ import Link from 'next/link'
 
 const NAV_ITEMS = [
   {
+    label: 'Reports',
+    href: '/admin/reports',
+    icon: (
+      <svg
+        viewBox="0 0 24 24"
+        className="w-[18px] h-[18px]"
+        strokeWidth={1.75}
+        stroke="currentColor"
+        fill="none"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <path d="M3 3h18v13H3z" />
+        <path d="M12 16v5M8 21h8" />
+        <line x1="8" y1="8" x2="16" y2="8" />
+        <line x1="8" y1="12" x2="13" y2="12" />
+      </svg>
+    ),
+  },
+  {
     label: 'Verifications',
     href: '/admin/verifications',
     icon: (

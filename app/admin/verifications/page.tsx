@@ -8,9 +8,8 @@ import {
   getAdminVerificationById,
   approveVerification,
   rejectVerification,
-  type AdminVerificationSummary,
-  type AdminVerificationDetail,
 } from '@/lib/api'
+import type { AdminVerificationSummary, AdminVerificationDetail } from '@/types/adminVerification'
 import {
   X, CheckCircle, XCircle, RotateCcw,
   ChevronLeft, ChevronRight, ZoomIn,

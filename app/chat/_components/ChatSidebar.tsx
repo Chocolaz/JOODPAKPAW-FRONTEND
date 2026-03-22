@@ -8,7 +8,7 @@ import { useState } from 'react'
 import { useChat } from '@/app/_components/ChatContext'
 import { useAuth } from '@/app/_components/AuthContext'
 import { assetPath } from '@/lib/utils'
-import type { ChatRoom } from '@/lib/api'
+import type { ChatRoom } from '@/types/chat'
 
 function formatTime(dateStr: string): string {
   const date = new Date(dateStr.replace(' ', 'T'))
