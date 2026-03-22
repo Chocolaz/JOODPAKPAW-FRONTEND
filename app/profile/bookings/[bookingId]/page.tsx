@@ -11,6 +11,8 @@ import ReviewSection from './_components/ReviewSection'
 import PendingPaymentSection from './_components/PendingPaymentSection'
 import { Button } from '@/components/ui/button'
 import { ConfirmationModal } from '@/app/_components/ConfirmationModal'
+import { ReportPropertyDrawer } from '@/app/_components/property-detail/ReportPropertyDrawer'
+import { Flag } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 
 function BookingDetailSkeleton() {
@@ -105,6 +107,7 @@ export default function BookingDetailPage() {
   const [error, setError] = useState<string | null>(null)
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false)
   const [isCancelling, setIsCancelling] = useState(false)
+  const [reportOpen, setReportOpen] = useState(false)
 
   const handleBookingUpdate = (updatedFields: Partial<FullBookingDetail>) => {
     setBookingDetails((prevDetails) =>
@@ -216,6 +219,16 @@ export default function BookingDetailPage() {
               />
             )}
 
+            {isSuccessful && bookingDetails.bookingOrders[0]?.propertyId && (
+              <button
+                onClick={() => setReportOpen(true)}
+                className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl border border-gray-200 text-sm font-medium text-gray-500 hover:border-red-300 hover:text-red-500 hover:bg-red-50 transition cursor-pointer"
+              >
+                <Flag className="w-4 h-4" />
+                Report this property
+              </button>
+            )}
+
             {isPending && (
               <Button
                 className="w-full text-base h-12 bg-white text-red-600 border border-red-200 hover:bg-red-50 rounded-xl"
@@ -237,6 +250,14 @@ export default function BookingDetailPage() {
             titleClassName="text-destructive"
             confirmButtonClassName="bg-destructive hover:bg-destructive/90"
           />
+
+          {bookingDetails.bookingOrders[0]?.propertyId && (
+            <ReportPropertyDrawer
+              propertyId={bookingDetails.bookingOrders[0].propertyId}
+              isOpen={reportOpen}
+              onOpenChange={setReportOpen}
+            />
+          )}
         </motion.div>
       )}
     </AnimatePresence>

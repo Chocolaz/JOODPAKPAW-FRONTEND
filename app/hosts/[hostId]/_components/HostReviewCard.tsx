@@ -3,7 +3,8 @@ import { Star } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { HostReview } from '@/types/hostProfile'
 
-function formatDate(dateStr: string) {
+function formatDate(dateStr: string | null) {
+  if (!dateStr) return ''
   return new Date(dateStr.replace(' ', 'T')).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
 }
 

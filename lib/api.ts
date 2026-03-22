@@ -21,7 +21,8 @@ import {
   SignUpCredentials,
   VerifyOtpCredentials,
   Booking,
-  BookingsResponse, // Added BookingsResponse
+  BookingsResponse,
+  BookingsPaginatedResponse,
   FullBookingDetail, // Added FullBookingDetail
   HostBookingDetail,
   NotificationsResponse,
@@ -547,9 +548,12 @@ export const createBooking = (data: BookingRequestBody): Promise<Booking> => {
   })
 }
 
-export const getBookings = (): Promise<BookingsResponse> => {
-  return request<BookingsResponse>({
-    endpoint: 'api/v1/bookings/all',
+export const getBookings = (
+  page = 1,
+  limit = 10
+): Promise<BookingsPaginatedResponse> => {
+  return request<BookingsPaginatedResponse>({
+    endpoint: `api/v1/bookings/paginate?page=${page}&limit=${limit}`,
     method: 'GET',
     requiresAuth: true,
     errorContext: 'Get Bookings',

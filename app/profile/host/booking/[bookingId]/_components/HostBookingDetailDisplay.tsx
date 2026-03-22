@@ -629,6 +629,7 @@ export default function HostBookingDetailDisplay({
         titleClassName="text-deep-teal"
         confirmButtonClassName="bg-deep-teal hover:bg-deep-teal/90"
       />
+
     </>
   )
 }

@@ -36,6 +36,14 @@ export interface BookingsResponse {
   bookings: Booking[]
 }
 
+export interface BookingsPaginatedResponse {
+  totalRows: number
+  totalPages: number
+  data: Booking[]
+  limit: number
+  page: number
+}
+
 export interface Guest {
   id: number
   firstName: string
