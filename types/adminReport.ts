@@ -8,7 +8,7 @@ export interface AdminReportUser {
 
 export interface AdminReportSummary {
   id: number
-  type: 'property' | 'review'
+  type: 'property' | 'review' | 'unban_property'
   status: 'pending' | 'resolved' | 'dismissed'
   resolvedAction: string | null
   reportCategoryLabel: string
@@ -39,11 +39,18 @@ export interface AdminReportImage {
   fileSize: number
 }
 
-export type ReportAction = 'dismiss_report' | 'warn_user' | 'deactivate_property' | 'delete_review'
+export type ReportAction =
+  | 'dismiss_report'
+  | 'warn_user'
+  | 'deactivate_property'
+  | 'deactivate_all_properties'
+  | 'delete_review'
+  | 'unban_property'
+  | 'unban_all_properties'
 
 export interface AdminReportDetail {
   id: number
-  type: 'property' | 'review'
+  type: 'property' | 'review' | 'unban_property'
   status: 'pending' | 'resolved' | 'dismissed'
   resolvedAction: string | null
   adminNote: string | null

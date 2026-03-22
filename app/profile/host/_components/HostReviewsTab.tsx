@@ -169,7 +169,7 @@ export function HostReviewsTab() {
       </div>
       {reportReviewId !== null && (
         <ReportReviewDrawer
-          reviewId={reportReviewId}
+          bookingId={reportReviewId}
           isOpen={reportReviewId !== null}
           onOpenChange={(open) => { if (!open) setReportReviewId(null) }}
         />

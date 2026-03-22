@@ -865,13 +865,13 @@ export const submitPropertyReport = (
 }
 
 export const submitReviewReport = (
-  reviewId: number,
+  bookingId: number,
   reportCategoryId: number,
   description: string,
   images?: File[]
 ): Promise<void> => {
   const formData = new FormData()
-  formData.append('reviewId', String(reviewId))
+  formData.append('bookingId', String(bookingId))
   formData.append('reportCategoryId', String(reportCategoryId))
   formData.append('description', description)
   if (images) images.forEach((img) => formData.append('images', img))

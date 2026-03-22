@@ -11,7 +11,7 @@ import type { ReportCategory } from '@/types/report'
 import { useMediaQuery } from '@/app/_hooks/useMediaQuery'
 
 interface ReportReviewDrawerProps {
-  reviewId: number
+  bookingId: number
   isOpen: boolean
   onOpenChange: (open: boolean) => void
 }
@@ -19,10 +19,10 @@ interface ReportReviewDrawerProps {
 // ── Shared inner content ──────────────────────────────────────────────────────
 function ReportContent({
   onClose,
-  reviewId,
+  bookingId,
 }: {
   onClose: () => void
-  reviewId: number
+  bookingId: number
 }) {
   const [step, setStep] = useState<1 | 2>(1)
   const [categories, setCategories] = useState<ReportCategory[]>([])
@@ -65,7 +65,7 @@ function ReportContent({
     }
     setSubmitting(true)
     try {
-      await submitReviewReport(reviewId, selectedCategory.id, description.trim(), images)
+      await submitReviewReport(bookingId, selectedCategory.id, description.trim(), images)
       toast.success("Report submitted. We'll review it shortly.")
       onClose()
     } catch {
@@ -236,7 +236,7 @@ function ReportContent({
 
 // ── Responsive wrapper ────────────────────────────────────────────────────────
 export function ReportReviewDrawer({
-  reviewId,
+  bookingId,
   isOpen,
   onOpenChange,
 }: ReportReviewDrawerProps) {
@@ -250,7 +250,7 @@ export function ReportReviewDrawer({
           <VisuallyHidden>
             <DialogTitle>Report Review</DialogTitle>
           </VisuallyHidden>
-          <ReportContent reviewId={reviewId} onClose={handleClose} />
+          <ReportContent bookingId={bookingId} onClose={handleClose} />
         </DialogContent>
       </Dialog>
     )
@@ -262,7 +262,7 @@ export function ReportReviewDrawer({
         <VisuallyHidden>
           <DrawerTitle>Report Review</DrawerTitle>
         </VisuallyHidden>
-        <ReportContent reviewId={reviewId} onClose={handleClose} />
+        <ReportContent bookingId={bookingId} onClose={handleClose} />
       </DrawerContent>
     </Drawer>
   )

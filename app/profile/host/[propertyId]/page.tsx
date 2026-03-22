@@ -401,7 +401,7 @@ export default function HostPropertyDetailPage() {
 
       {reportReviewId !== null && (
         <ReportReviewDrawer
-          reviewId={reportReviewId}
+          bookingId={reportReviewId}
           isOpen={reportReviewId !== null}
           onOpenChange={(open) => { if (!open) setReportReviewId(null) }}
         />

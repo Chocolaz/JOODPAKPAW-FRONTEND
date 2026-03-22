@@ -53,12 +53,13 @@ const STATUS_CONFIG = {
   },
 }
 
-type TypeFilter = 'property' | 'review'
+type TypeFilter = 'property' | 'review' | 'unban_property'
 type StatusFilter = 'all' | 'pending' | 'resolved' | 'dismissed'
 
 const TYPE_TABS: { key: TypeFilter; label: string }[] = [
   { key: 'property', label: 'Property Reports' },
   { key: 'review', label: 'Review Reports' },
+  { key: 'unban_property', label: 'Unban Property' },
 ]
 
 const STATUS_TABS: { key: StatusFilter; label: string }[] = [
@@ -76,7 +77,7 @@ const ACTION_CONFIG: Record<
     icon: React.ElementType
     buttonClass: string
     confirmClass: string
-    appliesTo: Array<'property' | 'review'>
+    appliesTo: Array<'property' | 'review' | 'unban_property'>
   }
 > = {
   dismiss_report: {
@@ -85,7 +86,7 @@ const ACTION_CONFIG: Record<
     icon: XCircle,
     buttonClass: 'border border-gray-200 text-gray-600 hover:bg-gray-50',
     confirmClass: 'bg-gray-700 text-white hover:bg-gray-800',
-    appliesTo: ['property', 'review'],
+    appliesTo: ['property', 'review', 'unban_property'],
   },
   warn_user: {
     label: 'Warn User',
@@ -97,10 +98,18 @@ const ACTION_CONFIG: Record<
   },
   deactivate_property: {
     label: 'Deactivate Property',
-    description: 'Resolve report and ban the property — host will not be able to reactivate it.',
+    description: 'Ban this property — host cannot reactivate it. All bookings will be cancelled.',
     icon: Ban,
     buttonClass: 'border border-red-200 text-red-700 bg-red-50 hover:bg-red-100',
     confirmClass: 'bg-red-600 text-white hover:bg-red-700',
+    appliesTo: ['property'],
+  },
+  deactivate_all_properties: {
+    label: 'Deactivate All Properties',
+    description: "Ban all properties owned by this host. All bookings across every property will be cancelled.",
+    icon: ShieldOff,
+    buttonClass: 'border border-red-200 text-red-700 bg-red-50 hover:bg-red-100',
+    confirmClass: 'bg-red-700 text-white hover:bg-red-800',
     appliesTo: ['property'],
   },
   delete_review: {
@@ -110,6 +119,22 @@ const ACTION_CONFIG: Record<
     buttonClass: 'border border-red-200 text-red-700 bg-red-50 hover:bg-red-100',
     confirmClass: 'bg-red-600 text-white hover:bg-red-700',
     appliesTo: ['review'],
+  },
+  unban_property: {
+    label: 'Unban Property',
+    description: 'Lift the ban on this property — host will be able to reactivate it.',
+    icon: CheckCircle2,
+    buttonClass: 'border border-green-200 text-green-700 bg-green-50 hover:bg-green-100',
+    confirmClass: 'bg-positive-green text-white hover:bg-green-600',
+    appliesTo: ['unban_property'],
+  },
+  unban_all_properties: {
+    label: 'Unban All Properties',
+    description: "Lift the ban on all properties owned by this host.",
+    icon: CheckCircle2,
+    buttonClass: 'border border-green-200 text-green-700 bg-green-50 hover:bg-green-100',
+    confirmClass: 'bg-positive-green text-white hover:bg-green-600',
+    appliesTo: ['unban_property'],
   },
 }
 
@@ -661,12 +686,12 @@ export default function AdminReportsPage() {
         <table className="w-full border-collapse">
           <thead>
             <tr className="bg-gray-50 border-b border-gray-200">
-              {type === 'property' ? (
+              {(type === 'property' || type === 'unban_property') ? (
                 <>
                   <th className="px-4 py-3 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Reporter</th>
                   <th className="px-4 py-3 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Property</th>
                   <th className="px-4 py-3 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Category</th>
-                  <th className="px-4 py-3 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Reports</th>
+                  {type === 'property' && <th className="px-4 py-3 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Reports</th>}
                   <th className="px-4 py-3 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Status</th>
                   <th className="px-4 py-3 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Date</th>
                   <th className="px-4 py-3" />
@@ -687,7 +712,7 @@ export default function AdminReportsPage() {
             {loading ? (
               Array.from({ length: 5 }).map((_, i) => (
                 <tr key={i} className="border-b border-gray-100">
-                  {Array.from({ length: type === 'property' ? 7 : 6 }).map((__, j) => (
+                  {Array.from({ length: type === 'property' ? 7 : type === 'unban_property' ? 6 : 6 }).map((__, j) => (
                     <td key={j} className="px-4 py-4">
                       <div
                         className="h-3.5 bg-gray-100 rounded-full animate-pulse"
@@ -703,6 +728,7 @@ export default function AdminReportsPage() {
                   colSpan={type === 'property' ? 7 : 6}
                   className="px-4 py-16 text-center"
                 >
+
                   <p className="text-sm font-semibold text-gray-700 font-baloo2">
                     No reports found
                   </p>
@@ -718,12 +744,11 @@ export default function AdminReportsPage() {
                     onClick={() => setSelectedId(row.id)}
                     className="border-b border-gray-100 cursor-pointer hover:bg-gray-50 transition-colors group relative"
                   >
-                    {isPending && (
-                      <td className="absolute left-0 top-3 bottom-3 w-[2px] rounded-r-full bg-accent-orange p-0 border-0" />
-                    )}
-
                     {/* Reporter */}
-                    <td className="px-4 py-3.5">
+                    <td className="px-4 py-3.5 relative">
+                      {isPending && (
+                        <div className="absolute left-0 top-3 bottom-3 w-[2px] rounded-r-full bg-accent-orange" />
+                      )}
                       <div className="flex items-center gap-2">
                         <UserAvatar user={row.reporter} />
                         <div>
@@ -735,7 +760,7 @@ export default function AdminReportsPage() {
                       </div>
                     </td>
 
-                    {type === 'property' ? (
+                    {(type === 'property' || type === 'unban_property') ? (
                       <>
                         <td className="px-4 py-3.5">
                           {row.property ? (
@@ -754,22 +779,24 @@ export default function AdminReportsPage() {
                             {row.reportCategoryLabel}
                           </span>
                         </td>
-                        <td className="px-4 py-3.5">
-                          {row.reportCount != null && row.reportCount > 0 ? (
-                            <span
-                              className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-bold ${
-                                row.reportCount >= 3
-                                  ? 'bg-red-100 text-red-600'
-                                  : 'bg-gray-100 text-gray-600'
-                              }`}
-                            >
-                              {row.reportCount >= 3 && '⚑ '}
-                              {row.reportCount}
-                            </span>
-                          ) : (
-                            <span className="text-xs text-gray-400">—</span>
-                          )}
-                        </td>
+                        {type === 'property' && (
+                          <td className="px-4 py-3.5">
+                            {row.reportCount != null && row.reportCount > 0 ? (
+                              <span
+                                className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-bold ${
+                                  row.reportCount >= 3
+                                    ? 'bg-red-100 text-red-600'
+                                    : 'bg-gray-100 text-gray-600'
+                                }`}
+                              >
+                                {row.reportCount >= 3 && '⚑ '}
+                                {row.reportCount}
+                              </span>
+                            ) : (
+                              <span className="text-xs text-gray-400">—</span>
+                            )}
+                          </td>
+                        )}
                       </>
                     ) : (
                       <>
