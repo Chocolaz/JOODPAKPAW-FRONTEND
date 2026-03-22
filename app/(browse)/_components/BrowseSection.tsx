@@ -40,7 +40,10 @@ export function BrowseSection({
     const card = scrollRef.current.querySelector('[data-card]') as HTMLElement
     if (!card) return
     const amount = card.offsetWidth + 16 // card width + gap-4
-    scrollRef.current.scrollBy({ left: dir === 'right' ? amount : -amount, behavior: 'smooth' })
+    scrollRef.current.scrollBy({
+      left: dir === 'right' ? amount : -amount,
+      behavior: 'smooth',
+    })
   }
 
   const displayProperties = properties.slice(0, SECTION_LIMIT)
@@ -57,23 +60,29 @@ export function BrowseSection({
         <div className="flex items-center gap-2">
           {icon}
           {seeAllHref && count > SECTION_LIMIT ? (
-            <Link
-              href={seeAllHref}
-              className="group flex items-center gap-1.5"
-            >
-              <h5 className="text-lg lg:text-xl xl:text-2xl font-semibold text-deep-teal underline-offset-4 group-hover:underline group-hover:text-accent-orange transition-colors">
+            <Link href={seeAllHref} className="group flex items-center gap-1.5">
+              <h5 className="text-lg! lg:text-xl! xl:text-2xl! font-semibold text-deep-teal underline-offset-4 group-hover:underline group-hover:text-accent-orange transition-colors">
                 {title}
               </h5>
               <ChevronRight className="w-4 h-4 lg:w-5 lg:h-5 text-neutral-gray group-hover:text-accent-orange transition-colors translate-x-0 group-hover:translate-x-0.5 duration-200" />
             </Link>
           ) : (
-            <h5 className="text-lg lg:text-xl xl:text-2xl font-semibold text-deep-teal">{title}</h5>
+            <h5 className="text-lg lg:text-xl xl:text-2xl font-semibold text-deep-teal">
+              {title}
+            </h5>
           )}
-          <span className="text-sm lg:text-sm xl:text-base text-neutral-gray">({count})</span>
+          <span className="text-sm lg:text-sm xl:text-base text-neutral-gray">
+            ({count})
+          </span>
         </div>
 
         {/* Desktop arrow controls — only when see-all exists */}
-        <div className={cn("items-center gap-1", seeAllHref && count > SECTION_LIMIT ? "hidden lg:flex" : "hidden")}>
+        <div
+          className={cn(
+            'items-center gap-1',
+            seeAllHref && count > SECTION_LIMIT ? 'hidden lg:flex' : 'hidden'
+          )}
+        >
           <button
             onClick={() => scroll('left')}
             className="w-8 h-8 flex items-center justify-center rounded-full border border-gray-200 text-neutral-gray hover:border-deep-teal hover:text-deep-teal transition-colors"

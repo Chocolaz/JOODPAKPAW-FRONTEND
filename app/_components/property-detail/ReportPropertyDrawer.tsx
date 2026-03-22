@@ -149,7 +149,7 @@ function ReportContent({
               </button>
             </div>
 
-            <h2 className="text-[20px] font-bold text-gray-900 leading-snug mt-2">
+            <h2 className="text-[20px]! font-bold text-gray-900 leading-snug mt-2">
               Tell us more
             </h2>
             <div className="mt-2 inline-flex items-center gap-1.5 px-3 py-1 bg-deep-teal/10 rounded-full">
@@ -246,7 +246,7 @@ export function ReportPropertyDrawer({
   if (isDesktop) {
     return (
       <Dialog open={isOpen} onOpenChange={onOpenChange}>
-        <DialogContent className="p-0 overflow-hidden max-w-md w-full max-h-[85vh] flex flex-col gap-0">
+        <DialogContent className="p-0 overflow-hidden max-w-md w-full h-[85vh] flex flex-col gap-0 [&>button]:hidden">
           <VisuallyHidden>
             <DialogTitle>Report Property</DialogTitle>
           </VisuallyHidden>
@@ -262,7 +262,9 @@ export function ReportPropertyDrawer({
         <VisuallyHidden>
           <DrawerTitle>Report Property</DrawerTitle>
         </VisuallyHidden>
-        <ReportContent propertyId={propertyId} onClose={handleClose} />
+        <div className="flex-1 min-h-0 flex flex-col">
+          <ReportContent propertyId={propertyId} onClose={handleClose} />
+        </div>
       </DrawerContent>
     </Drawer>
   )

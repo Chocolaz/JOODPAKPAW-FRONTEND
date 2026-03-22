@@ -27,7 +27,8 @@ function ReportContent({
   const [step, setStep] = useState<1 | 2>(1)
   const [categories, setCategories] = useState<ReportCategory[]>([])
   const [loadingCategories, setLoadingCategories] = useState(false)
-  const [selectedCategory, setSelectedCategory] = useState<ReportCategory | null>(null)
+  const [selectedCategory, setSelectedCategory] =
+    useState<ReportCategory | null>(null)
   const [description, setDescription] = useState('')
   const [images, setImages] = useState<File[]>([])
   const [previews, setPreviews] = useState<string[]>([])
@@ -47,7 +48,10 @@ function ReportContent({
     if (!files.length) return
     const added = files.slice(0, 3 - images.length)
     setImages((prev) => [...prev, ...added])
-    setPreviews((prev) => [...prev, ...added.map((f) => URL.createObjectURL(f))])
+    setPreviews((prev) => [
+      ...prev,
+      ...added.map((f) => URL.createObjectURL(f)),
+    ])
     e.target.value = ''
   }
 
@@ -65,7 +69,12 @@ function ReportContent({
     }
     setSubmitting(true)
     try {
-      await submitReviewReport(bookingId, selectedCategory.id, description.trim(), images)
+      await submitReviewReport(
+        bookingId,
+        selectedCategory.id,
+        description.trim(),
+        images
+      )
       toast.success("Report submitted. We'll review it shortly.")
       onClose()
     } catch {
@@ -104,7 +113,10 @@ function ReportContent({
             {loadingCategories ? (
               <div className="flex flex-col gap-2 pt-1">
                 {Array.from({ length: 5 }).map((_, i) => (
-                  <div key={i} className="h-14 bg-gray-100 rounded-2xl animate-pulse" />
+                  <div
+                    key={i}
+                    className="h-14 bg-gray-100 rounded-2xl animate-pulse"
+                  />
                 ))}
               </div>
             ) : (
@@ -112,10 +124,15 @@ function ReportContent({
                 {categories.map((cat) => (
                   <li key={cat.id}>
                     <button
-                      onClick={() => { setSelectedCategory(cat); setStep(2) }}
+                      onClick={() => {
+                        setSelectedCategory(cat)
+                        setStep(2)
+                      }}
                       className="w-full flex items-center justify-between gap-3 px-4 py-4 rounded-2xl border border-gray-100 bg-white hover:border-deep-teal/30 hover:bg-deep-teal/[0.03] active:scale-[0.99] transition-all cursor-pointer text-left"
                     >
-                      <span className="text-[15px] font-medium text-gray-800">{cat.label}</span>
+                      <span className="text-[15px] font-medium text-gray-800">
+                        {cat.label}
+                      </span>
                       <ChevronRight className="w-4 h-4 text-gray-400 shrink-0" />
                     </button>
                   </li>
@@ -149,7 +166,7 @@ function ReportContent({
               </button>
             </div>
 
-            <h2 className="text-[20px] font-bold text-gray-900 leading-snug mt-2">
+            <h2 className="text-[20px]! font-bold text-gray-900 leading-snug mt-2">
               Tell us more
             </h2>
             <div className="mt-2 inline-flex items-center gap-1.5 px-3 py-1 bg-deep-teal/10 rounded-full">
@@ -170,7 +187,9 @@ function ReportContent({
                 autoFocus
                 className="w-full border border-gray-200 rounded-2xl px-4 py-3.5 text-sm text-gray-800 resize-none focus:outline-none focus:ring-2 focus:ring-deep-teal/20 focus:border-deep-teal/40 transition bg-gray-50 placeholder:text-gray-400"
               />
-              <p className="text-xs text-gray-400 text-right mt-1.5">{description.length} / 500</p>
+              <p className="text-xs text-gray-400 text-right mt-1.5">
+                {description.length} / 500
+              </p>
             </div>
 
             <div>
@@ -246,7 +265,7 @@ export function ReportReviewDrawer({
   if (isDesktop) {
     return (
       <Dialog open={isOpen} onOpenChange={onOpenChange}>
-        <DialogContent className="p-0 overflow-hidden max-w-md w-full max-h-[85vh] flex flex-col gap-0">
+        <DialogContent className="p-0 overflow-hidden max-w-md w-full h-[85vh] flex flex-col gap-0 [&>button]:hidden">
           <VisuallyHidden>
             <DialogTitle>Report Review</DialogTitle>
           </VisuallyHidden>
@@ -262,7 +281,9 @@ export function ReportReviewDrawer({
         <VisuallyHidden>
           <DrawerTitle>Report Review</DrawerTitle>
         </VisuallyHidden>
-        <ReportContent bookingId={bookingId} onClose={handleClose} />
+        <div className="flex-1 min-h-0 flex flex-col">
+          <ReportContent bookingId={bookingId} onClose={handleClose} />
+        </div>
       </DrawerContent>
     </Drawer>
   )

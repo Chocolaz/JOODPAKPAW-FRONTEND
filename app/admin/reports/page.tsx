@@ -4,6 +4,7 @@ import React, { useEffect, useState, useCallback } from 'react'
 import { toast } from 'sonner'
 import { getAdminReports, getAdminReportById, takeReportAction } from '@/lib/api'
 import type { AdminReportSummary, AdminReportDetail, ReportAction } from '@/types/adminReport'
+import { ConfirmationModal } from '@/app/_components/ConfirmationModal'
 import {
   X,
   ChevronLeft,
@@ -247,6 +248,7 @@ function ReportPanel({
   const [pendingAction, setPendingAction] = useState<ReportAction | null>(null)
   const [adminNote, setAdminNote] = useState('')
   const [acting, setActing] = useState(false)
+  const [showDangerConfirm, setShowDangerConfirm] = useState(false)
 
   useEffect(() => {
     setLoading(true)
@@ -274,6 +276,15 @@ function ReportPanel({
   const handleCancelAction = () => {
     setPendingAction(null)
     setAdminNote('')
+    setShowDangerConfirm(false)
+  }
+
+  const handleConfirmClick = () => {
+    if (pendingAction === 'deactivate_all_properties') {
+      setShowDangerConfirm(true)
+    } else {
+      handleConfirmAction()
+    }
   }
 
   const cfg = detail
@@ -469,14 +480,29 @@ function ReportPanel({
                   {pendingAction ? (
                     // Confirmation view
                     <div className="flex flex-col gap-3">
-                      <div className="bg-gray-50 border border-gray-200 rounded-xl p-4">
-                        <p className="text-sm font-semibold text-gray-800 mb-1">
-                          {ACTION_CONFIG[pendingAction].label}
-                        </p>
-                        <p className="text-xs text-gray-500 leading-relaxed">
-                          {ACTION_CONFIG[pendingAction].description}
-                        </p>
-                      </div>
+                      {pendingAction === 'deactivate_all_properties' ? (
+                        <div className="bg-red-50 border-2 border-red-300 rounded-xl p-4">
+                          <div className="flex items-center gap-2 mb-2">
+                            <ShieldOff className="w-4 h-4 text-red-600 shrink-0" />
+                            <p className="text-sm font-bold text-red-700">
+                              {ACTION_CONFIG[pendingAction].label}
+                            </p>
+                            <span className="ml-auto text-[10px] font-bold bg-red-200 text-red-700 px-2 py-0.5 rounded-full tracking-wider uppercase">Danger</span>
+                          </div>
+                          <p className="text-xs text-red-600 leading-relaxed">
+                            {ACTION_CONFIG[pendingAction].description}
+                          </p>
+                        </div>
+                      ) : (
+                        <div className="bg-gray-50 border border-gray-200 rounded-xl p-4">
+                          <p className="text-sm font-semibold text-gray-800 mb-1">
+                            {ACTION_CONFIG[pendingAction].label}
+                          </p>
+                          <p className="text-xs text-gray-500 leading-relaxed">
+                            {ACTION_CONFIG[pendingAction].description}
+                          </p>
+                        </div>
+                      )}
                       <div>
                         <label className="text-xs font-medium text-gray-500 mb-1.5 block">
                           Admin note <span className="text-gray-400">(optional)</span>
@@ -498,7 +524,7 @@ function ReportPanel({
                           Cancel
                         </button>
                         <button
-                          onClick={handleConfirmAction}
+                          onClick={handleConfirmClick}
                           disabled={acting}
                           className={`flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-semibold transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed ${ACTION_CONFIG[pendingAction].confirmClass}`}
                         >
@@ -518,11 +544,12 @@ function ReportPanel({
                         .filter(([, cfg]) => cfg.appliesTo.includes(detail.type))
                         .map(([action, cfg]) => {
                           const Icon = cfg.icon
+                          const isDanger = action === 'deactivate_all_properties'
                           return (
                             <button
                               key={action}
                               onClick={() => setPendingAction(action)}
-                              className={`flex items-center gap-3 w-full px-4 py-3 rounded-xl text-sm font-semibold transition-all cursor-pointer ${cfg.buttonClass}`}
+                              className={`flex items-center gap-2 w-full px-4 py-3 rounded-xl text-sm font-semibold transition-all cursor-pointer ${isDanger ? 'bg-red-600 text-white hover:bg-red-700 border-2 border-red-800/30' : cfg.buttonClass}`}
                             >
                               <Icon className="w-4 h-4 shrink-0" />
                               <span className="text-left">{cfg.label}</span>
@@ -549,6 +576,17 @@ function ReportPanel({
           onClose={() => setLightbox(null)}
         />
       )}
+
+      <ConfirmationModal
+        isOpen={showDangerConfirm}
+        onClose={() => setShowDangerConfirm(false)}
+        onConfirm={() => { setShowDangerConfirm(false); handleConfirmAction() }}
+        title="Deactivate All Properties?"
+        message="This will <strong>ban every property</strong> this host owns and <strong>cancel all bookings</strong>. This cannot be undone automatically."
+        titleClassName="text-red-600"
+        confirmButtonClassName="bg-red-600 hover:bg-red-700 text-white"
+      />
+
       <style>{`@keyframes slideIn { from { transform: translateX(20px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }`}</style>
     </>
   )
