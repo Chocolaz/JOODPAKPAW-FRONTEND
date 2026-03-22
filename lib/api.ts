@@ -852,6 +852,26 @@ export const submitPropertyReport = (
   })
 }
 
+export const submitReviewReport = (
+  reviewId: number,
+  reportCategoryId: number,
+  description: string,
+  images?: File[]
+): Promise<void> => {
+  const formData = new FormData()
+  formData.append('reviewId', String(reviewId))
+  formData.append('reportCategoryId', String(reportCategoryId))
+  formData.append('description', description)
+  if (images) images.forEach((img) => formData.append('images', img))
+  return request<void>({
+    endpoint: 'api/v1/reports/review',
+    method: 'POST',
+    body: formData,
+    requiresAuth: true,
+    errorContext: 'Submit Review Report',
+  })
+}
+
 // --- Admin: Report Functions ---
 export const getAdminReports = (params?: {
   type?: string

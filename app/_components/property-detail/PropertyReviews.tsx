@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useMemo } from 'react'
-import { Star, UserCircle } from 'lucide-react'
+import { Star, UserCircle, Flag } from 'lucide-react'
 import { PropertyReview } from '@/types/property'
 import { cn } from '@/lib/utils'
 import Image from 'next/image'
@@ -16,6 +16,7 @@ interface PropertyReviewsProps {
   avgRating: number
   reviewCount: number
   reviews?: PropertyReview[]
+  onReportReview?: (reviewId: number) => void
 }
 
 const RATING_LABELS = ['', 'Poor', 'Fair', 'Good', 'Very Good', 'Excellent']
@@ -76,7 +77,13 @@ function RatingBreakdown({ reviews }: { reviews: PropertyReview[] }) {
   )
 }
 
-function ReviewCard({ review }: { review: PropertyReview }) {
+function ReviewCard({
+  review,
+  onReport,
+}: {
+  review: PropertyReview
+  onReport?: (reviewId: number) => void
+}) {
   return (
     <div className="bg-white rounded-xl border border-gray-100 p-4 shadow-sm space-y-3">
       <div className="flex items-center gap-3">
@@ -99,6 +106,15 @@ function ReviewCard({ review }: { review: PropertyReview }) {
           </p>
           <StarRow rating={review.rating} />
         </div>
+        {onReport && (
+          <button
+            onClick={() => onReport(review.id)}
+            className="shrink-0 p-1.5 rounded-full text-gray-300 hover:text-red-400 hover:bg-red-50 transition cursor-pointer"
+            title="Report this review"
+          >
+            <Flag className="w-3.5 h-3.5" />
+          </button>
+        )}
       </div>
 
       {review.comment && (
@@ -114,6 +130,7 @@ export function PropertyReviews({
   avgRating,
   reviewCount,
   reviews = [],
+  onReportReview,
 }: PropertyReviewsProps) {
   const [isModalOpen, setIsModalOpen] = useState(false)
 
@@ -161,7 +178,7 @@ export function PropertyReviews({
       {topReviews.length > 0 ? (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
           {topReviews.map((review, index) => (
-            <ReviewCard key={index} review={review} />
+            <ReviewCard key={index} review={review} onReport={onReportReview} />
           ))}
         </div>
       ) : (
@@ -200,7 +217,7 @@ export function PropertyReviews({
             {[...reviews]
               .sort((a, b) => b.rating - a.rating)
               .map((review, index) => (
-                <ReviewCard key={index} review={review} />
+                <ReviewCard key={index} review={review} onReport={onReportReview} />
               ))}
           </div>
         </DialogContent>

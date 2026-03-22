@@ -22,6 +22,7 @@ import { PropertyRoomCategories } from '@/app/_components/property-detail/Proper
 import { Property } from '@/types'
 import { normalizeRoomCategories } from '@/lib/utils'
 import { PropertyReviews } from '@/app/_components/property-detail/PropertyReviews'
+import { ReportReviewDrawer } from '@/app/_components/property-detail/ReportReviewDrawer'
 import { PropertyBookingsSection } from './_components/PropertyBookingsSection'
 import { AddRoomCategoryForm } from '../_components/AddRoomCategoryForm'
 import { Plus, ChevronLeft } from 'lucide-react'
@@ -42,6 +43,7 @@ export default function HostPropertyDetailPage() {
   const [showPublishModal, setShowPublishModal] = useState(false)
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [isAddRoomDrawerOpen, setIsAddRoomDrawerOpen] = useState(false)
+  const [reportReviewId, setReportReviewId] = useState<number | null>(null)
 
   const handleShare = async () => {
     if (navigator.share && property) {
@@ -237,14 +239,23 @@ export default function HostPropertyDetailPage() {
           avgRating={property.avgRating}
           reviewCount={property.reviewCount ?? 0}
           reviews={property.reviews}
+          onReportReview={(id) => setReportReviewId(id)}
         />
-        <PropertyLocation property={property} />
+          <PropertyLocation property={property} />
 
         <PropertyBookingsSection
           propertyId={property.id}
           propertyTitle={property.title}
         />
       </div>
+
+      {reportReviewId !== null && (
+        <ReportReviewDrawer
+          reviewId={reportReviewId}
+          isOpen={reportReviewId !== null}
+          onOpenChange={(open) => { if (!open) setReportReviewId(null) }}
+        />
+      )}
     </div>
   )
 }

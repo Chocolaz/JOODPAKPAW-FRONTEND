@@ -59,6 +59,7 @@ export interface PropertyType {
 }
 
 export interface PropertyReview {
+  id: number
   firstName: string
   lastName: string
   avatar?: string | null
