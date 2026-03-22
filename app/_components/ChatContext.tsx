@@ -17,9 +17,8 @@ import {
   sendChatMessage,
   markChatMessagesAsRead,
   deleteChatRoom,
-  type ChatRoom,
-  type ChatMessage,
 } from '@/lib/api'
+import type { ChatRoom, ChatMessage } from '@/types/chat'
 
 interface ChatContextType {
   rooms: ChatRoom[]
