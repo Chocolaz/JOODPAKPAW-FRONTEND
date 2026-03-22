@@ -2,8 +2,8 @@
 
 import React, { useEffect, useState, useMemo, useRef, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { getHostBookings } from '@/lib/api'
-import { Booking, BookingsResponse } from '@/types/booking'
+import { getHostBookingsPaginated } from '@/lib/api'
+import { Booking } from '@/types/booking'
 import { ErrorState } from '@/app/profile/_components/ErrorState'
 import { useRouter } from 'next/navigation'
 import {
@@ -17,7 +17,7 @@ import {
 } from 'date-fns'
 import { BookingCard } from '@/app/profile/bookings/_components/BookingCard'
 import { cn } from '@/lib/utils'
-import { CalendarX2, AlertCircle } from 'lucide-react'
+import { CalendarX2, AlertCircle, Loader2 } from 'lucide-react'
 import { PropertyFilterDropdown } from './PropertyFilterDropdown'
 
 // { 'yyyy-MM': bookingCount } — how many bookings the user last saw for that month
@@ -56,6 +56,9 @@ type MonthItem = { type: 'month'; date: Date } | { type: 'year'; year: number }
 export function HostBookingList() {
   const [bookings, setBookings] = useState<Booking[]>([])
   const [loading, setLoading] = useState(true)
+  const [loadingMore, setLoadingMore] = useState(false)
+  const [page, setPage] = useState(1)
+  const [totalPages, setTotalPages] = useState(1)
   const [error, setError] = useState<string | null>(null)
   const [selectedMonth, setSelectedMonth] = useState(new Date())
   const [seen, setSeen] = useState<Record<string, number>>(loadSeen)
@@ -69,8 +72,10 @@ export function HostBookingList() {
     const fetchBookings = async () => {
       try {
         setLoading(true)
-        const response: BookingsResponse = await getHostBookings()
-        setBookings(response.bookings)
+        const res = await getHostBookingsPaginated(1, 20)
+        setBookings(res.data)
+        setTotalPages(res.totalPages)
+        setPage(1)
       } catch (err: unknown) {
         setError(err instanceof Error ? err.message : 'Failed to fetch host bookings')
       } finally {
@@ -79,6 +84,21 @@ export function HostBookingList() {
     }
     fetchBookings()
   }, [])
+
+  const handleLoadMore = async () => {
+    const nextPage = page + 1
+    setLoadingMore(true)
+    try {
+      const res = await getHostBookingsPaginated(nextPage, 20)
+      setBookings((prev) => [...prev, ...res.data])
+      setPage(nextPage)
+      setTotalPages(res.totalPages)
+    } catch {
+      // silent
+    } finally {
+      setLoadingMore(false)
+    }
+  }
 
   const scrollToMonth = useCallback((date: Date) => {
     const key = format(date, 'yyyy-MM')
@@ -381,15 +401,29 @@ export function HostBookingList() {
           {/* Scrollable card area */}
           <div className="grow min-h-0 overflow-y-auto scrollbar-modern p-3 sm:p-4 md:p-6">
             {filteredBookings.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
-                {filteredBookings.map((booking) => (
-                  <BookingCard
-                    key={booking.id}
-                    booking={booking}
-                    onClick={(id) => router.push(`/profile/host/booking/${id}`)}
-                  />
-                ))}
-              </div>
+              <>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
+                  {filteredBookings.map((booking) => (
+                    <BookingCard
+                      key={booking.id}
+                      booking={booking}
+                      onClick={(id) => router.push(`/profile/host/booking/${id}`)}
+                    />
+                  ))}
+                </div>
+                {page < totalPages && (
+                  <div className="flex justify-center mt-5">
+                    <button
+                      onClick={handleLoadMore}
+                      disabled={loadingMore}
+                      className="flex items-center gap-2 px-5 py-2.5 rounded-full border border-gray-200 text-sm font-medium text-gray-600 hover:border-deep-teal/40 hover:text-deep-teal transition disabled:opacity-50"
+                    >
+                      {loadingMore && <Loader2 className="w-4 h-4 animate-spin" />}
+                      {loadingMore ? 'Loading…' : 'Load more'}
+                    </button>
+                  </div>
+                )}
+              </>
             ) : (
               <div className="flex flex-col items-center justify-center py-16 text-center px-6">
                 <CalendarX2 className="w-12 h-12 text-gray-300 mb-3" />

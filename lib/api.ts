@@ -600,6 +600,16 @@ export const getHostBookings = (): Promise<BookingsResponse> => {
   })
 }
 
+export const getHostBookingsPaginated = (page = 1, limit = 20): Promise<BookingsPaginatedResponse> => {
+  return request<BookingsPaginatedResponse>({
+    endpoint: `api/v1/hosts/bookings/paginate?page=${page}&limit=${limit}`,
+    method: 'GET',
+    requiresAuth: true,
+    errorContext: 'Get Host Bookings',
+    cache: 'no-store',
+  })
+}
+
 export const completeBooking = (bookingId: number): Promise<void> => {
   return request<void>({
     endpoint: `api/v1/hosts/bookings/${bookingId}/success`,
@@ -621,10 +631,12 @@ export const getHostBookingById = (
 }
 
 export const getHostPropertyBookings = (
-  propertyId: string
-): Promise<BookingsResponse> => {
-  return request<BookingsResponse>({
-    endpoint: `api/v1/hosts/properties/${propertyId}/bookings/all`,
+  propertyId: string,
+  page = 1,
+  limit = 10
+): Promise<BookingsPaginatedResponse> => {
+  return request<BookingsPaginatedResponse>({
+    endpoint: `api/v1/hosts/properties/${propertyId}/bookings/paginate?page=${page}&limit=${limit}`,
     method: 'GET',
     requiresAuth: true,
     errorContext: 'Get Host Property Bookings',

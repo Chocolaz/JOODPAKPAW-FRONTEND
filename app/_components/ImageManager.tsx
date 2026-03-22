@@ -19,6 +19,7 @@ interface ImageManagerProps {
   onExistingImagesChange: (images: PropertyImage[]) => void
   onNewFilesChange: (files: File[]) => void
   renderAsGridAddButton?: boolean
+  layout?: 'scroll' | 'grid'
 }
 
 interface FileEntry { file: File; id: number; url: string }
@@ -30,6 +31,7 @@ export function ImageManager({
   onExistingImagesChange,
   onNewFilesChange,
   renderAsGridAddButton = false,
+  layout = 'scroll',
 }: ImageManagerProps) {
   const counterRef = useRef(0)
   const entryCacheRef = useRef<Map<File, FileEntry>>(new Map())
@@ -129,8 +131,9 @@ export function ImageManager({
     onRemove: () => void,
     isCover: boolean,
     unoptimized = false,
+    gridMode = false,
   ) => (
-    <div key={key} className="relative flex-none w-32 aspect-[4/3] rounded-xl overflow-hidden shadow-sm border border-gray-100">
+    <div key={key} className={`relative ${gridMode ? 'w-full' : 'flex-none w-32'} aspect-[4/3] rounded-xl overflow-hidden shadow-sm border border-gray-100`}>
       <Image src={src} alt="" fill unoptimized={unoptimized} className="object-cover" />
       {isCover && (
         <span className="absolute bottom-1.5 left-1.5 text-[10px] font-semibold bg-black/50 text-white px-1.5 py-0.5 rounded-md backdrop-blur-sm">
@@ -182,28 +185,33 @@ export function ImageManager({
           </div>
         )}
 
-        {/* Thumbnail grid */}
+        {/* Thumbnails */}
         {totalImages > 0 && (
-          <div className="flex gap-3 pb-2 overflow-x-auto hide-scrollbar mt-6">
+          <div className={layout === 'grid'
+            ? 'grid grid-cols-2 gap-2 mt-3'
+            : 'flex gap-3 pb-2 overflow-x-auto hide-scrollbar mt-6'
+          }>
             {existingImages.map((image, i) =>
               renderThumbnail(
                 image.filePath,
                 `existing-${image.id}`,
                 () => removeExistingImage(image.id),
                 i === 0,
+                false,
+                layout === 'grid',
               ),
             )}
             {newFiles.map((file, i) => {
               const entry = entryCacheRef.current.get(file)
               if (!entry) return null
               const isCover = existingImages.length === 0 && i === 0
-              return renderThumbnail(entry.url, entry.id, () => removeNewFile(file), isCover, true)
+              return renderThumbnail(entry.url, entry.id, () => removeNewFile(file), isCover, true, layout === 'grid')
             })}
 
             {totalImages < MAX_FILES && (
               <div
                 onClick={triggerUpload}
-                className="flex-none w-32 aspect-[4/3] flex flex-col items-center justify-center gap-1 border-2 border-dashed border-gray-200 rounded-xl cursor-pointer hover:border-deep-teal/40 hover:bg-teal-50/30 transition-all bg-white"
+                className={`${layout === 'grid' ? 'w-full' : 'flex-none w-32'} aspect-[4/3] flex flex-col items-center justify-center gap-1 border-2 border-dashed border-gray-200 rounded-xl cursor-pointer hover:border-deep-teal/40 hover:bg-teal-50/30 transition-all bg-white`}
               >
                 <ImagePlus className="w-6 h-6 text-gray-400" />
                 <span className="text-xs text-gray-400">Add more</span>

@@ -1,5 +1,5 @@
 import Image from 'next/image'
-import { Star } from 'lucide-react'
+import { Star, Flag } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { HostReview } from '@/types/hostProfile'
 
@@ -8,7 +8,7 @@ function formatDate(dateStr: string | null) {
   return new Date(dateStr.replace(' ', 'T')).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
 }
 
-export function HostReviewCard({ review }: { review: HostReview }) {
+export function HostReviewCard({ review, onReport }: { review: HostReview; onReport?: (id: number) => void }) {
   const { guestProfile } = review
   const guestName = `${guestProfile.firstName} ${guestProfile.lastName}`
 
@@ -28,7 +28,18 @@ export function HostReviewCard({ review }: { review: HostReview }) {
           </div>
           <span className="text-sm font-medium text-gray-800 truncate">{guestName}</span>
         </div>
-        <span className="text-xs text-neutral-gray shrink-0">{formatDate(review.reviewedAt)}</span>
+        <div className="flex items-center gap-2 shrink-0">
+          <span className="text-xs text-neutral-gray">{formatDate(review.reviewedAt)}</span>
+          {onReport && (
+            <button
+              onClick={() => onReport(review.id)}
+              className="p-1 rounded-full text-gray-300 hover:text-red-400 hover:bg-red-50 transition cursor-pointer"
+              title="Report this review"
+            >
+              <Flag className="w-3.5 h-3.5" />
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Stars */}

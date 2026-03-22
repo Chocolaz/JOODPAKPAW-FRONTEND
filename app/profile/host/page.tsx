@@ -12,7 +12,8 @@ import { HostBookingList } from './_components/HostBookingList'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { useAuth } from '@/app/_components/AuthContext'
 import { HostBookingHistoryList } from './_components/HostBookingHistoryList'
-import { Plus, LayoutGrid, CalendarDays, History, Check, ExternalLink, ChevronLeft } from 'lucide-react'
+import { HostReviewsTab } from './_components/HostReviewsTab'
+import { Plus, LayoutGrid, CalendarDays, History, Check, ExternalLink, ChevronLeft, Star } from 'lucide-react'
 import { HostBanner } from '@/app/profile/_components/HostBanner'
 
 export default function HostPage() {
@@ -28,7 +29,7 @@ export default function HostPage() {
   const filterParam = searchParams.get('filter') || 'all'
 
   const defaultTab = useMemo(() => {
-    if (isHost && (tabParam === 'bookings' || tabParam === 'history')) return tabParam
+    if (isHost && (tabParam === 'bookings' || tabParam === 'history' || tabParam === 'reviews')) return tabParam
     return 'properties'
   }, [isHost, tabParam])
 
@@ -71,7 +72,7 @@ export default function HostPage() {
       <Tabs defaultValue={defaultTab} className="flex flex-col flex-1 min-h-0">
         {/* Tab bar */}
         {isHost && (
-          <TabsList className="grid w-full grid-cols-3 rounded-none h-11 lg:h-13 shrink-0 bg-white/90 backdrop-blur-sm border-b border-gray-100 lg:px-12">
+          <TabsList className="grid w-full grid-cols-4 rounded-none h-11 lg:h-13 shrink-0 bg-white/90 backdrop-blur-sm border-b border-gray-100 lg:px-12">
             <TabsTrigger value="properties" className="flex items-center gap-2 text-sm lg:text-base">
               <LayoutGrid className="w-4 h-4 hidden lg:block" />
               Properties
@@ -83,6 +84,10 @@ export default function HostPage() {
             <TabsTrigger value="history" className="flex items-center gap-2 text-sm lg:text-base">
               <History className="w-4 h-4 hidden lg:block" />
               History
+            </TabsTrigger>
+            <TabsTrigger value="reviews" className="flex items-center gap-2 text-sm lg:text-base">
+              <Star className="w-4 h-4 hidden lg:block" />
+              Reviews
             </TabsTrigger>
           </TabsList>
         )}
@@ -278,6 +283,12 @@ export default function HostPage() {
         {isHost && (
           <TabsContent value="history" className="mt-0 flex-1 min-h-0 overflow-hidden">
             <HostBookingHistoryList />
+          </TabsContent>
+        )}
+
+        {isHost && (
+          <TabsContent value="reviews" className="mt-0 flex-1 min-h-0 overflow-hidden">
+            <HostReviewsTab />
           </TabsContent>
         )}
       </Tabs>

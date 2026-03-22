@@ -37,7 +37,7 @@ export function FacilityCard({
         {selected && <div className="w-2.5 h-2.5 bg-white rounded-full"></div>}
       </div>
 
-      <span className="font-medium text-neutral-dark">{facility.name}</span>
+      <span className="text-sm font-medium text-neutral-dark">{facility.name}</span>
     </button>
   )
 }

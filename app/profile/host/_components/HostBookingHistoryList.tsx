@@ -2,14 +2,14 @@
 
 import React, { useEffect, useState, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { getHostBookings } from '@/lib/api'
-import { Booking, BookingsResponse } from '@/types/booking'
+import { getHostBookingsPaginated } from '@/lib/api'
+import { Booking } from '@/types/booking'
 import { ErrorState } from '@/app/profile/_components/ErrorState'
 import { useRouter } from 'next/navigation'
 import { parseISO } from 'date-fns'
 import { BookingCard } from '@/app/profile/bookings/_components/BookingCard'
 import { cn } from '@/lib/utils'
-import { History, Check } from 'lucide-react'
+import { History, Check, Loader2 } from 'lucide-react'
 import { PropertyFilterDropdown } from './PropertyFilterDropdown'
 
 const HISTORY_FILTERS = [
@@ -21,6 +21,9 @@ const HISTORY_FILTERS = [
 export function HostBookingHistoryList() {
   const [bookings, setBookings] = useState<Booking[]>([])
   const [loading, setLoading] = useState(true)
+  const [loadingMore, setLoadingMore] = useState(false)
+  const [page, setPage] = useState(1)
+  const [totalPages, setTotalPages] = useState(1)
   const [error, setError] = useState<string | null>(null)
   const [statusFilter, setStatusFilter] = useState('ALL')
   const [propertyFilter, setPropertyFilter] = useState('ALL')
@@ -30,8 +33,10 @@ export function HostBookingHistoryList() {
     const fetchBookings = async () => {
       try {
         setLoading(true)
-        const response: BookingsResponse = await getHostBookings()
-        setBookings(response.bookings)
+        const res = await getHostBookingsPaginated(1, 20)
+        setBookings(res.data)
+        setTotalPages(res.totalPages)
+        setPage(1)
       } catch (err: unknown) {
         setError(err instanceof Error ? err.message : 'Failed to fetch host bookings')
       } finally {
@@ -40,6 +45,21 @@ export function HostBookingHistoryList() {
     }
     fetchBookings()
   }, [])
+
+  const handleLoadMore = async () => {
+    const nextPage = page + 1
+    setLoadingMore(true)
+    try {
+      const res = await getHostBookingsPaginated(nextPage, 20)
+      setBookings((prev) => [...prev, ...res.data])
+      setPage(nextPage)
+      setTotalPages(res.totalPages)
+    } catch {
+      // silent
+    } finally {
+      setLoadingMore(false)
+    }
+  }
 
   const historyBookings = useMemo(() => {
     return bookings.filter((booking) => {
@@ -278,15 +298,28 @@ export function HostBookingHistoryList() {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -6 }}
                 transition={{ duration: 0.2 }}
-                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 lg:gap-4"
               >
-                {filteredBookings.map((booking) => (
-                  <BookingCard
-                    key={booking.id}
-                    booking={booking}
-                    onClick={(id) => router.push(`/profile/host/booking/${id}`)}
-                  />
-                ))}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 lg:gap-4">
+                  {filteredBookings.map((booking) => (
+                    <BookingCard
+                      key={booking.id}
+                      booking={booking}
+                      onClick={(id) => router.push(`/profile/host/booking/${id}`)}
+                    />
+                  ))}
+                </div>
+                {page < totalPages && (
+                  <div className="flex justify-center mt-5">
+                    <button
+                      onClick={handleLoadMore}
+                      disabled={loadingMore}
+                      className="flex items-center gap-2 px-5 py-2.5 rounded-full border border-gray-200 text-sm font-medium text-gray-600 hover:border-deep-teal/40 hover:text-deep-teal transition disabled:opacity-50"
+                    >
+                      {loadingMore && <Loader2 className="w-4 h-4 animate-spin" />}
+                      {loadingMore ? 'Loading…' : 'Load more'}
+                    </button>
+                  </div>
+                )}
               </motion.div>
             ) : (
               <motion.div
