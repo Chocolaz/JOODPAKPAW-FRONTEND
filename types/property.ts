@@ -89,6 +89,7 @@ export interface Property {
   longitude: number | string
   zipcode: string
   isActive: boolean
+  isBannedByAdmin?: boolean
   isFavorite: boolean
   avgRating: number
   hostId: number

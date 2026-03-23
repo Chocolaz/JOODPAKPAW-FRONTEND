@@ -793,7 +793,7 @@ export default function AdminReportsPage() {
                           <p className="text-[13px] font-semibold text-gray-900 leading-tight">
                             {row.reporter.firstName} {row.reporter.lastName}
                           </p>
-                          <p className="text-xs text-gray-400">#{row.reporter.id}</p>
+                          <p className="text-xs text-gray-400">User ID: {row.reporter.id}</p>
                         </div>
                       </div>
                     </td>
@@ -806,7 +806,7 @@ export default function AdminReportsPage() {
                               <p className="text-[13px] font-medium text-gray-800 leading-tight">
                                 {row.property.title}
                               </p>
-                              <p className="text-xs text-gray-400">#{row.property.id}</p>
+                              <p className="text-xs text-gray-400">Property ID: {row.property.id}</p>
                             </div>
                           ) : (
                             <span className="text-xs text-gray-400">—</span>
@@ -846,7 +846,7 @@ export default function AdminReportsPage() {
                                 <p className="text-[13px] font-medium text-gray-800 leading-tight">
                                   {row.reviewAuthor.firstName} {row.reviewAuthor.lastName}
                                 </p>
-                                <p className="text-xs text-gray-400">#{row.reviewAuthor.id}</p>
+                                <p className="text-xs text-gray-400">User ID: {row.reviewAuthor.id}</p>
                               </div>
                             </div>
                           ) : (

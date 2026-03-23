@@ -34,6 +34,7 @@ import {
   CheckCircle2,
   XCircle,
   Pencil,
+  Ban,
 } from 'lucide-react'
 import {
   Drawer,
@@ -108,6 +109,7 @@ export default function HostPropertyDetailPage() {
 
   const handleGlobeClick = () => {
     if (!property) return
+    if (property.isBannedByAdmin) return
     if (!property.isActive && roomCategoriesCount === 0) {
       toast.error('Please add a room category first.')
       return
@@ -187,6 +189,17 @@ export default function HostPropertyDetailPage() {
         titleClassName="text-red-500"
         confirmButtonClassName="bg-red-500"
       />
+
+      {/* Banned banner */}
+      {property.isBannedByAdmin && (
+        <div className="mx-4 lg:mx-2 mb-4 flex items-start gap-3 bg-red-50 border border-red-200 rounded-2xl px-5 py-4">
+          <Ban className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
+          <div>
+            <p className="text-sm font-semibold text-red-700">This property has been suspended</p>
+            <p className="text-xs text-red-500 mt-0.5">It is no longer visible to guests. You may submit an appeal to request a review.</p>
+          </div>
+        </div>
+      )}
 
       {/* Gallery */}
       <motion.div
@@ -318,13 +331,17 @@ export default function HostPropertyDetailPage() {
                 <p className="text-sm font-semibold text-gray-700">Status</p>
                 <span className={cn(
                   'inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1 rounded-full',
-                  property.isActive
-                    ? 'bg-emerald-100 text-emerald-700'
-                    : 'bg-gray-100 text-gray-500'
+                  property.isBannedByAdmin
+                    ? 'bg-red-100 text-red-600'
+                    : property.isActive
+                      ? 'bg-emerald-100 text-emerald-700'
+                      : 'bg-gray-100 text-gray-500'
                 )}>
-                  {property.isActive
-                    ? <><CheckCircle2 className="w-3.5 h-3.5" /> Published</>
-                    : <><GlobeLock className="w-3.5 h-3.5" /> Draft</>
+                  {property.isBannedByAdmin
+                    ? <><Ban className="w-3.5 h-3.5" /> Suspended</>
+                    : property.isActive
+                      ? <><CheckCircle2 className="w-3.5 h-3.5" /> Published</>
+                      : <><GlobeLock className="w-3.5 h-3.5" /> Draft</>
                   }
                 </span>
               </div>
@@ -354,12 +371,14 @@ export default function HostPropertyDetailPage() {
               {/* Publish toggle */}
               <button
                 onClick={handleGlobeClick}
-                disabled={!property.isActive && roomCategoriesCount === 0}
+                disabled={property.isBannedByAdmin || (!property.isActive && roomCategoriesCount === 0)}
                 className={cn(
                   'w-full flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-semibold transition',
-                  property.isActive
-                    ? 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                    : 'bg-deep-teal text-white hover:bg-deep-teal/90',
+                  property.isBannedByAdmin
+                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed opacity-40'
+                    : property.isActive
+                      ? 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      : 'bg-deep-teal text-white hover:bg-deep-teal/90',
                   !property.isActive && roomCategoriesCount === 0 && 'opacity-40 cursor-not-allowed'
                 )}
               >
