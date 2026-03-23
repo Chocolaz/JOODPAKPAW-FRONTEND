@@ -884,6 +884,26 @@ export const submitReviewReport = (
   })
 }
 
+export const submitUnbanPropertyRequest = (
+  reportCategoryId: number,
+  description: string,
+  propertyId?: number,
+  images?: File[]
+): Promise<void> => {
+  const formData = new FormData()
+  formData.append('reportCategoryId', String(reportCategoryId))
+  formData.append('description', description)
+  if (propertyId) formData.append('propertyId', String(propertyId))
+  if (images) images.forEach((img) => formData.append('images', img))
+  return request<void>({
+    endpoint: 'api/v1/reports/unban-property',
+    method: 'POST',
+    body: formData,
+    requiresAuth: true,
+    errorContext: 'Submit Unban Property Request',
+  })
+}
+
 // --- Admin: Report Functions ---
 export const getAdminReports = (params?: {
   type?: string

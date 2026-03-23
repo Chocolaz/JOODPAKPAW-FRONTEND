@@ -50,6 +50,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { EditPropertyForm } from '../_components/EditPropertyForm'
+import { UnbanPropertyDrawer } from '../_components/UnbanPropertyDrawer'
 import { motion } from 'framer-motion'
 import { cn } from '@/lib/utils'
 
@@ -73,6 +74,7 @@ export default function HostPropertyDetailPage() {
   const [isAddRoomDrawerOpen, setIsAddRoomDrawerOpen] = useState(false)
   const [reportReviewId, setReportReviewId] = useState<number | null>(null)
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
+  const [isAppealOpen, setIsAppealOpen] = useState(false)
   const isDesktop = useMediaQuery('(min-width: 1024px)')
 
   const handleShare = async () => {
@@ -190,16 +192,11 @@ export default function HostPropertyDetailPage() {
         confirmButtonClassName="bg-red-500"
       />
 
-      {/* Banned banner */}
-      {property.isBannedByAdmin && (
-        <div className="mx-4 lg:mx-2 mb-4 flex items-start gap-3 bg-red-50 border border-red-200 rounded-2xl px-5 py-4">
-          <Ban className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
-          <div>
-            <p className="text-sm font-semibold text-red-700">This property has been suspended</p>
-            <p className="text-xs text-red-500 mt-0.5">It is no longer visible to guests. You may submit an appeal to request a review.</p>
-          </div>
-        </div>
-      )}
+      <UnbanPropertyDrawer
+        propertyId={property.id}
+        isOpen={isAppealOpen}
+        onOpenChange={setIsAppealOpen}
+      />
 
       {/* Gallery */}
       <motion.div
@@ -217,6 +214,25 @@ export default function HostPropertyDetailPage() {
           <motion.div custom={0} variants={fadeUp} initial="hidden" animate="visible">
             <PropertyHeader property={property} />
           </motion.div>
+
+          {/* Banned banner */}
+          {property.isBannedByAdmin && (
+            <div className="mt-4 bg-red-50 border border-red-200 rounded-2xl px-5 py-4 flex flex-col gap-3 lg:hidden">
+              <div className="flex items-start gap-3">
+                <Ban className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold text-red-700">This property has been suspended</p>
+                  <p className="text-xs text-red-500 mt-0.5">It is no longer visible to guests. You may submit an appeal to request a review.</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setIsAppealOpen(true)}
+                className="w-full text-sm font-semibold text-red-600 border border-red-300 rounded-xl py-2.5 hover:bg-red-100 transition-colors"
+              >
+                Submit Appeal
+              </button>
+            </div>
+          )}
 
           <motion.div custom={1} variants={fadeUp} initial="hidden" animate="visible">
             <PropertyFacilities
@@ -396,6 +412,20 @@ export default function HostPropertyDetailPage() {
                 <Pencil className="w-4 h-4" />
                 Edit Property
               </button>
+
+              {/* Suspended info + appeal (desktop, banned only) */}
+              {property.isBannedByAdmin && (
+                <div className="bg-red-50 border border-red-200 rounded-xl p-4 flex flex-col gap-3">
+                  <p className="text-xs text-red-500 leading-relaxed">It is no longer visible to guests. You may submit an appeal to request a review.</p>
+                  <button
+                    onClick={() => setIsAppealOpen(true)}
+                    className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold border border-red-300 text-red-600 hover:bg-red-100 transition"
+                  >
+                    <Ban className="w-4 h-4" />
+                    Submit Appeal
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </motion.div>
