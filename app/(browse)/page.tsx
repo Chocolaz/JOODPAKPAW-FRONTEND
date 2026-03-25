@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState, useCallback, useRef } from 'react'
 import Fuse from 'fuse.js'
 import { PageHeader } from '@/app/_components/PageHeader'
 import { PropertyList } from '@/app/_components/PropertyList'
@@ -9,7 +9,7 @@ import { getLowestPrice } from '@/lib/utils'
 import { PropertiesResponse, Property } from '@/types'
 import { useAuth } from '@/app/_components/AuthContext'
 import { motion, AnimatePresence } from 'framer-motion'
-import { SearchX, Sparkles, Star, Heart } from 'lucide-react'
+import { SearchX, Sparkles, Star, Heart, Loader2 } from 'lucide-react'
 import { useBrowseFilters } from '@/app/_hooks/useBrowseFilters'
 import { BrowseSection } from './_components/BrowseSection'
 
@@ -28,29 +28,47 @@ const fuseOptions = {
 const SKELETON_COUNT = 12
 const RECOMMEND_LIMIT = 10
 const TOP_RATED_MIN = 4.0
+const PAGE_SIZE = 50
 
 export default function Home() {
   const [properties, setProperties] = useState<Property[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const [loadingMore, setLoadingMore] = useState(false)
+  const [page, setPage] = useState(1)
+  const [totalPages, setTotalPages] = useState(1)
+  const [totalRows, setTotalRows] = useState(0)
   const [recommendedProperties, setRecommendedProperties] = useState<Property[]>([])
   const [recommendedTotal, setRecommendedTotal] = useState(0)
-  const { isAuthenticated } = useAuth()
+  const { isAuthenticated, user } = useAuth()
   const { searchQuery, filters, buildSeeAllUrl } = useBrowseFilters()
 
-  useEffect(() => {
-    const fetchProperties = async () => {
-      try {
-        setIsLoading(true)
-        const response = (await getProperties(1, 1000)) as PropertiesResponse
-        setProperties(response.data)
-      } catch (error) {
-        console.error(error)
-      } finally {
+  const fetchKeyRef = useRef(0)
+
+  const fetchProperties = useCallback(async (pageNum: number, reset: boolean) => {
+    const key = ++fetchKeyRef.current
+    if (reset) setIsLoading(true)
+    else setLoadingMore(true)
+    try {
+      const response = (await getProperties(pageNum, PAGE_SIZE)) as PropertiesResponse
+      if (key !== fetchKeyRef.current) return
+      if (reset) setProperties(response.data)
+      else setProperties((prev) => [...prev, ...response.data])
+      setPage(pageNum)
+      setTotalPages(response.totalPages)
+      setTotalRows(response.totalRows)
+    } catch (error) {
+      console.error(error)
+    } finally {
+      if (key === fetchKeyRef.current) {
         setIsLoading(false)
+        setLoadingMore(false)
       }
     }
-    fetchProperties()
-  }, [isAuthenticated])
+  }, [])
+
+  useEffect(() => {
+    fetchProperties(1, true)
+  }, [fetchProperties, isAuthenticated])
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -69,11 +87,17 @@ export default function Home() {
       })
   }, [isAuthenticated])
 
+  // Exclude the current user's own properties
+  const visibleProperties = useMemo(() => {
+    if (!user) return properties
+    return properties.filter((p) => p.hostId !== user.id)
+  }, [properties, user])
+
   const searchedProperties = useMemo(() => {
-    if (!searchQuery.trim()) return properties
-    const fuse = new Fuse(properties, fuseOptions)
+    if (!searchQuery.trim()) return visibleProperties
+    const fuse = new Fuse(visibleProperties, fuseOptions)
     return fuse.search(searchQuery).map((r) => r.item)
-  }, [properties, searchQuery])
+  }, [visibleProperties, searchQuery])
 
   const filteredProperties = useMemo(() => {
     return searchedProperties.filter((p) => {
@@ -92,8 +116,8 @@ export default function Home() {
 
   const randomProperties = useMemo(() => {
     if (isAuthenticated) return []
-    return [...properties].sort(() => Math.random() - 0.5).slice(0, RECOMMEND_LIMIT)
-  }, [properties, isAuthenticated])
+    return [...visibleProperties].sort(() => Math.random() - 0.5).slice(0, RECOMMEND_LIMIT)
+  }, [visibleProperties, isAuthenticated])
 
   const topRated = useMemo(
     () =>
@@ -189,12 +213,26 @@ export default function Home() {
                     {filteredProperties.length === 0 ? (
                       <EmptyState searchQuery={searchQuery} hasFilters={hasActiveFilters} />
                     ) : (
-                      <PropertyList
-                        properties={filteredProperties}
-                        className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-7 gap-4 lg:gap-6"
-                        showPetPolicyChip={true}
-                        showHeartIcon={isAuthenticated}
-                      />
+                      <>
+                        <PropertyList
+                          properties={filteredProperties}
+                          className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-7 gap-4 lg:gap-6"
+                          showPetPolicyChip={true}
+                          showHeartIcon={isAuthenticated}
+                        />
+                        {page < totalPages && (
+                          <div className="flex justify-center mt-8">
+                            <button
+                              onClick={() => fetchProperties(page + 1, false)}
+                              disabled={loadingMore}
+                              className="flex items-center gap-2 px-6 py-2.5 rounded-full border border-gray-200 text-sm font-medium text-gray-600 hover:border-deep-teal/40 hover:text-deep-teal transition disabled:opacity-50"
+                            >
+                              {loadingMore && <Loader2 className="w-4 h-4 animate-spin" />}
+                              {loadingMore ? 'Loading…' : 'Load more'}
+                            </button>
+                          </div>
+                        )}
+                      </>
                     )}
                   </motion.div>
                 ) : (

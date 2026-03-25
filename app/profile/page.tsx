@@ -7,7 +7,7 @@ import { useRouter } from 'next/navigation'
 import { useAuth } from '@/app/_components/AuthContext'
 import clsx from 'clsx'
 import { assetPath } from '@/lib/utils'
-import { ChevronRight, PawPrint, CalendarClock, House, Mail, ShieldCheck, User, Flag } from 'lucide-react'
+import { ChevronRight, PawPrint, CalendarClock, House, Mail, ShieldCheck, User, Flag, BadgeCheck } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 
 function ProfileCardSkeleton() {
@@ -224,11 +224,19 @@ export default function ProfilePage() {
 
         {/* Name + info */}
         <div className="mt-3 md:mt-5">
-          <h3 className="text-xl md:text-2xl lg:text-3xl font-semibold text-deep-teal leading-tight">
-            {isAuthenticated && user
-              ? `${user.firstName} ${user.lastName}`
-              : 'Guest'}
-          </h3>
+          <div className="flex items-center gap-2 flex-wrap">
+            <h3 className="text-xl md:text-2xl lg:text-3xl font-semibold text-deep-teal leading-tight">
+              {isAuthenticated && user
+                ? `${user.firstName} ${user.lastName}`
+                : 'Guest'}
+            </h3>
+            {isAuthenticated && user?.isVerifiedHost && (
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-blue-50 text-blue-500 text-xs font-medium">
+                <BadgeCheck className="w-3 h-3" />
+                Verified
+              </span>
+            )}
+          </div>
 
           {isAuthenticated && user ? (
             <div className="mt-1.5 md:mt-2 flex flex-col gap-1 md:gap-1.5">

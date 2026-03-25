@@ -10,6 +10,7 @@ export interface User {
   lastName: string
   role: Role[]
   avatar?: string
+  isVerifiedHost?: boolean
 }
 
 export interface UserProfile {
