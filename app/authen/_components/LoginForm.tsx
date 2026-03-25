@@ -40,8 +40,9 @@ export default function LoginForm() {
     try {
       const data = await signIn({ email, password })
       if (data.accessToken && data.refreshToken) {
-        login(data.accessToken, data.refreshToken)
-        router.push(safeReturnUrl)
+        const user = await login(data.accessToken, data.refreshToken)
+        const isAdmin = user?.role.some((r) => r.name === 'admin')
+        router.push(isAdmin ? '/admin/dashboard' : safeReturnUrl)
       } else {
         console.error('Sign in successful, but no tokens received.')
         setError('Sign in failed. Please try again.')

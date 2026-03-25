@@ -232,7 +232,9 @@ function ReportPanel({
         )}
       </div>
       <div className="flex items-center gap-2 shrink-0">
-        {detail && cfg && <StatusBadge status={detail.status} statusConfig={STATUS_CONFIG} />}
+        {detail && cfg && (
+          <StatusBadge status={detail.status} statusConfig={STATUS_CONFIG} />
+        )}
       </div>
     </>
   )
@@ -245,45 +247,49 @@ function ReportPanel({
         onClose={onClose}
         width="w-[500px]"
       >
-          {loading ? (
-            <div className="p-6 flex flex-col gap-5">
-              {[60, 80, 100, 120].map((h, i) => (
-                <div
-                  key={i}
-                  className="bg-gray-100 rounded-xl animate-pulse"
-                  style={{ height: h }}
-                />
-              ))}
-            </div>
-          ) : detail ? (
-            <div className="px-6 py-5 flex flex-col gap-6">
-              {/* Reporter */}
-              <section>
-                <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-3">
-                  Reported By
-                </p>
-                <div className="flex items-center gap-3 bg-gray-50 rounded-xl p-3 border border-gray-100">
-                  <UserAvatar user={detail.reporter} size="md" />
-                  <div className="min-w-0">
-                    <p className="text-[13.5px] font-semibold text-gray-900">
-                      {detail.reporter.firstName} {detail.reporter.lastName}
-                    </p>
-                    <p className="text-xs text-gray-400 truncate">
-                      {detail.reporter.email} · #{detail.reporter.id}
-                    </p>
-                  </div>
+        {loading ? (
+          <div className="p-6 flex flex-col gap-5">
+            {[60, 80, 100, 120].map((h, i) => (
+              <div
+                key={i}
+                className="bg-gray-100 rounded-xl animate-pulse"
+                style={{ height: h }}
+              />
+            ))}
+          </div>
+        ) : detail ? (
+          <div className="px-6 py-5 flex flex-col gap-6">
+            {/* Reporter */}
+            <section>
+              <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-3">
+                Reported By
+              </p>
+              <div className="flex items-center gap-3 bg-gray-50 rounded-xl p-3 border border-gray-100">
+                <UserAvatar user={detail.reporter} size="md" />
+                <div className="min-w-0">
+                  <p className="text-[13.5px] font-semibold text-gray-900">
+                    {detail.reporter.firstName} {detail.reporter.lastName}
+                  </p>
+                  <p className="text-xs text-gray-400 truncate">
+                    {detail.reporter.email} · #{detail.reporter.id}
+                  </p>
                 </div>
-              </section>
+              </div>
+            </section>
 
-              {/* Target info */}
-              <section>
-                <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-3">
-                  {detail.type === 'property' ? 'Reported Property'
-                    : detail.type === 'unban_property' ? 'Appeal Details'
+            {/* Target info */}
+            <section>
+              <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-3">
+                {detail.type === 'property'
+                  ? 'Reported Property'
+                  : detail.type === 'unban_property'
+                    ? 'Appeal Details'
                     : 'Reported Review'}
-                </p>
-                <dl className="divide-y divide-gray-100 bg-gray-50 rounded-xl border border-gray-100 px-4">
-                  {(detail.type === 'property' || detail.type === 'unban_property') && detail.property && (
+              </p>
+              <dl className="divide-y divide-gray-100 bg-gray-50 rounded-xl border border-gray-100 px-4">
+                {(detail.type === 'property' ||
+                  detail.type === 'unban_property') &&
+                  detail.property && (
                     <>
                       <InfoRow
                         label="Property"
@@ -298,228 +304,235 @@ function ReportPanel({
                       )}
                     </>
                   )}
-                  {detail.type === 'unban_property' && !detail.property && (
-                    <InfoRow
-                      label="Host"
-                      value={`${detail.reporter.firstName} ${detail.reporter.lastName}`}
-                      sub={detail.reporter.email}
-                    />
-                  )}
-                  {detail.type === 'review' && (
-                    <>
-                      {detail.reviewAuthor && (
-                        <InfoRow
-                          label="Review by"
-                          value={`${detail.reviewAuthor.firstName} ${detail.reviewAuthor.lastName}`}
-                          sub={detail.reviewAuthor.email}
-                        />
-                      )}
-                      {detail.property && (
-                        <InfoRow
-                          label="On property"
-                          value={`${detail.property.title} (#${detail.property.id})`}
-                        />
-                      )}
-                    </>
-                  )}
+                {detail.type === 'unban_property' && !detail.property && (
                   <InfoRow
-                    label="Category"
-                    value={detail.reportCategoryLabel}
+                    label="Host"
+                    value={`${detail.reporter.firstName} ${detail.reporter.lastName}`}
+                    sub={detail.reporter.email}
                   />
+                )}
+                {detail.type === 'review' && (
+                  <>
+                    {detail.reviewAuthor && (
+                      <InfoRow
+                        label="Review by"
+                        value={`${detail.reviewAuthor.firstName} ${detail.reviewAuthor.lastName}`}
+                        sub={detail.reviewAuthor.email}
+                      />
+                    )}
+                    {detail.property && (
+                      <InfoRow
+                        label="On property"
+                        value={`${detail.property.title} (#${detail.property.id})`}
+                      />
+                    )}
+                  </>
+                )}
+                <InfoRow label="Category" value={detail.reportCategoryLabel} />
+                <InfoRow
+                  label="Reported"
+                  value={formatDate(detail.createdAt)}
+                />
+                <InfoRow label="Status" value={detail.status} />
+                {detail.resolvedAction && (
                   <InfoRow
-                    label="Reported"
-                    value={formatDate(detail.createdAt)}
+                    label="Action taken"
+                    value={detail.resolvedAction.replace(/_/g, ' ')}
                   />
-                  <InfoRow label="Status" value={detail.status} />
-                  {detail.resolvedAction && (
-                    <InfoRow
-                      label="Action taken"
-                      value={detail.resolvedAction.replace(/_/g, ' ')}
-                    />
-                  )}
-                </dl>
+                )}
+              </dl>
+            </section>
+
+            {/* Description */}
+            {detail.description && (
+              <section>
+                <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-3">
+                  Reporter&apos;s Description
+                </p>
+                <div className="bg-gray-50 border border-gray-100 rounded-xl p-4 border-l-2 border-l-gray-400">
+                  <p className="text-sm text-gray-700 leading-relaxed italic">
+                    &ldquo;{detail.description}&rdquo;
+                  </p>
+                </div>
               </section>
+            )}
 
-              {/* Description */}
-              {detail.description && (
-                <section>
-                  <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-3">
-                    Reporter&apos;s Description
+            {/* Admin note */}
+            {detail.adminNote && (
+              <section>
+                <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-3">
+                  Admin Note
+                </p>
+                <div className="bg-gray-50 border border-gray-100 rounded-xl p-4">
+                  <p className="text-sm text-gray-700 leading-relaxed">
+                    {detail.adminNote}
                   </p>
-                  <div className="bg-gray-50 border border-gray-100 rounded-xl p-4 border-l-2 border-l-gray-400">
-                    <p className="text-sm text-gray-700 leading-relaxed italic">
-                      &ldquo;{detail.description}&rdquo;
-                    </p>
-                  </div>
-                </section>
-              )}
+                </div>
+              </section>
+            )}
 
-              {/* Admin note */}
-              {detail.adminNote && (
-                <section>
-                  <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-3">
-                    Admin Note
-                  </p>
-                  <div className="bg-gray-50 border border-gray-100 rounded-xl p-4">
-                    <p className="text-sm text-gray-700 leading-relaxed">
-                      {detail.adminNote}
-                    </p>
-                  </div>
-                </section>
-              )}
+            {/* Images */}
+            {detail.images && detail.images.length > 0 && (
+              <section>
+                <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-3">
+                  Attached Images ({detail.images.length})
+                </p>
+                <div className="grid grid-cols-2 gap-3">
+                  {detail.images.map((img, idx) => (
+                    <button
+                      key={img.id}
+                      type="button"
+                      onClick={() =>
+                        setLightbox({
+                          src: img.filePath,
+                          label: `Image ${idx + 1}`,
+                        })
+                      }
+                      className="relative aspect-[4/3] rounded-xl overflow-hidden bg-gray-100 group cursor-zoom-in w-full"
+                    >
+                      <img
+                        src={img.filePath}
+                        alt={`Report image ${idx + 1}`}
+                        className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                      />
+                      <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                        <ZoomIn className="w-5 h-5 text-white" />
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </section>
+            )}
 
-              {/* Images */}
-              {detail.images && detail.images.length > 0 && (
-                <section>
-                  <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-3">
-                    Attached Images ({detail.images.length})
-                  </p>
-                  <div className="grid grid-cols-2 gap-3">
-                    {detail.images.map((img, idx) => (
-                      <button
-                        key={img.id}
-                        type="button"
-                        onClick={() =>
-                          setLightbox({
-                            src: img.filePath,
-                            label: `Image ${idx + 1}`,
-                          })
-                        }
-                        className="relative aspect-[4/3] rounded-xl overflow-hidden bg-gray-100 group cursor-zoom-in w-full"
-                      >
-                        <img
-                          src={img.filePath}
-                          alt={`Report image ${idx + 1}`}
-                          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-                        />
-                        <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                          <ZoomIn className="w-5 h-5 text-white" />
-                        </div>
-                      </button>
-                    ))}
-                  </div>
-                </section>
-              )}
+            {/* Actions — pending only */}
+            {detail.status === 'pending' && (
+              <section className="pb-2">
+                <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-3">
+                  Take Action
+                </p>
 
-              {/* Actions — pending only */}
-              {detail.status === 'pending' && (
-                <section className="pb-2">
-                  <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-3">
-                    Take Action
-                  </p>
-
-                  {pendingAction ? (
-                    // Confirmation view
-                    <div className="flex flex-col gap-3">
-                      {pendingAction === 'deactivate_all_properties' ? (
-                        <div className="bg-red-50 border-2 border-red-300 rounded-xl p-4">
-                          <div className="flex items-center gap-2 mb-2">
-                            <ShieldOff className="w-4 h-4 text-red-600 shrink-0" />
-                            <p className="text-sm font-bold text-red-700">
-                              {ACTION_CONFIG[pendingAction].label}
-                            </p>
-                            <span className="ml-auto text-[10px] font-bold bg-red-200 text-red-700 px-2 py-0.5 rounded-full tracking-wider uppercase">
-                              Danger
-                            </span>
-                          </div>
-                          <p className="text-xs text-red-600 leading-relaxed">
-                            {ACTION_CONFIG[pendingAction].description}
-                          </p>
-                        </div>
-                      ) : (
-                        <div className="bg-gray-50 border border-gray-200 rounded-xl p-4">
-                          <p className="text-sm font-semibold text-gray-800 mb-1">
+                {pendingAction ? (
+                  // Confirmation view
+                  <div className="flex flex-col gap-3">
+                    {pendingAction === 'deactivate_all_properties' ? (
+                      <div className="bg-red-50 border-2 border-red-300 rounded-xl p-4">
+                        <div className="flex items-center gap-2 mb-2">
+                          <ShieldOff className="w-4 h-4 text-red-600 shrink-0" />
+                          <p className="text-sm font-bold text-red-700">
                             {ACTION_CONFIG[pendingAction].label}
                           </p>
-                          <p className="text-xs text-gray-500 leading-relaxed">
-                            {ACTION_CONFIG[pendingAction].description}
-                          </p>
+                          <span className="ml-auto text-[10px] font-bold bg-red-200 text-red-700 px-2 py-0.5 rounded-full tracking-wider uppercase">
+                            Danger
+                          </span>
                         </div>
-                      )}
-                      <div>
-                        <label className="text-xs font-medium text-gray-500 mb-1.5 block">
-                          Admin note{' '}
-                          {detail.type === 'unban_property'
-                            ? <span className="text-red-400">*required</span>
-                            : <span className="text-gray-400">(optional)</span>
-                          }
-                        </label>
-                        <textarea
-                          value={adminNote}
-                          onChange={(e) => setAdminNote(e.target.value)}
-                          placeholder={detail.type === 'unban_property' ? 'Explain your decision to the host…' : 'Internal note about this decision…'}
-                          rows={3}
-                          className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm text-gray-800 bg-white resize-none focus:outline-none focus:ring-1 focus:ring-gray-300 focus:border-gray-300"
-                        />
+                        <p className="text-xs text-red-600 leading-relaxed">
+                          {ACTION_CONFIG[pendingAction].description}
+                        </p>
                       </div>
-                      <div className="grid grid-cols-2 gap-2">
-                        <button
-                          onClick={handleCancelAction}
-                          disabled={acting}
-                          className="py-2.5 rounded-lg border border-gray-200 bg-white text-gray-600 text-sm font-semibold hover:bg-gray-50 transition-all cursor-pointer disabled:opacity-40"
-                        >
-                          Cancel
-                        </button>
-                        <button
-                          onClick={handleConfirmClick}
-                          disabled={acting || (detail.type === 'unban_property' && !adminNote.trim())}
-                          className={`flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-semibold transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed ${ACTION_CONFIG[pendingAction].confirmClass}`}
-                        >
-                          {acting ? (
-                            <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                          ) : (
-                            React.createElement(
-                              ACTION_CONFIG[pendingAction].icon,
-                              { className: 'w-4 h-4' }
-                            )
-                          )}
-                          Confirm
-                        </button>
+                    ) : (
+                      <div className="bg-gray-50 border border-gray-200 rounded-xl p-4">
+                        <p className="text-sm font-semibold text-gray-800 mb-1">
+                          {ACTION_CONFIG[pendingAction].label}
+                        </p>
+                        <p className="text-xs text-gray-500 leading-relaxed">
+                          {ACTION_CONFIG[pendingAction].description}
+                        </p>
                       </div>
+                    )}
+                    <div>
+                      <label className="text-xs font-medium text-gray-500 mb-1.5 block">
+                        Admin note{' '}
+                        {detail.type === 'unban_property' ? (
+                          <span className="text-red-400">*required</span>
+                        ) : (
+                          <span className="text-gray-400">(optional)</span>
+                        )}
+                      </label>
+                      <textarea
+                        value={adminNote}
+                        onChange={(e) => setAdminNote(e.target.value)}
+                        placeholder={
+                          detail.type === 'unban_property'
+                            ? 'Explain your decision to the host…'
+                            : 'Internal note about this decision…'
+                        }
+                        rows={3}
+                        className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm text-gray-800 bg-white resize-none focus:outline-none focus:ring-1 focus:ring-gray-300 focus:border-gray-300"
+                      />
                     </div>
-                  ) : (
-                    // Action buttons
                     <div className="grid grid-cols-2 gap-2">
-                      {(
-                        Object.entries(ACTION_CONFIG) as [
-                          ReportAction,
-                          (typeof ACTION_CONFIG)[ReportAction],
-                        ][]
-                      )
-                        .filter(([action, cfg]) => {
-                          if (!cfg.appliesTo.includes(detail.type)) return false
-                          if (detail.type === 'unban_property') {
-                            const isUnbanAll = detail.reportCategoryLabel === 'Unban All Properties'
-                            if (isUnbanAll) return action !== 'unban_property'
-                            return action !== 'unban_all_properties'
-                          }
-                          return true
-                        })
-                        .map(([action, cfg]) => {
-                          const Icon = cfg.icon
-                          const isDanger =
-                            action === 'deactivate_all_properties'
-                          return (
-                            <button
-                              key={action}
-                              onClick={() => setPendingAction(action)}
-                              className={`flex items-center gap-2 w-full px-4 py-3 rounded-xl text-sm font-semibold transition-all cursor-pointer ${isDanger ? 'bg-red-600 text-white hover:bg-red-700 border-2 border-red-800/30' : cfg.buttonClass}`}
-                            >
-                              <Icon className="w-4 h-4 shrink-0" />
-                              <span className="text-left">{cfg.label}</span>
-                            </button>
+                      <button
+                        onClick={handleCancelAction}
+                        disabled={acting}
+                        className="py-2.5 rounded-lg border border-gray-200 bg-white text-gray-600 text-sm font-semibold hover:bg-gray-50 transition-all cursor-pointer disabled:opacity-40"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        onClick={handleConfirmClick}
+                        disabled={
+                          acting ||
+                          (detail.type === 'unban_property' &&
+                            !adminNote.trim())
+                        }
+                        className={`flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-semibold transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed ${ACTION_CONFIG[pendingAction].confirmClass}`}
+                      >
+                        {acting ? (
+                          <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                        ) : (
+                          React.createElement(
+                            ACTION_CONFIG[pendingAction].icon,
+                            { className: 'w-4 h-4' }
                           )
-                        })}
+                        )}
+                        Confirm
+                      </button>
                     </div>
-                  )}
-                </section>
-              )}
-            </div>
-          ) : (
-            <div className="p-6 text-center text-sm text-gray-400">
-              Failed to load report details.
-            </div>
-          )}
+                  </div>
+                ) : (
+                  // Action buttons
+                  <div className="grid grid-cols-2 gap-2">
+                    {(
+                      Object.entries(ACTION_CONFIG) as [
+                        ReportAction,
+                        (typeof ACTION_CONFIG)[ReportAction],
+                      ][]
+                    )
+                      .filter(([action, cfg]) => {
+                        if (!cfg.appliesTo.includes(detail.type)) return false
+                        if (detail.type === 'unban_property') {
+                          const isUnbanAll =
+                            detail.reportCategoryLabel ===
+                            'Unban All Properties'
+                          if (isUnbanAll) return action !== 'unban_property'
+                          return action !== 'unban_all_properties'
+                        }
+                        return true
+                      })
+                      .map(([action, cfg]) => {
+                        const Icon = cfg.icon
+                        const isDanger = action === 'deactivate_all_properties'
+                        return (
+                          <button
+                            key={action}
+                            onClick={() => setPendingAction(action)}
+                            className={`flex items-center gap-2 w-full px-4 py-3 rounded-xl text-sm font-semibold transition-all cursor-pointer ${isDanger ? 'bg-red-600 text-white hover:bg-red-700 border-2 border-red-800/30' : cfg.buttonClass}`}
+                          >
+                            <Icon className="w-4 h-4 shrink-0" />
+                            <span className="text-left">{cfg.label}</span>
+                          </button>
+                        )
+                      })}
+                  </div>
+                )}
+              </section>
+            )}
+          </div>
+        ) : (
+          <div className="p-6 text-center text-sm text-gray-400">
+            Failed to load report details.
+          </div>
+        )}
       </AdminDetailPanel>
 
       {lightbox && (
@@ -563,22 +576,35 @@ export default function AdminReportsPage() {
 
   const handleSort = (col: string) => {
     if (orderBy === col) setSort((s) => (s === 'asc' ? 'desc' : 'asc'))
-    else { setOrderBy(col); setSort('asc') }
+    else {
+      setOrderBy(col)
+      setSort('asc')
+    }
     setPage(1)
   }
 
   const SortIcon = ({ col }: { col: string }) => {
-    if (orderBy !== col) return <ChevronsUpDown className="w-3 h-3 opacity-30" />
-    return sort === 'asc'
-      ? <ChevronUp className="w-3 h-3 text-accent-orange" />
-      : <ChevronDown className="w-3 h-3 text-accent-orange" />
+    if (orderBy !== col)
+      return <ChevronsUpDown className="w-3 h-3 opacity-30" />
+    return sort === 'asc' ? (
+      <ChevronUp className="w-3 h-3 text-accent-orange" />
+    ) : (
+      <ChevronDown className="w-3 h-3 text-accent-orange" />
+    )
   }
 
   const fetchData = useCallback(async () => {
     setLoading(true)
     try {
-      const res = await getAdminReports({ type: type === 'all' ? undefined : type, page, limit: LIMIT })
-      const filtered = status === 'all' ? res.data : res.data.filter((r) => r.status === status)
+      const res = await getAdminReports({
+        type: type === 'all' ? undefined : type,
+        page,
+        limit: LIMIT,
+      })
+      const filtered =
+        status === 'all'
+          ? res.data
+          : res.data.filter((r) => r.status === status)
       const sorted = [...filtered].sort((a, b) => {
         let aVal: string | number
         let bVal: string | number
@@ -694,44 +720,96 @@ export default function AdminReportsPage() {
             <tr className="bg-gray-50 border-b border-gray-200">
               {type === 'all' ? (
                 <>
-                  <th className="px-4 py-3 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Reporter</th>
-                  <th className="px-4 py-3 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Subject</th>
-                  <th className="px-4 py-3 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Type</th>
-                  <th className="px-4 py-3 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Category</th>
-                  <th className="px-4 py-3 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider cursor-pointer select-none hover:text-gray-800" onClick={() => handleSort('status')}>
-                    <span className="flex items-center gap-1">Status <SortIcon col="status" /></span>
+                  <th className="px-4 py-3 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider">
+                    Reporter
                   </th>
-                  <th className="px-4 py-3 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider cursor-pointer select-none hover:text-gray-800" onClick={() => handleSort('createdAt')}>
-                    <span className="flex items-center gap-1">Date <SortIcon col="createdAt" /></span>
+                  <th className="px-4 py-3 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider">
+                    Subject
+                  </th>
+                  <th className="px-4 py-3 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider">
+                    Type
+                  </th>
+                  <th className="px-4 py-3 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider">
+                    Category
+                  </th>
+                  <th
+                    className="px-4 py-3 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider cursor-pointer select-none hover:text-gray-800"
+                    onClick={() => handleSort('status')}
+                  >
+                    <span className="flex items-center gap-1">
+                      Status <SortIcon col="status" />
+                    </span>
+                  </th>
+                  <th
+                    className="px-4 py-3 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider cursor-pointer select-none hover:text-gray-800"
+                    onClick={() => handleSort('createdAt')}
+                  >
+                    <span className="flex items-center gap-1">
+                      Date <SortIcon col="createdAt" />
+                    </span>
                   </th>
                   <th className="px-4 py-3" />
                 </>
               ) : type === 'property' || type === 'unban_property' ? (
                 <>
-                  <th className="px-4 py-3 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Reporter</th>
-                  <th className="px-4 py-3 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Property</th>
-                  <th className="px-4 py-3 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Category</th>
-                  {type === 'property' && (
-                    <th className="px-4 py-3 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Reports</th>
-                  )}
-                  <th className="px-4 py-3 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider cursor-pointer select-none hover:text-gray-800" onClick={() => handleSort('status')}>
-                    <span className="flex items-center gap-1">Status <SortIcon col="status" /></span>
+                  <th className="px-4 py-3 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider">
+                    Reporter
                   </th>
-                  <th className="px-4 py-3 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider cursor-pointer select-none hover:text-gray-800" onClick={() => handleSort('createdAt')}>
-                    <span className="flex items-center gap-1">Date <SortIcon col="createdAt" /></span>
+                  <th className="px-4 py-3 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider">
+                    Property
+                  </th>
+                  <th className="px-4 py-3 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider">
+                    Category
+                  </th>
+                  {type === 'property' && (
+                    <th className="px-4 py-3 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider">
+                      Reports
+                    </th>
+                  )}
+                  <th
+                    className="px-4 py-3 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider cursor-pointer select-none hover:text-gray-800"
+                    onClick={() => handleSort('status')}
+                  >
+                    <span className="flex items-center gap-1">
+                      Status <SortIcon col="status" />
+                    </span>
+                  </th>
+                  <th
+                    className="px-4 py-3 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider cursor-pointer select-none hover:text-gray-800"
+                    onClick={() => handleSort('createdAt')}
+                  >
+                    <span className="flex items-center gap-1">
+                      Date <SortIcon col="createdAt" />
+                    </span>
                   </th>
                   <th className="px-4 py-3" />
                 </>
               ) : (
                 <>
-                  <th className="px-4 py-3 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Reporter</th>
-                  <th className="px-4 py-3 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Review Author</th>
-                  <th className="px-4 py-3 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Category</th>
-                  <th className="px-4 py-3 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider cursor-pointer select-none hover:text-gray-800" onClick={() => handleSort('status')}>
-                    <span className="flex items-center gap-1">Status <SortIcon col="status" /></span>
+                  <th className="px-4 py-3 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider">
+                    Reporter
                   </th>
-                  <th className="px-4 py-3 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider cursor-pointer select-none hover:text-gray-800" onClick={() => handleSort('createdAt')}>
-                    <span className="flex items-center gap-1">Date <SortIcon col="createdAt" /></span>
+                  <th className="px-4 py-3 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider">
+                    Review Author
+                  </th>
+                  <th className="px-4 py-3 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider">
+                    Category
+                  </th>
+                  <th
+                    className="px-4 py-3 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider cursor-pointer select-none hover:text-gray-800"
+                    onClick={() => handleSort('status')}
+                  >
+                    <span className="flex items-center gap-1">
+                      Status <SortIcon col="status" />
+                    </span>
+                  </th>
+                  <th
+                    className="px-4 py-3 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider cursor-pointer select-none hover:text-gray-800"
+                    onClick={() => handleSort('createdAt')}
+                  >
+                    <span className="flex items-center gap-1">
+                      Date <SortIcon col="createdAt" />
+                    </span>
                   </th>
                   <th className="px-4 py-3" />
                 </>
@@ -800,14 +878,19 @@ export default function AdminReportsPage() {
                         <td className="px-4 py-3.5">
                           {row.property ? (
                             <div>
-                              <p className="text-[13px] font-medium text-gray-800 leading-tight">{row.property.title}</p>
-                              <p className="text-xs text-gray-400">Property ID: {row.property.id}</p>
+                              <p className="text-[13px] font-medium text-gray-800 leading-tight">
+                                {row.property.title}
+                              </p>
+                              <p className="text-xs text-gray-400">
+                                Property ID: {row.property.id}
+                              </p>
                             </div>
                           ) : row.reviewAuthor ? (
                             <div className="flex items-center gap-2">
                               <UserAvatar user={row.reviewAuthor} size="xs" />
                               <p className="text-[13px] font-medium text-gray-800 leading-tight">
-                                {row.reviewAuthor.firstName} {row.reviewAuthor.lastName}
+                                {row.reviewAuthor.firstName}{' '}
+                                {row.reviewAuthor.lastName}
                               </p>
                             </div>
                           ) : (
@@ -815,14 +898,20 @@ export default function AdminReportsPage() {
                           )}
                         </td>
                         <td className="px-4 py-3.5">
-                          <span className={`inline-block px-2 py-0.5 rounded text-xs font-medium ${
-                            row.type === 'unban_property'
-                              ? 'bg-amber-100 text-amber-700'
+                          <span
+                            className={`inline-block px-2 py-0.5 rounded text-xs font-medium ${
+                              row.type === 'unban_property'
+                                ? 'bg-amber-100 text-amber-700'
+                                : row.type === 'review'
+                                  ? 'bg-blue-100 text-blue-700'
+                                  : 'bg-red-100 text-red-700'
+                            }`}
+                          >
+                            {row.type === 'unban_property'
+                              ? 'Appeal'
                               : row.type === 'review'
-                                ? 'bg-blue-100 text-blue-700'
-                                : 'bg-red-100 text-red-700'
-                          }`}>
-                            {row.type === 'unban_property' ? 'Appeal' : row.type === 'review' ? 'Review' : 'Property'}
+                                ? 'Review'
+                                : 'Property'}
                           </span>
                         </td>
                         <td className="px-4 py-3.5">
@@ -900,7 +989,10 @@ export default function AdminReportsPage() {
                     )}
 
                     <td className="px-4 py-3.5">
-                      <StatusBadge status={row.status} statusConfig={STATUS_CONFIG} />
+                      <StatusBadge
+                        status={row.status}
+                        statusConfig={STATUS_CONFIG}
+                      />
                     </td>
 
                     <td className="px-4 py-3.5">

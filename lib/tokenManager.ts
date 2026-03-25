@@ -24,6 +24,15 @@ export const saveTokens = (accessToken: string, refreshToken: string) => {
 export const clearTokens = () => {
   Cookies.remove('accessToken', { path: '/' })
   Cookies.remove('refreshToken', { path: '/' })
+  Cookies.remove('userRole', { path: '/' })
+}
+
+export const saveUserRole = (role: string) => {
+  Cookies.set('userRole', role, { path: '/', sameSite: 'lax' })
+}
+
+export const getUserRole = (): string | null => {
+  return Cookies.get('userRole') || null
 }
 
 export const getAccessToken = (): string | null => {

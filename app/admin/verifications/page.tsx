@@ -9,11 +9,21 @@ import {
   approveVerification,
   rejectVerification,
 } from '@/lib/api'
-import type { AdminVerificationSummary, AdminVerificationDetail } from '@/types/adminVerification'
+import type {
+  AdminVerificationSummary,
+  AdminVerificationDetail,
+} from '@/types/adminVerification'
 import {
-  CheckCircle, XCircle, RotateCcw, ZoomIn,
-  ChevronUp, ChevronDown, ChevronsUpDown,
-  Clock, ShieldCheck, ShieldX,
+  CheckCircle,
+  XCircle,
+  RotateCcw,
+  ZoomIn,
+  ChevronUp,
+  ChevronDown,
+  ChevronsUpDown,
+  Clock,
+  ShieldCheck,
+  ShieldX,
 } from 'lucide-react'
 import { formatDate, formatDateRelative } from '../_utils'
 import { StatusBadge } from '../_components/StatusBadge'
@@ -44,7 +54,11 @@ const STATUS_CONFIG = {
 }
 
 // ── Side Panel ───────────────────────────────────────────────────────────────
-function VerificationPanel({ id, onClose, onUpdated }: {
+function VerificationPanel({
+  id,
+  onClose,
+  onUpdated,
+}: {
   id: number
   onClose: () => void
   onUpdated: () => void
@@ -54,7 +68,10 @@ function VerificationPanel({ id, onClose, onUpdated }: {
   const [rejecting, setRejecting] = useState(false)
   const [rejectReason, setRejectReason] = useState('')
   const [acting, setActing] = useState(false)
-  const [lightbox, setLightbox] = useState<{ src: string; label: string } | null>(null)
+  const [lightbox, setLightbox] = useState<{
+    src: string
+    label: string
+  } | null>(null)
 
   useEffect(() => {
     setLoading(true)
@@ -69,24 +86,39 @@ function VerificationPanel({ id, onClose, onUpdated }: {
     setActing(true)
     try {
       await approveVerification(detail.id)
-      toast.success(`${detail.user.firstName} ${detail.user.lastName} is now verified.`)
-      onUpdated(); onClose()
-    } catch { toast.error('Failed to approve.') }
-    finally { setActing(false) }
+      toast.success(
+        `${detail.user.firstName} ${detail.user.lastName} is now verified.`
+      )
+      onUpdated()
+      onClose()
+    } catch {
+      toast.error('Failed to approve.')
+    } finally {
+      setActing(false)
+    }
   }
 
   const handleReject = async () => {
-    if (!detail || !rejectReason.trim()) { toast.error('Rejection reason is required.'); return }
+    if (!detail || !rejectReason.trim()) {
+      toast.error('Rejection reason is required.')
+      return
+    }
     setActing(true)
     try {
       await rejectVerification(detail.id, rejectReason.trim())
       toast.success('Rejected — host has been notified.')
-      onUpdated(); onClose()
-    } catch { toast.error('Failed to reject.') }
-    finally { setActing(false) }
+      onUpdated()
+      onClose()
+    } catch {
+      toast.error('Failed to reject.')
+    } finally {
+      setActing(false)
+    }
   }
 
-  const cfg = detail ? STATUS_CONFIG[detail.status as keyof typeof STATUS_CONFIG] : null
+  const cfg = detail
+    ? STATUS_CONFIG[detail.status as keyof typeof STATUS_CONFIG]
+    : null
 
   const stripeColor = !detail
     ? 'bg-gray-200'
@@ -106,16 +138,22 @@ function VerificationPanel({ id, onClose, onUpdated }: {
               <p className="font-semibold text-[15px] text-gray-900 font-baloo2 leading-tight truncate">
                 {detail.user.firstName} {detail.user.lastName}
               </p>
-              <p className="text-xs text-gray-400 mt-0.5 truncate">{detail.user.email}</p>
+              <p className="text-xs text-gray-400 mt-0.5 truncate">
+                {detail.user.email}
+              </p>
             </>
           ) : (
-            <p className="text-sm font-medium text-gray-500">Verification #{id}</p>
+            <p className="text-sm font-medium text-gray-500">
+              Verification #{id}
+            </p>
           )}
         </div>
       </div>
       <div className="flex items-center gap-2 shrink-0">
         {detail && cfg && (
-          <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border ${cfg.pill}`}>
+          <span
+            className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border ${cfg.pill}`}
+          >
             <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${cfg.dot}`} />
             {detail.status.charAt(0).toUpperCase() + detail.status.slice(1)}
           </span>
@@ -141,170 +179,195 @@ function VerificationPanel({ id, onClose, onUpdated }: {
         headerExtra={resubmitNotice}
         onClose={onClose}
       >
-          {loading ? (
-            <div className="p-6 flex flex-col gap-5">
-              {[60, 48, 120, 100].map((h, i) => (
-                <div key={i} className="bg-gray-100 rounded-xl animate-pulse" style={{ height: h }} />
-              ))}
-            </div>
-          ) : detail ? (
-            <div className="px-6 py-5 flex flex-col gap-6">
+        {loading ? (
+          <div className="p-6 flex flex-col gap-5">
+            {[60, 48, 120, 100].map((h, i) => (
+              <div
+                key={i}
+                className="bg-gray-100 rounded-xl animate-pulse"
+                style={{ height: h }}
+              />
+            ))}
+          </div>
+        ) : detail ? (
+          <div className="px-6 py-5 flex flex-col gap-6">
+            {/* Info rows */}
+            <section>
+              <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-3">
+                Details
+              </p>
+              <dl className="divide-y divide-gray-100">
+                {[
+                  { label: 'Verification ID', value: `#${detail.id}` },
+                  { label: 'User ID', value: `#${detail.user.id}` },
+                  { label: 'Submitted', value: formatDate(detail.submittedAt) },
+                ].map(({ label, value }) => (
+                  <div
+                    key={label}
+                    className="flex justify-between items-center py-2.5"
+                  >
+                    <dt className="text-sm text-gray-500">{label}</dt>
+                    <dd className="text-sm font-semibold text-gray-900">
+                      {value}
+                    </dd>
+                  </div>
+                ))}
+              </dl>
+            </section>
 
-              {/* Info rows */}
+            {/* Previous rejection */}
+            {detail.previousRejectDescription && (
               <section>
                 <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-3">
-                  Details
+                  Previous Rejection
                 </p>
-                <dl className="divide-y divide-gray-100">
-                  {[
-                    { label: 'Verification ID', value: `#${detail.id}` },
-                    { label: 'User ID', value: `#${detail.user.id}` },
-                    { label: 'Submitted', value: formatDate(detail.submittedAt) },
-                  ].map(({ label, value }) => (
-                    <div key={label} className="flex justify-between items-center py-2.5">
-                      <dt className="text-sm text-gray-500">{label}</dt>
-                      <dd className="text-sm font-semibold text-gray-900">{value}</dd>
-                    </div>
-                  ))}
-                </dl>
-              </section>
-
-              {/* Previous rejection */}
-              {detail.previousRejectDescription && (
-                <section>
-                  <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-3">
-                    Previous Rejection
+                <div className="border-l-2 border-accent-orange pl-4 py-1">
+                  <p className="text-sm text-gray-600 italic leading-relaxed">
+                    &ldquo;{detail.previousRejectDescription}&rdquo;
                   </p>
-                  <div className="border-l-2 border-accent-orange pl-4 py-1">
-                    <p className="text-sm text-gray-600 italic leading-relaxed">
-                      &ldquo;{detail.previousRejectDescription}&rdquo;
-                    </p>
-                  </div>
-                </section>
-              )}
-
-              {/* Rejection reason */}
-              {detail.status === 'rejected' && detail.rejectDescription && (
-                <section>
-                  <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-3">
-                    Rejection Reason
-                  </p>
-                  <div className="border-l-2 border-red-400 pl-4 py-1">
-                    <p className="text-sm text-red-600 italic leading-relaxed">
-                      &ldquo;{detail.rejectDescription}&rdquo;
-                    </p>
-                  </div>
-                </section>
-              )}
-
-              {/* Photos */}
-              <section>
-                <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-3">
-                  Submitted Photos
-                </p>
-                <div className="grid grid-cols-2 gap-3">
-                  {[
-                    { label: 'ID Photo', src: detail.idPhoto },
-                    { label: 'Selfie with ID', src: detail.selfieWithId },
-                  ].map((photo) => (
-                    <div key={photo.label} className="flex flex-col gap-1.5">
-                      <span className="text-xs font-medium text-gray-500">{photo.label}</span>
-                      <button
-                        type="button"
-                        onClick={() => setLightbox({ src: photo.src, label: photo.label })}
-                        className="relative aspect-[4/3] rounded-xl overflow-hidden bg-gray-100 group cursor-zoom-in w-full"
-                      >
-                        <Image
-                          src={photo.src}
-                          alt={photo.label}
-                          fill
-                          className="object-cover transition-transform duration-300 group-hover:scale-105"
-                          unoptimized
-                        />
-                        <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                          <ZoomIn className="w-5 h-5 text-white" />
-                        </div>
-                      </button>
-                    </div>
-                  ))}
                 </div>
               </section>
+            )}
 
-              {/* Actions — pending only */}
-              {detail.status === 'pending' && (
-                <section className="pb-2">
-                  <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-3">
-                    Decision
+            {/* Rejection reason */}
+            {detail.status === 'rejected' && detail.rejectDescription && (
+              <section>
+                <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-3">
+                  Rejection Reason
+                </p>
+                <div className="border-l-2 border-red-400 pl-4 py-1">
+                  <p className="text-sm text-red-600 italic leading-relaxed">
+                    &ldquo;{detail.rejectDescription}&rdquo;
                   </p>
+                </div>
+              </section>
+            )}
 
-                  {rejecting ? (
-                    <div className="flex flex-col gap-3">
-                      <div className="bg-red-50 border border-red-100 rounded-xl p-4">
-                        <p className="text-sm font-semibold text-red-700 mb-0.5">
-                          Rejection reason <span className="text-red-400">*</span>
-                        </p>
-                        <p className="text-xs text-red-400 mb-3">
-                          The host will see this message in their app.
-                        </p>
-                        <textarea
-                          value={rejectReason}
-                          onChange={(e) => setRejectReason(e.target.value)}
-                          placeholder="e.g. ID photo is blurry. Please resubmit with a clearer image."
-                          rows={3}
-                          className="w-full border border-red-200 rounded-lg px-3 py-2.5 text-sm text-gray-800 bg-white resize-none focus:outline-none focus:ring-1 focus:ring-red-300 focus:border-red-300"
-                        />
+            {/* Photos */}
+            <section>
+              <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-3">
+                Submitted Photos
+              </p>
+              <div className="grid grid-cols-2 gap-3">
+                {[
+                  { label: 'ID Photo', src: detail.idPhoto },
+                  { label: 'Selfie with ID', src: detail.selfieWithId },
+                ].map((photo) => (
+                  <div key={photo.label} className="flex flex-col gap-1.5">
+                    <span className="text-xs font-medium text-gray-500">
+                      {photo.label}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setLightbox({ src: photo.src, label: photo.label })
+                      }
+                      className="relative aspect-[4/3] rounded-xl overflow-hidden bg-gray-100 group cursor-zoom-in w-full"
+                    >
+                      <Image
+                        src={photo.src}
+                        alt={photo.label}
+                        fill
+                        className="object-cover transition-transform duration-300 group-hover:scale-105"
+                        unoptimized
+                      />
+                      <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                        <ZoomIn className="w-5 h-5 text-white" />
                       </div>
-                      <div className="grid grid-cols-2 gap-2">
-                        <button
-                          onClick={() => { setRejecting(false); setRejectReason('') }}
-                          className="py-2.5 rounded-lg border border-gray-200 bg-white text-gray-600 text-sm font-semibold hover:bg-gray-50 transition-all cursor-pointer"
-                        >
-                          Cancel
-                        </button>
-                        <button
-                          onClick={handleReject}
-                          disabled={acting || !rejectReason.trim()}
-                          className="flex items-center justify-center gap-2 py-2.5 rounded-lg bg-red-600 text-white text-sm font-semibold hover:bg-red-700 disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer"
-                        >
-                          {acting
-                            ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                            : <XCircle className="w-4 h-4" />}
-                          Confirm Reject
-                        </button>
-                      </div>
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </section>
+
+            {/* Actions — pending only */}
+            {detail.status === 'pending' && (
+              <section className="pb-2">
+                <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-3">
+                  Decision
+                </p>
+
+                {rejecting ? (
+                  <div className="flex flex-col gap-3">
+                    <div className="bg-red-50 border border-red-100 rounded-xl p-4">
+                      <p className="text-sm font-semibold text-red-700 mb-0.5">
+                        Rejection reason <span className="text-red-400">*</span>
+                      </p>
+                      <p className="text-xs text-red-400 mb-3">
+                        The host will see this message in their app.
+                      </p>
+                      <textarea
+                        value={rejectReason}
+                        onChange={(e) => setRejectReason(e.target.value)}
+                        placeholder="e.g. ID photo is blurry. Please resubmit with a clearer image."
+                        rows={3}
+                        className="w-full border border-red-200 rounded-lg px-3 py-2.5 text-sm text-gray-800 bg-white resize-none focus:outline-none focus:ring-1 focus:ring-red-300 focus:border-red-300"
+                      />
                     </div>
-                  ) : (
                     <div className="grid grid-cols-2 gap-2">
                       <button
-                        onClick={handleApprove}
-                        disabled={acting}
-                        className="flex items-center justify-center gap-2 py-3 rounded-lg bg-deep-teal text-white text-sm font-semibold hover:bg-deep-teal/90 disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer"
+                        onClick={() => {
+                          setRejecting(false)
+                          setRejectReason('')
+                        }}
+                        className="py-2.5 rounded-lg border border-gray-200 bg-white text-gray-600 text-sm font-semibold hover:bg-gray-50 transition-all cursor-pointer"
                       >
-                        {acting
-                          ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                          : <CheckCircle className="w-4 h-4" />}
-                        Approve
+                        Cancel
                       </button>
                       <button
-                        onClick={() => setRejecting(true)}
-                        disabled={acting}
-                        className="flex items-center justify-center gap-2 py-3 rounded-lg border border-gray-200 text-gray-700 text-sm font-semibold hover:bg-gray-50 hover:border-gray-300 disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer"
+                        onClick={handleReject}
+                        disabled={acting || !rejectReason.trim()}
+                        className="flex items-center justify-center gap-2 py-2.5 rounded-lg bg-red-600 text-white text-sm font-semibold hover:bg-red-700 disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer"
                       >
-                        <XCircle className="w-4 h-4" />
-                        Reject
+                        {acting ? (
+                          <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                        ) : (
+                          <XCircle className="w-4 h-4" />
+                        )}
+                        Confirm Reject
                       </button>
                     </div>
-                  )}
-                </section>
-              )}
-            </div>
-          ) : (
-            <div className="p-6 text-center text-sm text-gray-400">Failed to load details.</div>
-          )}
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-2 gap-2">
+                    <button
+                      onClick={handleApprove}
+                      disabled={acting}
+                      className="flex items-center justify-center gap-2 py-3 rounded-lg bg-deep-teal text-white text-sm font-semibold hover:bg-deep-teal/90 disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer"
+                    >
+                      {acting ? (
+                        <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                      ) : (
+                        <CheckCircle className="w-4 h-4" />
+                      )}
+                      Approve
+                    </button>
+                    <button
+                      onClick={() => setRejecting(true)}
+                      disabled={acting}
+                      className="flex items-center justify-center gap-2 py-3 rounded-lg border border-gray-200 text-gray-700 text-sm font-semibold hover:bg-gray-50 hover:border-gray-300 disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer"
+                    >
+                      <XCircle className="w-4 h-4" />
+                      Reject
+                    </button>
+                  </div>
+                )}
+              </section>
+            )}
+          </div>
+        ) : (
+          <div className="p-6 text-center text-sm text-gray-400">
+            Failed to load details.
+          </div>
+        )}
       </AdminDetailPanel>
 
       {lightbox && (
-        <ImageLightbox src={lightbox.src} label={lightbox.label} onClose={() => setLightbox(null)} />
+        <ImageLightbox
+          src={lightbox.src}
+          label={lightbox.label}
+          onClose={() => setLightbox(null)}
+        />
       )}
     </>
   )
@@ -335,15 +398,21 @@ export default function AdminVerificationsPage() {
 
   const handleSort = (col: string) => {
     if (orderBy === col) setSort((s) => (s === 'asc' ? 'desc' : 'asc'))
-    else { setOrderBy(col); setSort('asc') }
+    else {
+      setOrderBy(col)
+      setSort('asc')
+    }
     setPage(1)
   }
 
   const SortIcon = ({ col }: { col: string }) => {
-    if (orderBy !== col) return <ChevronsUpDown className="w-3 h-3 opacity-30" />
-    return sort === 'asc'
-      ? <ChevronUp className="w-3 h-3 text-accent-orange" />
-      : <ChevronDown className="w-3 h-3 text-accent-orange" />
+    if (orderBy !== col)
+      return <ChevronsUpDown className="w-3 h-3 opacity-30" />
+    return sort === 'asc' ? (
+      <ChevronUp className="w-3 h-3 text-accent-orange" />
+    ) : (
+      <ChevronDown className="w-3 h-3 text-accent-orange" />
+    )
   }
 
   const fetchData = useCallback(async () => {
@@ -383,8 +452,12 @@ export default function AdminVerificationsPage() {
     }
   }, [status, page, orderBy, sort])
 
-  useEffect(() => { setPage(1) }, [status])
-  useEffect(() => { fetchData() }, [fetchData])
+  useEffect(() => {
+    setPage(1)
+  }, [status])
+  useEffect(() => {
+    fetchData()
+  }, [fetchData])
 
   const pendingCount = data.filter((d) => d.status === 'pending').length
 
@@ -397,9 +470,14 @@ export default function AdminVerificationsPage() {
           { label: 'Awaiting review', value: pendingCount, accent: true },
           { label: 'Showing', value: data.length, accent: false },
         ].map(({ label, value, accent }) => (
-          <div key={label} className="bg-white rounded-xl border border-gray-200 px-5 py-4">
+          <div
+            key={label}
+            className="bg-white rounded-xl border border-gray-200 px-5 py-4"
+          >
             <p className="text-xs text-gray-400 font-medium mb-2">{label}</p>
-            <p className={`text-3xl font-bold font-baloo2 leading-none ${accent && value > 0 ? 'text-accent-orange' : 'text-gray-900'}`}>
+            <p
+              className={`text-3xl font-bold font-baloo2 leading-none ${accent && value > 0 ? 'text-accent-orange' : 'text-gray-900'}`}
+            >
               {value}
             </p>
           </div>
@@ -464,7 +542,9 @@ export default function AdminVerificationsPage() {
                     <td key={j} className="px-4 py-4">
                       <div
                         className="h-3.5 bg-gray-100 rounded-full animate-pulse"
-                        style={{ width: ['48%', '68%', '40%', '30%', '18%'][j] }}
+                        style={{
+                          width: ['48%', '68%', '40%', '30%', '18%'][j],
+                        }}
                       />
                     </td>
                   ))}
@@ -473,8 +553,12 @@ export default function AdminVerificationsPage() {
             ) : data.length === 0 ? (
               <tr>
                 <td colSpan={5} className="px-4 py-16 text-center">
-                  <p className="text-sm font-semibold text-gray-700 font-baloo2">No verifications found</p>
-                  <p className="text-sm text-gray-400 mt-1">Try a different filter</p>
+                  <p className="text-sm font-semibold text-gray-700 font-baloo2">
+                    No verifications found
+                  </p>
+                  <p className="text-sm text-gray-400 mt-1">
+                    Try a different filter
+                  </p>
                 </td>
               </tr>
             ) : (
@@ -496,7 +580,9 @@ export default function AdminVerificationsPage() {
                           <p className="text-[13.5px] font-semibold text-gray-900">
                             {row.user.firstName} {row.user.lastName}
                           </p>
-                          <p className="text-xs text-gray-400">#{row.user.id}</p>
+                          <p className="text-xs text-gray-400">
+                            #{row.user.id}
+                          </p>
                         </div>
                       </div>
                     </td>
@@ -507,10 +593,16 @@ export default function AdminVerificationsPage() {
                       <p className="text-[13px] font-medium text-gray-800">
                         {formatDateRelative(row.submittedAt)}
                       </p>
-                      <p className="text-xs text-gray-400">{formatDate(row.submittedAt)}</p>
+                      <p className="text-xs text-gray-400">
+                        {formatDate(row.submittedAt)}
+                      </p>
                     </td>
                     <td className="px-4 py-3.5">
-                      <StatusBadge status={row.status} resubmit={row.isResubmit} statusConfig={STATUS_CONFIG} />
+                      <StatusBadge
+                        status={row.status}
+                        resubmit={row.isResubmit}
+                        statusConfig={STATUS_CONFIG}
+                      />
                     </td>
                     <td className="px-4 py-3.5 text-right">
                       <span className="text-sm font-medium text-gray-400 group-hover:text-accent-orange transition-colors">

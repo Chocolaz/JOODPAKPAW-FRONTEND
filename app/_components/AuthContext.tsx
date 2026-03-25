@@ -9,7 +9,7 @@ import {
   useCallback,
 } from 'react'
 import { User } from '@/types'
-import { getAccessToken, clearTokens, saveTokens } from '@/lib/tokenManager'
+import { getAccessToken, clearTokens, saveTokens, saveUserRole } from '@/lib/tokenManager'
 import { refreshAccessToken } from '@/lib/authenUtils'
 import { getProfile } from '@/lib/api'
 import { AuthRequiredError, authErrorEmitter } from '@/lib/authErrors'
@@ -17,10 +17,10 @@ import { AuthRequiredError, authErrorEmitter } from '@/lib/authErrors'
 interface AuthContextType {
   user: User | null
   isAuthenticated: boolean
-  login: (accessToken: string, refreshToken: string) => void
+  login: (accessToken: string, refreshToken: string) => Promise<User | null>
   logout: () => void
   loading: boolean
-  refreshAuth: () => Promise<void>
+  refreshAuth: () => Promise<User | null>
   requireAuth: () => boolean
 }
 
@@ -31,21 +31,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true)
   const [refreshTrigger, setRefreshTrigger] = useState(0)
 
-  const refreshAuth = useCallback(async () => {
+  const refreshAuth = useCallback(async (): Promise<User | null> => {
     setLoading(true)
     try {
       const profile = await getProfile()
       setUser(profile.data)
+      const role = profile.data.role.find((r) => r.name === 'admin') ? 'admin' : 'user'
+      saveUserRole(role)
+      return profile.data
     } catch (e) {
       console.error('Failed to refresh auth:', e)
+      return null
     } finally {
       setLoading(false)
     }
   }, [])
 
-  const login = (accessToken: string, refreshToken: string) => {
+  const login = async (accessToken: string, refreshToken: string): Promise<User | null> => {
     saveTokens(accessToken, refreshToken)
-    refreshAuth()
+    return refreshAuth()
   }
 
   const logout = useCallback(() => {

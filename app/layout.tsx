@@ -1,6 +1,8 @@
 'use client'
 
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
+import { useEffect } from 'react'
+import { useAuth } from '@/app/_components/AuthContext'
 import './globals.css'
 import { afacad, baloo2, sarabun, prompt } from './fonts'
 
@@ -21,6 +23,24 @@ import { AuthModalProvider } from './_components/AuthModalProvider'
 import { NotificationProvider } from './_components/NotificationContext'
 import { ChatProvider } from './_components/ChatContext'
 
+function AdminGuard() {
+  const pathname = usePathname()
+  const router = useRouter()
+  const { user, loading } = useAuth()
+  const isAdminUser = user?.role.some((r) => r.name === 'admin') ?? false
+  const isAdminPath = pathname.startsWith('/admin')
+  const isAuthenPath = pathname.startsWith('/authen')
+
+  useEffect(() => {
+    if (loading) return
+    if (isAdminUser && !isAdminPath && !isAuthenPath) {
+      router.replace('/admin/dashboard')
+    }
+  }, [isAdminUser, isAdminPath, isAuthenPath, loading, router])
+
+  return null
+}
+
 export default function RootLayout({
   children,
 }: {
@@ -39,6 +59,7 @@ export default function RootLayout({
       </head>
       <body className={`${afacad.variable} ${baloo2.variable} ${sarabun.variable} ${prompt.variable} bg-white`}>
         <AuthWrapper>
+          <AdminGuard />
           <AuthModalProvider>
             <NotificationProvider>
               <ChatProvider>
