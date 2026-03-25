@@ -168,8 +168,7 @@ export default function AdminActionLogsPage() {
           totalPages={totalPages}
           totalRows={totalRows}
           limit={LIMIT}
-          onPrev={() => setPage((p) => Math.max(1, p - 1))}
-          onNext={() => setPage((p) => Math.min(totalPages, p + 1))}
+          onPageChange={(p) => setPage(p)}
         />
       </div>
 
