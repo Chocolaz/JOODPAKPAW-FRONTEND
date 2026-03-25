@@ -101,6 +101,7 @@ export interface Property {
   images: PropertyImage[]
   roomCategories?: RoomCategories | RoomCategories[]
   createdAt: string
+  publishedAt?: string
   updatedAt: string
   reviewCount?: number
   reviews?: PropertyReview[]

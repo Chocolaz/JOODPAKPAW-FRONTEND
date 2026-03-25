@@ -105,7 +105,9 @@ export default function Home() {
 
   const newListings = useMemo(
     () =>
-      [...filteredProperties].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()),
+      [...filteredProperties].sort((a, b) =>
+        new Date(b.publishedAt ?? b.createdAt).getTime() - new Date(a.publishedAt ?? a.createdAt).getTime()
+      ),
     [filteredProperties]
   )
 
