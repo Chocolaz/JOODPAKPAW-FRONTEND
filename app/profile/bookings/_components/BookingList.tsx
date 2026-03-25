@@ -483,20 +483,6 @@ export function BookingList() {
                     }
                   />
                 )}
-                {upcomingBookings.length > 0 && page < totalPages && (
-                  <div className="flex justify-center pt-2">
-                    <button
-                      onClick={handleLoadMore}
-                      disabled={loadingMore}
-                      className="flex items-center gap-2 px-5 py-2.5 rounded-full border border-gray-200 text-sm font-medium text-gray-600 hover:border-deep-teal/40 hover:text-deep-teal transition disabled:opacity-50"
-                    >
-                      {loadingMore && (
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                      )}
-                      {loadingMore ? 'Loading…' : 'Load more'}
-                    </button>
-                  </div>
-                )}
               </div>
             </TabsContent>
 
@@ -535,22 +521,22 @@ export function BookingList() {
                     }
                   />
                 )}
-                {pastBookings.length > 0 && page < totalPages && (
-                  <div className="flex justify-center pt-2">
-                    <button
-                      onClick={handleLoadMore}
-                      disabled={loadingMore}
-                      className="flex items-center gap-2 px-5 py-2.5 rounded-full border border-gray-200 text-sm font-medium text-gray-600 hover:border-deep-teal/40 hover:text-deep-teal transition disabled:opacity-50"
-                    >
-                      {loadingMore && (
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                      )}
-                      {loadingMore ? 'Loading…' : 'Load more'}
-                    </button>
-                  </div>
-                )}
               </div>
             </TabsContent>
+
+            {/* Load more — only shown on Past tab since upcoming bookings fit in first page */}
+            {activeTab === 'past' && page < totalPages && (
+              <div className="flex justify-center py-4 px-4">
+                <button
+                  onClick={handleLoadMore}
+                  disabled={loadingMore}
+                  className="flex items-center gap-2 px-5 py-2.5 rounded-full border border-gray-200 text-sm font-medium text-gray-600 hover:border-deep-teal/40 hover:text-deep-teal transition disabled:opacity-50"
+                >
+                  {loadingMore && <Loader2 className="w-4 h-4 animate-spin" />}
+                  {loadingMore ? 'Loading…' : 'Load more'}
+                </button>
+              </div>
+            )}
           </Tabs>
         </motion.div>
       )}

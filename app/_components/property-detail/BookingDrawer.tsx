@@ -221,6 +221,7 @@ export function BookingDrawer({
         petProfilesLoading={petProfilesLoading}
         petSizeCategories={petSizeCategories}
         onPetSizeUpdated={handlePetSizeUpdated}
+        inlineMode={!sidebarMode}
       />
       {searchedNumberOfNights > 0 && (
         <p className="text-sm font-medium text-deep-teal mt-1 mb-2">

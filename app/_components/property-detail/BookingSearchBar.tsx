@@ -21,7 +21,7 @@ import {
   DialogDescription,
   DialogFooter,
 } from '@/components/ui/dialog'
-import { PawPrint, CheckCircle2, Hash, AlertTriangle, Pencil } from 'lucide-react'
+import { PawPrint, CheckCircle2, Hash, AlertTriangle, Pencil, ChevronDown } from 'lucide-react'
 import { PetProfile, PetSizeCategory } from '@/types'
 
 export interface SearchParams {
@@ -45,9 +45,12 @@ interface BookingSearchBarProps {
   petProfilesLoading: boolean
   petSizeCategories: PetSizeCategory[]
   onPetSizeUpdated: (petId: number, newSizeCategoryId: number) => void
+  /** Inline expand mode — no nested dialogs, expands in place (use inside Drawer) */
+  inlineMode?: boolean
 }
 
 type PetMode = 'profiles' | 'count'
+type InlinePanel = 'checkin' | 'checkout' | 'pets' | null
 
 export function BookingSearchBar({
   onSearch,
@@ -63,12 +66,12 @@ export function BookingSearchBar({
   petProfilesLoading,
   petSizeCategories,
   onPetSizeUpdated,
+  inlineMode = false,
 }: BookingSearchBarProps) {
-  const [selectedDateRange, setSelectedDateRange] = React.useState<
-    DateRange | undefined
-  >(undefined)
+  const [selectedDateRange, setSelectedDateRange] = React.useState<DateRange | undefined>(undefined)
   const [isDateDialogOpen, setIsDateDialogOpen] = React.useState(false)
   const [isPetsDialogOpen, setIsPetsDialogOpen] = React.useState(false)
+  const [inlineOpen, setInlineOpen] = React.useState<InlinePanel>(null)
 
   // Draft state inside the dialog — committed on "Confirm"
   const [draftPetIds, setDraftPetIds] = React.useState<number[]>([])
@@ -116,7 +119,6 @@ export function BookingSearchBar({
       onPetSizeUpdated(editingPetDetail.id, selectedEditSizeId)
       setEditingPetId(null)
       setEditingPetDetail(null)
-      // Re-trigger search with the updated size
       if (date?.from && date?.to) {
         const petCount = selectedPetIds.length > 0 ? selectedPetIds.length : numberOfPets
         if (petCount > 0) {
@@ -135,12 +137,13 @@ export function BookingSearchBar({
     }
   }
 
+  // Sync draft state when dialogs/panels open
   React.useEffect(() => {
     if (isDateDialogOpen) setSelectedDateRange(date)
-  }, [isDateDialogOpen, date])
+  }, [isDateDialogOpen, inlineOpen, date])
 
   React.useEffect(() => {
-    if (isPetsDialogOpen) {
+    if (isPetsDialogOpen || inlineOpen === 'pets') {
       setDraftPetIds(selectedPetIds)
       setDraftNumberOfPets(numberOfPets)
       setDraftPetSizeId(petSizeId)
@@ -152,12 +155,13 @@ export function BookingSearchBar({
         setPetMode(petProfiles.length > 0 ? 'profiles' : 'count')
       }
     }
-  }, [isPetsDialogOpen, selectedPetIds, numberOfPets, petSizeId, petProfiles.length])
+  }, [isPetsDialogOpen, inlineOpen, selectedPetIds, numberOfPets, petSizeId, petProfiles.length])
 
   const handleConfirmDate = () => {
     if (selectedDateRange?.from && selectedDateRange?.to) {
       setDate(selectedDateRange)
       setIsDateDialogOpen(false)
+      setInlineOpen(null)
     }
   }
 
@@ -172,6 +176,7 @@ export function BookingSearchBar({
       setPetSizeId(draftPetSizeId)
     }
     setIsPetsDialogOpen(false)
+    setInlineOpen(null)
   }
 
   const toggleDraft = (id: number) => {
@@ -224,6 +229,437 @@ export function BookingSearchBar({
     confirmedCount === 0 ||
     (petMode === 'count' && petSizeCategories.length > 0 && draftPetSizeId === undefined)
 
+  // ── Shared pet panel content ──────────────────────────────────────────────
+  const petPanelContent = (
+    <div className="space-y-3">
+      {petProfilesLoading ? (
+        <div className="flex justify-center py-8">
+          <div className="w-6 h-6 border-2 border-accent-orange border-t-transparent rounded-full animate-spin" />
+        </div>
+      ) : (
+        <>
+          {petProfiles.length > 0 && (
+            <div
+              className={cn(
+                'rounded-2xl border-2 overflow-hidden transition-all duration-200',
+                petMode === 'profiles' ? 'border-deep-teal shadow-sm' : 'border-gray-200'
+              )}
+            >
+              <button
+                type="button"
+                onClick={() => setPetMode('profiles')}
+                className="w-full flex items-center justify-between px-5 py-4 bg-white"
+              >
+                <div className="flex items-center gap-3">
+                  <div className={cn('p-2 rounded-xl transition-colors', petMode === 'profiles' ? 'bg-deep-teal/10' : 'bg-gray-100')}>
+                    <PawPrint className={cn('w-5 h-5 transition-colors', petMode === 'profiles' ? 'text-deep-teal' : 'text-gray-400')} />
+                  </div>
+                  <div className="text-left">
+                    <p className={cn('font-semibold text-sm', petMode === 'profiles' ? 'text-deep-teal' : 'text-gray-700')}>
+                      My Pets
+                    </p>
+                    <p className="text-xs text-neutral-gray mt-0.5">Select from your pet profiles</p>
+                  </div>
+                </div>
+                <div className={cn('w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors', petMode === 'profiles' ? 'border-deep-teal bg-deep-teal' : 'border-gray-300')}>
+                  {petMode === 'profiles' && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
+                </div>
+              </button>
+
+              <AnimatePresence initial={false}>
+                {petMode === 'profiles' && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: 'auto', opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.22, ease: 'easeInOut' }}
+                  >
+                    <div className="border-t border-gray-100 bg-gray-50/70 px-4 py-4 space-y-2">
+                      {petProfiles.map((pet) => {
+                        const isSelected = draftPetIds.includes(pet.id)
+                        return (
+                          <motion.button
+                            key={pet.id}
+                            type="button"
+                            onClick={() => toggleDraft(pet.id)}
+                            whileTap={{ scale: 0.98 }}
+                            className={cn(
+                              'w-full flex items-center gap-3 p-3 rounded-xl border-2 transition-all duration-150 text-left bg-white',
+                              isSelected ? 'border-accent-orange bg-accent-orange/5' : 'border-gray-200 hover:border-gray-300'
+                            )}
+                          >
+                            <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-100 shrink-0 flex items-center justify-center">
+                              {pet.image ? (
+                                <Image src={pet.image} alt={pet.name} width={40} height={40} className="object-cover w-full h-full" />
+                              ) : (
+                                <PawPrint className="w-5 h-5 text-gray-400" />
+                              )}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className={cn('font-semibold text-sm', isSelected ? 'text-accent-orange' : 'text-gray-800')}>
+                                {pet.name}
+                              </p>
+                              {pet.petTypeName && (
+                                <p className="text-xs text-neutral-gray truncate">
+                                  {pet.petTypeName}{pet.age ? ` · ${pet.age}y` : ''}
+                                </p>
+                              )}
+                            </div>
+                            <CheckCircle2 className={cn('w-5 h-5 shrink-0 transition-colors', isSelected ? 'text-accent-orange' : 'text-gray-200')} />
+                          </motion.button>
+                        )
+                      })}
+
+                      <AnimatePresence>
+                        {draftPetIds.length > 0 && (
+                          <motion.div
+                            initial={{ opacity: 0, y: -4 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -4 }}
+                            transition={{ duration: 0.2 }}
+                            className="mt-1 rounded-xl border border-amber-200 bg-amber-50 p-3 space-y-2"
+                          >
+                            <div className="flex items-center gap-2">
+                              <AlertTriangle className="w-4 h-4 text-amber-500 shrink-0" />
+                              <p className="text-xs font-semibold text-amber-700">Pets grow — are their sizes still correct?</p>
+                            </div>
+                            <div className="space-y-2">
+                              {petProfiles.filter((p) => draftPetIds.includes(p.id)).map((pet) => {
+                                const sizeCategory = petSizeCategories.find((s) => s.id === pet.petSizeCategoryId)
+                                const isEditing = editingPetId === pet.id
+                                return (
+                                  <div key={pet.id}>
+                                    {isEditing ? (
+                                      <div className="rounded-lg bg-white border border-amber-200 p-2.5 space-y-2.5">
+                                        <p className="text-xs font-semibold text-amber-800">Update {pet.name}&apos;s size</p>
+                                        {editingPetDetailLoading ? (
+                                          <div className="flex justify-center py-2">
+                                            <div className="w-4 h-4 border-2 border-amber-500 border-t-transparent rounded-full animate-spin" />
+                                          </div>
+                                        ) : (
+                                          <>
+                                            <div className="flex gap-1.5">
+                                              {petSizeCategories.map((size) => (
+                                                <button
+                                                  key={size.id}
+                                                  type="button"
+                                                  onClick={() => setSelectedEditSizeId(size.id)}
+                                                  className={cn(
+                                                    'flex-1 rounded-lg border-2 py-1.5 px-1 text-center transition-all duration-150',
+                                                    selectedEditSizeId === size.id ? 'border-accent-orange bg-accent-orange/10' : 'border-gray-200 bg-white hover:border-gray-300'
+                                                  )}
+                                                >
+                                                  <PawPrint className={cn('mx-auto mb-0.5',
+                                                    size.name.toLowerCase() === 'small' ? 'w-3.5 h-3.5' :
+                                                    size.name.toLowerCase() === 'medium' ? 'w-5 h-5' : 'w-6 h-6',
+                                                    selectedEditSizeId === size.id ? 'text-accent-orange' : 'text-gray-400'
+                                                  )} />
+                                                  <p className={cn('text-xs font-semibold capitalize', selectedEditSizeId === size.id ? 'text-accent-orange' : 'text-gray-600')}>{size.name}</p>
+                                                  <p className="text-[10px] text-neutral-gray">{formatPetSizeRange(size.min, size.max)}</p>
+                                                </button>
+                                              ))}
+                                            </div>
+                                            <div className="flex gap-2">
+                                              <Button type="button" variant="outline" size="sm" className="flex-1 h-7 text-xs"
+                                                onClick={() => { setEditingPetId(null); setEditingPetDetail(null) }}
+                                                disabled={savingSize}
+                                              >
+                                                Cancel
+                                              </Button>
+                                              <Button type="button" size="sm" className="flex-1 h-7 text-xs bg-accent-orange hover:bg-accent-orange/90"
+                                                onClick={handleSavePetSize}
+                                                disabled={savingSize || selectedEditSizeId === undefined}
+                                              >
+                                                {savingSize ? <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin" /> : 'Save'}
+                                              </Button>
+                                            </div>
+                                          </>
+                                        )}
+                                      </div>
+                                    ) : (
+                                      <div className="flex items-center justify-between">
+                                        <div className="flex items-center gap-1.5">
+                                          <span className="text-xs font-medium text-amber-800">{pet.name}</span>
+                                          {sizeCategory ? (
+                                            <span className="text-xs text-amber-600 capitalize">· {sizeCategory.name} ({formatPetSizeRange(sizeCategory.min, sizeCategory.max)})</span>
+                                          ) : (
+                                            <span className="text-xs text-amber-400">· no size set</span>
+                                          )}
+                                        </div>
+                                        <button type="button" onClick={() => handleEditPetSize(pet)}
+                                          className="flex items-center gap-1 text-xs font-medium text-amber-700 hover:text-amber-900"
+                                        >
+                                          <Pencil className="w-3 h-3" />
+                                          Edit
+                                        </button>
+                                      </div>
+                                    )}
+                                  </div>
+                                )
+                              })}
+                            </div>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          )}
+
+          {/* Enter Number */}
+          <div className={cn('rounded-xl border-2 overflow-hidden transition-all duration-200', petMode === 'count' ? 'border-accent-orange/50' : 'border-gray-200')}>
+            <button
+              type="button"
+              onClick={() => setPetMode('count')}
+              className={cn('w-full flex items-center justify-between px-4 py-3', petMode === 'count' ? 'bg-accent-orange/5' : 'bg-white hover:bg-gray-50')}
+            >
+              <div className="flex items-center gap-3">
+                <Hash className={cn('w-4 h-4 shrink-0 transition-colors', petMode === 'count' ? 'text-accent-orange' : 'text-gray-400')} />
+                <div className="text-left">
+                  <p className={cn('text-sm font-medium transition-colors', petMode === 'count' ? 'text-accent-orange' : 'text-gray-500')}>
+                    Enter number of pets
+                  </p>
+                  <p className="text-xs text-neutral-gray">
+                    {petProfiles.length > 0 ? 'Without using pet profiles' : 'How many pets are joining?'}
+                  </p>
+                </div>
+              </div>
+              <div className={cn('w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors', petMode === 'count' ? 'border-accent-orange bg-accent-orange' : 'border-gray-300')}>
+                {petMode === 'count' && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
+              </div>
+            </button>
+
+            <AnimatePresence initial={false}>
+              {petMode === 'count' && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: 'auto', opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={{ duration: 0.22, ease: 'easeInOut' }}
+                >
+                  <div className="border-t border-gray-100 bg-gray-50/70 px-5 py-4 space-y-4">
+                    <div className="flex items-center justify-between">
+                      <span className="font-medium text-deep-teal">Number of pets</span>
+                      <div className="flex items-center gap-4">
+                        <Button variant="outline" size="icon" className="h-8 w-8 rounded-full"
+                          onClick={() => handleDraftNumberChange(-1)} disabled={draftNumberOfPets === 0}>-</Button>
+                        <span className="w-8 text-center font-semibold">{draftNumberOfPets}</span>
+                        <Button variant="outline" size="icon" className="h-8 w-8 rounded-full"
+                          onClick={() => handleDraftNumberChange(1)} disabled={draftNumberOfPets === 10}>+</Button>
+                      </div>
+                    </div>
+                    {petSizeCategories.length > 0 && (
+                      <div className="space-y-2">
+                        <p className="text-sm font-medium text-deep-teal">Pet size</p>
+                        <div className="flex flex-wrap gap-2">
+                          {petSizeCategories.map((size) => (
+                            <button key={size.id} type="button"
+                              onClick={() => setDraftPetSizeId((prev) => prev === size.id ? undefined : size.id)}
+                              className={cn(
+                                'flex-1 min-w-[80px] rounded-xl border-2 px-3 py-2 text-center transition-all duration-150',
+                                draftPetSizeId === size.id ? 'border-accent-orange bg-accent-orange/10 text-accent-orange' : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300'
+                              )}
+                            >
+                              <p className="text-sm font-semibold capitalize">{size.name}</p>
+                              <p className="text-xs text-neutral-gray">{formatPetSizeRange(size.min, size.max)}</p>
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+
+          {petProfiles.length === 0 && (
+            <div className="flex items-center gap-2 p-3 rounded-xl bg-accent-orange/5 border border-accent-orange/20">
+              <PawPrint className="w-4 h-4 text-accent-orange shrink-0" />
+              <p className="text-xs text-gray-600">
+                Add pet profiles for a better experience.{' '}
+                <Link href="/profile/pets" className="font-medium text-accent-orange hover:underline">
+                  Add a profile →
+                </Link>
+              </p>
+            </div>
+          )}
+        </>
+      )}
+    </div>
+  )
+
+  const confirmPetsButton = (
+    <Button onClick={handleConfirmPets} disabled={isConfirmPetsDisabled} className="bg-accent-orange w-full">
+      {confirmedCount === 0
+        ? petMode === 'profiles' ? 'Select at least one pet' : 'Enter number of pets'
+        : petMode === 'count' && petSizeCategories.length > 0 && draftPetSizeId === undefined
+        ? 'Select pet size'
+        : `Confirm ${confirmedCount} pet${confirmedCount > 1 ? 's' : ''}`}
+    </Button>
+  )
+
+  // ── Trigger pill (shared between both modes) ──────────────────────────────
+  const dateLabel = date?.from
+    ? date.to
+      ? `${format(date.from, 'LLL dd')} – ${format(date.to, 'LLL dd')}`
+      : format(date.from, 'LLL dd, y')
+    : null
+
+  const dateTriggerContent = (
+    <div className="flex flex-col items-start">
+      <span className="font-semibold text-sm text-deep-teal">Dates</span>
+      {dateLabel
+        ? <span className="text-sm">{dateLabel}</span>
+        : <span className="text-neutral-gray text-sm">Add dates</span>}
+    </div>
+  )
+
+  const petTriggerContent = (
+    <div className="flex flex-col items-start">
+      <span className="font-semibold text-sm text-deep-teal">Pets</span>
+      <span className={cn('text-sm', selectedPetIds.length === 0 && numberOfPets === 0 && 'text-neutral-gray')}>
+        {petButtonLabel}
+      </span>
+    </div>
+  )
+
+  // ── INLINE MODE ───────────────────────────────────────────────────────────
+  const handleInlineSelectCheckin = (day: Date | undefined) => {
+    if (!day) return
+    const newTo = date?.to && date.to > day ? date.to : undefined
+    setDate({ from: day, to: newTo })
+    // Auto-open checkout if not yet set
+    setInlineOpen(newTo ? null : 'checkout')
+  }
+
+  const handleInlineSelectCheckout = (day: Date | undefined) => {
+    if (!day) return
+    setDate((prev) => ({ from: prev?.from, to: day }))
+    setInlineOpen(null)
+  }
+
+  if (inlineMode) {
+    return (
+      <div className="flex flex-col gap-3 mb-4">
+        {/* Pill trigger row — 3 sections */}
+        <div className="flex items-center p-1.5 rounded-full border bg-off-white shadow-sm">
+          {/* Check-in */}
+          <button
+            type="button"
+            onClick={() => setInlineOpen((o) => (o === 'checkin' ? null : 'checkin'))}
+            className={cn(
+              'flex-1 flex flex-col items-start px-4 py-2 rounded-full transition-colors min-w-0',
+              inlineOpen === 'checkin' ? 'bg-deep-teal/10' : 'hover:bg-neutral-200'
+            )}
+          >
+            <span className="font-semibold text-xs text-deep-teal">Check-in</span>
+            <span className={cn('text-sm truncate', date?.from ? 'text-gray-800' : 'text-neutral-gray')}>
+              {date?.from ? format(date.from, 'MMM dd') : 'Add date'}
+            </span>
+          </button>
+
+          <div className="w-px h-8 bg-gray-200 shrink-0" />
+
+          {/* Check-out */}
+          <button
+            type="button"
+            onClick={() => setInlineOpen((o) => (o === 'checkout' ? null : 'checkout'))}
+            className={cn(
+              'flex-1 flex flex-col items-start px-4 py-2 rounded-full transition-colors min-w-0',
+              inlineOpen === 'checkout' ? 'bg-deep-teal/10' : 'hover:bg-neutral-200'
+            )}
+          >
+            <span className="font-semibold text-xs text-deep-teal">Check-out</span>
+            <span className={cn('text-sm truncate', date?.to ? 'text-gray-800' : 'text-neutral-gray')}>
+              {date?.to ? format(date.to, 'MMM dd') : 'Add date'}
+            </span>
+          </button>
+
+          <div className="w-px h-8 bg-gray-200 shrink-0" />
+
+          {/* Pets */}
+          <button
+            type="button"
+            onClick={() => setInlineOpen((o) => (o === 'pets' ? null : 'pets'))}
+            className={cn(
+              'flex-1 flex flex-col items-start px-4 py-2 rounded-full transition-colors min-w-0',
+              inlineOpen === 'pets' ? 'bg-accent-orange/10' : 'hover:bg-neutral-200'
+            )}
+          >
+            <span className="font-semibold text-xs text-deep-teal">Pets</span>
+            <span className={cn('text-sm truncate', selectedPetIds.length === 0 && numberOfPets === 0 ? 'text-neutral-gray' : 'text-gray-800')}>
+              {petButtonLabel}
+            </span>
+          </button>
+        </div>
+
+        {/* Inline expanded panels */}
+        <AnimatePresence initial={false}>
+          {(inlineOpen === 'checkin' || inlineOpen === 'checkout') && (
+            <motion.div
+              key="date-panel"
+              initial={{ opacity: 0, y: -8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.2, ease: 'easeOut' }}
+              className="rounded-2xl border border-gray-200 bg-white overflow-hidden shadow-sm"
+            >
+              <div className="px-4 pt-3 pb-1 flex items-center gap-2">
+                <span className={cn(
+                  'text-xs font-semibold px-2 py-0.5 rounded-full',
+                  inlineOpen === 'checkin' ? 'bg-deep-teal text-white' : 'bg-gray-100 text-gray-400'
+                )}>
+                  Check-in
+                </span>
+                <span className="text-gray-300 text-xs">→</span>
+                <span className={cn(
+                  'text-xs font-semibold px-2 py-0.5 rounded-full',
+                  inlineOpen === 'checkout' ? 'bg-deep-teal text-white' : 'bg-gray-100 text-gray-400'
+                )}>
+                  Check-out
+                </span>
+              </div>
+              <div className="flex justify-center pb-3">
+                <Calendar
+                  mode="single"
+                  defaultMonth={inlineOpen === 'checkout' ? (date?.to ?? date?.from ?? new Date()) : (date?.from ?? new Date())}
+                  selected={inlineOpen === 'checkin' ? date?.from : date?.to}
+                  onSelect={inlineOpen === 'checkin' ? handleInlineSelectCheckin : handleInlineSelectCheckout}
+                  startMonth={new Date()}
+                  hidden={[{
+                    before: inlineOpen === 'checkout' && date?.from
+                      ? new Date(date.from.getTime() + 86400000)
+                      : new Date()
+                  }]}
+                  fixedWeeks
+                  className="w-full"
+                />
+              </div>
+            </motion.div>
+          )}
+
+          {inlineOpen === 'pets' && (
+            <motion.div
+              key="pets-panel"
+              initial={{ opacity: 0, y: -8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.2, ease: 'easeOut' }}
+              className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm space-y-3"
+            >
+              {petPanelContent}
+              {confirmPetsButton}
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    )
+  }
+
+  // ── DIALOG MODE (sidebar / desktop) ──────────────────────────────────────
   return (
     <div className="flex items-center gap-2 p-2 rounded-full border bg-off-white shadow-sm mb-4">
       {/* Date Range Picker */}
@@ -237,36 +673,15 @@ export function BookingSearchBar({
               !date && 'text-muted-foreground'
             )}
           >
-            <div className="flex flex-col items-start">
-              <span className="font-semibold text-sm text-deep-teal">
-                Dates
-              </span>
-              {date?.from ? (
-                date.to ? (
-                  <span>
-                    {format(date.from, 'LLL dd')} -{' '}
-                    {format(date.to, 'LLL dd')}
-                  </span>
-                ) : (
-                  <span>{format(date.from, 'LLL dd, y')}</span>
-                )
-              ) : (
-                <span className="text-neutral-gray">Add dates</span>
-              )}
-            </div>
+            {dateTriggerContent}
           </Button>
         </DialogTrigger>
 
         <DialogContent className="w-auto max-h-[90vh] p-6 flex flex-col gap-2 overflow-y-auto">
           <DialogHeader className="text-left">
-            <DialogTitle className="text-accent-orange">
-              Select Dates
-            </DialogTitle>
-            <DialogDescription>
-              Choose your check-in and check-out dates.
-            </DialogDescription>
+            <DialogTitle className="text-accent-orange">Select Dates</DialogTitle>
+            <DialogDescription>Choose your check-in and check-out dates.</DialogDescription>
           </DialogHeader>
-
           <div className="flex justify-center">
             <Calendar
               mode="range"
@@ -280,13 +695,8 @@ export function BookingSearchBar({
               className="min-w-[280px] md:min-w-[400px]"
             />
           </div>
-
           <DialogFooter>
-            <Button
-              onClick={handleConfirmDate}
-              disabled={isConfirmDateDisabled}
-              className="bg-positive-green w-full"
-            >
+            <Button onClick={handleConfirmDate} disabled={isConfirmDateDisabled} className="bg-positive-green w-full">
               Confirm
             </Button>
           </DialogFooter>
@@ -303,461 +713,17 @@ export function BookingSearchBar({
               selectedPetIds.length === 0 && numberOfPets === 0 && 'text-neutral-gray'
             )}
           >
-            <div className="flex flex-col items-start">
-              <span className="font-semibold text-sm text-deep-teal">Pets</span>
-              <span
-                className={cn(
-                  selectedPetIds.length === 0 && numberOfPets === 0 && 'text-neutral-gray'
-                )}
-              >
-                {petButtonLabel}
-              </span>
-            </div>
+            {petTriggerContent}
           </Button>
         </DialogTrigger>
 
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader className="text-left">
-            <DialogTitle className="text-accent-orange">
-              Which pets are coming?
-            </DialogTitle>
-            <DialogDescription>
-              Select the pet profiles joining this stay.
-            </DialogDescription>
+            <DialogTitle className="text-accent-orange">Which pets are coming?</DialogTitle>
+            <DialogDescription>Select the pet profiles joining this stay.</DialogDescription>
           </DialogHeader>
-
-          <div className="py-2 space-y-3">
-            {petProfilesLoading ? (
-              <div className="flex justify-center py-8">
-                <div className="w-6 h-6 border-2 border-accent-orange border-t-transparent rounded-full animate-spin" />
-              </div>
-            ) : (
-              <>
-                {/* My Pets — primary accordion (only when profiles exist) */}
-                {petProfiles.length > 0 && (
-                  <div
-                    className={cn(
-                      'rounded-2xl border-2 overflow-hidden transition-all duration-200',
-                      petMode === 'profiles'
-                        ? 'border-deep-teal shadow-sm'
-                        : 'border-gray-200'
-                    )}
-                  >
-                    <button
-                      type="button"
-                      onClick={() => setPetMode('profiles')}
-                      className="w-full flex items-center justify-between px-5 py-4 bg-white"
-                    >
-                      <div className="flex items-center gap-3">
-                        <div
-                          className={cn(
-                            'p-2 rounded-xl transition-colors',
-                            petMode === 'profiles' ? 'bg-deep-teal/10' : 'bg-gray-100'
-                          )}
-                        >
-                          <PawPrint
-                            className={cn(
-                              'w-5 h-5 transition-colors',
-                              petMode === 'profiles' ? 'text-deep-teal' : 'text-gray-400'
-                            )}
-                          />
-                        </div>
-                        <div className="text-left">
-                          <p
-                            className={cn(
-                              'font-semibold text-sm',
-                              petMode === 'profiles' ? 'text-deep-teal' : 'text-gray-700'
-                            )}
-                          >
-                            My Pets
-                          </p>
-                          <p className="text-xs text-neutral-gray mt-0.5">
-                            Select from your pet profiles
-                          </p>
-                        </div>
-                      </div>
-
-                      <div
-                        className={cn(
-                          'w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors',
-                          petMode === 'profiles'
-                            ? 'border-deep-teal bg-deep-teal'
-                            : 'border-gray-300'
-                        )}
-                      >
-                        {petMode === 'profiles' && (
-                          <div className="w-1.5 h-1.5 rounded-full bg-white" />
-                        )}
-                      </div>
-                    </button>
-
-                    <AnimatePresence initial={false}>
-                      {petMode === 'profiles' && (
-                        <motion.div
-                          initial={{ height: 0, opacity: 0 }}
-                          animate={{ height: 'auto', opacity: 1 }}
-                          exit={{ height: 0, opacity: 0 }}
-                          transition={{ duration: 0.22, ease: 'easeInOut' }}
-                        >
-                          <div className="border-t border-gray-100 bg-gray-50/70 px-4 py-4 space-y-2">
-                            {petProfiles.map((pet) => {
-                              const isSelected = draftPetIds.includes(pet.id)
-                              return (
-                                <motion.button
-                                  key={pet.id}
-                                  type="button"
-                                  onClick={() => toggleDraft(pet.id)}
-                                  whileTap={{ scale: 0.98 }}
-                                  className={cn(
-                                    'w-full flex items-center gap-3 p-3 rounded-xl border-2 transition-all duration-150 text-left bg-white',
-                                    isSelected
-                                      ? 'border-accent-orange bg-accent-orange/5'
-                                      : 'border-gray-200 hover:border-gray-300'
-                                  )}
-                                >
-                                  <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-100 shrink-0 flex items-center justify-center">
-                                    {pet.image ? (
-                                      <Image
-                                        src={pet.image}
-                                        alt={pet.name}
-                                        width={40}
-                                        height={40}
-                                        className="object-cover w-full h-full"
-                                      />
-                                    ) : (
-                                      <PawPrint className="w-5 h-5 text-gray-400" />
-                                    )}
-                                  </div>
-
-                                  <div className="flex-1 min-w-0">
-                                    <p
-                                      className={cn(
-                                        'font-semibold text-sm',
-                                        isSelected ? 'text-accent-orange' : 'text-gray-800'
-                                      )}
-                                    >
-                                      {pet.name}
-                                    </p>
-                                    {pet.petTypeName && (
-                                      <p className="text-xs text-neutral-gray truncate">
-                                        {pet.petTypeName}
-                                        {pet.age ? ` · ${pet.age}y` : ''}
-                                      </p>
-                                    )}
-                                  </div>
-
-                                  <CheckCircle2
-                                    className={cn(
-                                      'w-5 h-5 shrink-0 transition-colors',
-                                      isSelected ? 'text-accent-orange' : 'text-gray-200'
-                                    )}
-                                  />
-                                </motion.button>
-                              )
-                            })}
-
-                            {/* Pet size reminder — shown when at least one pet is selected */}
-                            <AnimatePresence>
-                              {draftPetIds.length > 0 && (
-                                <motion.div
-                                  initial={{ opacity: 0, y: -4 }}
-                                  animate={{ opacity: 1, y: 0 }}
-                                  exit={{ opacity: 0, y: -4 }}
-                                  transition={{ duration: 0.2 }}
-                                  className="mt-1 rounded-xl border border-amber-200 bg-amber-50 p-3 space-y-2"
-                                >
-                                  <div className="flex items-center gap-2">
-                                    <AlertTriangle className="w-4 h-4 text-amber-500 shrink-0" />
-                                    <p className="text-xs font-semibold text-amber-700">
-                                      Pets grow — are their sizes still correct?
-                                    </p>
-                                  </div>
-
-                                  <div className="space-y-2">
-                                    {petProfiles
-                                      .filter((p) => draftPetIds.includes(p.id))
-                                      .map((pet) => {
-                                        const sizeCategory = petSizeCategories.find(
-                                          (s) => s.id === pet.petSizeCategoryId
-                                        )
-                                        const isEditing = editingPetId === pet.id
-
-                                        return (
-                                          <div key={pet.id}>
-                                            {isEditing ? (
-                                              <div className="rounded-lg bg-white border border-amber-200 p-2.5 space-y-2.5">
-                                                <p className="text-xs font-semibold text-amber-800">
-                                                  Update {pet.name}&apos;s size
-                                                </p>
-
-                                                {editingPetDetailLoading ? (
-                                                  <div className="flex justify-center py-2">
-                                                    <div className="w-4 h-4 border-2 border-amber-500 border-t-transparent rounded-full animate-spin" />
-                                                  </div>
-                                                ) : (
-                                                  <>
-                                                    <div className="flex gap-1.5">
-                                                      {petSizeCategories.map((size) => (
-                                                        <button
-                                                          key={size.id}
-                                                          type="button"
-                                                          onClick={() => setSelectedEditSizeId(size.id)}
-                                                          className={cn(
-                                                            'flex-1 rounded-lg border-2 py-1.5 px-1 text-center transition-all duration-150',
-                                                            selectedEditSizeId === size.id
-                                                              ? 'border-accent-orange bg-accent-orange/10'
-                                                              : 'border-gray-200 bg-white hover:border-gray-300'
-                                                          )}
-                                                        >
-                                                          <PawPrint
-                                                            className={cn(
-                                                              'mx-auto mb-0.5',
-                                                              size.name.toLowerCase() === 'small' ? 'w-3.5 h-3.5' :
-                                                              size.name.toLowerCase() === 'medium' ? 'w-5 h-5' : 'w-6 h-6',
-                                                              selectedEditSizeId === size.id ? 'text-accent-orange' : 'text-gray-400'
-                                                            )}
-                                                          />
-                                                          <p className={cn(
-                                                            'text-xs font-semibold capitalize',
-                                                            selectedEditSizeId === size.id ? 'text-accent-orange' : 'text-gray-600'
-                                                          )}>
-                                                            {size.name}
-                                                          </p>
-                                                          <p className="text-[10px] text-neutral-gray">
-                                                            {formatPetSizeRange(size.min, size.max)}
-                                                          </p>
-                                                        </button>
-                                                      ))}
-                                                    </div>
-
-                                                    <div className="flex gap-2">
-                                                      <Button
-                                                        type="button"
-                                                        variant="outline"
-                                                        size="sm"
-                                                        className="flex-1 h-7 text-xs"
-                                                        onClick={() => { setEditingPetId(null); setEditingPetDetail(null) }}
-                                                        disabled={savingSize}
-                                                      >
-                                                        Cancel
-                                                      </Button>
-                                                      <Button
-                                                        type="button"
-                                                        size="sm"
-                                                        className="flex-1 h-7 text-xs bg-accent-orange hover:bg-accent-orange/90"
-                                                        onClick={handleSavePetSize}
-                                                        disabled={savingSize || selectedEditSizeId === undefined}
-                                                      >
-                                                        {savingSize ? (
-                                                          <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                                                        ) : 'Save'}
-                                                      </Button>
-                                                    </div>
-                                                  </>
-                                                )}
-                                              </div>
-                                            ) : (
-                                              <div className="flex items-center justify-between">
-                                                <div className="flex items-center gap-1.5">
-                                                  <span className="text-xs font-medium text-amber-800">
-                                                    {pet.name}
-                                                  </span>
-                                                  {sizeCategory ? (
-                                                    <span className="text-xs text-amber-600 capitalize">
-                                                      · {sizeCategory.name} ({formatPetSizeRange(sizeCategory.min, sizeCategory.max)})
-                                                    </span>
-                                                  ) : (
-                                                    <span className="text-xs text-amber-400">· no size set</span>
-                                                  )}
-                                                </div>
-                                                <button
-                                                  type="button"
-                                                  onClick={() => handleEditPetSize(pet)}
-                                                  className="flex items-center gap-1 text-xs font-medium text-amber-700 hover:text-amber-900"
-                                                >
-                                                  <Pencil className="w-3 h-3" />
-                                                  Edit
-                                                </button>
-                                              </div>
-                                            )}
-                                          </div>
-                                        )
-                                      })}
-                                  </div>
-                                </motion.div>
-                              )}
-                            </AnimatePresence>
-                          </div>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  </div>
-                )}
-
-                {/* Enter Number — secondary accordion */}
-                <div
-                  className={cn(
-                    'rounded-xl border-2 overflow-hidden transition-all duration-200',
-                    petMode === 'count'
-                      ? 'border-accent-orange/50'
-                      : 'border-gray-200'
-                  )}
-                >
-                  <button
-                    type="button"
-                    onClick={() => setPetMode('count')}
-                    className={cn(
-                      'w-full flex items-center justify-between px-4 py-3',
-                      petMode === 'count'
-                        ? 'bg-accent-orange/5'
-                        : 'bg-white hover:bg-gray-50'
-                    )}
-                  >
-                    <div className="flex items-center gap-3">
-                      <Hash
-                        className={cn(
-                          'w-4 h-4 shrink-0 transition-colors',
-                          petMode === 'count' ? 'text-accent-orange' : 'text-gray-400'
-                        )}
-                      />
-                      <div className="text-left">
-                        <p
-                          className={cn(
-                            'text-sm font-medium transition-colors',
-                            petMode === 'count' ? 'text-accent-orange' : 'text-gray-500'
-                          )}
-                        >
-                          Enter number of pets
-                        </p>
-                        <p className="text-xs text-neutral-gray">
-                          {petProfiles.length > 0
-                            ? 'Without using pet profiles'
-                            : 'How many pets are joining?'}
-                        </p>
-                      </div>
-                    </div>
-
-                    <div
-                      className={cn(
-                        'w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors',
-                        petMode === 'count'
-                          ? 'border-accent-orange bg-accent-orange'
-                          : 'border-gray-300'
-                      )}
-                    >
-                      {petMode === 'count' && (
-                        <div className="w-1.5 h-1.5 rounded-full bg-white" />
-                      )}
-                    </div>
-                  </button>
-
-                  <AnimatePresence initial={false}>
-                    {petMode === 'count' && (
-                      <motion.div
-                        initial={{ height: 0, opacity: 0 }}
-                        animate={{ height: 'auto', opacity: 1 }}
-                        exit={{ height: 0, opacity: 0 }}
-                        transition={{ duration: 0.22, ease: 'easeInOut' }}
-                      >
-                        <div className="border-t border-gray-100 bg-gray-50/70 px-5 py-4 space-y-4">
-                          <div className="flex items-center justify-between">
-                            <span className="font-medium text-deep-teal">
-                              Number of pets
-                            </span>
-                            <div className="flex items-center gap-4">
-                              <Button
-                                variant="outline"
-                                size="icon"
-                                className="h-8 w-8 rounded-full"
-                                onClick={() => handleDraftNumberChange(-1)}
-                                disabled={draftNumberOfPets === 0}
-                              >
-                                -
-                              </Button>
-                              <span className="w-8 text-center font-semibold">
-                                {draftNumberOfPets}
-                              </span>
-                              <Button
-                                variant="outline"
-                                size="icon"
-                                className="h-8 w-8 rounded-full"
-                                onClick={() => handleDraftNumberChange(1)}
-                                disabled={draftNumberOfPets === 10}
-                              >
-                                +
-                              </Button>
-                            </div>
-                          </div>
-
-                          {petSizeCategories.length > 0 && (
-                            <div className="space-y-2">
-                              <p className="text-sm font-medium text-deep-teal">Pet size</p>
-                              <div className="flex flex-wrap gap-2">
-                                {petSizeCategories.map((size) => (
-                                  <button
-                                    key={size.id}
-                                    type="button"
-                                    onClick={() =>
-                                      setDraftPetSizeId((prev) =>
-                                        prev === size.id ? undefined : size.id
-                                      )
-                                    }
-                                    className={cn(
-                                      'flex-1 min-w-[80px] rounded-xl border-2 px-3 py-2 text-center transition-all duration-150',
-                                      draftPetSizeId === size.id
-                                        ? 'border-accent-orange bg-accent-orange/10 text-accent-orange'
-                                        : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300'
-                                    )}
-                                  >
-                                    <p className="text-sm font-semibold capitalize">{size.name}</p>
-                                    <p className="text-xs text-neutral-gray">
-                                      {formatPetSizeRange(size.min, size.max)}
-                                    </p>
-                                  </button>
-                                ))}
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
-
-                {/* Hint to add profiles when none exist */}
-                {petProfiles.length === 0 && (
-                  <div className="flex items-center gap-2 p-3 rounded-xl bg-accent-orange/5 border border-accent-orange/20">
-                    <PawPrint className="w-4 h-4 text-accent-orange shrink-0" />
-                    <p className="text-xs text-gray-600">
-                      Add pet profiles for a better experience.{' '}
-                      <Link
-                        href="/profile/pets"
-                        className="font-medium text-accent-orange hover:underline"
-                      >
-                        Add a profile →
-                      </Link>
-                    </p>
-                  </div>
-                )}
-              </>
-            )}
-          </div>
-
-          <DialogFooter>
-            <Button
-              onClick={handleConfirmPets}
-              disabled={isConfirmPetsDisabled}
-              className="bg-accent-orange w-full"
-            >
-              {confirmedCount === 0
-                ? petMode === 'profiles'
-                  ? 'Select at least one pet'
-                  : 'Enter number of pets'
-                : petMode === 'count' && petSizeCategories.length > 0 && draftPetSizeId === undefined
-                ? 'Select pet size'
-                : `Confirm ${confirmedCount} pet${confirmedCount > 1 ? 's' : ''}`}
-            </Button>
-          </DialogFooter>
+          <div className="py-2">{petPanelContent}</div>
+          <DialogFooter>{confirmPetsButton}</DialogFooter>
         </DialogContent>
       </Dialog>
     </div>
