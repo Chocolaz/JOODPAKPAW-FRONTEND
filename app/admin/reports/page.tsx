@@ -22,6 +22,9 @@ import {
   ShieldOff,
   Trash2,
   Ban,
+  ChevronsUpDown,
+  ChevronUp,
+  ChevronDown,
 } from 'lucide-react'
 import { formatDate, formatDateRelative } from '../_utils'
 import { StatusBadge } from '../_components/StatusBadge'
@@ -548,6 +551,8 @@ export default function AdminReportsPage() {
   const [type, setType] = useState<TypeFilter>('property')
   const [status, setStatus] = useState<StatusFilter>('all')
   const [page, setPage] = useState(1)
+  const [orderBy, setOrderBy] = useState('createdAt')
+  const [sort, setSort] = useState<'asc' | 'desc'>('desc')
   const [data, setData] = useState<AdminReportSummary[]>([])
   const [totalRows, setTotalRows] = useState(0)
   const [totalPages, setTotalPages] = useState(1)
@@ -556,15 +561,42 @@ export default function AdminReportsPage() {
 
   const LIMIT = 20
 
+  const handleSort = (col: string) => {
+    if (orderBy === col) setSort((s) => (s === 'asc' ? 'desc' : 'asc'))
+    else { setOrderBy(col); setSort('asc') }
+    setPage(1)
+  }
+
+  const SortIcon = ({ col }: { col: string }) => {
+    if (orderBy !== col) return <ChevronsUpDown className="w-3 h-3 opacity-30" />
+    return sort === 'asc'
+      ? <ChevronUp className="w-3 h-3 text-accent-orange" />
+      : <ChevronDown className="w-3 h-3 text-accent-orange" />
+  }
+
   const fetchData = useCallback(async () => {
     setLoading(true)
     try {
       const res = await getAdminReports({ type: type === 'all' ? undefined : type, page, limit: LIMIT })
-      const filtered =
-        status === 'all'
-          ? res.data
-          : res.data.filter((r) => r.status === status)
-      setData(filtered)
+      const filtered = status === 'all' ? res.data : res.data.filter((r) => r.status === status)
+      const sorted = [...filtered].sort((a, b) => {
+        let aVal: string | number
+        let bVal: string | number
+        if (orderBy === 'createdAt') {
+          aVal = new Date(a.createdAt).getTime()
+          bVal = new Date(b.createdAt).getTime()
+        } else if (orderBy === 'status') {
+          aVal = a.status
+          bVal = b.status
+        } else {
+          aVal = a.id
+          bVal = b.id
+        }
+        if (aVal < bVal) return sort === 'asc' ? -1 : 1
+        if (aVal > bVal) return sort === 'asc' ? 1 : -1
+        return 0
+      })
+      setData(sorted)
       setTotalRows(res.totalRows)
       setTotalPages(res.totalPages)
     } catch {
@@ -572,7 +604,7 @@ export default function AdminReportsPage() {
     } finally {
       setLoading(false)
     }
-  }, [type, status, page])
+  }, [type, status, page, orderBy, sort])
 
   useEffect(() => {
     setPage(1)
@@ -666,50 +698,40 @@ export default function AdminReportsPage() {
                   <th className="px-4 py-3 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Subject</th>
                   <th className="px-4 py-3 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Type</th>
                   <th className="px-4 py-3 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Category</th>
-                  <th className="px-4 py-3 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Status</th>
-                  <th className="px-4 py-3 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Date</th>
+                  <th className="px-4 py-3 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider cursor-pointer select-none hover:text-gray-800" onClick={() => handleSort('status')}>
+                    <span className="flex items-center gap-1">Status <SortIcon col="status" /></span>
+                  </th>
+                  <th className="px-4 py-3 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider cursor-pointer select-none hover:text-gray-800" onClick={() => handleSort('createdAt')}>
+                    <span className="flex items-center gap-1">Date <SortIcon col="createdAt" /></span>
+                  </th>
                   <th className="px-4 py-3" />
                 </>
               ) : type === 'property' || type === 'unban_property' ? (
                 <>
-                  <th className="px-4 py-3 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider">
-                    Reporter
-                  </th>
-                  <th className="px-4 py-3 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider">
-                    Property
-                  </th>
-                  <th className="px-4 py-3 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider">
-                    Category
-                  </th>
+                  <th className="px-4 py-3 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Reporter</th>
+                  <th className="px-4 py-3 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Property</th>
+                  <th className="px-4 py-3 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Category</th>
                   {type === 'property' && (
-                    <th className="px-4 py-3 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider">
-                      Reports
-                    </th>
+                    <th className="px-4 py-3 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Reports</th>
                   )}
-                  <th className="px-4 py-3 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider">
-                    Status
+                  <th className="px-4 py-3 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider cursor-pointer select-none hover:text-gray-800" onClick={() => handleSort('status')}>
+                    <span className="flex items-center gap-1">Status <SortIcon col="status" /></span>
                   </th>
-                  <th className="px-4 py-3 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider">
-                    Date
+                  <th className="px-4 py-3 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider cursor-pointer select-none hover:text-gray-800" onClick={() => handleSort('createdAt')}>
+                    <span className="flex items-center gap-1">Date <SortIcon col="createdAt" /></span>
                   </th>
                   <th className="px-4 py-3" />
                 </>
               ) : (
                 <>
-                  <th className="px-4 py-3 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider">
-                    Reporter
+                  <th className="px-4 py-3 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Reporter</th>
+                  <th className="px-4 py-3 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Review Author</th>
+                  <th className="px-4 py-3 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Category</th>
+                  <th className="px-4 py-3 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider cursor-pointer select-none hover:text-gray-800" onClick={() => handleSort('status')}>
+                    <span className="flex items-center gap-1">Status <SortIcon col="status" /></span>
                   </th>
-                  <th className="px-4 py-3 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider">
-                    Review Author
-                  </th>
-                  <th className="px-4 py-3 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider">
-                    Category
-                  </th>
-                  <th className="px-4 py-3 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider">
-                    Status
-                  </th>
-                  <th className="px-4 py-3 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider">
-                    Date
+                  <th className="px-4 py-3 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider cursor-pointer select-none hover:text-gray-800" onClick={() => handleSort('createdAt')}>
+                    <span className="flex items-center gap-1">Date <SortIcon col="createdAt" /></span>
                   </th>
                   <th className="px-4 py-3" />
                 </>

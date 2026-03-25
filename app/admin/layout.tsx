@@ -8,6 +8,16 @@ import Link from 'next/link'
 
 const NAV_ITEMS = [
   {
+    label: 'Dashboard',
+    href: '/admin/dashboard',
+    icon: (
+      <svg viewBox="0 0 24 24" className="w-[18px] h-[18px]" strokeWidth={1.75} stroke="currentColor" fill="none" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="3" y="3" width="7" height="7" /><rect x="14" y="3" width="7" height="7" />
+        <rect x="3" y="14" width="7" height="7" /><rect x="14" y="14" width="7" height="7" />
+      </svg>
+    ),
+  },
+  {
     label: 'Reports',
     href: '/admin/reports',
     icon: (

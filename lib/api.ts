@@ -905,6 +905,17 @@ export const submitUnbanPropertyRequest = (
   })
 }
 
+// --- Admin: Dashboard ---
+export interface AdminDashboardData {
+  pendingReports: { total: number; change: number }
+  totalUsers: { total: number; change: number }
+  activeProperties: number
+  pendingVerifications: { total: number; change: number }
+}
+
+export const getAdminDashboard = (): Promise<AdminDashboardData> =>
+  request({ endpoint: 'api/v1/admin/dashboard', method: 'GET', requiresAuth: true, errorContext: 'Admin Dashboard' })
+
 // --- Reporter: Report Functions ---
 export const getMyReports = (params?: {
   page?: number

@@ -1,8 +1,11 @@
 export function formatDate(dateStr: string): string {
-  return new Date(dateStr.replace(' ', 'T')).toLocaleDateString('en-US', {
+  return new Date(dateStr.replace(' ', 'T')).toLocaleString('en-US', {
     day: 'numeric',
     month: 'short',
     year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
   })
 }
 
