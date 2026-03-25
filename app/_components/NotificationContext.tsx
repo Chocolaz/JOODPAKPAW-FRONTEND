@@ -121,6 +121,7 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
       const parsed = response.notifications.map((n) =>
         parseNotification(n, readIds)
       )
+      console.log('[Notification] Fetched:', parsed)
       setNotifications(parsed)
     } catch {
       // Keep existing state on error
@@ -219,7 +220,10 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
         }
       }, 4000)
     }
-    const onNotification = (data: unknown) => addNotification(data)
+    const onNotification = (data: unknown) => {
+      console.log('[Notification] Received:', data)
+      addNotification(data)
+    }
 
     socket.on('connect', onConnect)
     socket.on('connected', onConnect)
