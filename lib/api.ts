@@ -905,6 +905,31 @@ export const submitUnbanPropertyRequest = (
   })
 }
 
+// --- Reporter: Report Functions ---
+export const getMyReports = (params?: {
+  page?: number
+  limit?: number
+}): Promise<import('@/types/report').ReporterReportsResponse> => {
+  const query = new URLSearchParams()
+  if (params?.page) query.set('page', String(params.page))
+  if (params?.limit) query.set('limit', String(params.limit))
+  return request({
+    endpoint: `api/v1/reports/me/paginate?${query}`,
+    method: 'GET',
+    requiresAuth: true,
+    errorContext: 'Get My Reports',
+  })
+}
+
+export const getMyReportById = (id: number): Promise<import('@/types/report').ReporterReportDetail> => {
+  return request({
+    endpoint: `api/v1/reports/me/${id}`,
+    method: 'GET',
+    requiresAuth: true,
+    errorContext: 'Get Report Detail',
+  })
+}
+
 // --- Admin: Report Functions ---
 export const getAdminReports = (params?: {
   type?: string

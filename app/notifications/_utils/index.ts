@@ -1,13 +1,12 @@
 import { format, isToday, isYesterday } from 'date-fns'
 import { Bell } from 'lucide-react'
 import { AppNotification } from '@/types'
-import { ACTION_CONFIG, Tab } from '../_constants'
+import { ACTION_CONFIG, BOOKING_DETAIL_ACTIONS, Tab } from '../_constants'
 
 export function getActionConfig(actionName?: string, roleName?: string) {
   const entry = ACTION_CONFIG[actionName ?? '']
   if (!entry) return { Icon: Bell, color: 'text-deep-teal', bg: 'bg-deep-teal/10' }
-  const style = roleName === 'host' ? entry.host : entry.guest
-  return { Icon: entry.Icon, ...style }
+  return roleName === 'host' ? entry.host : entry.guest
 }
 
 export function getTimeLabel(date: Date): string {
@@ -26,6 +25,30 @@ export function groupByDate(
     groups[label].push(n)
   }
   return Object.entries(groups).map(([label, items]) => ({ label, items }))
+}
+
+export function getNotificationRoute(notification: AppNotification): string | null {
+  const { actionName, roleName, referenceId } = notification
+
+  if (BOOKING_DETAIL_ACTIONS.has(actionName ?? '') && referenceId) {
+    return roleName === 'host'
+      ? `/profile/host/booking/${referenceId}`
+      : `/profile/bookings/${referenceId}`
+  }
+
+  if (actionName === 'report' && roleName === 'host') {
+    return '/profile/host'
+  }
+
+  if (actionName === 'report' && roleName === 'guest' && referenceId) {
+    return `/profile/reports/${referenceId}`
+  }
+
+  if (actionName === 'verification') {
+    return '/profile/verification'
+  }
+
+  return null
 }
 
 export function filterByTab(notifications: AppNotification[], tab: Tab): AppNotification[] {

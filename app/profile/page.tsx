@@ -7,7 +7,7 @@ import { useRouter } from 'next/navigation'
 import { useAuth } from '@/app/_components/AuthContext'
 import clsx from 'clsx'
 import { assetPath } from '@/lib/utils'
-import { ChevronRight, PawPrint, CalendarClock, House, Mail, ShieldCheck, User } from 'lucide-react'
+import { ChevronRight, PawPrint, CalendarClock, House, Mail, ShieldCheck, User, Flag } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 
 function ProfileCardSkeleton() {
@@ -135,6 +135,7 @@ export default function ProfilePage() {
       path: '/profile/pets',
       color: 'bg-orange-50',
       iconColor: 'text-accent-orange',
+      grid: true,
     },
     {
       label: 'Bookings',
@@ -143,6 +144,16 @@ export default function ProfilePage() {
       path: '/profile/bookings',
       color: 'bg-teal-50',
       iconColor: 'text-deep-teal',
+      grid: true,
+    },
+    {
+      label: 'My Reports',
+      description: 'View submitted reports',
+      icon: Flag,
+      path: '/profile/reports',
+      color: 'bg-red-50',
+      iconColor: 'text-red-400',
+      grid: true,
     },
     {
       label: 'Become a Host',
@@ -151,6 +162,7 @@ export default function ProfilePage() {
       path: '/profile/host',
       color: 'bg-green-50',
       iconColor: 'text-green-600',
+      grid: false,
     },
     ...(isHost ? [{
       label: 'Verification',
@@ -159,6 +171,7 @@ export default function ProfilePage() {
       path: '/profile/verification',
       color: 'bg-blue-50',
       iconColor: 'text-blue-500',
+      grid: false,
     }] : []),
   ]
 
@@ -295,9 +308,9 @@ export default function ProfilePage() {
             <div className="flex flex-col gap-4 mb-4">
               {ProfileCard}
 
-              {/* Feature grid — 2 cols for Pets & Bookings, full width for Host */}
+              {/* Feature grid — 2 cols for compact items */}
               <div className="grid grid-cols-2 gap-3">
-                {featureItems.slice(0, 2).map((item) => (
+                {featureItems.filter(item => item.grid).map((item) => (
                   <Card
                     key={item.label}
                     className="shadow-sm cursor-pointer hover:shadow-md active:scale-[0.98] transition-all duration-200"
@@ -315,39 +328,25 @@ export default function ProfilePage() {
                 ))}
               </div>
 
-              <Card
-                className="shadow-sm cursor-pointer hover:shadow-md active:scale-[0.98] transition-all duration-200 group"
-                onClick={() => checkAuthAndRedirect('/profile/host')}
-              >
-                <CardContent className="flex items-center gap-4 p-4">
-                  <div className={clsx('w-11 h-11 rounded-xl flex items-center justify-center shrink-0', featureItems[2].color)}>
-                    <House className={clsx('w-5 h-5', featureItems[2].iconColor)} />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <p className="font-semibold text-deep-teal">Become a Host</p>
-                    <p className="text-xs text-neutral-gray mt-0.5">List your property</p>
-                  </div>
-                  <ChevronRight className="w-5 h-5 text-gray-300 group-hover:text-gray-500 transition-colors shrink-0" />
-                </CardContent>
-              </Card>
-
-              {isHost && (
+              {/* Full-width row items */}
+              {featureItems.filter(item => !item.grid).map((item) => (
                 <Card
+                  key={item.label}
                   className="shadow-sm cursor-pointer hover:shadow-md active:scale-[0.98] transition-all duration-200 group"
-                  onClick={() => checkAuthAndRedirect('/profile/verification')}
+                  onClick={() => checkAuthAndRedirect(item.path)}
                 >
                   <CardContent className="flex items-center gap-4 p-4">
-                    <div className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 bg-blue-50">
-                      <ShieldCheck className="w-5 h-5 text-blue-500" />
+                    <div className={clsx('w-11 h-11 rounded-xl flex items-center justify-center shrink-0', item.color)}>
+                      <item.icon className={clsx('w-5 h-5', item.iconColor)} />
                     </div>
                     <div className="min-w-0 flex-1">
-                      <p className="font-semibold text-deep-teal">Verification</p>
-                      <p className="text-xs text-neutral-gray mt-0.5">Get a verified badge</p>
+                      <p className="font-semibold text-deep-teal">{item.label}</p>
+                      <p className="text-xs text-neutral-gray mt-0.5">{item.description}</p>
                     </div>
                     <ChevronRight className="w-5 h-5 text-gray-300 group-hover:text-gray-500 transition-colors shrink-0" />
                   </CardContent>
                 </Card>
-              )}
+              ))}
             </div>
             <SettingsList />
           </div>

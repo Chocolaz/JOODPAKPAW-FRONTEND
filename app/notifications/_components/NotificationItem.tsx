@@ -7,8 +7,7 @@ import { formatDistanceToNow } from 'date-fns'
 import { motion, AnimatePresence, useAnimation } from 'framer-motion'
 import { cn } from '@/lib/utils'
 import { AppNotification } from '@/types'
-import { BOOKING_DETAIL_ACTIONS } from '../_constants'
-import { getActionConfig } from '../_utils'
+import { getActionConfig, getNotificationRoute } from '../_utils'
 import { itemVariants } from '../_variants'
 
 const SWIPE_THRESHOLD = 40
@@ -26,6 +25,7 @@ export function NotificationItem({ notification, onRead, onDelete }: Props) {
   const { Icon } = cfg
   const timeAgo = formatDistanceToNow(new Date(notification.receivedAt), { addSuffix: true })
 
+  const route = getNotificationRoute(notification)
   const controls = useAnimation()
   const isDragging = useRef(false)
   const isOpen = useRef(false)
@@ -49,12 +49,8 @@ export function NotificationItem({ notification, onRead, onDelete }: Props) {
       return
     }
     onRead(notification.id)
-    if (BOOKING_DETAIL_ACTIONS.has(notification.actionName ?? '') && notification.referenceId) {
-      if (notification.roleName === 'host') {
-        router.push(`/profile/host/booking/${notification.referenceId}?from=notifications`)
-      } else {
-        router.push(`/profile/bookings/${notification.referenceId}?from=notifications`)
-      }
+    if (route) {
+      router.push(`${route}?from=notifications`)
     }
   }
 
@@ -111,9 +107,11 @@ export function NotificationItem({ notification, onRead, onDelete }: Props) {
               {notification.title}
             </p>
             {notification.message && (
-              <p className="text-xs md:text-sm text-neutral-gray mt-0.5 md:mt-1 line-clamp-2 leading-relaxed">
-                {notification.message}
-              </p>
+              <div className="mt-2 pl-2.5 border-l-2 border-gray-200">
+                <p className="text-xs md:text-sm text-neutral-gray/80 leading-relaxed line-clamp-2">
+                  {notification.message}
+                </p>
+              </div>
             )}
             <p className="text-[11px] md:text-xs text-neutral-gray/70 mt-1 md:mt-1.5">{timeAgo}</p>
           </div>
@@ -132,8 +130,10 @@ export function NotificationItem({ notification, onRead, onDelete }: Props) {
                 />
               )}
             </AnimatePresence>
-            {notification.referenceId && (
-              <ChevronRight className="w-3.5 h-3.5 md:w-4 md:h-4 text-gray-300" />
+            {route && (
+              <div className="w-5 h-5 md:w-6 md:h-6 rounded-full bg-accent-orange/10 flex items-center justify-center">
+                <ChevronRight className="w-3 h-3 md:w-3.5 md:h-3.5 text-accent-orange" />
+              </div>
             )}
           </div>
         </div>

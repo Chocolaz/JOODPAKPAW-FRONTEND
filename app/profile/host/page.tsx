@@ -34,6 +34,7 @@ export default function HostPage() {
   const searchParams = useSearchParams()
   const tabParam = searchParams.get('tab')
   const filterParam = searchParams.get('filter') || 'all'
+  const fromNotifications = searchParams.get('from') === 'notifications'
 
   const defaultTab = useMemo(() => {
     if (isHost && (tabParam === 'bookings' || tabParam === 'history' || tabParam === 'reviews')) return tabParam
@@ -160,7 +161,7 @@ export default function HostPage() {
               <p className="text-sm text-accent-orange font-medium">Hello, {user?.firstName}!</p>
               <div className="flex items-center gap-3">
                 <button
-                  onClick={() => router.push('/profile')}
+                  onClick={() => router.push(fromNotifications ? '/notifications' : '/profile')}
                   className="flex items-center justify-center w-8 h-8 rounded-full hover:bg-gray-100 transition text-gray-500 hover:text-gray-800 -ml-1"
                 >
                   <ChevronLeft className="w-5 h-5" />

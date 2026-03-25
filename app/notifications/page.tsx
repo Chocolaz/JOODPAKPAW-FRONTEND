@@ -81,26 +81,28 @@ export default function NotificationsPage() {
       <div className="md:max-w-2xl lg:max-w-3xl md:mx-auto md:mt-4 md:px-4 lg:px-0">
 
         <div className="md:rounded-2xl md:border md:border-gray-100 md:shadow-sm md:overflow-hidden">
-          <TabBar activeTab={activeTab} tabUnread={tabUnread} onTabChange={setActiveTab} />
+          <div className="sticky top-14 z-30 lg:top-0">
+            <TabBar activeTab={activeTab} tabUnread={tabUnread} onTabChange={setActiveTab} />
 
-          {/* Actions sub-bar */}
-          <AnimatePresence>
-            {filtered.length > 0 && (
-              <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: 'auto' }}
-                exit={{ opacity: 0, height: 0 }}
-                transition={{ duration: 0.25, ease: 'easeOut' }}
-                className="overflow-hidden"
-              >
-                <ActionsBar
-                  filteredUnread={filteredUnread}
-                  onMarkAllRead={markAllAsRead}
-                  onClearAll={clearAll}
-                />
-              </motion.div>
-            )}
-          </AnimatePresence>
+            {/* Actions sub-bar */}
+            <AnimatePresence>
+              {filtered.length > 0 && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0 }}
+                  transition={{ duration: 0.25, ease: 'easeOut' }}
+                  className="overflow-hidden"
+                >
+                  <ActionsBar
+                    filteredUnread={filteredUnread}
+                    onMarkAllRead={markAllAsRead}
+                    onClearAll={clearAll}
+                  />
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
 
           {/* Body */}
           <div className="pb-24 md:pb-8 md:bg-gray-50/50">
@@ -131,7 +133,7 @@ export default function NotificationsPage() {
                   variants={listVariants}
                   initial="hidden"
                   animate="visible"
-                  className="space-y-4 pt-3"
+                  className="space-y-4 pt-8"
                 >
                   <AnimatePresence>
                     {grouped.map(({ label, items }) => (

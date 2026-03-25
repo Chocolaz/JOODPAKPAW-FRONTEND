@@ -58,7 +58,7 @@ function LayoutContent({ children }: { children: ReactNode }) {
       return null // Do not show header for this specific page
     }
     if (normalizedPath === '/profile/host') {
-      return { title: 'Host', backPath: '/profile' }
+      return { title: 'Host', backPath: fromNotifications ? '/notifications' : '/profile' }
     }
     if (normalizedPath === '/profile/pets') {
       return { title: 'Pets', backPath: '/profile' }
@@ -72,6 +72,15 @@ function LayoutContent({ children }: { children: ReactNode }) {
     if (normalizedPath === '/profile/bookings') {
       return { title: 'Bookings', backPath: '/profile' }
     }
+    if (normalizedPath === '/profile/reports') {
+      return { title: 'My Reports', backPath: fromNotifications ? '/notifications' : '/profile' }
+    }
+    if (normalizedPath.match(/^\/profile\/reports\/\d+$/)) {
+      return {
+        title: 'Report Detail',
+        backPath: fromNotifications ? '/notifications' : '/profile/reports',
+      }
+    }
     if (normalizedPath.match(/^\/profile\/bookings\/\d+$/)) {
       return {
         title: 'Booking Detail',
@@ -79,7 +88,7 @@ function LayoutContent({ children }: { children: ReactNode }) {
       }
     }
     if (normalizedPath === '/profile/verification') {
-      return { title: 'Verification', backPath: '/profile' }
+      return { title: 'Verification', backPath: fromNotifications ? '/notifications' : '/profile' }
     }
     if (normalizedPath.startsWith('/profile/') && normalizedPath !== '/profile') {
       // This covers /profile/[firstName] and other potential sub-pages
