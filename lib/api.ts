@@ -47,6 +47,7 @@ import type {
   AdminVerificationDetail,
   AdminVerificationsResponse,
 } from '@/types/adminVerification'
+import type { AdminActionLogsResponse } from '@/types/adminActionLog'
 
 // --- Auth Functions ---
 export const signIn = (
@@ -963,6 +964,22 @@ export const getAdminVerifications = (params?: {
     endpoint: `api/v1/admin/user-verifications/paginate?${query}`,
     requiresAuth: true,
     errorContext: 'Admin Verifications',
+  })
+}
+
+export const getAdminActionLogs = (params?: {
+  page?: number
+  limit?: number
+  action?: string
+}): Promise<AdminActionLogsResponse> => {
+  const query = new URLSearchParams()
+  if (params?.page) query.set('page', String(params.page))
+  if (params?.limit) query.set('limit', String(params.limit))
+  if (params?.action) query.set('action', params.action)
+  return request<AdminActionLogsResponse>({
+    endpoint: `api/v1/admin/action-logs/paginate?${query}`,
+    requiresAuth: true,
+    errorContext: 'Admin Action Logs',
   })
 }
 
