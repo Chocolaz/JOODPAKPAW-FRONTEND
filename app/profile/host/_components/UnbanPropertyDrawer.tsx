@@ -9,20 +9,24 @@ import { toast } from 'sonner'
 import { submitUnbanPropertyRequest } from '@/lib/api'
 import { useMediaQuery } from '@/app/_hooks/useMediaQuery'
 
-const UNBAN_CATEGORY_ID = 10
-
 interface UnbanPropertyDrawerProps {
-  propertyId: number
+  propertyId?: number
+  reportCategoryId?: number
   isOpen: boolean
   onOpenChange: (open: boolean) => void
+  onSuccess?: () => void
 }
 
 function AppealContent({
   propertyId,
+  reportCategoryId = 10,
   onClose,
+  onSuccess,
 }: {
-  propertyId: number
+  propertyId?: number
+  reportCategoryId?: number
   onClose: () => void
+  onSuccess?: () => void
 }) {
   const [description, setDescription] = useState('')
   const [images, setImages] = useState<File[]>([])
@@ -49,8 +53,9 @@ function AppealContent({
     if (!description.trim()) return
     setSubmitting(true)
     try {
-      await submitUnbanPropertyRequest(UNBAN_CATEGORY_ID, description.trim(), propertyId, images)
+      await submitUnbanPropertyRequest(reportCategoryId, description.trim(), propertyId, images)
       toast.success('Appeal submitted. We will review it shortly.')
+      onSuccess?.()
       onClose()
     } catch {
       toast.error('Failed to submit appeal. Please try again.')
@@ -154,7 +159,7 @@ function AppealContent({
   )
 }
 
-export function UnbanPropertyDrawer({ propertyId, isOpen, onOpenChange }: UnbanPropertyDrawerProps) {
+export function UnbanPropertyDrawer({ propertyId, reportCategoryId, isOpen, onOpenChange, onSuccess }: UnbanPropertyDrawerProps) {
   const isDesktop = useMediaQuery('(min-width: 768px)')
   const handleClose = () => onOpenChange(false)
 
@@ -165,7 +170,7 @@ export function UnbanPropertyDrawer({ propertyId, isOpen, onOpenChange }: UnbanP
           <VisuallyHidden>
             <DialogTitle>Submit Appeal</DialogTitle>
           </VisuallyHidden>
-          <AppealContent propertyId={propertyId} onClose={handleClose} />
+          <AppealContent propertyId={propertyId} reportCategoryId={reportCategoryId} onClose={handleClose} onSuccess={onSuccess} />
         </DialogContent>
       </Dialog>
     )
@@ -178,7 +183,7 @@ export function UnbanPropertyDrawer({ propertyId, isOpen, onOpenChange }: UnbanP
           <DrawerTitle>Submit Appeal</DrawerTitle>
         </VisuallyHidden>
         <div className="flex-1 min-h-0 flex flex-col">
-          <AppealContent propertyId={propertyId} onClose={handleClose} />
+          <AppealContent propertyId={propertyId} reportCategoryId={reportCategoryId} onClose={handleClose} onSuccess={onSuccess} />
         </div>
       </DrawerContent>
     </Drawer>

@@ -21,6 +21,7 @@ import { toast } from 'sonner'
 import { useState } from 'react'
 import { ConfirmationModal } from '@/app/_components/ConfirmationModal'
 import { normalizeRoomCategories } from '@/lib/utils'
+import { useUserProfile } from '@/app/profile/_hooks/useUserProfile'
 import { PropertyBookingsSection } from './_components/PropertyBookingsSection'
 import { AddRoomCategoryForm } from '../_components/AddRoomCategoryForm'
 import {
@@ -35,6 +36,7 @@ import {
   XCircle,
   Pencil,
   Ban,
+  Clock,
 } from 'lucide-react'
 import {
   Drawer,
@@ -66,6 +68,7 @@ const fadeUp = {
 export default function HostPropertyDetailPage() {
   const { property, loading, error, refreshProperty } =
     usePropertyLoader(getHostPropertyById)
+  const { profile } = useUserProfile()
   const router = useRouter()
   const [isUpdatingStatus, setIsUpdatingStatus] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
@@ -196,6 +199,7 @@ export default function HostPropertyDetailPage() {
         propertyId={property.id}
         isOpen={isAppealOpen}
         onOpenChange={setIsAppealOpen}
+        onSuccess={refreshProperty}
       />
 
       {/* Gallery */}
@@ -217,21 +221,45 @@ export default function HostPropertyDetailPage() {
 
           {/* Banned banner */}
           {property.isBannedByAdmin && (
-            <div className="mt-4 bg-red-50 border border-red-200 rounded-2xl px-5 py-4 flex flex-col gap-3 lg:hidden">
-              <div className="flex items-start gap-3">
+            profile?.isBannedAllProperties ? (
+              <div className="mt-4 bg-red-50 border border-red-200 rounded-2xl px-5 py-4 flex items-start gap-3 lg:hidden">
                 <Ban className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold text-red-700">This property has been suspended</p>
-                  <p className="text-xs text-red-500 mt-0.5">It is no longer visible to guests. You may submit an appeal to request a review.</p>
+                <div className="min-w-0">
+                  <p className="text-sm font-semibold text-red-700">Your account has been suspended</p>
+                  <p className="text-xs text-red-500 mt-0.5">Submit an account-level appeal from your host dashboard.</p>
                 </div>
               </div>
-              <button
-                onClick={() => setIsAppealOpen(true)}
-                className="w-full text-sm font-semibold text-red-600 border border-red-300 rounded-xl py-2.5 hover:bg-red-100 transition-colors"
-              >
-                Submit Appeal
-              </button>
-            </div>
+            ) : property.hasPendingUnbanRequest ? (
+              <div className="mt-4 bg-amber-50 border border-amber-200 rounded-2xl px-5 py-4 flex items-center gap-3 lg:hidden">
+                <Clock className="w-5 h-5 text-amber-500 shrink-0" />
+                <div className="min-w-0">
+                  <p className="text-sm font-semibold text-amber-700">Appeal Under Review</p>
+                  <p className="text-xs text-amber-600 mt-0.5">We'll notify you once it's been reviewed.</p>
+                </div>
+              </div>
+            ) : (
+              <div className="mt-4 bg-red-50 border border-red-200 rounded-2xl px-5 py-4 flex flex-col gap-3 lg:hidden">
+                <div className="flex items-start gap-3">
+                  <Ban className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-semibold text-red-700">This property has been suspended</p>
+                    <p className="text-xs text-red-500 mt-0.5">
+                      {(property.unbanRequestCount ?? 0) >= 2
+                        ? 'Maximum appeals reached.'
+                        : 'It is no longer visible to guests. You may submit an appeal to request a review.'}
+                    </p>
+                  </div>
+                </div>
+                {(property.unbanRequestCount ?? 0) < 2 && (
+                  <button
+                    onClick={() => setIsAppealOpen(true)}
+                    className="w-full text-sm font-semibold text-red-600 border border-red-300 rounded-xl py-2.5 hover:bg-red-100 transition-colors"
+                  >
+                    Submit Appeal
+                  </button>
+                )}
+              </div>
+            )
           )}
 
           <motion.div custom={1} variants={fadeUp} initial="hidden" animate="visible">
@@ -415,16 +443,40 @@ export default function HostPropertyDetailPage() {
 
               {/* Suspended info + appeal (desktop, banned only) */}
               {property.isBannedByAdmin && (
-                <div className="bg-red-50 border border-red-200 rounded-xl p-4 flex flex-col gap-3">
-                  <p className="text-xs text-red-500 leading-relaxed">It is no longer visible to guests. You may submit an appeal to request a review.</p>
-                  <button
-                    onClick={() => setIsAppealOpen(true)}
-                    className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold border border-red-300 text-red-600 hover:bg-red-100 transition"
-                  >
-                    <Ban className="w-4 h-4" />
-                    Submit Appeal
-                  </button>
-                </div>
+                profile?.isBannedAllProperties ? (
+                  <div className="bg-red-50 border border-red-200 rounded-xl p-4 flex items-start gap-3">
+                    <Ban className="w-4 h-4 text-red-500 shrink-0 mt-0.5" />
+                    <div className="min-w-0">
+                      <p className="text-sm font-semibold text-red-700">Your account has been suspended</p>
+                      <p className="text-xs text-red-500 mt-1">Submit an account-level appeal from your host dashboard.</p>
+                    </div>
+                  </div>
+                ) : property.hasPendingUnbanRequest ? (
+                  <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-center gap-3">
+                    <Clock className="w-4 h-4 text-amber-500 shrink-0" />
+                    <div className="min-w-0">
+                      <p className="text-sm font-semibold text-amber-700">Appeal Under Review</p>
+                      <p className="text-xs text-amber-600 mt-0.5">We'll notify you once it's been reviewed.</p>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="bg-red-50 border border-red-200 rounded-xl p-4 flex flex-col gap-3">
+                    <p className="text-xs text-red-500 leading-relaxed">
+                      {(property.unbanRequestCount ?? 0) >= 2
+                        ? 'Maximum appeals reached.'
+                        : 'It is no longer visible to guests. You may submit an appeal to request a review.'}
+                    </p>
+                    {(property.unbanRequestCount ?? 0) < 2 && (
+                      <button
+                        onClick={() => setIsAppealOpen(true)}
+                        className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold border border-red-300 text-red-600 hover:bg-red-100 transition"
+                      >
+                        <Ban className="w-4 h-4" />
+                        Submit Appeal
+                      </button>
+                    )}
+                  </div>
+                )
               )}
             </div>
           </div>

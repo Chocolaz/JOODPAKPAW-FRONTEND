@@ -2,8 +2,16 @@
 
 import React, { useEffect, useState, useCallback } from 'react'
 import { toast } from 'sonner'
-import { getAdminReports, getAdminReportById, takeReportAction } from '@/lib/api'
-import type { AdminReportSummary, AdminReportDetail, ReportAction } from '@/types/adminReport'
+import {
+  getAdminReports,
+  getAdminReportById,
+  takeReportAction,
+} from '@/lib/api'
+import type {
+  AdminReportSummary,
+  AdminReportDetail,
+  ReportAction,
+} from '@/types/adminReport'
 import { ConfirmationModal } from '@/app/_components/ConfirmationModal'
 import {
   X,
@@ -29,7 +37,9 @@ function formatDate(dateStr: string) {
 }
 
 function formatDateRelative(dateStr: string) {
-  const diffDays = Math.floor((Date.now() - new Date(dateStr).getTime()) / 86400000)
+  const diffDays = Math.floor(
+    (Date.now() - new Date(dateStr).getTime()) / 86400000
+  )
   if (diffDays === 0) return 'Today'
   if (diffDays === 1) return 'Yesterday'
   if (diffDays < 7) return `${diffDays}d ago`
@@ -54,13 +64,14 @@ const STATUS_CONFIG = {
   },
 }
 
-type TypeFilter = 'property' | 'review' | 'unban_property'
+type TypeFilter = 'all' | 'property' | 'review' | 'unban_property'
 type StatusFilter = 'all' | 'pending' | 'resolved' | 'dismissed'
 
 const TYPE_TABS: { key: TypeFilter; label: string }[] = [
+  { key: 'all', label: 'All Reports' },
   { key: 'property', label: 'Property Reports' },
   { key: 'review', label: 'Review Reports' },
-  { key: 'unban_property', label: 'Unban Property' },
+  { key: 'unban_property', label: 'Host Appeal' },
 ]
 
 const STATUS_TABS: { key: StatusFilter; label: string }[] = [
@@ -83,7 +94,8 @@ const ACTION_CONFIG: Record<
 > = {
   dismiss_report: {
     label: 'Dismiss Report',
-    description: 'Mark as dismissed — no action taken against the reported content.',
+    description:
+      'Mark as dismissed — no action taken against the reported content.',
     icon: XCircle,
     buttonClass: 'border border-gray-200 text-gray-600 hover:bg-gray-50',
     confirmClass: 'bg-gray-700 text-white hover:bg-gray-800',
@@ -91,25 +103,31 @@ const ACTION_CONFIG: Record<
   },
   warn_user: {
     label: 'Warn User',
-    description: 'Send a warning notification to the reporter and property owner.',
+    description:
+      'Send a warning notification to the reporter and property owner.',
     icon: AlertTriangle,
-    buttonClass: 'border border-amber-200 text-amber-700 bg-amber-50 hover:bg-amber-100',
+    buttonClass:
+      'border border-amber-200 text-amber-700 bg-amber-50 hover:bg-amber-100',
     confirmClass: 'bg-amber-600 text-white hover:bg-amber-700',
     appliesTo: ['property'],
   },
   deactivate_property: {
     label: 'Deactivate Property',
-    description: 'Ban this property — host cannot reactivate it. All bookings will be cancelled.',
+    description:
+      'Ban this property — host cannot reactivate it. All bookings will be cancelled.',
     icon: Ban,
-    buttonClass: 'border border-red-200 text-red-700 bg-red-50 hover:bg-red-100',
+    buttonClass:
+      'border border-red-200 text-red-700 bg-red-50 hover:bg-red-100',
     confirmClass: 'bg-red-600 text-white hover:bg-red-700',
     appliesTo: ['property'],
   },
   deactivate_all_properties: {
     label: 'Deactivate All Properties',
-    description: "Ban all properties owned by this host. All bookings across every property will be cancelled.",
+    description:
+      'Ban all properties owned by this host. All bookings across every property will be cancelled.',
     icon: ShieldOff,
-    buttonClass: 'border border-red-200 text-red-700 bg-red-50 hover:bg-red-100',
+    buttonClass:
+      'border border-red-200 text-red-700 bg-red-50 hover:bg-red-100',
     confirmClass: 'bg-red-700 text-white hover:bg-red-800',
     appliesTo: ['property'],
   },
@@ -117,23 +135,27 @@ const ACTION_CONFIG: Record<
     label: 'Delete Review',
     description: 'Resolve report and permanently delete the review.',
     icon: Trash2,
-    buttonClass: 'border border-red-200 text-red-700 bg-red-50 hover:bg-red-100',
+    buttonClass:
+      'border border-red-200 text-red-700 bg-red-50 hover:bg-red-100',
     confirmClass: 'bg-red-600 text-white hover:bg-red-700',
     appliesTo: ['review'],
   },
   unban_property: {
     label: 'Unban Property',
-    description: 'Lift the ban on this property — host will be able to reactivate it.',
+    description:
+      'Lift the ban on this property — host will be able to reactivate it.',
     icon: CheckCircle2,
-    buttonClass: 'border border-green-200 text-green-700 bg-green-50 hover:bg-green-100',
+    buttonClass:
+      'border border-green-200 text-green-700 bg-green-50 hover:bg-green-100',
     confirmClass: 'bg-positive-green text-white hover:bg-green-600',
     appliesTo: ['unban_property'],
   },
   unban_all_properties: {
     label: 'Unban All Properties',
-    description: "Lift the ban on all properties owned by this host.",
+    description: 'Lift the ban on all properties owned by this host.',
     icon: CheckCircle2,
-    buttonClass: 'border border-green-200 text-green-700 bg-green-50 hover:bg-green-100',
+    buttonClass:
+      'border border-green-200 text-green-700 bg-green-50 hover:bg-green-100',
     confirmClass: 'bg-positive-green text-white hover:bg-green-600',
     appliesTo: ['unban_property'],
   },
@@ -244,7 +266,10 @@ function ReportPanel({
 }) {
   const [detail, setDetail] = useState<AdminReportDetail | null>(null)
   const [loading, setLoading] = useState(true)
-  const [lightbox, setLightbox] = useState<{ src: string; label: string } | null>(null)
+  const [lightbox, setLightbox] = useState<{
+    src: string
+    label: string
+  } | null>(null)
   const [pendingAction, setPendingAction] = useState<ReportAction | null>(null)
   const [adminNote, setAdminNote] = useState('')
   const [acting, setActing] = useState(false)
@@ -291,14 +316,13 @@ function ReportPanel({
     ? STATUS_CONFIG[detail.status as keyof typeof STATUS_CONFIG]
     : null
 
-  const stripeColor =
-    !detail
-      ? 'bg-gray-200'
-      : detail.status === 'pending'
-        ? 'bg-accent-orange'
-        : detail.status === 'resolved'
-          ? 'bg-positive-green'
-          : 'bg-gray-400'
+  const stripeColor = !detail
+    ? 'bg-gray-200'
+    : detail.status === 'pending'
+      ? 'bg-accent-orange'
+      : detail.status === 'resolved'
+        ? 'bg-positive-green'
+        : 'bg-gray-400'
 
   return (
     <>
@@ -374,12 +398,17 @@ function ReportPanel({
               {/* Target info */}
               <section>
                 <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-3">
-                  {detail.type === 'property' ? 'Reported Property' : 'Reported Review'}
+                  {detail.type === 'property'
+                    ? 'Reported Property'
+                    : 'Reported Review'}
                 </p>
                 <dl className="divide-y divide-gray-100 bg-gray-50 rounded-xl border border-gray-100 px-4">
                   {detail.type === 'property' && detail.property && (
                     <>
-                      <InfoRow label="Property" value={`${detail.property.title} (#${detail.property.id})`} />
+                      <InfoRow
+                        label="Property"
+                        value={`${detail.property.title} (#${detail.property.id})`}
+                      />
                       {detail.propOwner && (
                         <InfoRow
                           label="Owner"
@@ -399,15 +428,27 @@ function ReportPanel({
                         />
                       )}
                       {detail.property && (
-                        <InfoRow label="On property" value={`${detail.property.title} (#${detail.property.id})`} />
+                        <InfoRow
+                          label="On property"
+                          value={`${detail.property.title} (#${detail.property.id})`}
+                        />
                       )}
                     </>
                   )}
-                  <InfoRow label="Category" value={detail.reportCategoryLabel} />
-                  <InfoRow label="Reported" value={formatDate(detail.createdAt)} />
+                  <InfoRow
+                    label="Category"
+                    value={detail.reportCategoryLabel}
+                  />
+                  <InfoRow
+                    label="Reported"
+                    value={formatDate(detail.createdAt)}
+                  />
                   <InfoRow label="Status" value={detail.status} />
                   {detail.resolvedAction && (
-                    <InfoRow label="Action taken" value={detail.resolvedAction.replace(/_/g, ' ')} />
+                    <InfoRow
+                      label="Action taken"
+                      value={detail.resolvedAction.replace(/_/g, ' ')}
+                    />
                   )}
                 </dl>
               </section>
@@ -452,7 +493,10 @@ function ReportPanel({
                         key={img.id}
                         type="button"
                         onClick={() =>
-                          setLightbox({ src: img.filePath, label: `Image ${idx + 1}` })
+                          setLightbox({
+                            src: img.filePath,
+                            label: `Image ${idx + 1}`,
+                          })
                         }
                         className="relative aspect-[4/3] rounded-xl overflow-hidden bg-gray-100 group cursor-zoom-in w-full"
                       >
@@ -487,7 +531,9 @@ function ReportPanel({
                             <p className="text-sm font-bold text-red-700">
                               {ACTION_CONFIG[pendingAction].label}
                             </p>
-                            <span className="ml-auto text-[10px] font-bold bg-red-200 text-red-700 px-2 py-0.5 rounded-full tracking-wider uppercase">Danger</span>
+                            <span className="ml-auto text-[10px] font-bold bg-red-200 text-red-700 px-2 py-0.5 rounded-full tracking-wider uppercase">
+                              Danger
+                            </span>
                           </div>
                           <p className="text-xs text-red-600 leading-relaxed">
                             {ACTION_CONFIG[pendingAction].description}
@@ -505,12 +551,16 @@ function ReportPanel({
                       )}
                       <div>
                         <label className="text-xs font-medium text-gray-500 mb-1.5 block">
-                          Admin note <span className="text-gray-400">(optional)</span>
+                          Admin note{' '}
+                          {detail.type === 'unban_property'
+                            ? <span className="text-red-400">*required</span>
+                            : <span className="text-gray-400">(optional)</span>
+                          }
                         </label>
                         <textarea
                           value={adminNote}
                           onChange={(e) => setAdminNote(e.target.value)}
-                          placeholder="Internal note about this decision…"
+                          placeholder={detail.type === 'unban_property' ? 'Explain your decision to the host…' : 'Internal note about this decision…'}
                           rows={3}
                           className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm text-gray-800 bg-white resize-none focus:outline-none focus:ring-1 focus:ring-gray-300 focus:border-gray-300"
                         />
@@ -525,13 +575,16 @@ function ReportPanel({
                         </button>
                         <button
                           onClick={handleConfirmClick}
-                          disabled={acting}
+                          disabled={acting || (detail.type === 'unban_property' && !adminNote.trim())}
                           className={`flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-semibold transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed ${ACTION_CONFIG[pendingAction].confirmClass}`}
                         >
                           {acting ? (
                             <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                           ) : (
-                            React.createElement(ACTION_CONFIG[pendingAction].icon, { className: 'w-4 h-4' })
+                            React.createElement(
+                              ACTION_CONFIG[pendingAction].icon,
+                              { className: 'w-4 h-4' }
+                            )
                           )}
                           Confirm
                         </button>
@@ -540,11 +593,25 @@ function ReportPanel({
                   ) : (
                     // Action buttons
                     <div className="grid grid-cols-2 gap-2">
-                      {(Object.entries(ACTION_CONFIG) as [ReportAction, typeof ACTION_CONFIG[ReportAction]][])
-                        .filter(([, cfg]) => cfg.appliesTo.includes(detail.type))
+                      {(
+                        Object.entries(ACTION_CONFIG) as [
+                          ReportAction,
+                          (typeof ACTION_CONFIG)[ReportAction],
+                        ][]
+                      )
+                        .filter(([action, cfg]) => {
+                          if (!cfg.appliesTo.includes(detail.type)) return false
+                          if (detail.type === 'unban_property') {
+                            const isUnbanAll = detail.reportCategoryLabel === 'Unban All Properties'
+                            if (isUnbanAll) return action !== 'unban_property'
+                            return action !== 'unban_all_properties'
+                          }
+                          return true
+                        })
                         .map(([action, cfg]) => {
                           const Icon = cfg.icon
-                          const isDanger = action === 'deactivate_all_properties'
+                          const isDanger =
+                            action === 'deactivate_all_properties'
                           return (
                             <button
                               key={action}
@@ -580,7 +647,10 @@ function ReportPanel({
       <ConfirmationModal
         isOpen={showDangerConfirm}
         onClose={() => setShowDangerConfirm(false)}
-        onConfirm={() => { setShowDangerConfirm(false); handleConfirmAction() }}
+        onConfirm={() => {
+          setShowDangerConfirm(false)
+          handleConfirmAction()
+        }}
         title="Deactivate All Properties?"
         message="This will <strong>ban every property</strong> this host owns and <strong>cancel all bookings</strong>. This cannot be undone automatically."
         titleClassName="text-red-600"
@@ -628,9 +698,11 @@ export default function AdminReportsPage() {
   const fetchData = useCallback(async () => {
     setLoading(true)
     try {
-      const res = await getAdminReports({ type, page, limit: LIMIT })
+      const res = await getAdminReports({ type: type === 'all' ? undefined : type, page, limit: LIMIT })
       const filtered =
-        status === 'all' ? res.data : res.data.filter((r) => r.status === status)
+        status === 'all'
+          ? res.data
+          : res.data.filter((r) => r.status === status)
       setData(filtered)
       setTotalRows(res.totalRows)
       setTotalPages(res.totalPages)
@@ -661,7 +733,10 @@ export default function AdminReportsPage() {
           { label: 'Pending review', value: pendingCount, accent: true },
           { label: 'Showing', value: data.length, accent: false },
         ].map(({ label, value, accent }) => (
-          <div key={label} className="bg-white rounded-xl border border-gray-200 px-5 py-4">
+          <div
+            key={label}
+            className="bg-white rounded-xl border border-gray-200 px-5 py-4"
+          >
             <p className="text-xs text-gray-400 font-medium mb-2">{label}</p>
             <p
               className={`text-3xl font-bold font-baloo2 leading-none ${
@@ -724,23 +799,57 @@ export default function AdminReportsPage() {
         <table className="w-full border-collapse">
           <thead>
             <tr className="bg-gray-50 border-b border-gray-200">
-              {(type === 'property' || type === 'unban_property') ? (
+              {type === 'all' ? (
                 <>
                   <th className="px-4 py-3 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Reporter</th>
-                  <th className="px-4 py-3 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Property</th>
+                  <th className="px-4 py-3 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Subject</th>
+                  <th className="px-4 py-3 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Type</th>
                   <th className="px-4 py-3 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Category</th>
-                  {type === 'property' && <th className="px-4 py-3 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Reports</th>}
                   <th className="px-4 py-3 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Status</th>
                   <th className="px-4 py-3 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Date</th>
                   <th className="px-4 py-3" />
                 </>
+              ) : type === 'property' || type === 'unban_property' ? (
+                <>
+                  <th className="px-4 py-3 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider">
+                    Reporter
+                  </th>
+                  <th className="px-4 py-3 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider">
+                    Property
+                  </th>
+                  <th className="px-4 py-3 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider">
+                    Category
+                  </th>
+                  {type === 'property' && (
+                    <th className="px-4 py-3 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider">
+                      Reports
+                    </th>
+                  )}
+                  <th className="px-4 py-3 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider">
+                    Status
+                  </th>
+                  <th className="px-4 py-3 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider">
+                    Date
+                  </th>
+                  <th className="px-4 py-3" />
+                </>
               ) : (
                 <>
-                  <th className="px-4 py-3 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Reporter</th>
-                  <th className="px-4 py-3 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Review Author</th>
-                  <th className="px-4 py-3 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Category</th>
-                  <th className="px-4 py-3 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Status</th>
-                  <th className="px-4 py-3 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Date</th>
+                  <th className="px-4 py-3 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider">
+                    Reporter
+                  </th>
+                  <th className="px-4 py-3 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider">
+                    Review Author
+                  </th>
+                  <th className="px-4 py-3 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider">
+                    Category
+                  </th>
+                  <th className="px-4 py-3 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider">
+                    Status
+                  </th>
+                  <th className="px-4 py-3 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider">
+                    Date
+                  </th>
                   <th className="px-4 py-3" />
                 </>
               )}
@@ -750,7 +859,9 @@ export default function AdminReportsPage() {
             {loading ? (
               Array.from({ length: 5 }).map((_, i) => (
                 <tr key={i} className="border-b border-gray-100">
-                  {Array.from({ length: type === 'property' ? 7 : type === 'unban_property' ? 6 : 6 }).map((__, j) => (
+                  {Array.from({
+                    length: type === 'property' ? 7 : type === 'all' ? 7 : 6,
+                  }).map((__, j) => (
                     <td key={j} className="px-4 py-4">
                       <div
                         className="h-3.5 bg-gray-100 rounded-full animate-pulse"
@@ -763,14 +874,15 @@ export default function AdminReportsPage() {
             ) : data.length === 0 ? (
               <tr>
                 <td
-                  colSpan={type === 'property' ? 7 : 6}
+                  colSpan={type === 'property' || type === 'all' ? 7 : 6}
                   className="px-4 py-16 text-center"
                 >
-
                   <p className="text-sm font-semibold text-gray-700 font-baloo2">
                     No reports found
                   </p>
-                  <p className="text-sm text-gray-400 mt-1">Try a different filter</p>
+                  <p className="text-sm text-gray-400 mt-1">
+                    Try a different filter
+                  </p>
                 </td>
               </tr>
             ) : (
@@ -793,12 +905,50 @@ export default function AdminReportsPage() {
                           <p className="text-[13px] font-semibold text-gray-900 leading-tight">
                             {row.reporter.firstName} {row.reporter.lastName}
                           </p>
-                          <p className="text-xs text-gray-400">User ID: {row.reporter.id}</p>
+                          <p className="text-xs text-gray-400">
+                            User ID: {row.reporter.id}
+                          </p>
                         </div>
                       </div>
                     </td>
 
-                    {(type === 'property' || type === 'unban_property') ? (
+                    {type === 'all' ? (
+                      <>
+                        <td className="px-4 py-3.5">
+                          {row.property ? (
+                            <div>
+                              <p className="text-[13px] font-medium text-gray-800 leading-tight">{row.property.title}</p>
+                              <p className="text-xs text-gray-400">Property ID: {row.property.id}</p>
+                            </div>
+                          ) : row.reviewAuthor ? (
+                            <div className="flex items-center gap-2">
+                              <UserAvatar user={row.reviewAuthor} />
+                              <p className="text-[13px] font-medium text-gray-800 leading-tight">
+                                {row.reviewAuthor.firstName} {row.reviewAuthor.lastName}
+                              </p>
+                            </div>
+                          ) : (
+                            <span className="text-xs text-gray-400">—</span>
+                          )}
+                        </td>
+                        <td className="px-4 py-3.5">
+                          <span className={`inline-block px-2 py-0.5 rounded text-xs font-medium ${
+                            row.type === 'unban_property'
+                              ? 'bg-amber-100 text-amber-700'
+                              : row.type === 'review'
+                                ? 'bg-blue-100 text-blue-700'
+                                : 'bg-red-100 text-red-700'
+                          }`}>
+                            {row.type === 'unban_property' ? 'Appeal' : row.type === 'review' ? 'Review' : 'Property'}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3.5">
+                          <span className="inline-block px-2 py-0.5 bg-gray-100 rounded text-xs text-gray-600 font-medium">
+                            {row.reportCategoryLabel}
+                          </span>
+                        </td>
+                      </>
+                    ) : type === 'property' || type === 'unban_property' ? (
                       <>
                         <td className="px-4 py-3.5">
                           {row.property ? (
@@ -806,7 +956,9 @@ export default function AdminReportsPage() {
                               <p className="text-[13px] font-medium text-gray-800 leading-tight">
                                 {row.property.title}
                               </p>
-                              <p className="text-xs text-gray-400">Property ID: {row.property.id}</p>
+                              <p className="text-xs text-gray-400">
+                                Property ID: {row.property.id}
+                              </p>
                             </div>
                           ) : (
                             <span className="text-xs text-gray-400">—</span>
@@ -844,9 +996,12 @@ export default function AdminReportsPage() {
                               <UserAvatar user={row.reviewAuthor} />
                               <div>
                                 <p className="text-[13px] font-medium text-gray-800 leading-tight">
-                                  {row.reviewAuthor.firstName} {row.reviewAuthor.lastName}
+                                  {row.reviewAuthor.firstName}{' '}
+                                  {row.reviewAuthor.lastName}
                                 </p>
-                                <p className="text-xs text-gray-400">User ID: {row.reviewAuthor.id}</p>
+                                <p className="text-xs text-gray-400">
+                                  User ID: {row.reviewAuthor.id}
+                                </p>
                               </div>
                             </div>
                           ) : (
@@ -869,7 +1024,9 @@ export default function AdminReportsPage() {
                       <p className="text-[13px] font-medium text-gray-800">
                         {formatDateRelative(row.createdAt)}
                       </p>
-                      <p className="text-xs text-gray-400">{formatDate(row.createdAt)}</p>
+                      <p className="text-xs text-gray-400">
+                        {formatDate(row.createdAt)}
+                      </p>
                     </td>
 
                     <td className="px-4 py-3.5 text-right">

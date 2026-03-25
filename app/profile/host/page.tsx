@@ -13,12 +13,19 @@ import { useSearchParams, useRouter } from 'next/navigation'
 import { useAuth } from '@/app/_components/AuthContext'
 import { HostBookingHistoryList } from './_components/HostBookingHistoryList'
 import { HostReviewsTab } from './_components/HostReviewsTab'
-import { Plus, LayoutGrid, CalendarDays, History, Check, ExternalLink, ChevronLeft, Star } from 'lucide-react'
+import { Plus, LayoutGrid, CalendarDays, History, Check, ExternalLink, ChevronLeft, Star, Ban, Clock } from 'lucide-react'
 import { HostBanner } from '@/app/profile/_components/HostBanner'
+import { useUserProfile } from '@/app/profile/_hooks/useUserProfile'
+import { UnbanPropertyDrawer } from './_components/UnbanPropertyDrawer'
+import { useState } from 'react'
+
+const UNBAN_ALL_CATEGORY_ID = 11
 
 export default function HostPage() {
   const { user } = useAuth()
+  const { profile, refreshProfile } = useUserProfile()
   const isHost = user?.role?.some((role) => role.name === 'host')
+  const [isAppealOpen, setIsAppealOpen] = useState(false)
 
   const {
     hostProperties: { properties, loading, error, refetch },
@@ -62,12 +69,64 @@ export default function HostPage() {
     // Outer wrapper anchors the height chain for both mobile and desktop
     <div className="flex flex-col h-[calc(100dvh-3.5rem)] lg:h-[calc(100vh-5rem)] xl:h-[calc(100vh-6rem)] overflow-hidden">
 
+      <UnbanPropertyDrawer
+        isOpen={isAppealOpen}
+        onOpenChange={setIsAppealOpen}
+        reportCategoryId={UNBAN_ALL_CATEGORY_ID}
+        onSuccess={refreshProfile}
+      />
+
       {/* Mobile banner — shrink-0 so it takes its natural height */}
       <div className="lg:hidden shrink-0">
         <HostBanner
           summary={{ total: properties.length, published: publishedCount, draft: draftCount }}
         />
       </div>
+
+      {/* Banned all properties banner */}
+      {profile?.isBannedAllProperties && (
+        profile.hasPendingUnbanAllPropertiesRequest ? (
+          <div className="shrink-0 mx-4 lg:mx-12 mt-4 bg-amber-50 border border-amber-200 rounded-2xl px-5 py-4 flex items-center gap-3">
+            <Clock className="w-5 h-5 text-amber-500 shrink-0" />
+            <div className="min-w-0">
+              <p className="text-sm font-semibold text-amber-700">Appeal Under Review</p>
+              <p className="text-xs text-amber-600 mt-0.5">We'll notify you once it's been reviewed.</p>
+            </div>
+          </div>
+        ) : (
+          <div className="shrink-0 mx-4 lg:mx-12 mt-4 bg-red-50 border border-red-200 rounded-2xl px-5 py-4 flex flex-col gap-3">
+            <div className="flex items-start gap-3">
+              <Ban className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center justify-between gap-2">
+                  <p className="text-sm font-semibold text-red-700 leading-tight">Your account has been suspended</p>
+                  <span className={`shrink-0 inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full ${
+                    (profile.unbanAllPropertiesRequestCount ?? 0) >= 2
+                      ? 'bg-gray-800 text-white'
+                      : 'bg-white text-red-600 border border-red-200'
+                  }`}>
+                    <Clock className="w-3 h-3" />
+                    {2 - (profile.unbanAllPropertiesRequestCount ?? 0)}/2
+                  </span>
+                </div>
+                <p className="text-xs text-gray-500 mt-0.5">
+                  {(profile.unbanAllPropertiesRequestCount ?? 0) >= 2
+                    ? 'Maximum appeals reached. No further appeals can be submitted.'
+                    : 'All your properties have been deactivated and are no longer visible to guests. You may submit an appeal to request a review.'}
+                </p>
+              </div>
+            </div>
+            {(profile.unbanAllPropertiesRequestCount ?? 0) < 2 && (
+              <button
+                onClick={() => setIsAppealOpen(true)}
+                className="w-full text-sm font-semibold text-red-600 border border-red-300 rounded-xl py-2.5 hover:bg-red-100 transition-colors"
+              >
+                Submit Appeal
+              </button>
+            )}
+          </div>
+        )
+      )}
 
       <Tabs defaultValue={defaultTab} className="flex flex-col flex-1 min-h-0">
         {/* Tab bar */}

@@ -90,6 +90,9 @@ export interface Property {
   zipcode: string
   isActive: boolean
   isBannedByAdmin?: boolean
+  isBannedBeforeAccountBan?: boolean
+  unbanRequestCount?: number
+  hasPendingUnbanRequest?: boolean
   isFavorite: boolean
   avgRating: number
   hostId: number

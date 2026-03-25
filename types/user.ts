@@ -21,5 +21,8 @@ export interface UserProfile {
   phone: string
   isBecomeToHost: boolean
   isVerifiedHost?: boolean
+  isBannedAllProperties?: boolean
+  unbanAllPropertiesRequestCount?: number
+  hasPendingUnbanAllPropertiesRequest?: boolean
   role: Role[]
 }

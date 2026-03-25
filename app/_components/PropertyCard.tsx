@@ -5,7 +5,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import { cn, getLowestPrice, getPetPolicy, assetPath } from '@/lib/utils'
-import { Globe, GlobeLock, Heart, Star } from 'lucide-react'
+import { Globe, GlobeLock, Heart, Star, Ban } from 'lucide-react'
 import { FavoriteDrawer } from './FavoriteDrawer'
 import { useAuth } from '@/app/_components/AuthContext'
 import {
@@ -144,7 +144,9 @@ export function PropertyCard({
           )}
           {showStatusIcon && !showHeartIcon && (
             <div className="absolute top-2 right-2 p-1 bg-white rounded-full opacity-90">
-              {property.isActive ? (
+              {property.isBannedByAdmin ? (
+                <Ban className="h-6 w-6 text-red-500" />
+              ) : property.isActive ? (
                 <Globe className="h-6 w-6 text-deep-teal" />
               ) : (
                 <GlobeLock className="h-6 w-6 text-accent-orange" />
