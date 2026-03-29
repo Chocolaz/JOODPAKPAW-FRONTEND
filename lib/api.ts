@@ -907,10 +907,11 @@ export const submitUnbanPropertyRequest = (
 
 // --- Admin: Dashboard ---
 export interface AdminDashboardData {
-  pendingReports: { total: number; change: number }
-  totalUsers: { total: number; change: number }
-  activeProperties: number
-  pendingVerifications: { total: number; change: number }
+  pendingReports: { total: number; thisMonth: number }
+  totalUsers: { total: number; thisMonth: number }
+  activeProperties: { total: number; thisMonth: number }
+  pendingVerifications: { total: number; thisMonth: number }
+  bannedHosts: { total: number; thisMonth: number }
 }
 
 export const getAdminDashboard = (): Promise<AdminDashboardData> =>

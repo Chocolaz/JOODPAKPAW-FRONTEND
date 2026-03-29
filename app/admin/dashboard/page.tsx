@@ -9,7 +9,6 @@ import {
   Home,
   ShieldCheck,
   TrendingUp,
-  TrendingDown,
   Minus,
   ArrowRight,
 } from 'lucide-react'
@@ -49,18 +48,17 @@ const REPORT_TYPE_LABEL: Record<string, string> = {
 function StatCard({
   label,
   value,
-  change,
+  thisMonth,
   icon: Icon,
   accent,
 }: {
   label: string
   value: number
-  change?: number
+  thisMonth?: number
   icon: React.ElementType
   accent?: boolean
 }) {
-  const isUp = change != null && change > 0
-  const isDown = change != null && change < 0
+  const isUp = thisMonth != null && thisMonth > 0
 
   return (
     <div className={`rounded-xl border p-5 flex flex-col gap-3 ${accent ? 'bg-gray-50 border-gray-200' : 'bg-white border-gray-100'}`}>
@@ -68,14 +66,12 @@ function StatCard({
         <div className={`w-9 h-9 rounded-lg flex items-center justify-center ${accent ? 'bg-gray-200' : 'bg-gray-100'}`}>
           <Icon className="w-4.5 h-4.5 text-gray-600" strokeWidth={1.75} />
         </div>
-        {change != null && (
+        {thisMonth != null && (
           <span className={`flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full ${
-            isUp ? 'bg-green-50 text-positive-green' :
-            isDown ? 'bg-red-50 text-red-500' :
-            'bg-gray-100 text-gray-400'
+            isUp ? 'bg-green-50 text-positive-green' : 'bg-gray-100 text-gray-400'
           }`}>
-            {isUp ? <TrendingUp className="w-3 h-3" /> : isDown ? <TrendingDown className="w-3 h-3" /> : <Minus className="w-3 h-3" />}
-            {isUp ? `+${change}` : isDown ? `${change}` : '0'}
+            {isUp ? <TrendingUp className="w-3 h-3" /> : <Minus className="w-3 h-3" />}
+            {isUp ? `+${thisMonth}` : '0'}
           </span>
         )}
       </div>
@@ -132,25 +128,26 @@ export default function AdminDashboardPage() {
           <StatCard
             label="Pending Reports"
             value={stats.pendingReports.total}
-            change={stats.pendingReports.change}
+            thisMonth={stats.pendingReports.thisMonth}
             icon={Flag}
           />
           <StatCard
             label="Total Users"
             value={stats.totalUsers.total}
-            change={stats.totalUsers.change}
+            thisMonth={stats.totalUsers.thisMonth}
             icon={Users}
           />
           <StatCard
             label="Active Properties"
-            value={stats.activeProperties}
+            value={stats.activeProperties.total}
+            thisMonth={stats.activeProperties.thisMonth}
             icon={Home}
             accent
           />
           <StatCard
             label="Pending Verifications"
             value={stats.pendingVerifications.total}
-            change={stats.pendingVerifications.change}
+            thisMonth={stats.pendingVerifications.thisMonth}
             icon={ShieldCheck}
           />
         </div>

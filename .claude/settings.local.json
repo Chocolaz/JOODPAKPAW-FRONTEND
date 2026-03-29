@@ -33,7 +33,15 @@
       "Bash(cp:*)",
       "Bash(cp -r app/host-profile app/hosts)",
       "Bash(rm -rf app/host-profile)",
-      "Bash(npm run:*)"
+      "Bash(npm run:*)",
+      "WebSearch",
+      "WebFetch(domain:www.canva.dev)",
+      "Bash(claude mcp:*)",
+      "mcp__canva__search-designs",
+      "mcp__canva__get-design-pages",
+      "mcp__canva__get-design-content",
+      "mcp__canva__generate-design",
+      "mcp__canva__create-design-from-candidate"
     ]
   },
   "enabledPlugins": {
