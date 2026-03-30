@@ -16,9 +16,9 @@ export function BottomNav() {
   const { unreadCount } = useNotifications()
   const { unreadCount: chatUnreadCount } = useChat()
 
-  const visiblePaths = ['/', '/profile', '/favorites', '/notifications', '/chat']
+  const hiddenPaths = ['/authen', '/admin']
 
-  if (!visiblePaths.includes(normalizedPath)) {
+  if (hiddenPaths.some((p) => normalizedPath.startsWith(p))) {
     return null
   }
 
@@ -46,7 +46,7 @@ export function BottomNav() {
             <Link
               key={item.label}
               href={item.href}
-              className="relative flex flex-col items-center justify-center w-full pt-3 pb-2"
+              className={`relative flex flex-col items-center justify-center w-full ${isActive ? 'pt-3 pb-2' : 'pt-4 pb-3'}`}
             >
               <motion.div
                 className="absolute top-0 w-10 h-[3px] rounded-full bg-accent-orange"

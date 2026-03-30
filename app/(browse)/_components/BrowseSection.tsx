@@ -67,13 +67,10 @@ export function BrowseSection({
               <ChevronRight className="w-4 h-4 lg:w-5 lg:h-5 text-neutral-gray group-hover:text-accent-orange transition-colors translate-x-0 group-hover:translate-x-0.5 duration-200" />
             </Link>
           ) : (
-            <h5 className="text-lg lg:text-xl xl:text-2xl font-semibold text-deep-teal">
+            <h5 className="text-lg! lg:text-xl! xl:text-2xl! font-semibold text-deep-teal">
               {title}
             </h5>
           )}
-          <span className="text-sm lg:text-sm xl:text-base text-neutral-gray">
-            ({count})
-          </span>
         </div>
 
         {/* Desktop arrow controls — only when see-all exists */}

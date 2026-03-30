@@ -9,7 +9,7 @@ import { getLowestPrice } from '@/lib/utils'
 import { PropertiesResponse, Property } from '@/types'
 import { useAuth } from '@/app/_components/AuthContext'
 import { motion, AnimatePresence } from 'framer-motion'
-import { SearchX, Sparkles, Star, Heart, Loader2 } from 'lucide-react'
+import { SearchX, Sparkles, Star, Heart, Loader2, Tag } from 'lucide-react'
 import { useBrowseFilters } from '@/app/_hooks/useBrowseFilters'
 import { BrowseSection } from './_components/BrowseSection'
 
@@ -39,6 +39,7 @@ export default function Home() {
   const [totalRows, setTotalRows] = useState(0)
   const [recommendedProperties, setRecommendedProperties] = useState<Property[]>([])
   const [recommendedTotal, setRecommendedTotal] = useState(0)
+  const [allProperties, setAllProperties] = useState<Property[]>([])
   const { isAuthenticated, user } = useAuth()
   const { searchQuery, filters, buildSeeAllUrl } = useBrowseFilters()
 
@@ -51,8 +52,14 @@ export default function Home() {
     try {
       const response = (await getProperties(pageNum, PAGE_SIZE)) as PropertiesResponse
       if (key !== fetchKeyRef.current) return
-      if (reset) setProperties(response.data)
-      else setProperties((prev) => [...prev, ...response.data])
+      if (reset) {
+        setProperties(response.data)
+        getProperties(1, response.totalRows)
+          .then((res) => setAllProperties((res as PropertiesResponse).data))
+          .catch(() => {})
+      } else {
+        setProperties((prev) => [...prev, ...response.data])
+      }
       setPage(pageNum)
       setTotalPages(response.totalPages)
       setTotalRows(response.totalRows)
@@ -114,26 +121,56 @@ export default function Home() {
     })
   }, [searchedProperties, filters])
 
-  const randomProperties = useMemo(() => {
-    if (isAuthenticated) return []
-    return [...visibleProperties].sort(() => Math.random() - 0.5).slice(0, RECOMMEND_LIMIT)
-  }, [visibleProperties, isAuthenticated])
+  const sectionBase = useMemo(() => {
+    const base = allProperties.length > 0 ? allProperties : filteredProperties
+    return base.filter((p) => {
+      if (user && p.hostId === user.id) return false
+      if (filters.petTypes.length > 0) {
+        const names = (p.pets || []).map((pet) => pet.name.toLowerCase())
+        if (!filters.petTypes.some((t) => names.includes(t))) return false
+      }
+      if (filters.minRating > 0 && p.avgRating < filters.minRating) return false
+      if (filters.maxPrice !== '') {
+        const price = getLowestPrice(p.roomCategories)
+        if (price !== null && price > Number(filters.maxPrice)) return false
+      }
+      return true
+    })
+  }, [allProperties, filteredProperties, user, filters])
+
+  const bestValue = useMemo(() => {
+    const withPrice = sectionBase.filter((p) => getLowestPrice(p.roomCategories) !== null)
+    const avg =
+      withPrice.reduce((sum, p) => sum + (getLowestPrice(p.roomCategories) ?? 0), 0) /
+      (withPrice.length || 1)
+    return withPrice
+      .filter((p) => (getLowestPrice(p.roomCategories) ?? Infinity) <= avg)
+      .sort((a, b) => {
+        const priceA = getLowestPrice(a.roomCategories) ?? Infinity
+        const priceB = getLowestPrice(b.roomCategories) ?? Infinity
+        return priceA - priceB
+      })
+  }, [sectionBase])
 
   const topRated = useMemo(
     () =>
-      [...filteredProperties]
+      [...sectionBase]
         .filter((p) => p.avgRating >= TOP_RATED_MIN)
         .sort((a, b) => b.avgRating - a.avgRating),
-    [filteredProperties]
+    [sectionBase]
   )
 
-  const newListings = useMemo(
-    () =>
-      [...filteredProperties].sort((a, b) =>
-        new Date(b.publishedAt ?? b.createdAt).getTime() - new Date(a.publishedAt ?? a.createdAt).getTime()
-      ),
-    [filteredProperties]
-  )
+  const newListings = useMemo(() => {
+    const sorted = [...sectionBase].sort(
+      (a, b) =>
+        new Date(b.publishedAt ?? b.createdAt).getTime() -
+        new Date(a.publishedAt ?? a.createdAt).getTime()
+    )
+    const cutoff = new Date()
+    cutoff.setDate(cutoff.getDate() - 30)
+    const recent = sorted.filter((p) => new Date(p.publishedAt ?? p.createdAt) >= cutoff)
+    return recent.length >= 5 ? recent : sorted.slice(0, 20)
+  }, [filteredProperties])
 
   return (
     <div>
@@ -245,30 +282,17 @@ export default function Home() {
                     transition={{ duration: 0.25 }}
                     className="lg:pt-2"
                   >
-                    {/* Recommended slot */}
-                    {isAuthenticated ? (
-                      recommendedProperties.length > 0 && (
-                        <BrowseSection
-                          title="Recommended for You"
-                          icon={<Heart className="w-5 h-5 fill-accent-orange text-accent-orange" />}
-                          properties={recommendedProperties}
-                          totalCount={recommendedTotal}
-                          showHeartIcon={true}
-                          showPetPolicyChip={true}
-                          seeAllHref={buildSeeAllUrl('/recommended')}
-                        />
-                      )
-                    ) : (
-                      randomProperties.length > 0 && (
-                        <BrowseSection
-                          title="Recommended for You"
-                          icon={<Heart className="w-5 h-5 fill-accent-orange text-accent-orange" />}
-                          properties={randomProperties}
-                          totalCount={randomProperties.length}
-                          showHeartIcon={false}
-                          showPetPolicyChip={true}
-                        />
-                      )
+                    {/* Recommended slot — authenticated only */}
+                    {isAuthenticated && recommendedProperties.length > 0 && (
+                      <BrowseSection
+                        title="Recommended for You"
+                        icon={<Heart className="w-5 h-5 fill-accent-orange text-accent-orange" />}
+                        properties={recommendedProperties}
+                        totalCount={recommendedTotal}
+                        showHeartIcon={true}
+                        showPetPolicyChip={true}
+                        seeAllHref={buildSeeAllUrl('/recommended')}
+                      />
                     )}
 
                     {filteredProperties.length === 0 ? (
@@ -283,6 +307,15 @@ export default function Home() {
                           showHeartIcon={isAuthenticated}
                           showPetPolicyChip={true}
                           seeAllHref={buildSeeAllUrl('/top-rated')}
+                        />
+                        <BrowseSection
+                          title="Best Value"
+                          icon={<Tag className="w-5 h-5 text-positive-green" />}
+                          properties={bestValue}
+                          totalCount={bestValue.length}
+                          showHeartIcon={isAuthenticated}
+                          showPetPolicyChip={true}
+                          seeAllHref={buildSeeAllUrl('/best-value')}
                         />
                         <BrowseSection
                           title="New Listings"

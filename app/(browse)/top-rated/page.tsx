@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
-import { ArrowLeft, Star } from 'lucide-react'
+import { ArrowLeft, Star, Loader2 } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { getProperties } from '@/lib/api'
 import { getLowestPrice } from '@/lib/utils'
@@ -13,10 +13,12 @@ import { useBrowseFilters } from '@/app/_hooks/useBrowseFilters'
 
 const TOP_RATED_MIN = 4.0
 const SKELETON_COUNT = 12
+const PAGE_SIZE = 20
 
 export default function TopRatedPage() {
   const [properties, setProperties] = useState<Property[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE)
   const { isAuthenticated } = useAuth()
   const { filters, buildSeeAllUrl } = useBrowseFilters()
 
@@ -68,11 +70,22 @@ export default function TopRatedPage() {
           transition={{ duration: 0.25 }}
         >
           <PropertyList
-            properties={filtered}
+            properties={filtered.slice(0, visibleCount)}
             className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-7 gap-4"
             showPetPolicyChip={true}
             showHeartIcon={isAuthenticated}
           />
+          {visibleCount < filtered.length && (
+            <div className="flex justify-center mt-8">
+              <button
+                onClick={() => setVisibleCount((c) => c + PAGE_SIZE)}
+                className="flex items-center gap-2 px-6 py-2.5 rounded-full border border-gray-200 text-sm font-medium text-gray-600 hover:border-deep-teal/40 hover:text-deep-teal transition"
+              >
+                <Loader2 className="w-4 h-4" />
+                Load more
+              </button>
+            </div>
+          )}
         </motion.div>
       )}
     </div>

@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
-import { ArrowLeft, Sparkles } from 'lucide-react'
+import { ArrowLeft, Sparkles, Loader2 } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { getProperties } from '@/lib/api'
 import { getLowestPrice } from '@/lib/utils'
@@ -12,10 +12,12 @@ import { useAuth } from '@/app/_components/AuthContext'
 import { useBrowseFilters } from '@/app/_hooks/useBrowseFilters'
 
 const SKELETON_COUNT = 12
+const PAGE_SIZE = 20
 
 export default function NewListingsPage() {
   const [properties, setProperties] = useState<Property[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE)
   const { isAuthenticated } = useAuth()
   const { filters, buildSeeAllUrl } = useBrowseFilters()
 
@@ -26,22 +28,35 @@ export default function NewListingsPage() {
       .finally(() => setIsLoading(false))
   }, [isAuthenticated])
 
+const NEW_LISTING_DAYS = 30
+const NEW_LISTING_FALLBACK = 20
+
   const filtered = useMemo(() => {
-    return properties
-      .filter((p) => {
+    const applyFilters = (list: Property[]) =>
+      list.filter((p) => {
         if (filters.petTypes.length > 0) {
           const names = (p.pets || []).map((pet) => pet.name.toLowerCase())
           if (!filters.petTypes.some((t) => names.includes(t))) return false
         }
-        if (filters.minRating > 0 && p.avgRating < filters.minRating)
-          return false
+        if (filters.minRating > 0 && p.avgRating < filters.minRating) return false
         if (filters.maxPrice !== '') {
           const price = getLowestPrice(p.roomCategories)
           if (price !== null && price > Number(filters.maxPrice)) return false
         }
         return true
       })
-      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+
+    const sorted = [...properties].sort(
+      (a, b) =>
+        new Date(b.publishedAt ?? b.createdAt).getTime() -
+        new Date(a.publishedAt ?? a.createdAt).getTime()
+    )
+
+    const cutoff = new Date()
+    cutoff.setDate(cutoff.getDate() - NEW_LISTING_DAYS)
+    const recent = applyFilters(sorted.filter((p) => new Date(p.publishedAt ?? p.createdAt) >= cutoff))
+
+    return recent.length >= 5 ? recent : applyFilters(sorted).slice(0, NEW_LISTING_FALLBACK)
   }, [properties, filters])
 
   return (
@@ -75,11 +90,22 @@ export default function NewListingsPage() {
           transition={{ duration: 0.25 }}
         >
           <PropertyList
-            properties={filtered}
+            properties={filtered.slice(0, visibleCount)}
             className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-7 gap-4"
             showPetPolicyChip={true}
             showHeartIcon={isAuthenticated}
           />
+          {visibleCount < filtered.length && (
+            <div className="flex justify-center mt-8">
+              <button
+                onClick={() => setVisibleCount((c) => c + PAGE_SIZE)}
+                className="flex items-center gap-2 px-6 py-2.5 rounded-full border border-gray-200 text-sm font-medium text-gray-600 hover:border-deep-teal/40 hover:text-deep-teal transition"
+              >
+                <Loader2 className="w-4 h-4" />
+                Load more
+              </button>
+            </div>
+          )}
         </motion.div>
       )}
     </div>
