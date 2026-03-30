@@ -5,6 +5,8 @@ import Image from 'next/image'
 import { useNormalizedPathname } from '@/app/_hooks/useNormalizedPathname'
 import { useNotifications } from '@/app/_components/NotificationContext'
 import { useChat } from '@/app/_components/ChatContext'
+import { useAuth } from '@/app/_components/AuthContext'
+import { useAuthModal } from '@/app/_context/AuthModalContext'
 import { Home, Heart, Bell, User, MessageCircle } from 'lucide-react'
 import { assetPath } from '@/lib/utils'
 
@@ -22,6 +24,8 @@ export function DesktopNav() {
   const normalizedPath = useNormalizedPathname()
   const { unreadCount } = useNotifications()
   const { unreadCount: chatUnreadCount } = useChat()
+  const { isAuthenticated } = useAuth()
+  const { openAuthModal } = useAuthModal()
 
   if (
     !VISIBLE_PATHS.includes(normalizedPath) &&
@@ -56,25 +60,43 @@ export function DesktopNav() {
               href === '/chat' ? chatUnreadCount : 0
             const showBadge = badgeCount > 0
 
+            const isProfile = href === '/profile'
+            const linkClass = `relative flex items-center gap-2 px-4 py-2 rounded-full text-sm lg:text-base xl:text-lg font-medium transition-colors duration-200 ${
+              isActive
+                ? 'bg-accent-orange/10 text-accent-orange'
+                : 'text-neutral-gray hover:bg-gray-50 hover:text-deep-teal'
+            }`
+            const badge = showBadge && (
+              <span className="absolute -top-0.5 right-1.5 min-w-4 h-4 px-0.5 bg-accent-orange rounded-full flex items-center justify-center">
+                <span className="text-white text-[9px] font-bold leading-none">
+                  {badgeCount > 9 ? '9+' : badgeCount}
+                </span>
+              </span>
+            )
+
+            if (isProfile && !isAuthenticated) {
+              return (
+                <button
+                  key={href}
+                  onClick={() => openAuthModal('login', { returnUrl: '/profile' })}
+                  className={linkClass}
+                >
+                  <Icon className="w-4 h-4" />
+                  {label}
+                  {badge}
+                </button>
+              )
+            }
+
             return (
               <Link
                 key={href}
                 href={href}
-                className={`relative flex items-center gap-2 px-4 py-2 rounded-full text-sm lg:text-base xl:text-lg font-medium transition-colors duration-200 ${
-                  isActive
-                    ? 'bg-accent-orange/10 text-accent-orange'
-                    : 'text-neutral-gray hover:bg-gray-50 hover:text-deep-teal'
-                }`}
+                className={linkClass}
               >
                 <Icon className="w-4 h-4" />
                 {label}
-                {showBadge && (
-                  <span className="absolute -top-0.5 right-1.5 min-w-4 h-4 px-0.5 bg-accent-orange rounded-full flex items-center justify-center">
-                    <span className="text-white text-[9px] font-bold leading-none">
-                      {badgeCount > 9 ? '9+' : badgeCount}
-                    </span>
-                  </span>
-                )}
+                {badge}
               </Link>
             )
           })}

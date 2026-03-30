@@ -43,7 +43,8 @@
       "mcp__canva__generate-design",
       "mcp__canva__create-design-from-candidate",
       "Bash(find /d/Project/joodpakpaw/joodpakpaw/app/api -type f \\\\\\(-name *.ts -o -name *.tsx \\\\\\))",
-      "Bash(ls:*)"
+      "Bash(ls:*)",
+      "Bash(wait)"
     ]
   },
   "enabledPlugins": {

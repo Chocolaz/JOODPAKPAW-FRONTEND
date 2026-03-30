@@ -2,14 +2,45 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
+import { useEffect, useState } from 'react'
+import { usePathname, useRouter } from 'next/navigation'
 import { useAuthRedirect } from '@/lib/authenUtils'
+import { useAuthModal } from '@/app/_context/AuthModalContext'
+import type { AuthModalStep } from '@/app/_context/AuthModalContext'
 import { Spinner } from '@/components/ui/spinner'
 import { assetPath } from '@/lib/utils'
 
+function getStepFromPathname(pathname: string): AuthModalStep {
+  if (pathname.includes('register')) return 'register'
+  if (pathname.includes('verify-otp')) return 'verify-otp'
+  if (pathname.includes('forgot-password')) return 'forgot'
+  return 'login'
+}
+
 export default function AuthenLayout({ children }: { children: React.ReactNode }) {
   const isAuthenticated = useAuthRedirect('/')
+  const { openAuthModal } = useAuthModal()
+  const router = useRouter()
+  const pathname = usePathname()
+  const [isDesktopRedirecting, setIsDesktopRedirecting] = useState(false)
 
-  if (isAuthenticated === null || isAuthenticated === true) {
+  useEffect(() => {
+    // reset-password comes from email link with payload — keep as full page
+    if (pathname.includes('reset-password')) return
+
+    if (typeof window !== 'undefined' && window.innerWidth >= 1024) {
+      const params = new URLSearchParams(window.location.search)
+      const email = params.get('email') ?? undefined
+      const returnUrl = params.get('returnUrl') ?? undefined
+      const step = getStepFromPathname(pathname)
+      setIsDesktopRedirecting(true)
+      openAuthModal(step, { email, returnUrl })
+      router.replace(returnUrl?.startsWith('/') ? returnUrl : '/')
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  if (isDesktopRedirecting || isAuthenticated === null || isAuthenticated === true) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <Spinner className="w-10 h-10" />
