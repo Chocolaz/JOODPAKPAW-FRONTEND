@@ -1,7 +1,12 @@
+'use client'
+
+import { useState } from 'react'
 import Image from 'next/image'
 import { Star, Flag } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { HostReview } from '@/types/hostProfile'
+
+const CLAMP_THRESHOLD = 200
 
 function formatDate(dateStr: string | null) {
   if (!dateStr) return ''
@@ -11,6 +16,8 @@ function formatDate(dateStr: string | null) {
 export function HostReviewCard({ review, onReport }: { review: HostReview; onReport?: (id: number) => void }) {
   const { guestProfile } = review
   const guestName = `${guestProfile.firstName} ${guestProfile.lastName}`
+  const isLong = !!review.comment && review.comment.length > CLAMP_THRESHOLD
+  const [expanded, setExpanded] = useState(false)
 
   return (
     <div className="bg-white rounded-2xl border border-gray-100 p-4 shadow-sm flex flex-col gap-3 hover:shadow-md hover:border-gray-200 transition-all duration-200">
@@ -58,9 +65,19 @@ export function HostReviewCard({ review, onReport }: { review: HostReview; onRep
 
       {/* Comment */}
       {review.comment ? (
-        <p className="text-sm text-gray-600 leading-relaxed flex-1 line-clamp-4">
-          &ldquo;{review.comment}&rdquo;
-        </p>
+        <div className="flex-1">
+          <p className={cn('text-sm text-gray-600 leading-relaxed', !expanded && 'line-clamp-4')}>
+            &ldquo;{review.comment}&rdquo;
+          </p>
+          {isLong && (
+            <button
+              onClick={() => setExpanded((v) => !v)}
+              className="mt-1 text-xs font-medium text-accent-orange hover:underline underline-offset-2 transition-colors cursor-pointer"
+            >
+              {expanded ? 'Read less' : 'Read more'}
+            </button>
+          )}
+        </div>
       ) : (
         <p className="text-sm text-gray-300 italic flex-1">No comment left.</p>
       )}

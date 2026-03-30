@@ -5,6 +5,7 @@ import { useRouter, usePathname } from 'next/navigation'
 import { useAuth } from '@/app/_components/AuthContext'
 import { Spinner } from '@/components/ui/spinner'
 import Link from 'next/link'
+import { LogOut } from 'lucide-react'
 
 const NAV_ITEMS = [
   {
@@ -78,7 +79,7 @@ const NAV_ITEMS = [
 ]
 
 export default function AdminLayout({ children }: { children: ReactNode }) {
-  const { user, isAuthenticated, loading } = useAuth()
+  const { user, isAuthenticated, loading, logout } = useAuth()
   const router = useRouter()
   const pathname = usePathname()
   const isAdmin = user?.role?.some((r) => r.name === 'admin')
@@ -150,6 +151,13 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
             </p>
             <p className="text-[11px] text-gray-400">Administrator</p>
           </div>
+          <button
+            onClick={logout}
+            title="Logout"
+            className="p-1.5 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors cursor-pointer"
+          >
+            <LogOut className="w-4 h-4" />
+          </button>
         </div>
       </aside>
 

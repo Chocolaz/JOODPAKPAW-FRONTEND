@@ -41,7 +41,8 @@
       "mcp__canva__get-design-pages",
       "mcp__canva__get-design-content",
       "mcp__canva__generate-design",
-      "mcp__canva__create-design-from-candidate"
+      "mcp__canva__create-design-from-candidate",
+      "Bash(find /d/Project/joodpakpaw/joodpakpaw/app/api -type f \\\\\\(-name *.ts -o -name *.tsx \\\\\\))"
     ]
   },
   "enabledPlugins": {

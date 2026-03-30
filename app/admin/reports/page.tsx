@@ -442,11 +442,7 @@ function ReportPanel({
                     <div>
                       <label className="text-xs font-medium text-gray-500 mb-1.5 block">
                         Admin note{' '}
-                        {detail.type === 'unban_property' ? (
-                          <span className="text-red-400">*required</span>
-                        ) : (
-                          <span className="text-gray-400">(optional)</span>
-                        )}
+                        <span className="text-red-400">*required</span>
                       </label>
                       <textarea
                         value={adminNote}
@@ -470,11 +466,7 @@ function ReportPanel({
                       </button>
                       <button
                         onClick={handleConfirmClick}
-                        disabled={
-                          acting ||
-                          (detail.type === 'unban_property' &&
-                            !adminNote.trim())
-                        }
+                        disabled={acting || !adminNote.trim()}
                         className={`flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-semibold transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed ${ACTION_CONFIG[pendingAction].confirmClass}`}
                       >
                         {acting ? (
