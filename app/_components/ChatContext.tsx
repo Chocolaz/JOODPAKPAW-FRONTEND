@@ -240,7 +240,7 @@ export function ChatProvider({ children }: { children: ReactNode }) {
               ...r,
               lastMessageAt: newMsg.createdAt,
               // readAt set to now so the sender's own message doesn't appear as unread in the list
-          lastMessage: { id: newMsg.id, content: newMsg.content, readAt: new Date().toISOString(), senderId: user!.id },
+          lastMessage: { id: newMsg.id, content: newMsg.content, readAt: new Date().toISOString(), senderId: newMsg.senderId },
             }
           : r
       )
