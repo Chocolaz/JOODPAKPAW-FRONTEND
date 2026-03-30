@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useMemo } from 'react'
-import { Star, UserCircle, Flag } from 'lucide-react'
+import { Star, UserCircle, Flag, X } from 'lucide-react'
 import { PropertyReview } from '@/types/property'
 import { cn } from '@/lib/utils'
 import Image from 'next/image'
@@ -20,7 +20,7 @@ interface PropertyReviewsProps {
 }
 
 const RATING_LABELS = ['', 'Poor', 'Fair', 'Good', 'Very Good', 'Excellent']
-const MAX_VISIBLE_REVIEWS = 3
+const MAX_VISIBLE_REVIEWS = 6
 
 function StarRow({
   rating,
@@ -29,7 +29,7 @@ function StarRow({
   rating: number
   size?: 'sm' | 'md'
 }) {
-  const starSize = size === 'md' ? 'w-5 h-5' : 'w-3.5 h-3.5'
+  const starSize = size === 'md' ? 'w-5 h-5' : 'w-4 h-4'
   return (
     <div className="flex gap-0.5">
       {[1, 2, 3, 4, 5].map((star) => (
@@ -77,6 +77,8 @@ function RatingBreakdown({ reviews }: { reviews: PropertyReview[] }) {
   )
 }
 
+const CLAMP_THRESHOLD = 80 * 4
+
 function ReviewCard({
   review,
   onReport,
@@ -84,45 +86,94 @@ function ReviewCard({
   review: PropertyReview
   onReport?: (reviewId: number) => void
 }) {
+  const [modalOpen, setModalOpen] = useState(false)
+  const guestName = `${review.firstName} ${review.lastName}`
+  const isLong = !!review.comment && review.comment.length > CLAMP_THRESHOLD
+
   return (
-    <div className="bg-white rounded-xl border border-gray-100 p-4 shadow-sm space-y-3">
-      <div className="flex items-center gap-3">
-        <div className="relative w-10 h-10 rounded-full overflow-hidden bg-gray-100 shrink-0">
+    <>
+      <div className="bg-white rounded-2xl border border-gray-100 p-4 shadow-sm flex gap-3 hover:shadow-md hover:border-gray-200 transition-all duration-200">
+        {/* Avatar */}
+        <div className="relative w-10 h-10 rounded-full overflow-hidden bg-gray-100 shrink-0 mt-0.5">
           {review.avatar ? (
-            <Image
-              src={review.avatar}
-              alt={`${review.firstName} ${review.lastName}`}
-              fill
-              unoptimized
-              className="object-cover"
-            />
+            <Image src={review.avatar} alt={guestName} fill unoptimized className="object-cover" />
           ) : (
             <UserCircle className="w-10 h-10 text-gray-300" />
           )}
         </div>
-        <div className="flex-1 min-w-0">
-          <p className="text-sm font-medium text-gray-900 truncate">
-            {review.firstName} {review.lastName}
-          </p>
+
+        {/* Content */}
+        <div className="flex-1 min-w-0 space-y-1.5">
+          {/* Row 1: name + report */}
+          <div className="flex items-center justify-between gap-2">
+            <span className="text-sm font-semibold text-gray-900 truncate">{guestName}</span>
+            {onReport && (
+              <button
+                onClick={() => onReport(review.bookingId)}
+                className="p-1 rounded-full text-gray-300 hover:text-red-400 hover:bg-red-50 transition cursor-pointer shrink-0"
+                title="Report this review"
+              >
+                <Flag className="w-3.5 h-3.5" />
+              </button>
+            )}
+          </div>
+          {/* Row 2: stars */}
           <StarRow rating={review.rating} />
+
+          {/* Comment */}
+          <div className="min-h-[5.75rem] pr-2">
+            {review.comment ? (
+              <>
+                <p className="text-sm text-gray-600 leading-relaxed line-clamp-4" style={{ overflowWrap: 'anywhere', wordBreak: 'break-word' }}>
+                  {review.comment}
+                </p>
+                {isLong && (
+                  <button
+                    onClick={() => setModalOpen(true)}
+                    className="mt-1 text-xs font-medium text-accent-orange hover:underline underline-offset-2 cursor-pointer"
+                  >
+                    See more
+                  </button>
+                )}
+              </>
+            ) : (
+              <p className="text-sm text-gray-300 italic">No comment left.</p>
+            )}
+          </div>
         </div>
-        {onReport && (
-          <button
-            onClick={() => onReport(review.bookingId)}
-            className="shrink-0 p-1.5 rounded-full text-gray-300 hover:text-red-400 hover:bg-red-50 transition cursor-pointer"
-            title="Report this review"
-          >
-            <Flag className="w-3.5 h-3.5" />
-          </button>
-        )}
       </div>
 
-      {review.comment && (
-        <p className="text-sm text-gray-600 leading-relaxed">
-          {review.comment}
-        </p>
-      )}
-    </div>
+      {/* Full review modal */}
+      <Dialog open={modalOpen} onOpenChange={setModalOpen}>
+        <DialogContent className="max-w-md gap-0 p-0 overflow-hidden [&>button]:hidden">
+          <DialogHeader className="px-5 py-4 border-b border-gray-100">
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="relative w-10 h-10 rounded-full overflow-hidden bg-gray-100 shrink-0">
+                  {review.avatar ? (
+                    <Image src={review.avatar} alt={guestName} fill unoptimized className="object-cover" />
+                  ) : (
+                    <UserCircle className="w-10 h-10 text-gray-300" />
+                  )}
+                </div>
+                <div className="min-w-0">
+                  <DialogTitle className="text-sm font-semibold text-gray-900 truncate">{guestName}</DialogTitle>
+                  <StarRow rating={review.rating} />
+                </div>
+              </div>
+              <button onClick={() => setModalOpen(false)} className="shrink-0 w-7 h-7 flex items-center justify-center rounded-full bg-gray-100 text-gray-500 hover:bg-gray-200 transition cursor-pointer">
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+          </DialogHeader>
+          <div className="px-5 py-4">
+            <p className="text-sm text-gray-700 leading-relaxed" style={{ overflowWrap: 'anywhere', wordBreak: 'break-word' }}>
+              {review.comment}
+            </p>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </>
   )
 }
 
@@ -176,7 +227,7 @@ export function PropertyReviews({
 
       {/* Top 3 reviews */}
       {topReviews.length > 0 ? (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
           {topReviews.map((review, index) => (
             <ReviewCard key={index} review={review} onReport={onReportReview} />
           ))}

@@ -18,7 +18,7 @@ function StarRow({ rating }: { rating: number }) {
   return (
     <div className="flex gap-0.5 shrink-0">
       {[1, 2, 3, 4, 5].map((s) => (
-        <Star key={s} className={cn('w-3 h-3', s <= rating ? 'fill-yellow-400 text-yellow-400' : 'fill-gray-200 text-gray-200')} strokeWidth={0} />
+        <Star key={s} className={cn('w-4 h-4', s <= rating ? 'fill-yellow-400 text-yellow-400' : 'fill-gray-200 text-gray-200')} strokeWidth={0} />
       ))}
     </div>
   )
@@ -48,22 +48,24 @@ export function HostReviewCard({ review, onReport }: { review: HostReview; onRep
 
         {/* Content */}
         <div className="flex-1 min-w-0 space-y-1.5">
-          {/* Row 1: name + stars + date + report */}
-          <div className="flex items-center gap-2 flex-wrap">
-            <span className="text-sm font-semibold text-gray-900 shrink-0">{guestName}</span>
-            <StarRow rating={review.rating} />
-            <span className="text-xs text-neutral-gray shrink-0">{formatDate(review.reviewedAt)}</span>
-            <div className="flex-1" />
-            {onReport && (
-              <button
-                onClick={() => onReport(review.id)}
-                className="p-1 rounded-full text-gray-300 hover:text-red-400 hover:bg-red-50 transition cursor-pointer shrink-0"
-                title="Report this review"
-              >
-                <Flag className="w-3.5 h-3.5" />
-              </button>
-            )}
+          {/* Row 1: name + date + report */}
+          <div className="flex items-center justify-between gap-2">
+            <span className="text-sm font-semibold text-gray-900 truncate">{guestName}</span>
+            <div className="flex items-center gap-2 shrink-0">
+              <span className="text-xs text-neutral-gray">{formatDate(review.reviewedAt)}</span>
+              {onReport && (
+                <button
+                  onClick={() => onReport(review.id)}
+                  className="p-1 rounded-full text-gray-300 hover:text-red-400 hover:bg-red-50 transition cursor-pointer"
+                  title="Report this review"
+                >
+                  <Flag className="w-3.5 h-3.5" />
+                </button>
+              )}
+            </div>
           </div>
+          {/* Row 2: stars */}
+          <StarRow rating={review.rating} />
 
           {/* Comment — min-h matches 4 lines of text-sm/leading-relaxed */}
           <div className="min-h-[5.75rem] pr-2">
