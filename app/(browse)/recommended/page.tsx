@@ -49,14 +49,21 @@ export default function RecommendedPage() {
   return (
     <div className="px-5 lg:px-12 pb-28 lg:pb-16 mt-6 lg:mt-10">
       <div className="flex items-center gap-3 mb-6">
-        <Link href={buildSeeAllUrl('/')} className="text-neutral-gray hover:text-deep-teal transition-colors">
+        <Link
+          href={buildSeeAllUrl('/')}
+          className="text-neutral-gray hover:text-deep-teal transition-colors"
+        >
           <ArrowLeft className="w-5 h-5" />
         </Link>
         <div className="flex items-center gap-2">
           <Heart className="w-5 h-5 fill-accent-orange text-accent-orange" />
-          <h1 className="text-xl lg:text-xl font-semibold text-deep-teal">Recommended for You</h1>
+          <h1 className="text-xl! lg:text-xl! font-semibold text-deep-teal">
+            Recommended for You
+          </h1>
           {!isLoading && (
-            <span className="text-sm lg:text-sm text-neutral-gray">({filtered.length})</span>
+            <span className="text-sm lg:text-sm text-neutral-gray">
+              ({filtered.length})
+            </span>
           )}
         </div>
       </div>

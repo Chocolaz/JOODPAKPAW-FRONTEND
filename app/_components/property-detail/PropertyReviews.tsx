@@ -108,7 +108,7 @@ function ReviewCard({
         </div>
         {onReport && (
           <button
-            onClick={() => onReport(review.id)}
+            onClick={() => onReport(review.bookingId)}
             className="shrink-0 p-1.5 rounded-full text-gray-300 hover:text-red-400 hover:bg-red-50 transition cursor-pointer"
             title="Report this review"
           >

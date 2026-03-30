@@ -12,7 +12,7 @@ export function RecommendedCTA() {
     <div className="mb-10 lg:mb-0 lg:py-10 lg:border-b lg:border-gray-100">
       <div className="flex items-center gap-2 mb-4 lg:mb-6">
         <Heart className="w-5 h-5 fill-accent-orange text-accent-orange" />
-        <h5 className="text-lg lg:text-2xl xl:text-3xl font-semibold text-deep-teal">
+        <h5 className="text-lg! lg:text-2xl! xl:text-3xl! font-semibold text-deep-teal">
           Recommended for You
         </h5>
       </div>

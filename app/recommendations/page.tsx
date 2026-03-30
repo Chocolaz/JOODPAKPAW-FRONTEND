@@ -39,7 +39,7 @@ export default function RecommendationsPage() {
     try {
       const res = await getRecommendedProperties(p, PAGE_SIZE)
       setTotalRows(res.totalRows)
-      setProperties((prev) => p === 1 ? res.data : [...prev, ...res.data])
+      setProperties((prev) => (p === 1 ? res.data : [...prev, ...res.data]))
     } catch {
       // keep existing
     } finally {
@@ -77,9 +77,13 @@ export default function RecommendationsPage() {
         </button>
         <div className="flex items-center gap-2">
           <Heart className="w-5 h-5 fill-accent-orange text-accent-orange" />
-          <h1 className="text-lg lg:text-2xl font-semibold text-deep-teal">Recommended for You</h1>
+          <h1 className="text-lg! lg:text-2xl! font-semibold text-deep-teal">
+            Recommended for You
+          </h1>
           {!isLoading && (
-            <span className="text-sm lg:text-base text-neutral-gray">({totalRows})</span>
+            <span className="text-sm lg:text-base text-neutral-gray">
+              ({totalRows})
+            </span>
           )}
         </div>
       </div>
@@ -87,15 +91,21 @@ export default function RecommendationsPage() {
       <div className="px-5 lg:px-12 py-6 lg:py-10 pb-28 lg:pb-16">
         {isLoading ? (
           <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-4 lg:gap-6">
-            {Array.from({ length: 10 }).map((_, i) => <SkeletonCard key={i} />)}
+            {Array.from({ length: 10 }).map((_, i) => (
+              <SkeletonCard key={i} />
+            ))}
           </div>
         ) : properties.length === 0 ? (
           <div className="flex flex-col items-center justify-center min-h-[40vh] gap-3 text-center">
             <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center">
               <Heart className="w-8 h-8 text-gray-300" />
             </div>
-            <p className="font-semibold text-gray-700">No recommendations yet</p>
-            <p className="text-sm text-neutral-gray">Browse more properties to get personalised picks.</p>
+            <p className="font-semibold text-gray-700">
+              No recommendations yet
+            </p>
+            <p className="text-sm text-neutral-gray">
+              Browse more properties to get personalised picks.
+            </p>
           </div>
         ) : (
           <>
