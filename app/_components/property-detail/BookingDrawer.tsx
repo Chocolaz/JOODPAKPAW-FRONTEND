@@ -1,7 +1,7 @@
 'use client'
 
 import * as React from 'react'
-import { Calendar as CalendarIcon, Star } from 'lucide-react'
+import { Calendar as CalendarIcon, Star, ChevronDown } from 'lucide-react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import {
   Drawer,
@@ -221,7 +221,7 @@ export function BookingDrawer({
         petProfilesLoading={petProfilesLoading}
         petSizeCategories={petSizeCategories}
         onPetSizeUpdated={handlePetSizeUpdated}
-        inlineMode={!sidebarMode}
+        inlineMode={true}
       />
       {searchedNumberOfNights > 0 && (
         <p className="text-sm font-medium text-deep-teal mt-1 mb-2">
@@ -314,9 +314,16 @@ export function BookingDrawer({
 
         <DrawerContent>
           <div className="mx-auto w-full max-w-2xl h-[80vh] flex flex-col">
-            <DrawerHeader>
-              <DrawerTitle>Select Dates And Rooms</DrawerTitle>
-              <DrawerDescription>Find the perfect room for your pet&apos;s stay.</DrawerDescription>
+            <DrawerHeader className="relative flex flex-row items-center justify-center px-5">
+              <DrawerClose asChild>
+                <button className="absolute left-5 p-1 rounded-full text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition cursor-pointer">
+                  <ChevronDown className="w-5 h-5" />
+                </button>
+              </DrawerClose>
+              <div className="text-center">
+                <DrawerTitle>Select Dates And Rooms</DrawerTitle>
+                <DrawerDescription>Find the perfect room for your pet&apos;s stay.</DrawerDescription>
+              </div>
             </DrawerHeader>
 
             <div className="flex-1 overflow-y-auto px-5 flex flex-col gap-3">
@@ -324,9 +331,6 @@ export function BookingDrawer({
             </div>
 
             <DrawerFooter>
-              <DrawerClose asChild>
-                <Button variant="outline">Cancel</Button>
-              </DrawerClose>
               <Button className="bg-positive-green" onClick={handleContinue} disabled={isContinueDisabled}>
                 Continue
               </Button>

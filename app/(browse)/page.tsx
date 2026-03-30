@@ -9,9 +9,23 @@ import { getLowestPrice } from '@/lib/utils'
 import { PropertiesResponse, Property } from '@/types'
 import { useAuth } from '@/app/_components/AuthContext'
 import { motion, AnimatePresence } from 'framer-motion'
-import { SearchX, Sparkles, Star, Heart, Loader2, Tag } from 'lucide-react'
+import { SearchX, Sparkles, Star, Heart, Loader2, Tag, MapPin, Dog, Cat, Clock } from 'lucide-react'
 import { useBrowseFilters } from '@/app/_hooks/useBrowseFilters'
+import { useRecentlyViewed } from '@/app/_hooks/useRecentlyViewed'
 import { BrowseSection } from './_components/BrowseSection'
+
+function haversineDistance(lat1: number, lon1: number, lat2: number, lon2: number) {
+  const R = 6371
+  const dLat = ((lat2 - lat1) * Math.PI) / 180
+  const dLon = ((lon2 - lon1) * Math.PI) / 180
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos((lat1 * Math.PI) / 180) *
+      Math.cos((lat2 * Math.PI) / 180) *
+      Math.sin(dLon / 2) *
+      Math.sin(dLon / 2)
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
+}
 
 const fuseOptions = {
   keys: [
@@ -42,6 +56,8 @@ export default function Home() {
   const [allProperties, setAllProperties] = useState<Property[]>([])
   const { isAuthenticated, user } = useAuth()
   const { searchQuery, filters, buildSeeAllUrl } = useBrowseFilters()
+  const { ids: recentlyViewedIds } = useRecentlyViewed()
+  const [userLocation, setUserLocation] = useState<{ lat: number; lon: number } | null>(null)
 
   const fetchKeyRef = useRef(0)
 
@@ -71,6 +87,13 @@ export default function Home() {
         setLoadingMore(false)
       }
     }
+  }, [])
+
+  useEffect(() => {
+    navigator.geolocation?.getCurrentPosition(
+      (pos) => setUserLocation({ lat: pos.coords.latitude, lon: pos.coords.longitude }),
+      () => {}
+    )
   }, [])
 
   useEffect(() => {
@@ -172,6 +195,37 @@ export default function Home() {
     return recent.length >= 5 ? recent : sorted.slice(0, 20)
   }, [filteredProperties])
 
+  const nearYou = useMemo(() => {
+    if (!userLocation) return []
+    return [...sectionBase]
+      .filter((p) => {
+        if (p.latitude == null || p.longitude == null) return false
+        return haversineDistance(userLocation.lat, userLocation.lon, p.latitude, p.longitude) <= 50
+      })
+      .sort((a, b) => {
+        const distA = haversineDistance(userLocation.lat, userLocation.lon, a.latitude, a.longitude)
+        const distB = haversineDistance(userLocation.lat, userLocation.lon, b.latitude, b.longitude)
+        return distA - distB
+      })
+  }, [sectionBase, userLocation])
+
+  const dogFriendly = useMemo(
+    () => sectionBase.filter((p) => (p.pets || []).some((pet) => pet.name.toLowerCase() === 'dog')),
+    [sectionBase]
+  )
+
+  const catFriendly = useMemo(
+    () => sectionBase.filter((p) => (p.pets || []).some((pet) => pet.name.toLowerCase() === 'cat')),
+    [sectionBase]
+  )
+
+  const recentlyViewed = useMemo(() => {
+    if (recentlyViewedIds.length === 0) return []
+    return recentlyViewedIds
+      .map((id) => sectionBase.find((p) => p.id === id))
+      .filter((p): p is Property => p != null)
+  }, [recentlyViewedIds, sectionBase])
+
   return (
     <div>
       {/* Mobile only: heading text (desktop hero is in BrowseLayoutClient) */}
@@ -225,15 +279,27 @@ export default function Home() {
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
                     transition={{ duration: 0.2 }}
-                    className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 lg:gap-6 lg:pt-10"
+                    className="space-y-0 lg:pt-2"
                   >
-                    {Array.from({ length: SKELETON_COUNT }).map((_, i) => (
-                      <div key={i} className="animate-pulse">
-                        <div className="aspect-square w-full bg-gray-200 rounded-[20px]" />
-                        <div className="mt-2 space-y-2">
-                          <div className="h-4 bg-gray-200 rounded w-3/4" />
-                          <div className="h-3 bg-gray-200 rounded w-1/2" />
-                          <div className="h-3 bg-gray-200 rounded w-1/3" />
+                    {Array.from({ length: 3 }).map((_, si) => (
+                      <div key={si} className="mb-10 lg:mb-0 lg:py-10 lg:border-b lg:border-gray-100 animate-pulse">
+                        {/* Section header */}
+                        <div className="flex items-center gap-2 mb-4 lg:mb-6">
+                          <div className="w-5 h-5 bg-gray-200 rounded-full" />
+                          <div className="h-5 bg-gray-200 rounded w-28" />
+                        </div>
+                        {/* Cards row */}
+                        <div className="flex gap-4 overflow-hidden -mx-5 px-5 lg:mx-0 lg:px-0">
+                          {Array.from({ length: 7 }).map((_, ci) => (
+                            <div key={ci} className="w-44 shrink-0 lg:w-[calc((100%-6*1rem)/7)]">
+                              <div className="aspect-square w-full bg-gray-200 rounded-[20px]" />
+                              <div className="mt-2 space-y-2">
+                                <div className="h-4 bg-gray-200 rounded w-3/4" />
+                                <div className="h-3 bg-gray-200 rounded w-1/2" />
+                                <div className="h-3 bg-gray-200 rounded w-1/3" />
+                              </div>
+                            </div>
+                          ))}
                         </div>
                       </div>
                     ))}
@@ -257,7 +323,7 @@ export default function Home() {
                           showPetPolicyChip={true}
                           showHeartIcon={isAuthenticated}
                         />
-                        {page < totalPages && (
+                        {!isFiltering && page < totalPages && (
                           <div className="flex justify-center mt-8">
                             <button
                               onClick={() => fetchProperties(page + 1, false)}
@@ -282,6 +348,19 @@ export default function Home() {
                     transition={{ duration: 0.25 }}
                     className="lg:pt-2"
                   >
+                    {/* Recently Viewed */}
+                    {recentlyViewed.length > 0 && (
+                      <BrowseSection
+                        title="Recently Viewed"
+                        icon={<Clock className="w-5 h-5 text-neutral-gray" />}
+                        properties={recentlyViewed}
+                        totalCount={recentlyViewed.length}
+                        showHeartIcon={isAuthenticated}
+                        showPetPolicyChip={true}
+                        seeAllHref={buildSeeAllUrl('/recently-viewed')}
+                      />
+                    )}
+
                     {/* Recommended slot — authenticated only */}
                     {isAuthenticated && recommendedProperties.length > 0 && (
                       <BrowseSection
@@ -299,6 +378,19 @@ export default function Home() {
                       <EmptyState searchQuery="" hasFilters={false} />
                     ) : (
                       <>
+                        {/* Near You */}
+                        {nearYou.length > 0 && (
+                          <BrowseSection
+                            title="Near You"
+                            icon={<MapPin className="w-5 h-5 text-accent-orange" />}
+                            properties={nearYou}
+                            totalCount={nearYou.length}
+                            showHeartIcon={isAuthenticated}
+                            showPetPolicyChip={true}
+                            seeAllHref={buildSeeAllUrl('/near-you')}
+                          />
+                        )}
+
                         <BrowseSection
                           title="Top Rated"
                           icon={<Star className="w-5 h-5 fill-yellow-400 text-yellow-500" />}
@@ -326,6 +418,32 @@ export default function Home() {
                           showPetPolicyChip={true}
                           seeAllHref={buildSeeAllUrl('/new-listings')}
                         />
+
+                        {/* Dog-friendly */}
+                        {dogFriendly.length > 0 && (
+                          <BrowseSection
+                            title="Dog-Friendly"
+                            icon={<Dog className="w-5 h-5 text-amber-500" />}
+                            properties={dogFriendly}
+                            totalCount={dogFriendly.length}
+                            showHeartIcon={isAuthenticated}
+                            showPetPolicyChip={false}
+                            seeAllHref={buildSeeAllUrl('/dog-friendly')}
+                          />
+                        )}
+
+                        {/* Cat-friendly */}
+                        {catFriendly.length > 0 && (
+                          <BrowseSection
+                            title="Cat-Friendly"
+                            icon={<Cat className="w-5 h-5 text-purple-400" />}
+                            properties={catFriendly}
+                            totalCount={catFriendly.length}
+                            showHeartIcon={isAuthenticated}
+                            showPetPolicyChip={false}
+                            seeAllHref={buildSeeAllUrl('/cat-friendly')}
+                          />
+                        )}
                       </>
                     )}
                   </motion.div>

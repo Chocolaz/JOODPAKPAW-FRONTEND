@@ -51,7 +51,7 @@ export function BrowseLayoutClient({ children }: BrowseLayoutClientProps) {
     window.scrollTo({ top: 0, behavior: 'instant' })
   }, [pathname])
 
-  const SEE_ALL_PATHS = ['/top-rated', '/new-listings', '/recommended', '/best-value']
+  const SEE_ALL_PATHS = ['/top-rated', '/new-listings', '/recommended', '/best-value', '/near-you', '/dog-friendly', '/cat-friendly', '/recently-viewed']
   const isSeeAllPage = SEE_ALL_PATHS.includes(pathname)
 
   return (

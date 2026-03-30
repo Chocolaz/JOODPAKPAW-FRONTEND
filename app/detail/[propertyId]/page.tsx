@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { getPropertyById } from '@/lib/api'
 import { ErrorState } from '@/app/profile/_components/ErrorState'
 import { usePropertyLoader } from '@/app/_hooks/usePropertyLoader'
@@ -17,6 +17,7 @@ import { normalizeRoomCategories } from '@/lib/utils'
 import { BookingDrawer } from '@/app/_components/property-detail/BookingDrawer'
 import { ReportPropertyDrawer } from '@/app/_components/property-detail/ReportPropertyDrawer'
 import { useAuth } from '@/app/_components/AuthContext'
+import { useRecentlyViewed } from '@/app/_hooks/useRecentlyViewed'
 import { Skeleton } from '@/components/ui/skeleton'
 import { motion } from 'framer-motion'
 
@@ -136,6 +137,11 @@ export default function PropertyDetailPage() {
   const searchParams = useSearchParams()
   const { user, isAuthenticated } = useAuth()
   const [reportOpen, setReportOpen] = useState(false)
+  const { track } = useRecentlyViewed()
+
+  useEffect(() => {
+    if (property?.id) track(property.id)
+  }, [property?.id])
 
   const handleShare = async () => {
     if (navigator.share && property) {
