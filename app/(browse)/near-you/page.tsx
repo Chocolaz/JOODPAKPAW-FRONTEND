@@ -51,7 +51,7 @@ export default function NearYouPage() {
     return properties
       .filter((p) => {
         if (p.latitude == null || p.longitude == null) return false
-        if (haversineDistance(userLocation.lat, userLocation.lon, p.latitude, p.longitude) > MAX_DISTANCE_KM) return false
+        if (haversineDistance(userLocation.lat, userLocation.lon, Number(p.latitude), Number(p.longitude)) > MAX_DISTANCE_KM) return false
         if (filters.petTypes.length > 0) {
           const names = (p.pets || []).map((pet) => pet.name.toLowerCase())
           if (!filters.petTypes.some((t) => names.includes(t))) return false
@@ -64,8 +64,8 @@ export default function NearYouPage() {
         return true
       })
       .sort((a, b) => {
-        const distA = haversineDistance(userLocation.lat, userLocation.lon, a.latitude, a.longitude)
-        const distB = haversineDistance(userLocation.lat, userLocation.lon, b.latitude, b.longitude)
+        const distA = haversineDistance(userLocation.lat, userLocation.lon, Number(a.latitude), Number(a.longitude))
+        const distB = haversineDistance(userLocation.lat, userLocation.lon, Number(b.latitude), Number(b.longitude))
         return distA - distB
       })
   }, [properties, userLocation, filters])
