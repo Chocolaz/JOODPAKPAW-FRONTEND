@@ -50,7 +50,7 @@ export default function ForgotPasswordForm({
   }
 
   return (
-    <div className="px-5 w-full max-w-sm text-center mx-auto mt-[30px] ">
+    <div className="px-5 w-full max-w-sm lg:max-w-md text-center mx-auto mt-[30px]">
       <form
         onSubmit={handleForgotPassword}
         className="space-y-[30px] mt-[70px]"

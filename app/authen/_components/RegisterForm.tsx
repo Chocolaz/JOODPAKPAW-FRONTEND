@@ -112,7 +112,7 @@ export default function RegisterForm() {
   }
 
   return (
-    <div className="px-5 w-full max-w-sm text-center mx-auto">
+    <div className="px-5 w-full max-w-sm lg:max-w-md text-center mx-auto">
       <form onSubmit={handleSignUp} className="space-y-[30px] mt-10">
         <div>
           <Input

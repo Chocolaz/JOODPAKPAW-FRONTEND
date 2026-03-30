@@ -8,51 +8,42 @@ import { Button } from '@/components/ui/button'
 
 type PageState = 'form' | 'success' | 'expired'
 
+const titles: Record<PageState, { heading: string; sub: string }> = {
+  form: {
+    heading: 'Create a new password',
+    sub: "Choose a strong password you'll remember.",
+  },
+  success: {
+    heading: 'Password Reset Successful',
+    sub: 'You can now log in with your new password.',
+  },
+  expired: {
+    heading: 'Link Expired',
+    sub: 'This reset link has already been used. Please request a new one.',
+  },
+}
+
 export default function ResetPasswordPage() {
   const [pageState, setPageState] = useState<PageState>('form')
+  const { heading, sub } = titles[pageState]
 
   return (
-    <div className="bg-white text-foreground min-h-screen flex flex-col items-center">
+    <div className="bg-white text-foreground w-full flex flex-col items-center lg:min-h-0">
       <AuthHeader>
-        <div className="mt-20 text-center">
-          {pageState === 'success' && (
-            <>
-              <h1 className="text-4xl font-bold text-accent-orange mb-[25px] ">
-                Password Reset Successful
-              </h1>
-              <div className="text-[20px]">
-                You can now log in with your new password.
-              </div>
-            </>
-          )}
-          {pageState === 'expired' && (
-            <>
-              <h1 className="text-4xl font-bold text-accent-orange mb-[25px] ">
-                Link Expired
-              </h1>
-              <div className="text-[20px]">
-                This reset link has already been used.
-                <br />
-                Please request a new one.
-              </div>
-            </>
-          )}
-          {pageState === 'form' && (
-            <>
-              <h1 className="text-4xl font-bold text-accent-orange mb-[25px] ">
-                Create a new password
-              </h1>
-              <div className="text-[20px]">
-                Choose a strong password you&apos;ll remember
-                <br />
-                You&apos;ll use it to sign in next time
-              </div>
-            </>
-          )}
+        <div className="mt-20 text-center mx-5">
+          <h1 className="text-4xl font-bold text-accent-orange mb-[25px]">{heading}</h1>
+          <div className="text-[20px]">{sub}</div>
         </div>
       </AuthHeader>
+
+      {/* Desktop title */}
+      <div className="hidden lg:block text-center mb-2 mt-2">
+        <h1 className="text-3xl xl:text-4xl font-bold text-accent-orange mb-2">{heading}</h1>
+        <p className="text-neutral-gray">{sub}</p>
+      </div>
+
       {pageState === 'success' && (
-        <div className="px-5 w-full max-w-sm text-center mx-auto mt-[30px]">
+        <div className="px-5 w-full max-w-sm lg:max-w-md text-center mx-auto mt-[30px]">
           <Link href="/authen/login" passHref>
             <Button className="w-full py-4 rounded-lg bg-accent-orange text-white hover:bg-accent-orange/80 h-auto text-[20px] font-semibold">
               Go to Login
@@ -61,7 +52,7 @@ export default function ResetPasswordPage() {
         </div>
       )}
       {pageState === 'expired' && (
-        <div className="px-5 w-full max-w-sm text-center mx-auto mt-[30px] space-y-4">
+        <div className="px-5 w-full max-w-sm lg:max-w-md text-center mx-auto mt-[30px] space-y-4">
           <Link href="/authen/forgot-password" passHref>
             <Button className="w-full py-4 rounded-lg bg-accent-orange text-white hover:bg-accent-orange/80 h-auto text-[20px] font-semibold">
               Request New Link

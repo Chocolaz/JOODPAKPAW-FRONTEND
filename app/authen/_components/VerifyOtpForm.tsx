@@ -113,7 +113,7 @@ export default function VerifyOtpForm() {
   )
 
   return (
-    <div className="px-5 w-full max-w-sm text-center mx-auto grow relative">
+    <div className="px-5 w-full max-w-sm lg:max-w-md text-center mx-auto grow relative">
       <div className="pt-10 pb-28">
         <form id="verify-otp-form" onSubmit={handleVerifyOtp}>
           {renderFormContent()}

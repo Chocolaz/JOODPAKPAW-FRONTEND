@@ -28,7 +28,8 @@ echo "NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=${NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}" > .env
 docker compose -f docker-compose.yml build --no-cache
 
 # Stop old container and start new one
-docker compose -f docker-compose.yml down
+docker compose -f docker-compose.yml down --remove-orphans
+docker rm -f "$CONTAINER_NAME" 2>/dev/null || true
 docker compose -f docker-compose.yml up -d
 
 # Health check
