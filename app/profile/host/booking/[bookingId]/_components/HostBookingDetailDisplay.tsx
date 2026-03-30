@@ -577,7 +577,7 @@ export default function HostBookingDetailDisplay({
               </span>
             </div>
             {bookingDetails.comment && (
-              <p className="text-sm text-gray-600 bg-off-white rounded-xl px-3 py-3 leading-relaxed">
+              <p className="text-sm text-gray-600 bg-off-white rounded-xl px-3 py-3 leading-relaxed" style={{ overflowWrap: 'anywhere', wordBreak: 'break-word' }}>
                 &quot;{bookingDetails.comment}&quot;
               </p>
             )}

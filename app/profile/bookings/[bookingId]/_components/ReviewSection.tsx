@@ -85,7 +85,7 @@ export default function ReviewSection({
             </span>
           </div>
           {displayComment && (
-            <p className="text-sm text-neutral-gray text-center max-w-xs">
+            <p className="text-sm text-neutral-gray text-center max-w-xs" style={{ overflowWrap: 'anywhere', wordBreak: 'break-word' }}>
               &quot;{displayComment}&quot;
             </p>
           )}

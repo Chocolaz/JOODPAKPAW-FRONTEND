@@ -12,6 +12,7 @@ import { HostProfileSkeleton } from './_components/HostProfileSkeleton'
 import { HostProfileHero } from './_components/HostProfileHero'
 import { HostPropertiesSection } from './_components/HostPropertiesSection'
 import { HostReviewsSection } from './_components/HostReviewsSection'
+import { ReportReviewDrawer } from '@/app/_components/property-detail/ReportReviewDrawer'
 
 const fadeUp = {
   hidden: { opacity: 0, y: 16 },
@@ -32,6 +33,7 @@ export default function HostProfilePage() {
   const [profileLoading, setProfileLoading] = useState(true)
   const [profileError, setProfileError] = useState<string | null>(null)
 
+  const [reportReviewId, setReportReviewId] = useState<number | null>(null)
   const [reviews, setReviews] = useState<HostReview[]>([])
   const [reviewPage, setReviewPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
@@ -140,8 +142,16 @@ export default function HostProfilePage() {
           loading={reviewsLoading}
           onPageChange={handlePageChange}
           onSeeAll={handleSeeAll}
+          onReport={(id) => setReportReviewId(id)}
         />
       </motion.div>
+      {reportReviewId !== null && (
+        <ReportReviewDrawer
+          bookingId={reportReviewId}
+          isOpen={reportReviewId !== null}
+          onOpenChange={(open) => { if (!open) setReportReviewId(null) }}
+        />
+      )}
     </div>
   )
 }

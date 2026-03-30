@@ -19,6 +19,7 @@ interface HostReviewsSectionProps {
   loading: boolean
   onPageChange: (page: number) => void
   onSeeAll?: () => void
+  onReport?: (id: number) => void
 }
 
 export function HostReviewsSection({
@@ -31,6 +32,7 @@ export function HostReviewsSection({
   loading,
   onPageChange,
   onSeeAll,
+  onReport,
 }: HostReviewsSectionProps) {
   return (
     <section className="px-5 lg:px-12 mt-2 border-t border-gray-100 pt-7 lg:pt-9 pb-8">
@@ -122,7 +124,7 @@ export function HostReviewsSection({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="grid grid-cols-1 lg:grid-cols-3 gap-3"
+            className="grid grid-cols-1 lg:grid-cols-2 gap-3"
           >
             {Array.from({ length: 5 }).map((_, i) => (
               <Skeleton key={i} className="h-28 w-full rounded-2xl" />
@@ -152,10 +154,10 @@ export function HostReviewsSection({
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
             transition={{ duration: 0.25 }}
-            className="grid grid-cols-1 lg:grid-cols-3 gap-3"
+            className="grid grid-cols-1 lg:grid-cols-2 gap-3"
           >
             {reviews.map((review) => (
-              <HostReviewCard key={review.id} review={review} />
+              <HostReviewCard key={review.id} review={review} onReport={onReport} />
             ))}
           </motion.div>
         )}
