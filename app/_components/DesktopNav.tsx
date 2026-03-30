@@ -31,10 +31,10 @@ export function DesktopNav() {
 
   return (
     <nav className="hidden lg:block fixed top-0 z-50 w-full bg-white border-b border-gray-100 shadow-sm">
-      <div className="max-w-[1440px] mx-auto px-6 flex items-center justify-between h-16 lg:h-20 xl:h-24">
+      <div className="max-w-[1440px] mx-auto px-6 flex items-center justify-between h-14 lg:h-16 xl:h-[72px]">
         {/* Logo */}
         <Link href="/" className="flex items-center shrink-0">
-          <div className="relative lg:w-[260px] xl:w-[320px] h-16 lg:h-20 xl:h-24 overflow-hidden">
+          <div className="relative lg:w-[180px] xl:w-[220px] h-14 lg:h-16 xl:h-[72px] overflow-hidden">
             <Image
               src={assetPath('/icons/JOODPAK.svg')}
               alt="JoodPakPaw logo"

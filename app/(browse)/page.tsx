@@ -200,11 +200,11 @@ export default function Home() {
     return [...sectionBase]
       .filter((p) => {
         if (p.latitude == null || p.longitude == null) return false
-        return haversineDistance(userLocation.lat, userLocation.lon, p.latitude, p.longitude) <= 50
+        return haversineDistance(userLocation.lat, userLocation.lon, Number(p.latitude), Number(p.longitude)) <= 50
       })
       .sort((a, b) => {
-        const distA = haversineDistance(userLocation.lat, userLocation.lon, a.latitude, a.longitude)
-        const distB = haversineDistance(userLocation.lat, userLocation.lon, b.latitude, b.longitude)
+        const distA = haversineDistance(userLocation.lat, userLocation.lon, Number(a.latitude), Number(a.longitude))
+        const distB = haversineDistance(userLocation.lat, userLocation.lon, Number(b.latitude), Number(b.longitude))
         return distA - distB
       })
   }, [sectionBase, userLocation])

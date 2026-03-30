@@ -14,7 +14,7 @@ export function BrowseHero({ searchBar, layout = 'column' }: BrowseHeroProps) {
       <h4
         className={
           layout === 'row'
-            ? 'text-deep-teal text-4xl xl:text-5xl leading-tight font-bold'
+            ? 'text-deep-teal text-2xl xl:text-3xl leading-tight font-bold'
             : 'text-deep-teal text-2xl font-bold leading-tight'
         }
       >
@@ -23,7 +23,7 @@ export function BrowseHero({ searchBar, layout = 'column' }: BrowseHeroProps) {
       <p
         className={
           layout === 'row'
-            ? 'text-neutral-gray text-lg xl:text-xl'
+            ? 'text-neutral-gray text-sm xl:text-base'
             : 'text-neutral-gray text-sm'
         }
       >
@@ -34,7 +34,7 @@ export function BrowseHero({ searchBar, layout = 'column' }: BrowseHeroProps) {
 
   const graphic = (
     <div
-      className={layout === 'row' ? 'relative flex-1 shrink-0' : 'relative w-full'}
+      className={layout === 'row' ? 'relative flex-[0.6] shrink-0 ml-auto' : 'relative w-full'}
       style={{ aspectRatio: '390/144' }}
     >
       <Image
@@ -48,8 +48,8 @@ export function BrowseHero({ searchBar, layout = 'column' }: BrowseHeroProps) {
 
   if (layout === 'row') {
     return (
-      <div className="flex items-center gap-12 xl:gap-20 py-10">
-        <div className="flex-1 max-w-[480px] space-y-5">
+      <div className="flex items-center gap-8 xl:gap-12 py-3">
+        <div className="flex-1 max-w-[380px] space-y-3">
           {text}
           {searchBar}
         </div>
