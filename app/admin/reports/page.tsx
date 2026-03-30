@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useState, useCallback } from 'react'
+import React, { useEffect, useState, useCallback, useRef } from 'react'
 import { toast } from 'sonner'
 import {
   getAdminReports,
@@ -28,6 +28,9 @@ import {
 } from 'lucide-react'
 import { formatDate, formatDateRelative } from '../_utils'
 import { StatusBadge } from '../_components/StatusBadge'
+import { RefreshBar } from '../_components/RefreshBar'
+
+const POLL_INTERVAL = 30_000
 import { UserAvatar } from '../_components/UserAvatar'
 import { ImageLightbox } from '../_components/ImageLightbox'
 import { InfoRow } from '../_components/InfoRow'
@@ -562,7 +565,10 @@ export default function AdminReportsPage() {
   const [totalRows, setTotalRows] = useState(0)
   const [totalPages, setTotalPages] = useState(1)
   const [loading, setLoading] = useState(true)
+  const [refreshing, setRefreshing] = useState(false)
+  const [lastUpdated, setLastUpdated] = useState<Date | null>(null)
   const [selectedId, setSelectedId] = useState<number | null>(null)
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
   const LIMIT = 20
 
@@ -585,8 +591,8 @@ export default function AdminReportsPage() {
     )
   }
 
-  const fetchData = useCallback(async () => {
-    setLoading(true)
+  const fetchData = useCallback(async (silent = false) => {
+    if (!silent) setRefreshing(true)
     try {
       const res = await getAdminReports({
         type: type === 'all' ? undefined : type,
@@ -617,10 +623,12 @@ export default function AdminReportsPage() {
       setData(sorted)
       setTotalRows(res.totalRows)
       setTotalPages(res.totalPages)
+      setLastUpdated(new Date())
     } catch {
-      toast.error('Failed to load reports.')
+      if (!silent) toast.error('Failed to load reports.')
     } finally {
       setLoading(false)
+      setRefreshing(false)
     }
   }, [type, status, page, orderBy, sort])
 
@@ -631,12 +639,17 @@ export default function AdminReportsPage() {
 
   useEffect(() => {
     fetchData()
+    intervalRef.current = setInterval(() => fetchData(true), POLL_INTERVAL)
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current)
+    }
   }, [fetchData])
 
   const pendingCount = data.filter((d) => d.status === 'pending').length
 
   return (
     <div>
+      <RefreshBar lastUpdated={lastUpdated} refreshing={refreshing} onRefresh={fetchData} />
       {/* Stats */}
       <div className="grid grid-cols-3 gap-4 mb-7">
         {[

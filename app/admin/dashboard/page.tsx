@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback, useRef } from 'react'
 import { toast } from 'sonner'
 import Link from 'next/link'
 import {
@@ -12,6 +12,8 @@ import {
   Minus,
   ArrowRight,
 } from 'lucide-react'
+
+const POLL_INTERVAL = 30_000 // 30s
 import {
   getAdminDashboard,
   getAdminReports,
@@ -22,6 +24,7 @@ import type { AdminReportSummary } from '@/types/adminReport'
 import type { AdminActionLog } from '@/types/adminActionLog'
 import { formatDateRelative } from '../_utils'
 import { UserAvatar } from '../_components/UserAvatar'
+import { RefreshBar } from '../_components/RefreshBar'
 
 const ACTION_LABEL: Record<string, string> = {
   deactivate_property:       'Deactivate Property',
@@ -88,21 +91,37 @@ export default function AdminDashboardPage() {
   const [reports, setReports] = useState<AdminReportSummary[]>([])
   const [actions, setActions] = useState<AdminActionLog[]>([])
   const [loading, setLoading] = useState(true)
+  const [refreshing, setRefreshing] = useState(false)
+  const [lastUpdated, setLastUpdated] = useState<Date | null>(null)
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
+
+  const fetchData = useCallback(async (silent = false) => {
+    if (!silent) setRefreshing(true)
+    try {
+      const [dash, rpts, acts] = await Promise.all([
+        getAdminDashboard(),
+        getAdminReports({ page: 1, limit: 5 }),
+        getAdminActionLogs({ page: 1, limit: 5 }),
+      ])
+      setStats(dash)
+      setReports(rpts.data)
+      setActions(acts.data)
+      setLastUpdated(new Date())
+    } catch {
+      if (!silent) toast.error('Failed to load dashboard.')
+    } finally {
+      setLoading(false)
+      setRefreshing(false)
+    }
+  }, [])
 
   useEffect(() => {
-    Promise.all([
-      getAdminDashboard(),
-      getAdminReports({ page: 1, limit: 5 }),
-      getAdminActionLogs({ page: 1, limit: 5 }),
-    ])
-      .then(([dash, rpts, acts]) => {
-        setStats(dash)
-        setReports(rpts.data)
-        setActions(acts.data)
-      })
-      .catch(() => toast.error('Failed to load dashboard.'))
-      .finally(() => setLoading(false))
-  }, [])
+    fetchData()
+    intervalRef.current = setInterval(() => fetchData(true), POLL_INTERVAL)
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current)
+    }
+  }, [fetchData])
 
   if (loading) {
     return (
@@ -122,6 +141,7 @@ export default function AdminDashboardPage() {
 
   return (
     <div className="flex flex-col gap-6">
+      <RefreshBar lastUpdated={lastUpdated} refreshing={refreshing} onRefresh={fetchData} />
       {/* Stat Cards */}
       {stats && (
         <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">

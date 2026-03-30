@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, useRef } from 'react'
 import Image from 'next/image'
 import { toast } from 'sonner'
 import {
@@ -26,6 +26,9 @@ import {
   ShieldX,
 } from 'lucide-react'
 import { formatDate, formatDateRelative } from '../_utils'
+import { RefreshBar } from '../_components/RefreshBar'
+
+const POLL_INTERVAL = 30_000
 import { StatusBadge } from '../_components/StatusBadge'
 import { UserAvatar } from '../_components/UserAvatar'
 import { ImageLightbox } from '../_components/ImageLightbox'
@@ -392,7 +395,10 @@ export default function AdminVerificationsPage() {
   const [totalRows, setTotalRows] = useState(0)
   const [totalPages, setTotalPages] = useState(1)
   const [loading, setLoading] = useState(true)
+  const [refreshing, setRefreshing] = useState(false)
+  const [lastUpdated, setLastUpdated] = useState<Date | null>(null)
   const [selectedId, setSelectedId] = useState<number | null>(null)
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
   const LIMIT = 20
 
@@ -415,8 +421,8 @@ export default function AdminVerificationsPage() {
     )
   }
 
-  const fetchData = useCallback(async () => {
-    setLoading(true)
+  const fetchData = useCallback(async (silent = false) => {
+    if (!silent) setRefreshing(true)
     try {
       const res = await getAdminVerifications({
         status: status === 'all' ? undefined : status,
@@ -445,24 +451,33 @@ export default function AdminVerificationsPage() {
         return 0
       })
       setData(sorted)
+      setLastUpdated(new Date())
     } catch {
-      toast.error('Failed to load verifications.')
+      if (!silent) toast.error('Failed to load verifications.')
     } finally {
       setLoading(false)
+      setRefreshing(false)
     }
   }, [status, page, orderBy, sort])
 
   useEffect(() => {
     setPage(1)
   }, [status])
+
   useEffect(() => {
     fetchData()
+    intervalRef.current = setInterval(() => fetchData(true), POLL_INTERVAL)
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current)
+    }
   }, [fetchData])
 
   const pendingCount = data.filter((d) => d.status === 'pending').length
 
   return (
     <div>
+      <RefreshBar lastUpdated={lastUpdated} refreshing={refreshing} onRefresh={fetchData} />
+
       {/* Stats row */}
       <div className="grid grid-cols-3 gap-4 mb-7">
         {[
