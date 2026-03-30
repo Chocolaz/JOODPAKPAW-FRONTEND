@@ -265,14 +265,15 @@ export default function HostPage() {
                 >
                   {/* Add Property card */}
                   <button
-                    onClick={() => router.push('/profile/host/add-property')}
-                    className="block w-full cursor-pointer text-left group"
+                    onClick={() => !profile?.isBannedAllProperties && router.push('/profile/host/add-property')}
+                    disabled={!!profile?.isBannedAllProperties}
+                    className={cn('block w-full text-left group', profile?.isBannedAllProperties ? 'cursor-not-allowed opacity-50' : 'cursor-pointer')}
                   >
-                    <div className="aspect-square w-full rounded-[20px] border-2 border-dashed border-gray-300 group-hover:border-deep-teal flex flex-col items-center justify-center transition-all duration-200 bg-gray-50 group-hover:bg-teal-50/50">
-                      <div className="w-12 h-12 rounded-full bg-deep-teal/10 group-hover:bg-deep-teal/20 flex items-center justify-center transition-colors mb-2">
-                        <Plus className="w-6 h-6 text-deep-teal" />
+                    <div className={cn('aspect-square w-full rounded-[20px] border-2 border-dashed flex flex-col items-center justify-center transition-all duration-200', profile?.isBannedAllProperties ? 'border-gray-200 bg-gray-50' : 'border-gray-300 group-hover:border-deep-teal bg-gray-50 group-hover:bg-teal-50/50')}>
+                      <div className={cn('w-12 h-12 rounded-full flex items-center justify-center transition-colors mb-2', profile?.isBannedAllProperties ? 'bg-gray-200' : 'bg-deep-teal/10 group-hover:bg-deep-teal/20')}>
+                        <Plus className={cn('w-6 h-6', profile?.isBannedAllProperties ? 'text-gray-400' : 'text-deep-teal')} />
                       </div>
-                      <span className="text-sm font-medium text-deep-teal">Add Property</span>
+                      <span className={cn('text-sm font-medium', profile?.isBannedAllProperties ? 'text-gray-400' : 'text-deep-teal')}>Add Property</span>
                     </div>
                   </button>
 
@@ -322,7 +323,8 @@ export default function HostPage() {
                     </p>
                     <button
                       onClick={() => router.push('/profile/host/add-property')}
-                      className="mt-6 inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-accent-orange text-white hover:bg-accent-orange/80 text-base font-semibold transition-colors"
+                      disabled={!!profile?.isBannedAllProperties}
+                      className="mt-6 inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-accent-orange text-white hover:bg-accent-orange/80 text-base font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-accent-orange"
                     >
                       <Plus className="w-5 h-5" />
                       Add Your First Property
