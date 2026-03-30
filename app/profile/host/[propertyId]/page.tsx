@@ -441,6 +441,15 @@ export default function HostPropertyDetailPage() {
                 Edit Property
               </button>
 
+              {/* Delete button */}
+              <button
+                onClick={() => setShowDeleteModal(true)}
+                className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-semibold border border-red-200 text-red-500 hover:bg-red-50 transition"
+              >
+                <XCircle className="w-4 h-4" />
+                Delete Property
+              </button>
+
               {/* Suspended info + appeal (desktop, banned only) */}
               {property.isBannedByAdmin && (
                 profile?.isBannedAllProperties ? (
