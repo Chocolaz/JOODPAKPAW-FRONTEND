@@ -3,7 +3,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import Lightbox from 'yet-another-react-lightbox'
 import 'yet-another-react-lightbox/styles.css'
-import { useParams, useRouter } from 'next/navigation'
+import { useParams, useRouter, useSearchParams } from 'next/navigation'
 import Image from 'next/image'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Send, Check, CheckCheck, Trash2, ImagePlus, ArrowLeft, X } from 'lucide-react'
@@ -218,6 +218,8 @@ export default function ChatRoomPage() {
   const { roomMessages, loadRoom, sendMessage, markAsRead, deleteRoom, rooms } = useChat()
   const { user, requireAuth, isAuthenticated, loading: authLoading } = useAuth()
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const from = searchParams.get('from')
   const [input, setInput] = useState('')
   const [isSending, setIsSending] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
@@ -302,7 +304,7 @@ export default function ChatRoomPage() {
       <div className="shrink-0 flex items-center gap-3 px-3 lg:px-5 py-2.5 lg:py-3 bg-white border-b border-gray-100 shadow-sm">
         {/* Back — always visible */}
         <button
-          onClick={() => router.push('/chat')}
+          onClick={() => router.push(from ? `/chat?from=${encodeURIComponent(from)}` : '/chat')}
           className="w-9 h-9 rounded-full flex items-center justify-center text-gray-500 hover:bg-gray-100 transition-colors shrink-0"
         >
           <ArrowLeft className="w-5 h-5" />

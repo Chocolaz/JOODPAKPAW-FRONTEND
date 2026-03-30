@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import Image from 'next/image'
 import { motion } from 'framer-motion'
 import { useAuth } from '@/app/_components/AuthContext'
@@ -12,6 +12,8 @@ import { ChatSidebar } from './_components/ChatSidebar'
 export default function ChatPage() {
   const { requireAuth } = useAuth()
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const from = searchParams.get('from')
 
   useEffect(() => {
     requireAuth()
@@ -27,7 +29,7 @@ export default function ChatPage() {
         transition={{ duration: 0.2, ease: 'easeOut' }}
         style={{ willChange: 'opacity' }}
       >
-        <AppHeader title="Messages" />
+        <AppHeader title="Messages" backPath={from ?? '/'} />
         <div className="pb-24">
           <ChatSidebar />
         </div>

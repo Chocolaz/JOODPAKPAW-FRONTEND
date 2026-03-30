@@ -123,7 +123,7 @@ export function ChatSidebar({ activeRoomId }: ChatSidebarProps) {
   return (
     <div className="flex flex-col h-full">
       {/* Sidebar header */}
-      <div className="px-4 pt-4 pb-3 border-b border-gray-100 shrink-0">
+      <div className="px-4 pt-[calc(3.5rem+1rem)] lg:pt-4 pb-3 border-b border-gray-100 shrink-0">
         <h2 className="text-lg lg:text-xl font-semibold text-deep-teal mb-3">Messages</h2>
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-gray" />
