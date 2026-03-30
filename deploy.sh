@@ -29,8 +29,9 @@ docker compose -f docker-compose.yml build --no-cache
 
 # Stop old container and start new one
 docker compose -f docker-compose.yml down --remove-orphans
+docker stop "$CONTAINER_NAME" 2>/dev/null || true
 docker rm -f "$CONTAINER_NAME" 2>/dev/null || true
-docker compose -f docker-compose.yml up -d
+docker compose -f docker-compose.yml up -d --force-recreate
 
 # Health check
 echo "🏥 Running health check..."
