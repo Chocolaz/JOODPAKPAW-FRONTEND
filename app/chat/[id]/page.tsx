@@ -279,6 +279,7 @@ export default function ChatRoomPage() {
   }
 
   const MAX_FILE_SIZE = 5 * 1024 * 1024 // 5 MB
+  const MAX_MESSAGE_LENGTH = 1000
 
   function handleImagePick(e: React.ChangeEvent<HTMLInputElement>) {
     const files = Array.from(e.target.files ?? [])
@@ -300,7 +301,8 @@ export default function ChatRoomPage() {
     router.push('/chat')
   }
 
-  const canSend = (input.trim().length > 0 || pendingImages.length > 0) && !isSending
+  const isOverLimit = input.length > MAX_MESSAGE_LENGTH
+  const canSend = (input.trim().length > 0 || pendingImages.length > 0) && !isSending && !isOverLimit
 
   return (
     <motion.div
@@ -483,13 +485,28 @@ export default function ChatRoomPage() {
         </button>
 
         {/* Text input */}
-        <input
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && handleSend()}
-          placeholder="Type a message…"
-          className="flex-1 rounded-full bg-gray-100 border border-transparent px-4 py-2.5 text-sm outline-none focus:bg-white focus:border-accent-orange/40 transition-all"
-        />
+        <div className="flex-1 relative">
+          <input
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && handleSend()}
+            placeholder="Type a message…"
+            className={`w-full rounded-full bg-gray-100 border px-4 py-2.5 text-sm outline-none transition-all ${
+              isOverLimit
+                ? 'border-red-400 focus:border-red-400 bg-red-50'
+                : 'border-transparent focus:bg-white focus:border-accent-orange/40'
+            }`}
+          />
+          {input.length >= MAX_MESSAGE_LENGTH * 0.8 && (
+            <span
+              className={`absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-medium pointer-events-none ${
+                isOverLimit ? 'text-red-500' : 'text-neutral-gray/50'
+              }`}
+            >
+              {input.length}/{MAX_MESSAGE_LENGTH}
+            </span>
+          )}
+        </div>
 
         {/* Send */}
         <motion.button
