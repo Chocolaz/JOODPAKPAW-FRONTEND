@@ -286,14 +286,27 @@ export default function ChatRoomPage() {
   function handleImagePick(e: React.ChangeEvent<HTMLInputElement>) {
     const files = Array.from(e.target.files ?? [])
     if (files.length === 0) return
-    const valid = files.filter((f) => f.size <= MAX_FILE_SIZE)
-    const rejected = files.length - valid.length
-    if (rejected > 0) {
-      setFileSizeError(`${rejected} file${rejected > 1 ? 's' : ''} exceeded 5 MB and were removed`)
+
+    const tooBig = files.filter((f) => f.size > MAX_FILE_SIZE)
+    const sizeOk = files.filter((f) => f.size <= MAX_FILE_SIZE)
+
+    const slots = 5 - pendingImages.length
+    const accepted = sizeOk.slice(0, slots)
+    const tooMany = sizeOk.length - accepted.length
+
+    const msgs: string[] = []
+    if (tooBig.length > 0)
+      msgs.push(`${tooBig.length} file${tooBig.length > 1 ? 's' : ''} exceeded 5 MB`)
+    if (tooMany > 0)
+      msgs.push(`${tooMany} file${tooMany > 1 ? 's' : ''} exceeded the 5-image limit`)
+
+    if (msgs.length > 0) {
+      setFileSizeError(msgs.join(' · '))
       setTimeout(() => setFileSizeError(''), 3500)
     }
-    if (valid.length > 0) {
-      setPendingImages((prev) => [...prev, ...valid].slice(0, 5))
+
+    if (accepted.length > 0) {
+      setPendingImages((prev) => [...prev, ...accepted])
     }
     e.target.value = ''
   }
