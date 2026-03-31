@@ -227,6 +227,7 @@ export default function ChatRoomPage() {
   const [pendingImages, setPendingImages] = useState<File[]>([])
   const [fileSizeError, setFileSizeError] = useState('')
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const textareaRef = useRef<HTMLTextAreaElement>(null)
   const scrollContainerRef = useRef<HTMLDivElement>(null)
   const initialScrollDone = useRef(false)
   const prevMessagesLengthRef = useRef(0)
@@ -266,6 +267,7 @@ export default function ChatRoomPage() {
     const content = input.trim()
     if ((!content && pendingImages.length === 0) || isSending) return
     setInput('')
+    if (textareaRef.current) textareaRef.current.style.height = '40px'
     const images = pendingImages
     setPendingImages([])
     setIsSending(true)
@@ -301,8 +303,7 @@ export default function ChatRoomPage() {
     router.push('/chat')
   }
 
-  const isOverLimit = input.length > MAX_MESSAGE_LENGTH
-  const canSend = (input.trim().length > 0 || pendingImages.length > 0) && !isSending && !isOverLimit
+  const canSend = (input.trim().length > 0 || pendingImages.length > 0) && !isSending
 
   return (
     <motion.div
@@ -465,7 +466,7 @@ export default function ChatRoomPage() {
       </AnimatePresence>
 
       {/* ── Input bar ── */}
-      <div className="shrink-0 flex items-center gap-2 px-3 lg:px-5 py-2.5 lg:py-3 bg-white border-t border-gray-100">
+      <div className="shrink-0 flex items-end gap-2 px-3 lg:px-5 py-2.5 lg:py-3 bg-white border-t border-gray-100">
         <input
           ref={fileInputRef}
           type="file"
@@ -486,23 +487,30 @@ export default function ChatRoomPage() {
 
         {/* Text input */}
         <div className="flex-1 relative">
-          <input
+          <textarea
+            ref={textareaRef}
+            maxLength={MAX_MESSAGE_LENGTH}
             value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && handleSend()}
+            onChange={(e) => {
+              setInput(e.target.value)
+              const el = e.target
+              el.style.height = '40px'
+              el.style.height = `${Math.min(el.scrollHeight, 104)}px`
+            }}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault()
+                handleSend()
+              }
+            }}
             placeholder="Type a message…"
-            className={`w-full rounded-full bg-gray-100 border px-4 py-2.5 text-sm outline-none transition-all ${
-              isOverLimit
-                ? 'border-red-400 focus:border-red-400 bg-red-50'
-                : 'border-transparent focus:bg-white focus:border-accent-orange/40'
+            style={{ height: '40px' }}
+            className={`w-full rounded-2xl bg-gray-100 border px-4 py-2.5 text-sm outline-none resize-none overflow-y-auto scrollbar-hide transition-colors leading-normal border-transparent focus:bg-white focus:border-accent-orange/40 ${
+              input.length >= MAX_MESSAGE_LENGTH * 0.8 ? 'pb-5' : ''
             }`}
           />
           {input.length >= MAX_MESSAGE_LENGTH * 0.8 && (
-            <span
-              className={`absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-medium pointer-events-none ${
-                isOverLimit ? 'text-red-500' : 'text-neutral-gray/50'
-              }`}
-            >
+            <span className="absolute bottom-1.5 right-3 text-[10px] font-medium pointer-events-none text-neutral-gray/50">
               {input.length}/{MAX_MESSAGE_LENGTH}
             </span>
           )}
