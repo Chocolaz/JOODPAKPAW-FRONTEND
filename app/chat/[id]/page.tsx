@@ -156,7 +156,7 @@ function MessageBubble({
         {/* Text bubble */}
         {message.content && (
           <div
-            className={`px-3.5 py-2 lg:px-4 lg:py-2.5 text-sm leading-relaxed shadow-sm break-words max-w-full ${
+            className={`px-3.5 py-2 lg:px-4 lg:py-2.5 text-sm leading-relaxed shadow-sm break-words max-w-full whitespace-pre-wrap ${
               isOwn
                 ? 'bg-accent-orange text-white rounded-2xl rounded-br-md'
                 : 'bg-white border border-gray-100 text-gray-800 rounded-2xl rounded-bl-md'
