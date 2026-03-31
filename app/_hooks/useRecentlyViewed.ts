@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useAuth } from '@/app/_context/AuthContext'
+import { useAuth } from '@/app/_components/AuthContext'
 
 const KEY = (userId: number | string) => `joodpakpaw_recently_viewed_${userId}`
 const GUEST_KEY = 'joodpakpaw_recently_viewed'
