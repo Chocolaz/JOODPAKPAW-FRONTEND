@@ -1,6 +1,6 @@
 'use client'
 
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import Image from 'next/image'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Search, ImageIcon } from 'lucide-react'
@@ -107,6 +107,8 @@ export function ChatSidebar({ activeRoomId }: ChatSidebarProps) {
   const { rooms, isLoading } = useChat()
   const { user } = useAuth()
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const from = searchParams.get('from')
   const [query, setQuery] = useState('')
 
   const sorted = [...rooms].sort(
@@ -160,7 +162,7 @@ export function ChatSidebar({ activeRoomId }: ChatSidebarProps) {
                   key={room.id}
                   room={room}
                   isActive={room.id === activeRoomId}
-                  onClick={() => router.push(`/chat/${room.id}`)}
+                  onClick={() => router.push(from ? `/chat/${room.id}?from=${encodeURIComponent(from)}` : `/chat/${room.id}`)}
                   currentUserId={user?.id}
                 />
               ))}
