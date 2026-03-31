@@ -304,7 +304,7 @@ export default function ChatRoomPage() {
       <div className="shrink-0 flex items-center gap-3 px-3 lg:px-5 py-2.5 lg:py-3 bg-white border-b border-gray-100 shadow-sm">
         {/* Back — always visible */}
         <button
-          onClick={() => router.push(from ? `/chat?from=${encodeURIComponent(from)}` : '/chat')}
+          onClick={() => router.push(from && !from.startsWith('/chat') ? from : '/chat')}
           className="w-9 h-9 rounded-full flex items-center justify-center text-gray-500 hover:bg-gray-100 transition-colors shrink-0"
         >
           <ArrowLeft className="w-5 h-5" />
@@ -333,7 +333,7 @@ export default function ChatRoomPage() {
         <div className="flex-1 min-w-0">
           <p
             className="font-semibold text-deep-teal text-base lg:text-lg truncate cursor-pointer hover:underline"
-            onClick={() => room && router.push(`/hosts/${room.otherUser.id}?from=chat`)}
+            onClick={() => room && router.push(`/hosts/${room.otherUser.id}?from=${encodeURIComponent(`/chat/${roomId}`)}`)}
           >
             {otherUserName}
           </p>

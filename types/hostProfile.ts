@@ -11,6 +11,7 @@ export interface HostProfile {
   totalProperties: number
   properties: Property[]
   isVerifiedHost?: boolean
+  chatRoomId?: number | null
 }
 
 export interface HostProfileResponse {

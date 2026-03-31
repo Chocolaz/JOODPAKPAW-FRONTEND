@@ -14,11 +14,12 @@ function formatMemberSince(dateStr: string) {
   })
 }
 
-export function HostProfileHero({ host }: { host: HostProfile }) {
+export function HostProfileHero({ host, chatRoomId }: { host: HostProfile; chatRoomId?: number | null }) {
   const hasRating = host.avgRating > 0
   const isGuest = host.totalProperties === 0
   const searchParams = useSearchParams()
-  const fromChat = searchParams.get('from') === 'chat'
+  const fromParam = searchParams.get('from')
+  const fromChat = !!fromParam?.startsWith('/chat')
 
   return (
     <div className="relative">
@@ -84,7 +85,7 @@ export function HostProfileHero({ host }: { host: HostProfile }) {
           {/* Contact button — desktop */}
           {!fromChat && (
             <div className="hidden lg:block lg:pb-1 shrink-0">
-              <ContactHostButton hostId={host.id} />
+              <ContactHostButton hostId={host.id} chatRoomId={chatRoomId} />
             </div>
           )}
         </div>
@@ -152,7 +153,7 @@ export function HostProfileHero({ host }: { host: HostProfile }) {
         {/* Contact button — mobile */}
         {!fromChat && (
           <div className="mt-4 lg:hidden">
-            <ContactHostButton hostId={host.id} />
+            <ContactHostButton hostId={host.id} chatRoomId={chatRoomId} />
           </div>
         )}
       </div>

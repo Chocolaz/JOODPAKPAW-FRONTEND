@@ -25,7 +25,7 @@ import { useAuth } from '@/app/_components/AuthContext'
 import { useChat } from '@/app/_components/ChatContext'
 import { createChatRoom } from '@/lib/api'
 import { useMediaQuery } from '@/app/_hooks/useMediaQuery'
-import { useRouter, usePathname } from 'next/navigation'
+import { useRouter, usePathname, useSearchParams } from 'next/navigation'
 import { toast } from 'sonner'
 
 interface ContactHostButtonProps {
@@ -40,6 +40,8 @@ export function ContactHostButton({ hostId, compact, chatRoomId, onSuccess }: Co
   const { refreshRooms } = useChat()
   const router = useRouter()
   const pathname = usePathname()
+  const searchParams = useSearchParams()
+  const fullPath = searchParams.toString() ? `${pathname}?${searchParams.toString()}` : pathname
   const [open, setOpen] = useState(false)
   const [message, setMessage] = useState('')
   const [isSending, setIsSending] = useState(false)
@@ -50,7 +52,7 @@ export function ContactHostButton({ hostId, compact, chatRoomId, onSuccess }: Co
   const handleOpen = () => {
     if (!requireAuth()) return
     if (chatRoomId) {
-      router.push(`/chat/${chatRoomId}?from=${encodeURIComponent(pathname)}`)
+      router.push(`/chat/${chatRoomId}?from=${encodeURIComponent(fullPath)}`)
       return
     }
     setOpen(true)

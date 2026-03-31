@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useParams, useRouter } from 'next/navigation'
+import { useParams, useRouter, useSearchParams } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { ChevronLeft, Eye, Pencil } from 'lucide-react'
 import { getHostProfile, getHostReviews } from '@/lib/api'
@@ -26,6 +26,8 @@ const fadeUp = {
 export default function HostProfilePage() {
   const { hostId } = useParams<{ hostId: string }>()
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const from = searchParams.get('from')
   const { user } = useAuth()
   const isOwner = !!user && String(user.id) === hostId
 
@@ -101,7 +103,7 @@ export default function HostProfilePage() {
     <div className="max-w-5xl mx-auto pb-24 lg:pb-10 lg:-mt-20 xl:-mt-24 relative">
       {/* Back button */}
       <button
-        onClick={() => router.back()}
+        onClick={() => router.push(from ?? '/')}
         className="fixed top-4 left-4 z-10 flex items-center gap-1.5 pl-2 pr-3 py-2 bg-white/90 backdrop-blur-sm rounded-full shadow-md hover:bg-white hover:shadow-lg transition-all text-sm font-medium text-gray-700"
       >
         <ChevronLeft className="w-4 h-4" />
@@ -124,7 +126,7 @@ export default function HostProfilePage() {
       )}
 
       <motion.div custom={0} variants={fadeUp} initial="hidden" animate="visible">
-        <HostProfileHero host={host} />
+        <HostProfileHero host={host} chatRoomId={host.chatRoomId} />
       </motion.div>
 
       <motion.div custom={1} variants={fadeUp} initial="hidden" animate="visible">
