@@ -14,7 +14,7 @@ function formatMemberSince(dateStr: string) {
   })
 }
 
-export function HostProfileHero({ host, chatRoomId }: { host: HostProfile; chatRoomId?: number | null }) {
+export function HostProfileHero({ host, chatRoomId, onChatCreated }: { host: HostProfile; chatRoomId?: number | null; onChatCreated?: (chatRoomId: number) => void }) {
   const hasRating = host.avgRating > 0
   const isGuest = host.totalProperties === 0
   const searchParams = useSearchParams()
@@ -85,7 +85,7 @@ export function HostProfileHero({ host, chatRoomId }: { host: HostProfile; chatR
           {/* Contact button — desktop */}
           {!fromChat && (
             <div className="hidden lg:block lg:pb-1 shrink-0">
-              <ContactHostButton hostId={host.id} chatRoomId={chatRoomId} />
+              <ContactHostButton hostId={host.id} chatRoomId={chatRoomId} onSuccess={onChatCreated} />
             </div>
           )}
         </div>

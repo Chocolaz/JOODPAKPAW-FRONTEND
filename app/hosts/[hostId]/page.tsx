@@ -32,6 +32,7 @@ export default function HostProfilePage() {
   const isOwner = !!user && String(user.id) === hostId
 
   const [host, setHost] = useState<HostProfile | null>(null)
+  const [chatRoomId, setChatRoomId] = useState<number | null>(null)
   const [profileLoading, setProfileLoading] = useState(true)
   const [profileError, setProfileError] = useState<string | null>(null)
 
@@ -54,6 +55,7 @@ export default function HostProfilePage() {
     ]).then(([profileResult, reviewsResult]) => {
       if (profileResult.status === 'fulfilled') {
         setHost(profileResult.value.host)
+        setChatRoomId(profileResult.value.host.chatRoomId ?? null)
       } else {
         setProfileError('Failed to load host profile.')
       }
@@ -126,7 +128,7 @@ export default function HostProfilePage() {
       )}
 
       <motion.div custom={0} variants={fadeUp} initial="hidden" animate="visible">
-        <HostProfileHero host={host} chatRoomId={host.chatRoomId} />
+        <HostProfileHero host={host} chatRoomId={chatRoomId} onChatCreated={setChatRoomId} />
       </motion.div>
 
       <motion.div custom={1} variants={fadeUp} initial="hidden" animate="visible">

@@ -32,7 +32,7 @@ interface ContactHostButtonProps {
   hostId: number
   compact?: boolean
   chatRoomId?: number | null
-  onSuccess?: () => void
+  onSuccess?: (chatRoomId: number) => void
 }
 
 export function ContactHostButton({ hostId, compact, chatRoomId, onSuccess }: ContactHostButtonProps) {
@@ -62,12 +62,12 @@ export function ContactHostButton({ hostId, compact, chatRoomId, onSuccess }: Co
     if (!message.trim() || isSending) return
     setIsSending(true)
     try {
-      await createChatRoom(hostId, message.trim())
+      const room = await createChatRoom(hostId, message.trim())
       await refreshRooms()
       setOpen(false)
       setMessage('')
       toast.success('Message sent!')
-      onSuccess?.()
+      onSuccess?.(room.id)
     } catch {
       toast.error('Failed to send message. Please try again.')
     } finally {
