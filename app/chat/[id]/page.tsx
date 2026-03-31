@@ -225,6 +225,7 @@ export default function ChatRoomPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [pendingImages, setPendingImages] = useState<File[]>([])
+  const [fileSizeError, setFileSizeError] = useState('')
   const fileInputRef = useRef<HTMLInputElement>(null)
   const scrollContainerRef = useRef<HTMLDivElement>(null)
   const initialScrollDone = useRef(false)
@@ -277,10 +278,20 @@ export default function ChatRoomPage() {
     }
   }
 
+  const MAX_FILE_SIZE = 5 * 1024 * 1024 // 5 MB
+
   function handleImagePick(e: React.ChangeEvent<HTMLInputElement>) {
     const files = Array.from(e.target.files ?? [])
     if (files.length === 0) return
-    setPendingImages((prev) => [...prev, ...files].slice(0, 5))
+    const valid = files.filter((f) => f.size <= MAX_FILE_SIZE)
+    const rejected = files.length - valid.length
+    if (rejected > 0) {
+      setFileSizeError(`${rejected} file${rejected > 1 ? 's' : ''} exceeded 5 MB and were removed`)
+      setTimeout(() => setFileSizeError(''), 3500)
+    }
+    if (valid.length > 0) {
+      setPendingImages((prev) => [...prev, ...valid].slice(0, 5))
+    }
     e.target.value = ''
   }
 
@@ -431,6 +442,22 @@ export default function ChatRoomPage() {
                 />
               ))}
             </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ── File size error ── */}
+      <AnimatePresence>
+        {fileSizeError && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            className="shrink-0 overflow-hidden bg-white"
+          >
+            <p className="text-xs text-red-500 px-5 py-1.5 border-t border-red-100 bg-red-50">
+              {fileSizeError}
+            </p>
           </motion.div>
         )}
       </AnimatePresence>
