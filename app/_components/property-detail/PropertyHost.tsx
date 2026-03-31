@@ -1,7 +1,7 @@
 'use client'
 
 import Image from 'next/image'
-import { useRouter, usePathname } from 'next/navigation'
+import { useRouter, usePathname, useSearchParams } from 'next/navigation'
 import { Star, UserCircle, BadgeCheck } from 'lucide-react'
 import { PropertyHost as PropertyHostType } from '@/types/property'
 import { cn } from '@/lib/utils'
@@ -17,8 +17,10 @@ interface PropertyHostProps {
 export function PropertyHost({ host, hostAvgRating, chatRoomId, onChatSuccess }: PropertyHostProps) {
   const router = useRouter()
   const pathname = usePathname()
+  const searchParams = useSearchParams()
   const rating = hostAvgRating ?? host.hostAvgRating ?? 0
-  const hostHref = `/hosts/${host.id}?from=${encodeURIComponent(pathname)}`
+  const fullPath = searchParams.toString() ? `${pathname}?${searchParams.toString()}` : pathname
+  const hostHref = `/hosts/${host.id}?from=${encodeURIComponent(fullPath)}`
   return (
     <div className="border-t pt-8 mb-10">
       <h3 className="text-lg lg:text-xl font-semibold text-deep-teal mb-5">

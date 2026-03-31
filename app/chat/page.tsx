@@ -10,14 +10,15 @@ import { AppHeader } from '@/app/_components/AppHeader'
 import { ChatSidebar } from './_components/ChatSidebar'
 
 export default function ChatPage() {
-  const { requireAuth } = useAuth()
+  const { requireAuth, loading: authLoading } = useAuth()
   const router = useRouter()
   const searchParams = useSearchParams()
   const from = searchParams.get('from')
 
   useEffect(() => {
+    if (authLoading) return
     requireAuth()
-  }, [])
+  }, [authLoading])
 
   return (
     <>
