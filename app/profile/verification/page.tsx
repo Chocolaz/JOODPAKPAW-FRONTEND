@@ -60,7 +60,8 @@ export default function VerificationPage() {
   const showBack = step === 'form' && currentStatus !== 'pending' && currentStatus !== 'approved'
 
   return (
-    <div className="p-5 lg:px-12 max-w-2xl mx-auto w-full">
+    <div className="h-[calc(100dvh-56px)] overflow-y-auto lg:h-auto lg:overflow-visible">
+    <div className="p-5 lg:px-12 max-w-2xl mx-auto w-full pb-28 lg:pb-0">
       {/* Header */}
       <div className="mb-8">
         <div className="flex items-center gap-3 mb-1">
@@ -89,6 +90,7 @@ export default function VerificationPage() {
           {!loading && renderContent()}
         </AnimatePresence>
       </motion.div>
+    </div>
     </div>
   )
 }

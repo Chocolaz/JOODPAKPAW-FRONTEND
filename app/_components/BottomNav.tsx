@@ -16,7 +16,7 @@ export function BottomNav() {
   const { unreadCount } = useNotifications()
   const { unreadCount: chatUnreadCount } = useChat()
 
-  const hiddenPaths = ['/authen', '/admin']
+  const hiddenPaths = ['/authen', '/admin', '/profile/']
 
   if (hiddenPaths.some((p) => normalizedPath.startsWith(p))) {
     return null
