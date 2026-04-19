@@ -8,7 +8,6 @@ interface PropertyHeaderProps {
     Property,
     | 'title'
     | 'district'
-    | 'subdistrict'
     | 'province'
     | 'country'
     | 'avgRating'
@@ -18,7 +17,6 @@ interface PropertyHeaderProps {
 
 export function PropertyHeader({ property }: PropertyHeaderProps) {
   const locationParts = [
-    property.subdistrict,
     property.district,
     property.province,
     property.country,

@@ -51,18 +51,33 @@ export function Step2({
             const place = results[0]
             const components: AddressComponents = {}
 
+            const stripProvince = (name: string) =>
+              name
+                .replace(/^(Chang\s*Wat|Changwat|จังหวัด|จ\.)\s*/i, '')
+                .replace(/\s*(Chang\s*Wat|Changwat|จังหวัด|Province)$/i, '')
+                .trim()
+
+            const stripDistrict = (name: string) =>
+              name
+                .replace(/^(Khet|Amphoe|อำเภอ|เขต|อ\.)\s*/i, '')
+                .replace(/\s*(Khet|Amphoe|อำเภอ|เขต|District)$/i, '')
+                .trim()
+
             place.address_components.forEach((c) => {
               const types = c.types
               if (types.includes('country')) components.country = 'Thailand'
               if (types.includes('administrative_area_level_1')) {
-                let prov = c.long_name
-                if (/krung\s*thep/i.test(prov)) prov = 'Bangkok'
+                const prov = /krung\s*thep/i.test(c.long_name) ? 'Bangkok' : stripProvince(c.long_name)
                 components.province = prov
               }
               if (types.includes('administrative_area_level_2'))
-                components.district = c.long_name
-              if (types.includes('sublocality_level_1') || types.includes('locality'))
-                components.subdistrict = c.long_name
+                components.district = stripDistrict(c.long_name)
+              if (types.includes('sublocality_level_1') && !components.district)
+                components.district = stripDistrict(c.long_name)
+              if (types.includes('administrative_area_level_3') && !components.district)
+                components.district = stripDistrict(c.long_name)
+              if (types.includes('locality') && !components.district)
+                components.district = stripDistrict(c.long_name)
               if (types.includes('route')) components.route = c.long_name
               if (types.includes('street_number')) components.street_number = c.long_name
               if (types.includes('postal_code')) components.zipcode = c.long_name
@@ -71,7 +86,8 @@ export function Step2({
             updateField('country', components.country || 'Thailand')
             updateField('province', components.province || '')
             updateField('district', components.district || '')
-            updateField('subdistrict', components.subdistrict || '')
+            updateField('geocodedProvince', components.province || '')
+            updateField('geocodedDistrict', components.district || '')
             updateField(
               'address',
               `${components.street_number || ''} ${components.route || ''}`.trim()

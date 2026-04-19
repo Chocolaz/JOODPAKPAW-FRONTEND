@@ -27,7 +27,8 @@ export interface PropertyFormData {
   country: string
   province: string
   district: string
-  subdistrict: string
+  geocodedProvince: string
+  geocodedDistrict: string
   address: string
   zipcode: string
   title: string

@@ -87,7 +87,7 @@ export default function AddPropertyDynamicStepsPage() {
   }
 
   return (
-    <div className="flex flex-col max-w-[500px] mx-auto w-full px-8">
+    <div className="flex flex-col max-w-[500px] lg:max-w-2xl mx-auto w-full px-8 lg:px-12">
       {steps[stepId - 1]}
     </div>
   )

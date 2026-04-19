@@ -70,7 +70,7 @@ export default function RecommendationsPage() {
       {/* Header */}
       <div className="sticky top-0 z-10 bg-white border-b border-gray-100 px-5 lg:px-12 py-4 flex items-center gap-3">
         <button
-          onClick={() => router.back()}
+          onClick={() => router.push('/')}
           className="w-9 h-9 rounded-full flex items-center justify-center text-gray-500 hover:bg-gray-100 transition-colors shrink-0"
         >
           <ArrowLeft className="w-5 h-5" />

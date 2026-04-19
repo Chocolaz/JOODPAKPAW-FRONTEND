@@ -1,9 +1,11 @@
 'use client'
 
-import { ChangeEvent } from 'react'
+import { ChangeEvent, useMemo, useState } from 'react'
+import provinces from '../../_data/thailand-provinces.json'
 import { Input } from '@/components/ui/input'
 import { useAddProperty } from '../../_context/AddPropertyContext'
 import { StepNavigation } from '../StepNavigation'
+import { ChevronDown, Pencil } from 'lucide-react'
 
 export function Step3({
   onNext,
@@ -14,6 +16,18 @@ export function Step3({
 }) {
   const { formData, updateField } = useAddProperty()
 
+  const [editDistrict, setEditDistrict] = useState(!formData.district)
+
+  const selectedProvince = useMemo(
+    () => provinces.find((p) => p.name_en.toLowerCase() === formData.province.toLowerCase()),
+    [formData.province]
+  )
+  const districts = useMemo(() => selectedProvince?.districts ?? [], [selectedProvince])
+
+  const handleDistrictChange = (e: ChangeEvent<HTMLSelectElement>) => {
+    updateField('district', e.target.value)
+  }
+
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
     if (name === 'zipcode') {
@@ -23,20 +37,22 @@ export function Step3({
     updateField(name as keyof typeof formData, value)
   }
 
+  const handleBack = () => {
+    updateField('district', formData.geocodedDistrict)
+    onBack()
+  }
+
+  const districtDiffers =
+    editDistrict && !!formData.geocodedDistrict && formData.district !== formData.geocodedDistrict
+
   const isFormValid =
-    formData.country.trim() !== '' &&
     formData.province.trim() !== '' &&
     formData.district.trim() !== '' &&
-    formData.subdistrict.trim() !== '' &&
     formData.address.trim() !== '' &&
     formData.zipcode.trim().length === 5
 
-  const fields = [
-    { name: 'district', label: 'District', maxLength: 50 },
-    { name: 'subdistrict', label: 'Subdistrict', maxLength: 50 },
-    { name: 'address', label: 'Address', maxLength: 120 },
-    { name: 'zipcode', label: 'Zipcode', maxLength: 5, inputMode: 'numeric' as const },
-  ]
+  const selectClass =
+    'w-full p-4 pr-12 text-lg rounded-lg border border-input bg-transparent shadow-sm font-[inherit] appearance-none focus:outline-none focus:ring-1 focus:ring-accent-orange disabled:cursor-not-allowed disabled:opacity-50'
 
   return (
     <>
@@ -44,7 +60,7 @@ export function Step3({
         <h3 className="text-deep-teal">Confirm your address</h3>
         <p className="mb-6 text-neutral-gray text-sm">
           We&apos;ve auto-filled your address based on the location you picked.
-          You can make adjustments if needed.
+          Edit anything that looks wrong.
         </p>
 
         <div className="space-y-4 text-left pb-4">
@@ -55,26 +71,76 @@ export function Step3({
 
           <div>
             <label className="text-sm font-medium text-deep-teal mb-1 block">Province</label>
-            <Input value={formData.province || ''} disabled className="cursor-not-allowed" />
+            <Input value={formData.province} disabled className="cursor-not-allowed" />
           </div>
 
-          {fields.map(({ name, label, maxLength, inputMode }) => (
-            <div key={name}>
-              <label className="text-sm font-medium text-deep-teal mb-1 block">{label}</label>
-              <Input
-                name={name}
-                placeholder={label}
-                value={formData[name as keyof typeof formData] as string}
-                maxLength={maxLength}
-                inputMode={inputMode}
-                onChange={handleChange}
-              />
+          <div>
+            <div className="flex items-center justify-between mb-1">
+              <label className="text-sm font-medium text-deep-teal">District</label>
+              {!editDistrict && (
+                <button
+                  type="button"
+                  onClick={() => setEditDistrict(true)}
+                  className="flex items-center gap-1 text-xs text-accent-orange hover:underline"
+                >
+                  <Pencil className="w-3 h-3" />
+                  Edit
+                </button>
+              )}
             </div>
-          ))}
+            {editDistrict ? (
+              <div className="space-y-1">
+                <div className="relative">
+                  <select
+                    value={formData.district}
+                    onChange={handleDistrictChange}
+                    disabled={!selectedProvince}
+                    className={selectClass}
+                  >
+                    <option value="">Select district</option>
+                    {districts.map((d) => (
+                      <option key={d.code} value={d.name_en}>{d.name_en}</option>
+                    ))}
+                  </select>
+                  <ChevronDown className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                </div>
+                {districtDiffers && (
+                  <p className="text-xs text-amber-500">
+                    Your pin is in {formData.geocodedDistrict}. This mismatch may affect how your property appears in search results.
+                  </p>
+                )}
+              </div>
+            ) : (
+              <Input value={formData.district} disabled className="cursor-not-allowed" />
+            )}
+          </div>
+
+          <div>
+            <label className="text-sm font-medium text-deep-teal mb-1 block">Address</label>
+            <Input
+              name="address"
+              placeholder="Street address"
+              value={formData.address}
+              maxLength={120}
+              onChange={handleChange}
+            />
+          </div>
+
+          <div>
+            <label className="text-sm font-medium text-deep-teal mb-1 block">Zipcode</label>
+            <Input
+              name="zipcode"
+              placeholder="Zipcode"
+              value={formData.zipcode}
+              maxLength={5}
+              inputMode="numeric"
+              onChange={handleChange}
+            />
+          </div>
         </div>
       </div>
 
-      <StepNavigation onBack={onBack} onNext={onNext} isNextDisabled={!isFormValid} />
+      <StepNavigation onBack={handleBack} onNext={onNext} isNextDisabled={!isFormValid} />
     </>
   )
 }

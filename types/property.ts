@@ -83,7 +83,6 @@ export interface Property {
   address?: string
   province: string
   district: string
-  subdistrict?: string
   country: string
   latitude: number | string
   longitude: number | string

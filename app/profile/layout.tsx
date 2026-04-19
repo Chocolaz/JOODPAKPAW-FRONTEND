@@ -5,6 +5,7 @@ import { useNormalizedPathname } from '@/app/_hooks/useNormalizedPathname'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { ProfileHeader } from './_components/ProfileHeader'
 import { HostBanner } from './_components/HostBanner'
+import { DesktopStepper } from './host/add-property/_components/DesktopStepper'
 import { PetsBanner } from './pets/_components/PetsBanner'
 import { AddPetBanner } from './pets/add/_components/AddPetBanner'
 import { addPetStepsComponents } from './pets/add/steps' // Import the steps array
@@ -138,7 +139,16 @@ function LayoutContent({ children }: { children: ReactNode }) {
       <div className="w-full">
         {headerProps && <div className="lg:hidden"><ProfileHeader {...headerProps} menu={menu} /></div>}
         <div className={headerProps ? 'pt-14 lg:pt-0' : ''}>
-          {renderBanner()}
+          <div className="lg:hidden">{renderBanner()}</div>
+          {(() => {
+            if (normalizedPath.startsWith('/profile/host/add-property')) {
+              const stepId = parseInt(normalizedPath.split('/').pop() || '', 10)
+              if (!isNaN(stepId) && stepId >= 1 && stepId <= 7) {
+                return <div className="hidden lg:block"><DesktopStepper stepId={stepId} /></div>
+              }
+            }
+            return null
+          })()}
           {children}
         </div>
       </div>

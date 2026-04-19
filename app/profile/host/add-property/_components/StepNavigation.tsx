@@ -26,7 +26,7 @@ export function StepNavigation({
   useEffect(() => setMounted(true), [])
 
   const nav = (
-    <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 py-4 px-10 z-50 flex justify-between items-center max-w-[500px] mx-auto">
+    <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 py-4 px-10 z-50 flex justify-between items-center max-w-[500px] lg:max-w-2xl mx-auto">
       {onBack ? (
         <Button
           variant="outline"

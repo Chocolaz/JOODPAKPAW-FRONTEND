@@ -13,7 +13,18 @@ import { useSearchParams, useRouter } from 'next/navigation'
 import { useAuth } from '@/app/_components/AuthContext'
 import { HostBookingHistoryList } from './_components/HostBookingHistoryList'
 import { HostReviewsTab } from './_components/HostReviewsTab'
-import { Plus, LayoutGrid, CalendarDays, History, Check, ExternalLink, ChevronLeft, Star, Ban, Clock } from 'lucide-react'
+import {
+  Plus,
+  LayoutGrid,
+  CalendarDays,
+  History,
+  Check,
+  ExternalLink,
+  ChevronLeft,
+  Star,
+  Ban,
+  Clock,
+} from 'lucide-react'
 import { HostBanner } from '@/app/profile/_components/HostBanner'
 import { useUserProfile } from '@/app/profile/_hooks/useUserProfile'
 import { UnbanPropertyDrawer } from './_components/UnbanPropertyDrawer'
@@ -37,12 +48,24 @@ export default function HostPage() {
   const fromNotifications = searchParams.get('from') === 'notifications'
 
   const defaultTab = useMemo(() => {
-    if (isHost && (tabParam === 'bookings' || tabParam === 'history' || tabParam === 'reviews')) return tabParam
+    if (
+      isHost &&
+      (tabParam === 'bookings' ||
+        tabParam === 'history' ||
+        tabParam === 'reviews')
+    )
+      return tabParam
     return 'properties'
   }, [isHost, tabParam])
 
-  const publishedCount = useMemo(() => properties.filter((p) => p.isActive).length, [properties])
-  const draftCount = useMemo(() => properties.length - publishedCount, [properties, publishedCount])
+  const publishedCount = useMemo(
+    () => properties.filter((p) => p.isActive).length,
+    [properties]
+  )
+  const draftCount = useMemo(
+    () => properties.length - publishedCount,
+    [properties, publishedCount]
+  )
 
   const filteredProperties = useMemo(() => {
     if (filterParam === 'published') return properties.filter((p) => p.isActive)
@@ -63,13 +86,14 @@ export default function HostPage() {
   // Lock page scroll — only the card list should scroll
   useEffect(() => {
     document.body.style.overflow = 'hidden'
-    return () => { document.body.style.overflow = '' }
+    return () => {
+      document.body.style.overflow = ''
+    }
   }, [])
 
   return (
     // Outer wrapper anchors the height chain for both mobile and desktop
     <div className="flex flex-col h-[calc(100dvh-3.5rem)] lg:h-[calc(100vh-5rem)] xl:h-[calc(100vh-6rem)] overflow-hidden">
-
       <UnbanPropertyDrawer
         isOpen={isAppealOpen}
         onOpenChange={setIsAppealOpen}
@@ -80,18 +104,26 @@ export default function HostPage() {
       {/* Mobile banner — shrink-0 so it takes its natural height */}
       <div className="lg:hidden shrink-0">
         <HostBanner
-          summary={{ total: properties.length, published: publishedCount, draft: draftCount }}
+          summary={{
+            total: properties.length,
+            published: publishedCount,
+            draft: draftCount,
+          }}
         />
       </div>
 
       {/* Banned all properties banner */}
-      {profile?.isBannedAllProperties && (
-        profile.hasPendingUnbanAllPropertiesRequest ? (
+      {profile?.isBannedAllProperties &&
+        (profile.hasPendingUnbanAllPropertiesRequest ? (
           <div className="shrink-0 mx-4 lg:mx-12 mt-4 bg-amber-50 border border-amber-200 rounded-2xl px-5 py-4 flex items-center gap-3">
             <Clock className="w-5 h-5 text-amber-500 shrink-0" />
             <div className="min-w-0">
-              <p className="text-sm font-semibold text-amber-700">Appeal Under Review</p>
-              <p className="text-xs text-amber-600 mt-0.5">We'll notify you once it's been reviewed.</p>
+              <p className="text-sm font-semibold text-amber-700">
+                Appeal Under Review
+              </p>
+              <p className="text-xs text-amber-600 mt-0.5">
+                We'll notify you once it's been reviewed.
+              </p>
             </div>
           </div>
         ) : (
@@ -100,12 +132,16 @@ export default function HostPage() {
               <Ban className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between gap-2">
-                  <p className="text-sm font-semibold text-red-700 leading-tight">Your account has been suspended</p>
-                  <span className={`shrink-0 inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full ${
-                    (profile.unbanAllPropertiesRequestCount ?? 0) >= 2
-                      ? 'bg-gray-800 text-white'
-                      : 'bg-white text-red-600 border border-red-200'
-                  }`}>
+                  <p className="text-sm font-semibold text-red-700 leading-tight">
+                    Your account has been suspended
+                  </p>
+                  <span
+                    className={`shrink-0 inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full ${
+                      (profile.unbanAllPropertiesRequestCount ?? 0) >= 2
+                        ? 'bg-gray-800 text-white'
+                        : 'bg-white text-red-600 border border-red-200'
+                    }`}
+                  >
                     <Clock className="w-3 h-3" />
                     {2 - (profile.unbanAllPropertiesRequestCount ?? 0)}/2
                   </span>
@@ -126,26 +162,37 @@ export default function HostPage() {
               </button>
             )}
           </div>
-        )
-      )}
+        ))}
 
       <Tabs defaultValue={defaultTab} className="flex flex-col flex-1 min-h-0">
         {/* Tab bar */}
         {isHost && (
           <TabsList className="grid w-full grid-cols-4 rounded-none h-11 lg:h-13 shrink-0 bg-white/90 backdrop-blur-sm border-b border-gray-100 lg:px-12">
-            <TabsTrigger value="properties" className="flex items-center gap-2 text-sm lg:text-base">
+            <TabsTrigger
+              value="properties"
+              className="flex items-center gap-2 text-sm lg:text-base"
+            >
               <LayoutGrid className="w-4 h-4 hidden lg:block" />
               Properties
             </TabsTrigger>
-            <TabsTrigger value="bookings" className="flex items-center gap-2 text-sm lg:text-base">
+            <TabsTrigger
+              value="bookings"
+              className="flex items-center gap-2 text-sm lg:text-base"
+            >
               <CalendarDays className="w-4 h-4 hidden lg:block" />
               Bookings
             </TabsTrigger>
-            <TabsTrigger value="history" className="flex items-center gap-2 text-sm lg:text-base">
+            <TabsTrigger
+              value="history"
+              className="flex items-center gap-2 text-sm lg:text-base"
+            >
               <History className="w-4 h-4 hidden lg:block" />
               History
             </TabsTrigger>
-            <TabsTrigger value="reviews" className="flex items-center gap-2 text-sm lg:text-base">
+            <TabsTrigger
+              value="reviews"
+              className="flex items-center gap-2 text-sm lg:text-base"
+            >
               <Star className="w-4 h-4 hidden lg:block" />
               Reviews
             </TabsTrigger>
@@ -153,20 +200,30 @@ export default function HostPage() {
         )}
 
         {/* Properties tab */}
-        <TabsContent value="properties" className="mt-0 flex-1 min-h-0 overflow-hidden flex flex-col">
-
+        <TabsContent
+          value="properties"
+          className="mt-0 flex-1 min-h-0 overflow-hidden flex flex-col"
+        >
           {/* Desktop stats + filter bar — shrink-0 */}
           <div className="hidden lg:flex items-center justify-between px-12 pt-8 pb-4 shrink-0">
             <div>
-              <p className="text-sm text-accent-orange font-medium">Hello, {user?.firstName}!</p>
+              <p className="text-sm text-accent-orange font-medium">
+                Hello, {user?.firstName}!
+              </p>
               <div className="flex items-center gap-3">
                 <button
-                  onClick={() => router.push(fromNotifications ? '/notifications' : '/profile')}
+                  onClick={() =>
+                    router.push(
+                      fromNotifications ? '/notifications' : '/profile'
+                    )
+                  }
                   className="flex items-center justify-center w-8 h-8 rounded-full hover:bg-gray-100 transition text-gray-500 hover:text-gray-800 -ml-1"
                 >
                   <ChevronLeft className="w-5 h-5" />
                 </button>
-                <h2 className="text-xl font-semibold text-deep-teal">My Properties</h2>
+                <h2 className="text-xl! font-semibold text-deep-teal">
+                  My Properties
+                </h2>
                 {user?.id && (
                   <button
                     onClick={() => router.push(`/hosts/${user.id}`)}
@@ -202,7 +259,9 @@ export default function HostPage() {
                         : 'bg-white text-green-700 border-green-300 hover:border-green-500 hover:bg-green-50 hover:scale-105'
                     )}
                   >
-                    {filterParam === 'published' && <Check className="w-3.5 h-3.5" />}
+                    {filterParam === 'published' && (
+                      <Check className="w-3.5 h-3.5" />
+                    )}
                     {publishedCount} Published
                   </button>
                 )}
@@ -216,7 +275,9 @@ export default function HostPage() {
                         : 'bg-white text-yellow-700 border-yellow-300 hover:border-yellow-500 hover:bg-yellow-50 hover:scale-105'
                     )}
                   >
-                    {filterParam === 'draft' && <Check className="w-3.5 h-3.5" />}
+                    {filterParam === 'draft' && (
+                      <Check className="w-3.5 h-3.5" />
+                    )}
                     {draftCount} Draft
                   </button>
                 )}
@@ -225,7 +286,7 @@ export default function HostPage() {
           </div>
 
           {/* Scrollable card area */}
-          <div className="flex-1 min-h-0 overflow-y-auto scrollbar-modern px-4 md:px-6 lg:px-12 pt-4 lg:pt-0 pb-28 lg:pb-8">
+          <div className={cn("flex-1 min-h-0 scrollbar-modern px-4 md:px-6 lg:px-12 pt-4 lg:pt-0 pb-28 lg:pb-8", (loading || error || properties.length > 0) ? "overflow-y-auto" : "overflow-hidden")}>
             <AnimatePresence mode="wait">
               {loading ? (
                 <motion.div
@@ -265,15 +326,53 @@ export default function HostPage() {
                 >
                   {/* Add Property card */}
                   <button
-                    onClick={() => !profile?.isBannedAllProperties && router.push('/profile/host/add-property')}
+                    onClick={() =>
+                      !profile?.isBannedAllProperties &&
+                      router.push('/profile/host/add-property')
+                    }
                     disabled={!!profile?.isBannedAllProperties}
-                    className={cn('block w-full text-left group', profile?.isBannedAllProperties ? 'cursor-not-allowed opacity-50' : 'cursor-pointer')}
+                    className={cn(
+                      'block w-full text-left group',
+                      profile?.isBannedAllProperties
+                        ? 'cursor-not-allowed opacity-50'
+                        : 'cursor-pointer'
+                    )}
                   >
-                    <div className={cn('aspect-square w-full rounded-[20px] border-2 border-dashed flex flex-col items-center justify-center transition-all duration-200', profile?.isBannedAllProperties ? 'border-gray-200 bg-gray-50' : 'border-gray-300 group-hover:border-deep-teal bg-gray-50 group-hover:bg-teal-50/50')}>
-                      <div className={cn('w-12 h-12 rounded-full flex items-center justify-center transition-colors mb-2', profile?.isBannedAllProperties ? 'bg-gray-200' : 'bg-deep-teal/10 group-hover:bg-deep-teal/20')}>
-                        <Plus className={cn('w-6 h-6', profile?.isBannedAllProperties ? 'text-gray-400' : 'text-deep-teal')} />
+                    <div
+                      className={cn(
+                        'aspect-square w-full rounded-[20px] border-2 border-dashed flex flex-col items-center justify-center transition-all duration-200',
+                        profile?.isBannedAllProperties
+                          ? 'border-gray-200 bg-gray-50'
+                          : 'border-gray-300 group-hover:border-deep-teal bg-gray-50 group-hover:bg-teal-50/50'
+                      )}
+                    >
+                      <div
+                        className={cn(
+                          'w-12 h-12 rounded-full flex items-center justify-center transition-colors mb-2',
+                          profile?.isBannedAllProperties
+                            ? 'bg-gray-200'
+                            : 'bg-deep-teal/10 group-hover:bg-deep-teal/20'
+                        )}
+                      >
+                        <Plus
+                          className={cn(
+                            'w-6 h-6',
+                            profile?.isBannedAllProperties
+                              ? 'text-gray-400'
+                              : 'text-deep-teal'
+                          )}
+                        />
                       </div>
-                      <span className={cn('text-sm font-medium', profile?.isBannedAllProperties ? 'text-gray-400' : 'text-deep-teal')}>Add Property</span>
+                      <span
+                        className={cn(
+                          'text-sm font-medium',
+                          profile?.isBannedAllProperties
+                            ? 'text-gray-400'
+                            : 'text-deep-teal'
+                        )}
+                      >
+                        Add Property
+                      </span>
                     </div>
                   </button>
 
@@ -337,19 +436,28 @@ export default function HostPage() {
         </TabsContent>
 
         {isHost && (
-          <TabsContent value="bookings" className="mt-0 flex-1 min-h-0 overflow-hidden">
+          <TabsContent
+            value="bookings"
+            className="mt-0 flex-1 min-h-0 overflow-hidden"
+          >
             <HostBookingList />
           </TabsContent>
         )}
 
         {isHost && (
-          <TabsContent value="history" className="mt-0 flex-1 min-h-0 overflow-hidden">
+          <TabsContent
+            value="history"
+            className="mt-0 flex-1 min-h-0 overflow-hidden"
+          >
             <HostBookingHistoryList />
           </TabsContent>
         )}
 
         {isHost && (
-          <TabsContent value="reviews" className="mt-0 flex-1 min-h-0 overflow-hidden">
+          <TabsContent
+            value="reviews"
+            className="mt-0 flex-1 min-h-0 overflow-hidden"
+          >
             <HostReviewsTab />
           </TabsContent>
         )}
