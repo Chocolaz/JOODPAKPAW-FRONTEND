@@ -2,22 +2,20 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
-import { Plus, ChevronLeft } from 'lucide-react'
+import { Plus } from 'lucide-react'
 
 import { RoomCategoryCard } from '@/app/_components/RoomCategoryCard'
 import { AddRoomCategoryForm } from '../../../_components/AddRoomCategoryForm'
 import { useAddProperty } from '../../_context/AddPropertyContext'
 import { getRoomCategories } from '@/lib/api'
 import { RoomCategories } from '@/types'
-import { Button } from '@/components/ui/button'
-import { Spinner } from '@/components/ui/spinner'
 import {
-  Drawer,
-  DrawerContent,
-  DrawerHeader,
-  DrawerTitle,
-  DrawerTrigger,
-} from '@/components/ui/drawer'
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog'
 import { StepNavigation } from '../StepNavigation'
 
 export function Step8() {
@@ -28,7 +26,7 @@ export function Step8() {
   const [rooms, setRooms] = useState<RoomCategories[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [isDrawerOpen, setIsDrawerOpen] = useState(false)
+  const [isDialogOpen, setIsDialogOpen] = useState(false)
 
   const fetchRooms = useCallback(async () => {
     if (!propertyId) {
@@ -58,9 +56,17 @@ export function Step8() {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center pt-20">
-        <Spinner className="w-8 h-8" />
-      </div>
+      <>
+        <div className="w-full text-center mt-6 animate-pulse">
+          <div className="h-6 w-48 bg-gray-200 rounded-lg mx-auto mb-3" />
+          <div className="h-4 w-72 bg-gray-100 rounded mx-auto mb-8" />
+          <div className="space-y-3 max-w-2xl mx-auto">
+            <div className="h-20 rounded-xl bg-gray-100" />
+            <div className="h-20 rounded-xl bg-gray-100" />
+          </div>
+        </div>
+        <StepNavigation backText="Later" nextText="Continue" isNextDisabled />
+      </>
     )
   }
 
@@ -71,16 +77,16 @@ export function Step8() {
         Add at least one room type for pets to stay in.
       </p>
 
-      <Drawer open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <div className="space-y-3 text-left max-w-2xl mx-auto">
           {error && <p className="text-red-500 text-center text-sm">{error}</p>}
 
-          <DrawerTrigger asChild>
+          <DialogTrigger asChild>
             <button className="w-full px-5 py-6 border-2 border-dashed border-positive-green rounded-xl cursor-pointer hover:bg-green-50/50 transition-colors flex items-center justify-between">
               <span className="font-medium text-deep-teal">Add Room Type</span>
               <Plus className="h-5 w-5 text-positive-green" />
             </button>
-          </DrawerTrigger>
+          </DialogTrigger>
 
           {rooms.map((room) => (
             <RoomCategoryCard
@@ -94,32 +100,21 @@ export function Step8() {
           ))}
         </div>
 
-        <DrawerContent>
-          <DrawerHeader className="relative">
-            <DrawerTitle className="flex items-center gap-2">
-              <Button
-                variant="ghost"
-                size="icon"
-                className="-ml-2"
-                onClick={() => setIsDrawerOpen(false)}
-              >
-                <ChevronLeft className="h-4 w-4" />
-              </Button>
-              Add Room Category
-            </DrawerTitle>
-          </DrawerHeader>
-
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Add Room Category</DialogTitle>
+          </DialogHeader>
           {propertyId && (
             <AddRoomCategoryForm
               propertyId={propertyId}
               onAddSuccess={() => {
                 fetchRooms()
-                setIsDrawerOpen(false)
+                setIsDialogOpen(false)
               }}
             />
           )}
-        </DrawerContent>
-      </Drawer>
+        </DialogContent>
+      </Dialog>
 
       <StepNavigation
         onBack={() => {

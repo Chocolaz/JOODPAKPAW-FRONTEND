@@ -21,6 +21,10 @@ export function Step7({ onBack }: { onBack: () => void }) {
   const { facilities } = useFacilities()
 
   const handleSubmit = async () => {
+    if (formData.propertyId) {
+      router.push('/profile/host/add-property/8')
+      return
+    }
     setIsSubmitting(true)
     setError(null)
     try {

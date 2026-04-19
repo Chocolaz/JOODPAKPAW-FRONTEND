@@ -67,35 +67,44 @@ export function Step8({ onNext, onBack }: Step8Props) {
           </div>
         </div>
 
-        <h3 className="text-deep-teal text-2xl font-semibold">
-          Who to contact with?
+        <h3 className="text-deep-teal">
+          Emergency Contact
         </h3>
-        <p className="mb-4 text-neutral-gray text-sm">
-          Add details of the person who takes care of your pet, so others know
-          who to contact if needed.
+        <p className="mb-6 text-neutral-gray text-sm">
+          Add details of the person who takes care of your pet, so others know who to contact if needed.
         </p>
 
-        {/* Input Fields */}
-        <div className="w-full max-w-xs mx-auto space-y-4">
-          <Input
-            type="text"
-            placeholder="Person name*"
-            value={formData.contactName || ''}
-            onChange={handleContactNameChange}
-          />
-          <Input
-            type="tel"
-            placeholder="Your telephone number*"
-            value={formData.contactPhone || ''}
-            onChange={handleContactPhoneChange}
-            maxLength={12} // xxx-xxx-xxxx
-          />
-          <Textarea
-            placeholder="Anything about the pet (optional)"
-            value={formData.petNote || ''}
-            onChange={handlePetNoteChange}
-            rows={4}
-          />
+        <div className="w-full max-w-xs lg:max-w-lg mx-auto space-y-4 text-left">
+          <div className="lg:grid lg:grid-cols-2 lg:gap-4 space-y-4 lg:space-y-0">
+            <div>
+              <label className="text-sm font-medium text-deep-teal mb-1 block">Name <span className="text-red-400">*</span></label>
+              <Input
+                type="text"
+                placeholder="Contact person name"
+                value={formData.contactName || ''}
+                onChange={handleContactNameChange}
+              />
+            </div>
+            <div>
+              <label className="text-sm font-medium text-deep-teal mb-1 block">Phone <span className="text-red-400">*</span></label>
+              <Input
+                type="tel"
+                placeholder="Telephone number"
+                value={formData.contactPhone || ''}
+                onChange={handleContactPhoneChange}
+                maxLength={12}
+              />
+            </div>
+          </div>
+          <div>
+            <label className="text-sm font-medium text-deep-teal mb-1 block">Notes <span className="text-neutral-gray font-normal">(optional)</span></label>
+            <Textarea
+              placeholder="Anything about the pet that others should know"
+              value={formData.petNote || ''}
+              onChange={handlePetNoteChange}
+              rows={4}
+            />
+          </div>
         </div>
       </div>
 

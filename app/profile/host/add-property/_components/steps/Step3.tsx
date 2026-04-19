@@ -24,6 +24,11 @@ export function Step3({
   )
   const districts = useMemo(() => selectedProvince?.districts ?? [], [selectedProvince])
 
+  const displayDistrict = (name: string) =>
+    formData.province
+      ? name.replace(new RegExp(`\\s+${formData.province}$`, 'i'), '').trim()
+      : name
+
   const handleDistrictChange = (e: ChangeEvent<HTMLSelectElement>) => {
     updateField('district', e.target.value)
   }
@@ -99,7 +104,7 @@ export function Step3({
                   >
                     <option value="">Select district</option>
                     {districts.map((d) => (
-                      <option key={d.code} value={d.name_en}>{d.name_en}</option>
+                      <option key={d.code} value={d.name_en}>{displayDistrict(d.name_en)}</option>
                     ))}
                   </select>
                   <ChevronDown className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
@@ -111,7 +116,7 @@ export function Step3({
                 )}
               </div>
             ) : (
-              <Input value={formData.district} disabled className="cursor-not-allowed" />
+              <Input value={displayDistrict(formData.district)} disabled className="cursor-not-allowed" />
             )}
           </div>
 

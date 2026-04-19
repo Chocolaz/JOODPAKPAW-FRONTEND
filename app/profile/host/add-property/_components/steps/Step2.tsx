@@ -13,6 +13,7 @@ import { useAddProperty } from '../../_context/AddPropertyContext'
 import { StepNavigation } from '../StepNavigation'
 import { AddressComponents } from '@/types'
 
+
 const libraries: 'places'[] = ['places']
 
 export function Step2({
@@ -65,7 +66,7 @@ export function Step2({
 
             place.address_components.forEach((c) => {
               const types = c.types
-              if (types.includes('country')) components.country = 'Thailand'
+              if (types.includes('country')) components.country = c.long_name
               if (types.includes('administrative_area_level_1')) {
                 const prov = /krung\s*thep/i.test(c.long_name) ? 'Bangkok' : stripProvince(c.long_name)
                 components.province = prov
@@ -83,7 +84,11 @@ export function Step2({
               if (types.includes('postal_code')) components.zipcode = c.long_name
             })
 
-            updateField('country', components.country || 'Thailand')
+            if (components.district?.toLowerCase() === 'mueang' && components.province) {
+              components.district = `Mueang ${components.province}`
+            }
+
+            updateField('country', components.country || '')
             updateField('province', components.province || '')
             updateField('district', components.district || '')
             updateField('geocodedProvince', components.province || '')
@@ -233,9 +238,15 @@ export function Step2({
               <span>Updating address…</span>
             </>
           ) : formData.latitude && formData.longitude ? (
-            <span className="text-positive-green font-medium">
-              Location set — drag the pin to adjust
-            </span>
+            formData.country === 'Thailand' ? (
+              <span className="text-positive-green font-medium">
+                Location set — drag the pin to adjust
+              </span>
+            ) : (
+              <span className="text-red-500 font-medium">
+                We currently only support properties in Thailand
+              </span>
+            )
           ) : (
             <span>Search for an address or drag the pin to your property</span>
           )}
@@ -245,7 +256,12 @@ export function Step2({
       <StepNavigation
         onBack={onBack}
         onNext={onNext}
-        isNextDisabled={!formData.latitude || !formData.longitude || isGeocoding}
+        isNextDisabled={
+          !formData.latitude ||
+          !formData.longitude ||
+          isGeocoding ||
+          formData.country !== 'Thailand'
+        }
       />
     </>
   )

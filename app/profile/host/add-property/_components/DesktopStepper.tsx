@@ -1,7 +1,8 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { Check } from 'lucide-react'
+import { Check, ArrowLeft } from 'lucide-react'
+import Link from 'next/link'
 import { cn } from '@/lib/utils'
 
 const FORM_STEPS = [
@@ -18,7 +19,15 @@ export function DesktopStepper({ stepId }: { stepId: number }) {
   const router = useRouter()
 
   return (
-    <nav className="max-w-2xl mx-auto w-full px-12 pt-8 pb-6">
+    <nav className="max-w-2xl mx-auto w-full px-12 pt-6 pb-4">
+      <Link
+        href="/profile/host?tab=properties"
+        className="inline-flex items-center gap-1.5 text-sm text-neutral-gray hover:text-deep-teal transition-colors mb-5"
+      >
+        <ArrowLeft className="w-4 h-4" />
+        Back to Host
+      </Link>
+
       <div className="flex items-center">
         {FORM_STEPS.map((step, index) => {
           const isDone = stepId > step.id
