@@ -6,6 +6,7 @@ interface PropertyRoomCategoriesProps {
   propertyId: number
   onDeleteSuccess?: () => void
   showDeleteButton?: boolean
+  fallbackImageUrl?: string
 }
 
 export function PropertyRoomCategories({
@@ -13,28 +14,22 @@ export function PropertyRoomCategories({
   propertyId,
   onDeleteSuccess,
   showDeleteButton,
+  fallbackImageUrl,
 }: PropertyRoomCategoriesProps) {
-  if (!roomCategories || roomCategories.length === 0) {
-    return null
-  }
-
-  const handleDelete = () => {
-    if (onDeleteSuccess) {
-      onDeleteSuccess()
-    }
-  }
+  if (!roomCategories || roomCategories.length === 0) return null
 
   return (
     <div className="border-t pt-8 mt-10">
       <h3 className="text-lg lg:text-xl font-semibold text-deep-teal mb-5">Room Categories</h3>
-      <div className="space-y-4 lg:grid lg:grid-cols-2 lg:gap-4 lg:space-y-0">
+      <div className="space-y-4 md:grid md:grid-cols-2 md:gap-4 md:space-y-0">
         {roomCategories.map((category) => (
           <RoomCategoryCard
             key={category.id}
             category={category}
             propertyId={propertyId}
-            onDeleteSuccess={handleDelete}
+            onDeleteSuccess={onDeleteSuccess}
             showDeleteButton={showDeleteButton}
+            fallbackImageUrl={fallbackImageUrl}
           />
         ))}
       </div>

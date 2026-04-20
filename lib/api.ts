@@ -491,6 +491,8 @@ export const createRoomCategory = (
   Object.entries(data).forEach(([key, value]) => {
     if (key === 'pets' || key === 'facilities') {
       formData.append(key, JSON.stringify(value))
+    } else if (key === 'images') {
+      (value as File[]).forEach((file) => formData.append('images', file))
     } else {
       formData.append(key, String(value))
     }

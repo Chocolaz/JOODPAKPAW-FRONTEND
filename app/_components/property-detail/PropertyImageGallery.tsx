@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Image from 'next/image'
 import {
   Carousel,
@@ -8,6 +8,7 @@ import {
   CarouselItem,
   type CarouselApi,
 } from '@/components/ui/carousel'
+import Autoplay from 'embla-carousel-autoplay'
 import { cn } from '@/lib/utils'
 import Lightbox from 'yet-another-react-lightbox'
 import 'yet-another-react-lightbox/styles.css'
@@ -51,6 +52,7 @@ export function PropertyImageGallery({ images: propImages }: PropertyImageGaller
   const [currentIndex, setCurrentIndex] = useState(0)
   const [carouselApi, setCarouselApi] = useState<CarouselApi>()
   const [currentSlide, setCurrentSlide] = useState(0)
+  const autoplay = useRef(Autoplay({ delay: 3500, stopOnInteraction: true }))
 
   useEffect(() => {
     if (!carouselApi) return
@@ -151,8 +153,8 @@ export function PropertyImageGallery({ images: propImages }: PropertyImageGaller
   return (
     <>
       {/* Mobile: swipeable carousel + dot indicators */}
-      <div className="lg:hidden w-full pb-2">
-        <Carousel className="w-full" setApi={setCarouselApi}>
+      <div className="md:hidden w-full pb-2">
+        <Carousel className="w-full" setApi={setCarouselApi} plugins={[autoplay.current]} opts={{ loop: true }}>
           <CarouselContent>
             {images.map((src, i) => (
               <CarouselItem key={i}>
@@ -181,8 +183,8 @@ export function PropertyImageGallery({ images: propImages }: PropertyImageGaller
         )}
       </div>
 
-      {/* Desktop: adaptive grid */}
-      <div className="hidden lg:block pb-4">
+      {/* Tablet+: adaptive grid */}
+      <div className="hidden md:block pb-4">
         {renderDesktopGrid()}
       </div>
 

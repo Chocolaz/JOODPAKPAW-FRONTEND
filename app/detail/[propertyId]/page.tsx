@@ -26,12 +26,12 @@ function PropertyDetailSkeleton() {
     <div className="max-w-6xl mx-auto pb-32 lg:pb-10">
       {/* Gallery skeleton */}
       {/* Mobile */}
-      <div className="lg:hidden">
+      <div className="md:hidden">
         <Skeleton className="w-full aspect-square rounded-none" />
       </div>
-      {/* Desktop */}
+      {/* Tablet+ */}
       <div
-        className="hidden lg:grid grid-cols-2 gap-2 rounded-2xl overflow-hidden pb-4"
+        className="hidden md:grid grid-cols-2 gap-2 rounded-2xl overflow-hidden pb-4"
         style={{ height: 480 }}
       >
         <Skeleton className="w-full h-full rounded-none" />
@@ -42,7 +42,7 @@ function PropertyDetailSkeleton() {
       </div>
 
       {/* Body */}
-      <div className="px-4 lg:px-2 lg:grid lg:grid-cols-[1fr_380px] lg:gap-10 lg:items-start lg:mt-2">
+      <div className="px-4 md:px-8 lg:px-2 lg:grid lg:grid-cols-[1fr_380px] lg:gap-10 lg:items-start lg:mt-2">
         {/* Left content */}
         <div className="space-y-4 mt-4">
           {/* Header */}
@@ -208,7 +208,7 @@ export default function PropertyDetailPage() {
       </motion.div>
 
       {/* Body */}
-      <div className="px-4 lg:px-2 lg:grid lg:grid-cols-[1fr_380px] lg:gap-10 lg:items-start lg:mt-2">
+      <div className="px-4 md:px-8 lg:px-2 lg:grid lg:grid-cols-[1fr_380px] lg:gap-10 lg:items-start lg:mt-2">
         {/* Left: content — each section staggers in */}
         <div className="min-w-0">
           <motion.div
@@ -259,6 +259,7 @@ export default function PropertyDetailPage() {
               roomCategories={roomCategoriesArray}
               onDeleteSuccess={refreshProperty}
               showDeleteButton={false}
+              fallbackImageUrl={property.images?.[0]?.filePath}
             />
           </motion.div>
 

@@ -8,7 +8,7 @@ import { toast } from 'sonner'
 import { PropertyImage } from '@/types'
 import { CropModal } from '@/app/_components/CropModal'
 
-const MAX_FILES = 10
+const DEFAULT_maxFiles = 10
 const MAX_TOTAL_MB = 20
 const CROP_ASPECT = 4 / 3
 const ALLOWED_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/heic', 'image/heif']
@@ -20,6 +20,7 @@ interface ImageManagerProps {
   onNewFilesChange: (files: File[]) => void
   renderAsGridAddButton?: boolean
   layout?: 'scroll' | 'grid'
+  maxFiles?: number
 }
 
 interface FileEntry { file: File; id: number; url: string }
@@ -32,6 +33,7 @@ export function ImageManager({
   onNewFilesChange,
   renderAsGridAddButton = false,
   layout = 'scroll',
+  maxFiles = DEFAULT_maxFiles,
 }: ImageManagerProps) {
   const counterRef = useRef(0)
   const entryCacheRef = useRef<Map<File, FileEntry>>(new Map())
@@ -88,8 +90,8 @@ export function ImageManager({
     e.target.value = ''
 
     const total = existingImages.length + newFiles.length
-    if (total + incomingFiles.length > MAX_FILES) {
-      toast.error(`You can upload a maximum of ${MAX_FILES} photos.`)
+    if (total + incomingFiles.length > maxFiles) {
+      toast.error(`You can upload a maximum of ${maxFiles} photos.`)
       return
     }
 
@@ -181,7 +183,7 @@ export function ImageManager({
               className="mb-4"
             />
             <span className="text-sm font-medium text-deep-teal">Click to upload photos</span>
-            <span className="text-xs text-neutral-gray mt-1">Up to {MAX_FILES} photos · {MAX_TOTAL_MB}MB total</span>
+            <span className="text-xs text-neutral-gray mt-1">Up to {maxFiles} photos · {MAX_TOTAL_MB}MB total</span>
           </div>
         )}
 
@@ -208,7 +210,7 @@ export function ImageManager({
               return renderThumbnail(entry.url, entry.id, () => removeNewFile(file), isCover, true, layout === 'grid')
             })}
 
-            {totalImages < MAX_FILES && (
+            {totalImages < maxFiles && (
               <div
                 onClick={triggerUpload}
                 className={`${layout === 'grid' ? 'w-full' : 'flex-none w-32'} aspect-[4/3] flex flex-col items-center justify-center gap-1 border-2 border-dashed border-gray-200 rounded-xl cursor-pointer hover:border-deep-teal/40 hover:bg-teal-50/30 transition-all bg-white`}
@@ -237,11 +239,11 @@ export function ImageManager({
             <div className="w-full bg-gray-100 rounded-full h-0.5">
               <div
                 className="bg-deep-teal h-0.5 rounded-full transition-all duration-300"
-                style={{ width: `${(totalImages / MAX_FILES) * 100}%` }}
+                style={{ width: `${(totalImages / maxFiles) * 100}%` }}
               />
             </div>
             <p className="text-xs text-neutral-gray mt-1.5 text-right">
-              {totalImages} / {MAX_FILES} photos
+              {totalImages} / {maxFiles} photos
             </p>
           </div>
         )}

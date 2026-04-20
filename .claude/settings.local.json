@@ -48,7 +48,8 @@
       "Bash(npx kill-port:*)",
       "Bash(rm -f .next/lock)",
       "WebFetch(domain:raw.githubusercontent.com)",
-      "Bash(npm install *)"
+      "Bash(npm install *)",
+      "Bash(del *)"
     ]
   },
   "enabledPlugins": {

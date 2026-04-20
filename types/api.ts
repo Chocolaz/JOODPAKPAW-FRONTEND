@@ -51,6 +51,7 @@ export interface RoomCategoryFormData {
   pets: number[]
   facilities: number[]
   petSizeCategoryId: number
+  images: File[]
 }
 
 export interface BookingOrderItem {

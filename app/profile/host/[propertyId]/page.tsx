@@ -212,7 +212,7 @@ export default function HostPropertyDetailPage() {
       </motion.div>
 
       {/* Body */}
-      <div className="px-4 lg:px-2 lg:grid lg:grid-cols-[1fr_380px] lg:gap-10 lg:items-start lg:mt-2">
+      <div className="px-4 md:px-8 lg:px-2 lg:grid lg:grid-cols-[1fr_380px] lg:gap-10 lg:items-start lg:mt-2">
         {/* Left: content */}
         <div className="min-w-0">
           <motion.div custom={0} variants={fadeUp} initial="hidden" animate="visible">
@@ -276,7 +276,7 @@ export default function HostPropertyDetailPage() {
                 propertyId={property.id}
                 roomCategories={roomCategoriesArray}
                 onDeleteSuccess={refreshProperty}
-                showDeleteButton={false}
+                showDeleteButton={true}
               />
             ) : (
               <div className="border-t pt-8 mt-10">
@@ -284,16 +284,17 @@ export default function HostPropertyDetailPage() {
                 <p className="text-neutral-gray mb-4">No room categories added yet.</p>
               </div>
             )}
-            <div className={roomCategoriesArray.length > 0 ? 'mt-4' : ''}>
-              <div
+            <div className={cn('lg:hidden', roomCategoriesArray.length > 0 ? 'mt-4' : '')}>
+              <button
+                type="button"
                 onClick={() => setIsAddRoomDrawerOpen(true)}
-                className="px-6 py-5 border-2 border-dashed border-positive-green rounded-xl cursor-pointer hover:bg-green-50/50 transition-colors"
+                className="w-full px-6 py-5 border-2 border-dashed border-positive-green rounded-xl cursor-pointer hover:bg-green-50/50 transition-colors"
               >
                 <div className="font-medium text-deep-teal text-base flex items-center justify-between w-full">
                   <span>Add Room Category</span>
                   <Plus className="h-5 w-5 text-positive-green" />
                 </div>
-              </div>
+              </button>
             </div>
 
             {/* Mobile: Drawer */}
@@ -439,6 +440,15 @@ export default function HostPropertyDetailPage() {
               >
                 <Pencil className="w-4 h-4" />
                 Edit Property
+              </button>
+
+              {/* Add Room Category button */}
+              <button
+                onClick={() => setIsAddRoomDrawerOpen(true)}
+                className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-semibold border border-positive-green text-positive-green hover:bg-green-50 transition"
+              >
+                <Plus className="w-4 h-4" />
+                Add Room Category
               </button>
 
               {/* Delete button */}

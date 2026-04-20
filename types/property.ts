@@ -51,6 +51,14 @@ export interface RoomCategories {
     id: number
     name: string
   }[]
+  images?: {
+    id: number
+    fileName: string
+    filePath: string
+    fileContentType: string
+    fileExtensionName: string
+    fileSize: number
+  }[]
 }
 
 export interface PropertyType {

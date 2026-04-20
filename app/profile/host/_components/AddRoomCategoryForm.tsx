@@ -19,6 +19,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { FacilityCard } from './FacilityCard'
+import { ImageManager } from '@/app/_components/ImageManager'
 import SmallIcon from '/public/icons/small.svg'
 import MediumIcon from '/public/icons/medium.svg'
 import LargeIcon from '/public/icons/large.svg'
@@ -61,6 +62,7 @@ const initialRoomState: RoomCategoryFormData = {
   pets: [],
   facilities: [],
   petSizeCategoryId: 1,
+  images: [],
 }
 
 export function AddRoomCategoryForm({
@@ -203,6 +205,20 @@ export function AddRoomCategoryForm({
                 <p className="text-xs text-gray-400 text-right mt-1">{roomData.name.length}/50</p>
               </div>
 
+              {/* Images */}
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1.5">Room Photos <span className="text-gray-400 font-normal">(optional)</span></label>
+                <ImageManager
+                  existingImages={[]}
+                  newFiles={roomData.images}
+                  onExistingImagesChange={() => {}}
+                  onNewFilesChange={(files) => updateRoom('images', files)}
+                  renderAsGridAddButton
+                  layout="scroll"
+                  maxFiles={5}
+                />
+              </div>
+
               {/* Species */}
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-3">Species Allowed</label>
@@ -265,24 +281,9 @@ export function AddRoomCategoryForm({
                 )}
               </div>
 
-              {/* Price */}
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-1.5">Base Price / Night (฿)</label>
-                <div className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm font-medium">฿</span>
-                  <Input
-                    name="basePrice"
-                    type="text"
-                    placeholder="0"
-                    value={displayPrice}
-                    onChange={handlePriceChange}
-                    className="pl-7 text-lg font-semibold"
-                  />
-                </div>
-              </div>
             </div>
 
-            {/* Right: facilities, max pets, total rooms */}
+            {/* Right: facilities, max pets, total rooms, price */}
             <div className="space-y-6">
               {/* Facilities */}
               <div>
@@ -330,6 +331,22 @@ export function AddRoomCategoryForm({
                   </Select>
                 </div>
               </div>
+
+              {/* Price */}
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1.5">Base Price / Night (฿)</label>
+                <div className="relative">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm font-medium">฿</span>
+                  <Input
+                    name="basePrice"
+                    type="text"
+                    placeholder="0"
+                    value={displayPrice}
+                    onChange={handlePriceChange}
+                    className="pl-7 text-lg font-semibold"
+                  />
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -361,6 +378,20 @@ export function AddRoomCategoryForm({
       <div>
         <Label htmlFor="name" className="text-deep-teal block mb-2">Title</Label>
         <Input id="name" name="name" placeholder="Room name" value={roomData.name} onChange={handleChange} required />
+      </div>
+
+      {/* Images */}
+      <div>
+        <Label className="text-deep-teal block mb-2">Room Photos <span className="text-gray-400 font-normal text-xs">(optional)</span></Label>
+        <ImageManager
+          existingImages={[]}
+          newFiles={roomData.images}
+          onExistingImagesChange={() => {}}
+          onNewFilesChange={(files) => updateRoom('images', files)}
+          renderAsGridAddButton
+          layout="scroll"
+          maxFiles={5}
+        />
       </div>
 
       {/* Species */}
