@@ -1,13 +1,14 @@
 'use client'
 
-import React, { useState } from 'react'
-import { Star, Send, CheckCircle } from 'lucide-react'
+import React, { useState, useRef } from 'react'
+import { Star, Send, CheckCircle, ImagePlus, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import { Spinner } from '@/components/ui/spinner'
 import { submitReview } from '@/lib/api'
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
+import Image from 'next/image'
 
 interface ReviewSectionProps {
   bookingId: string
@@ -17,6 +18,7 @@ interface ReviewSectionProps {
 
 const RATING_LABELS = ['', 'Poor', 'Fair', 'Good', 'Very Good', 'Excellent']
 const MAX_COMMENT_LENGTH = 500
+const MAX_IMAGES = 5
 
 export default function ReviewSection({
   bookingId,
@@ -28,10 +30,31 @@ export default function ReviewSection({
   const [rating, setRating] = useState(0)
   const [hoveredRating, setHoveredRating] = useState(0)
   const [comment, setComment] = useState('')
+  const [images, setImages] = useState<File[]>([])
+  const [previews, setPreviews] = useState<string[]>([])
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSubmitted, setIsSubmitted] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   const activeRating = hoveredRating || rating
+
+  const handleImageAdd = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files ?? [])
+    const remaining = MAX_IMAGES - images.length
+    const toAdd = files.slice(0, remaining)
+    setImages((prev) => [...prev, ...toAdd])
+    toAdd.forEach((file) => {
+      const url = URL.createObjectURL(file)
+      setPreviews((prev) => [...prev, url])
+    })
+    e.target.value = ''
+  }
+
+  const handleImageRemove = (index: number) => {
+    URL.revokeObjectURL(previews[index])
+    setImages((prev) => prev.filter((_, i) => i !== index))
+    setPreviews((prev) => prev.filter((_, i) => i !== index))
+  }
 
   const handleSubmit = async () => {
     if (rating === 0) {
@@ -41,7 +64,7 @@ export default function ReviewSection({
 
     setIsSubmitting(true)
     try {
-      await submitReview(bookingId, { rating, comment: comment.trim() })
+      await submitReview(bookingId, { rating, comment: comment.trim(), images })
       toast.success('Review submitted successfully!')
       setIsSubmitted(true)
     } catch (error) {
@@ -57,7 +80,6 @@ export default function ReviewSection({
     const displayComment = hasExistingReview
       ? existingComment || ''
       : comment.trim()
-
 
     return (
       <div className="bg-white rounded-2xl p-6 shadow-md border border-gray-100">
@@ -176,6 +198,48 @@ export default function ReviewSection({
             {comment.length}/{MAX_COMMENT_LENGTH}
           </span>
         </div>
+      </div>
+
+      {/* Photo Upload */}
+      <div className="space-y-2">
+        <p className="text-xs font-medium text-neutral-gray">
+          Photos <span className="font-normal">(optional, up to {MAX_IMAGES})</span>
+        </p>
+        <div className="flex flex-wrap gap-2">
+          {previews.map((src, i) => (
+            <div key={i} className="relative w-20 h-20 rounded-xl overflow-visible shrink-0">
+              <div className="relative w-full h-full rounded-xl overflow-hidden border border-gray-200">
+                <Image src={src} alt={`Review photo ${i + 1}`} fill unoptimized className="object-cover" />
+              </div>
+              <button
+                type="button"
+                onClick={() => handleImageRemove(i)}
+                disabled={isSubmitting}
+                className="absolute -top-2 -right-2 w-5 h-5 bg-gray-800 text-white rounded-full flex items-center justify-center shadow-sm hover:bg-red-500 transition-colors disabled:opacity-50 z-10"
+              >
+                <X className="w-3 h-3" />
+              </button>
+            </div>
+          ))}
+          {images.length < MAX_IMAGES && (
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={isSubmitting}
+              className="w-20 h-20 rounded-xl border-2 border-dashed border-gray-200 flex flex-col items-center justify-center gap-1 text-gray-300 hover:border-accent-orange hover:text-accent-orange transition-colors disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
+            >
+              <ImagePlus className="w-5 h-5" />
+            </button>
+          )}
+        </div>
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          multiple
+          className="hidden"
+          onChange={handleImageAdd}
+        />
       </div>
 
       {/* Submit Button */}

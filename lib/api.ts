@@ -814,12 +814,16 @@ export const deleteFavoriteProperty = (propertyId: number): Promise<void> => {
 // --- Review Functions ---
 export const submitReview = (
   bookingId: string,
-  data: { rating: number; comment: string }
+  data: { rating: number; comment: string; images?: File[] }
 ): Promise<void> => {
+  const formData = new FormData()
+  formData.append('rating', String(data.rating))
+  formData.append('comment', data.comment)
+  if (data.images) data.images.forEach((img) => formData.append('images', img))
   return request<void>({
     endpoint: `api/v1/bookings/${bookingId}/review`,
     method: 'POST',
-    body: data,
+    body: formData,
     requiresAuth: true,
     errorContext: 'Submit Review',
   })

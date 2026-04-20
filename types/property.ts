@@ -66,6 +66,15 @@ export interface PropertyType {
   name: string
 }
 
+export interface ReviewImage {
+  id: number
+  fileName: string
+  filePath: string
+  fileContentType: string
+  fileExtensionName: string
+  fileSize: number
+}
+
 export interface PropertyReview {
   bookingId: number
   firstName: string
@@ -73,6 +82,7 @@ export interface PropertyReview {
   avatar?: string | null
   comment: string
   rating: number
+  reviewImages?: ReviewImage[]
 }
 
 export interface PropertyHost {

@@ -1,4 +1,4 @@
-import { Property } from './property'
+import { Property, ReviewImage } from './property'
 
 export interface HostProfile {
   id: number
@@ -32,6 +32,7 @@ export interface HostReview {
   propertyName: string
   reviewedAt: string
   guestProfile: HostReviewGuest
+  reviewImages?: ReviewImage[]
 }
 
 export interface HostReviewsResponse {
