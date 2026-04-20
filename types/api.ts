@@ -54,6 +54,18 @@ export interface RoomCategoryFormData {
   images: File[]
 }
 
+export interface EditRoomCategoryFormData {
+  name: string
+  totalRoom: number
+  numberOfPets: number
+  basePrice: number
+  pets: number[]
+  facilities: number[]
+  petSizeCategoryId: number
+  newImages: File[]
+  deleteImageIds: number[]
+}
+
 export interface BookingOrderItem {
   roomCategoryId: number
   checkInDate: string

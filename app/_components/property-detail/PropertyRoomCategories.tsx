@@ -7,6 +7,7 @@ interface PropertyRoomCategoriesProps {
   onDeleteSuccess?: () => void
   showDeleteButton?: boolean
   fallbackImageUrl?: string
+  onEdit?: (category: RoomCategories) => void
 }
 
 export function PropertyRoomCategories({
@@ -15,6 +16,7 @@ export function PropertyRoomCategories({
   onDeleteSuccess,
   showDeleteButton,
   fallbackImageUrl,
+  onEdit,
 }: PropertyRoomCategoriesProps) {
   if (!roomCategories || roomCategories.length === 0) return null
 
@@ -30,6 +32,7 @@ export function PropertyRoomCategories({
             onDeleteSuccess={onDeleteSuccess}
             showDeleteButton={showDeleteButton}
             fallbackImageUrl={fallbackImageUrl}
+            onEdit={onEdit}
           />
         ))}
       </div>

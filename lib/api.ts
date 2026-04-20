@@ -507,6 +507,31 @@ export const createRoomCategory = (
   })
 }
 
+export const updateRoomCategory = (
+  propertyId: number,
+  roomId: number,
+  data: import('@/types').EditRoomCategoryFormData
+) => {
+  const formData = new FormData()
+  formData.append('name', data.name)
+  formData.append('totalRoom', String(data.totalRoom))
+  formData.append('numberOfPets', String(data.numberOfPets))
+  formData.append('basePrice', String(data.basePrice))
+  formData.append('pets', JSON.stringify(data.pets))
+  formData.append('facilities', JSON.stringify(data.facilities))
+  formData.append('petSizeCategories', String(data.petSizeCategoryId))
+  data.newImages.forEach((file) => formData.append('images', file))
+  formData.append('deleteImageIds', JSON.stringify(data.deleteImageIds))
+
+  return request({
+    endpoint: `api/v1/hosts/properties/${propertyId}/room-categories/${roomId}`,
+    method: 'PUT',
+    body: formData,
+    requiresAuth: true,
+    errorContext: 'Update Room Category',
+  })
+}
+
 export const getRoomCategories = (
   propertyId: number
 ): Promise<RoomCategoriesResponse> => {

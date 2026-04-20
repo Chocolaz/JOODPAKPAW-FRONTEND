@@ -21,6 +21,7 @@ import { toast } from 'sonner'
 import { useState } from 'react'
 import { ConfirmationModal } from '@/app/_components/ConfirmationModal'
 import { normalizeRoomCategories } from '@/lib/utils'
+import type { RoomCategories } from '@/types'
 import { useUserProfile } from '@/app/profile/_hooks/useUserProfile'
 import { PropertyBookingsSection } from './_components/PropertyBookingsSection'
 import { AddRoomCategoryForm } from '../_components/AddRoomCategoryForm'
@@ -52,6 +53,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { EditPropertyForm } from '../_components/EditPropertyForm'
+import { EditRoomCategoryForm } from '../_components/EditRoomCategoryForm'
 import { UnbanPropertyDrawer } from '../_components/UnbanPropertyDrawer'
 import { motion } from 'framer-motion'
 import { cn } from '@/lib/utils'
@@ -77,6 +79,7 @@ export default function HostPropertyDetailPage() {
   const [isAddRoomDrawerOpen, setIsAddRoomDrawerOpen] = useState(false)
   const [reportReviewId, setReportReviewId] = useState<number | null>(null)
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
+  const [editingRoom, setEditingRoom] = useState<RoomCategories | null>(null)
   const [isAppealOpen, setIsAppealOpen] = useState(false)
   const isDesktop = useMediaQuery('(min-width: 1024px)')
 
@@ -277,6 +280,7 @@ export default function HostPropertyDetailPage() {
                 roomCategories={roomCategoriesArray}
                 onDeleteSuccess={refreshProperty}
                 showDeleteButton={true}
+                onEdit={(cat) => setEditingRoom(cat)}
               />
             ) : (
               <div className="border-t pt-8 mt-10">
@@ -518,6 +522,44 @@ export default function HostPropertyDetailPage() {
           </DialogContent>
         </Dialog>
       </div>
+
+      {/* Edit Room Category — Mobile Drawer */}
+      {!isDesktop && editingRoom && (
+        <Drawer open={!!editingRoom} onOpenChange={(open) => !open && setEditingRoom(null)}>
+          <DrawerContent>
+            <DrawerHeader className="relative">
+              <DrawerTitle className="flex items-center gap-2">
+                <ChevronLeft className="w-6 h-6 text-neutral-gray cursor-pointer" onClick={() => setEditingRoom(null)} />
+                <span>Edit Room Category</span>
+              </DrawerTitle>
+            </DrawerHeader>
+            <EditRoomCategoryForm
+              propertyId={property.id}
+              category={editingRoom}
+              onEditSuccess={() => { setEditingRoom(null); refreshProperty() }}
+            />
+          </DrawerContent>
+        </Drawer>
+      )}
+
+      {/* Edit Room Category — Desktop Dialog */}
+      {isDesktop && (
+        <Dialog open={!!editingRoom} onOpenChange={(open) => !open && setEditingRoom(null)}>
+          <DialogContent className="max-w-3xl p-0 overflow-hidden flex flex-col h-[88vh] gap-0">
+            <DialogHeader className="px-6 py-5 border-b border-gray-100 shrink-0">
+              <DialogTitle className="text-lg text-deep-teal">Edit Room Category</DialogTitle>
+            </DialogHeader>
+            {editingRoom && (
+              <EditRoomCategoryForm
+                propertyId={property.id}
+                category={editingRoom}
+                variant="desktop"
+                onEditSuccess={() => { setEditingRoom(null); refreshProperty() }}
+              />
+            )}
+          </DialogContent>
+        </Dialog>
+      )}
 
       {reportReviewId !== null && (
         <ReportReviewDrawer

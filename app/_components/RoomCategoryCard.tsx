@@ -1,12 +1,11 @@
 'use client'
 
-import { BedDouble, PawPrint, Minus, ImageOff, ChevronLeft, ChevronRight } from 'lucide-react'
+import { BedDouble, PawPrint, Minus, Pencil, ImageOff, ChevronLeft, ChevronRight, Loader2 } from 'lucide-react'
 import Image from 'next/image'
 import { RoomCategories } from '@/types'
 import { useState, useMemo, useRef } from 'react'
 import { deleteRoomCategory } from '@/lib/api'
 import { toast } from 'sonner'
-import { Spinner } from '@/components/ui/spinner'
 import { ConfirmationModal } from '@/app/_components/ConfirmationModal'
 import { cn } from '@/lib/utils'
 import { getPetPolicy } from '@/lib/utils'
@@ -21,6 +20,7 @@ interface RoomCategoryCardProps {
   className?: string
   isOnlyRoom?: boolean
   fallbackImageUrl?: string
+  onEdit?: (category: RoomCategories) => void
 }
 
 export function RoomCategoryCard({
@@ -31,6 +31,7 @@ export function RoomCategoryCard({
   className,
   isOnlyRoom = false,
   fallbackImageUrl,
+  onEdit,
 }: RoomCategoryCardProps) {
   const [isDeleting, setIsDeleting] = useState(false)
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -94,16 +95,7 @@ export function RoomCategoryCard({
 
   return (
     <>
-      <div className={cn('relative rounded-2xl border border-neutral-200 bg-white shadow-md/20 hover:shadow-lg/30 transition-all duration-300 overflow-visible', className)}>
-        {canDelete && (
-          <button
-            onClick={handleDeleteClick}
-            disabled={isOnlyRoom || isDeleting}
-            className="absolute -top-3 -right-3 z-20 p-2 rounded-full backdrop-blur-md bg-white/70 border border-neutral-300 shadow-md hover:shadow-lg transition text-red-600 active:scale-95 disabled:opacity-40"
-          >
-            {isDeleting ? <Spinner className="h-4 w-4" /> : <Minus className="h-5 w-5" />}
-          </button>
-        )}
+      <div className={cn('relative rounded-2xl border border-neutral-200 bg-white shadow-md/20 hover:shadow-lg/30 transition-all duration-300 overflow-hidden', className)}>
 
         {/* Cover image */}
         <div
@@ -208,6 +200,34 @@ export function RoomCategoryCard({
             </div>
           )}
         </div>
+
+        {/* Action bar */}
+        {(onEdit || canDelete) && (
+          <div className="flex border-t border-neutral-100">
+            {onEdit && (
+              <button
+                type="button"
+                onClick={(e) => { e.stopPropagation(); onEdit(category) }}
+                className="flex-1 flex items-center justify-center gap-2 py-3 text-sm font-medium text-deep-teal hover:bg-neutral-50 transition-colors"
+              >
+                <Pencil className="w-4 h-4" />
+                Edit
+              </button>
+            )}
+            {onEdit && canDelete && <div className="w-px bg-neutral-100" />}
+            {canDelete && (
+              <button
+                type="button"
+                onClick={handleDeleteClick}
+                disabled={isOnlyRoom || isDeleting}
+                className="flex-1 flex items-center justify-center gap-2 py-3 text-sm font-medium text-red-500 hover:bg-red-50 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                {isDeleting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Minus className="w-4 h-4" />}
+                {isDeleting ? 'Deleting…' : 'Delete'}
+              </button>
+            )}
+          </div>
+        )}
       </div>
 
       <Lightbox
@@ -218,7 +238,7 @@ export function RoomCategoryCard({
         on={{ view: ({ index }) => setLightboxIndex(index) }}
         carousel={{ finite: images.length <= 1, imageFit: 'contain' }}
         controller={{ closeOnBackdropClick: true }}
-        styles={{ root: { '--yarl__color_backdrop': 'rgba(0,0,0,0.85)' } as React.CSSProperties }}
+        styles={{ root: { '--yarl__color_backdrop': 'rgba(0,0,0,0.85)' } as never }}
       />
 
       {canDelete && (
