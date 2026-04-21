@@ -73,49 +73,27 @@ export function HostReviewsSection({
         <div className="lg:grid lg:grid-cols-[260px_1fr] lg:gap-10 lg:items-start">
           {/* Left: summary sticky */}
           <div className="lg:sticky lg:top-6 mb-6 lg:mb-0 min-w-0">
-            <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 flex flex-row lg:flex-col gap-6 lg:gap-4">
-              <div className="flex flex-col items-center gap-1 shrink-0">
-                <span className="text-5xl font-bold text-deep-teal font-baloo2 leading-none">
-                  {avgRating > 0 ? avgRating.toFixed(1) : '—'}
-                </span>
-                <div className="flex gap-0.5 mt-1">
-                  {[1, 2, 3, 4, 5].map((s) => (
-                    <Star
-                      key={s}
-                      className={cn('w-4 h-4', s <= Math.round(avgRating) ? 'fill-yellow-400 text-yellow-400' : 'fill-gray-200 text-gray-200')}
-                      strokeWidth={0}
-                    />
-                  ))}
-                </div>
-                {avgRating > 0 && (
-                  <span className="text-xs font-semibold text-deep-teal mt-0.5">
-                    {RATING_LABELS[Math.round(avgRating)] || ''}
-                  </span>
-                )}
-                <span className="text-[11px] text-neutral-gray">
-                  {reviewCount} {reviewCount === 1 ? 'review' : 'reviews'}
-                </span>
+            <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 flex flex-col items-center gap-2 text-center">
+              <span className="text-5xl font-bold text-deep-teal font-baloo2 leading-none">
+                {avgRating > 0 ? avgRating.toFixed(1) : '—'}
+              </span>
+              <div className="flex gap-0.5">
+                {[1, 2, 3, 4, 5].map((s) => (
+                  <Star
+                    key={s}
+                    className={cn('w-4 h-4', s <= Math.round(avgRating) ? 'fill-yellow-400 text-yellow-400' : 'fill-gray-200 text-gray-200')}
+                    strokeWidth={0}
+                  />
+                ))}
               </div>
-
-              <div className="flex-1 lg:flex-none space-y-2">
-                {[5, 4, 3, 2, 1].map((star) => {
-                  const count = reviews.filter((r) => r.rating === star).length
-                  const percentage = reviews.length > 0 ? (count / reviews.length) * 100 : 0
-                  return (
-                    <div key={star} className="flex items-center gap-2 text-xs">
-                      <span className="w-3 text-right text-gray-500 font-medium shrink-0">{star}</span>
-                      <Star className="w-3 h-3 fill-yellow-400 text-yellow-400 shrink-0" strokeWidth={0} />
-                      <div className="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                        <div
-                          className="h-full bg-yellow-400 rounded-full transition-all duration-500"
-                          style={{ width: `${percentage}%` }}
-                        />
-                      </div>
-                      <span className="w-4 text-right text-gray-400 shrink-0">{count}</span>
-                    </div>
-                  )
-                })}
-              </div>
+              {avgRating > 0 && (
+                <span className="text-xs font-semibold text-deep-teal">
+                  {RATING_LABELS[Math.round(avgRating)] || ''}
+                </span>
+              )}
+              <span className="text-[11px] text-neutral-gray">
+                {reviewCount} {reviewCount === 1 ? 'review' : 'reviews'}
+              </span>
             </div>
           </div>
 

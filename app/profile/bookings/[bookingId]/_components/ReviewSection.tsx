@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useRef } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import { Star, Send, CheckCircle, ImagePlus, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
@@ -35,6 +35,15 @@ export default function ReviewSection({
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSubmitted, setIsSubmitted] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const previewsRef = useRef<string[]>([])
+
+  useEffect(() => {
+    previewsRef.current = previews
+  }, [previews])
+
+  useEffect(() => {
+    return () => { previewsRef.current.forEach((url) => URL.revokeObjectURL(url)) }
+  }, [])
 
   const activeRating = hoveredRating || rating
 
