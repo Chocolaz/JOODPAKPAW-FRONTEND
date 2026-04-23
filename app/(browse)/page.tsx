@@ -44,6 +44,8 @@ export default function Home() {
     bestValue: [] as Property[], bestValueTotal: 0,
     newListings: [] as Property[], newListingsTotal: 0,
     trending: [] as Property[], trendingTotal: 0,
+    dogFriendly: [] as Property[], dogFriendlyTotal: 0,
+    catFriendly: [] as Property[], catFriendlyTotal: 0,
   })
   const { isAuthenticated, user } = useAuth()
   const { searchQuery, filters, buildSeeAllUrl } = useBrowseFilters()
@@ -63,12 +65,14 @@ export default function Home() {
     else setLoadingMore(true)
     try {
       if (reset) {
-        const [propertiesRes, topRatedRes, bestValueRes, newListingsRes, trendingRes] = await Promise.all([
+        const [propertiesRes, topRatedRes, bestValueRes, newListingsRes, trendingRes, dogRes, catRes] = await Promise.all([
           getProperties(pageNum, PAGE_SIZE),
           getProperties(1, SECTION_FETCH_LIMIT, { minRating: 4.0 }).catch(() => EMPTY_SECTION),
           getProperties(1, SECTION_FETCH_LIMIT, { sortBy: 'price' }).catch(() => EMPTY_SECTION),
           getProperties(1, SECTION_FETCH_LIMIT, { days: 30 }).catch(() => EMPTY_SECTION),
           getProperties(1, SECTION_FETCH_LIMIT, { sortBy: 'trending' }).catch(() => EMPTY_SECTION),
+          getProperties(1, SECTION_FETCH_LIMIT, { petTypes: 'dog' }).catch(() => EMPTY_SECTION),
+          getProperties(1, SECTION_FETCH_LIMIT, { petTypes: 'cat' }).catch(() => EMPTY_SECTION),
         ])
         if (key !== fetchKeyRef.current) return
         setProperties(propertiesRes.data)
@@ -80,6 +84,8 @@ export default function Home() {
           bestValue: bestValueRes.data, bestValueTotal: bestValueRes.totalRows,
           newListings: newListingsRes.data, newListingsTotal: newListingsRes.totalRows,
           trending: trendingRes.data, trendingTotal: trendingRes.totalRows,
+          dogFriendly: dogRes.data, dogFriendlyTotal: dogRes.totalRows,
+          catFriendly: catRes.data, catFriendlyTotal: catRes.totalRows,
         })
       } else {
         const response = await getProperties(pageNum, PAGE_SIZE)
@@ -194,13 +200,13 @@ export default function Home() {
   }, [visibleProperties, userLocation])
 
   const dogFriendly = useMemo(
-    () => visibleProperties.filter((p) => (p.pets || []).some((pet) => pet.name.toLowerCase() === 'dog')),
-    [visibleProperties]
+    () => sectionData.dogFriendly.filter((p) => !user || p.hostId !== user.id),
+    [sectionData.dogFriendly, user]
   )
 
   const catFriendly = useMemo(
-    () => visibleProperties.filter((p) => (p.pets || []).some((pet) => pet.name.toLowerCase() === 'cat')),
-    [visibleProperties]
+    () => sectionData.catFriendly.filter((p) => !user || p.hostId !== user.id),
+    [sectionData.catFriendly, user]
   )
 
   const recentlyViewed = useMemo(() => {
@@ -430,7 +436,7 @@ export default function Home() {
                             title="Dog-Friendly"
                             icon={<Dog className="w-5 h-5 text-amber-500" />}
                             properties={dogFriendly}
-                            totalCount={dogFriendly.length}
+                            totalCount={sectionData.dogFriendlyTotal}
                             showHeartIcon={isAuthenticated}
                             showPetPolicyChip={false}
                             seeAllHref={buildSeeAllUrl('/dog-friendly')}
@@ -443,7 +449,7 @@ export default function Home() {
                             title="Cat-Friendly"
                             icon={<Cat className="w-5 h-5 text-purple-400" />}
                             properties={catFriendly}
-                            totalCount={catFriendly.length}
+                            totalCount={sectionData.catFriendlyTotal}
                             showHeartIcon={isAuthenticated}
                             showPetPolicyChip={false}
                             seeAllHref={buildSeeAllUrl('/cat-friendly')}

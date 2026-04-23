@@ -1,9 +1,8 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Star } from 'lucide-react'
 import { getProperties } from '@/lib/api'
-import { getLowestPrice } from '@/lib/utils'
 import { Property } from '@/types'
 import { useAuth } from '@/app/_components/AuthContext'
 import { useBrowseFilters } from '@/app/_hooks/useBrowseFilters'
@@ -17,26 +16,18 @@ export default function TopRatedPage() {
   const { filters } = useBrowseFilters()
 
   useEffect(() => {
-    getProperties(1, 500, { minRating: 4.0 })
+    setIsLoading(true)
+    getProperties(1, 500, {
+      minRating: Math.max(4.0, filters.minRating || 0),
+      petTypes: filters.petTypes.length > 0 ? filters.petTypes.join(',') : undefined,
+      maxPrice: filters.maxPrice || undefined,
+    })
       .then((res) => setProperties(res.data))
       .catch(console.error)
       .finally(() => setIsLoading(false))
-  }, [isAuthenticated])
+  }, [isAuthenticated, filters.minRating, filters.petTypes.join(','), filters.maxPrice])
 
-  const filtered = useMemo(() => {
-    return properties.filter((p) => {
-      if (filters.petTypes.length > 0) {
-        const names = (p.pets || []).map((pet) => pet.name.toLowerCase())
-        if (!filters.petTypes.some((t) => names.includes(t))) return false
-      }
-      if (filters.minRating > 0 && p.avgRating < filters.minRating) return false
-      if (filters.maxPrice !== '') {
-        const price = getLowestPrice(p.roomCategories)
-        if (price !== null && price > Number(filters.maxPrice)) return false
-      }
-      return true
-    })
-  }, [properties, filters])
+  const filtered = properties
 
   return (
     <BrowsePageLayout
