@@ -181,20 +181,26 @@ export const deletePetProfile = (id: string): Promise<void> => {
 export const getProperties = (
   page: number,
   limit: number,
-  search?: string,
-  searchBy?: string
+  options?: {
+    minRating?: number
+    sortBy?: string
+    days?: number
+    search?: string
+    petTypes?: string
+    maxPrice?: string | number
+  }
 ): Promise<PropertiesResponse> => {
   const params = new URLSearchParams({
     page: String(page),
     limit: String(limit),
   })
 
-  if (search) {
-    params.append('search', search)
-  }
-  if (searchBy) {
-    params.append('searchBy', searchBy)
-  }
+  if (options?.minRating != null) params.append('minRating', String(options.minRating))
+  if (options?.sortBy) params.append('sortBy', options.sortBy)
+  if (options?.days != null) params.append('days', String(options.days))
+  if (options?.search) params.append('search', options.search)
+  if (options?.petTypes) params.append('petTypes', options.petTypes)
+  if (options?.maxPrice != null && options.maxPrice !== '') params.append('maxPrice', String(options.maxPrice))
 
   return request<PropertiesResponse>({
     endpoint: `api/v1/properties?${params.toString()}`,

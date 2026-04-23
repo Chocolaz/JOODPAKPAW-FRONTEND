@@ -1,15 +1,13 @@
 'use client'
 
 import { useEffect, useMemo, useState, useCallback, useRef } from 'react'
-import Fuse from 'fuse.js'
 import { PageHeader } from '@/app/_components/PageHeader'
 import { PropertyList } from '@/app/_components/PropertyList'
 import { getProperties, getRecommendedProperties } from '@/lib/api'
-import { getLowestPrice } from '@/lib/utils'
-import { PropertiesResponse, Property } from '@/types'
+import { Property } from '@/types'
 import { useAuth } from '@/app/_components/AuthContext'
 import { motion, AnimatePresence } from 'framer-motion'
-import { SearchX, Sparkles, Star, Heart, Loader2, Tag, MapPin, Dog, Cat, Clock } from 'lucide-react'
+import { SearchX, Sparkles, Star, Heart, Loader2, Tag, MapPin, Dog, Cat, Clock, TrendingUp } from 'lucide-react'
 import { useBrowseFilters } from '@/app/_hooks/useBrowseFilters'
 import { useRecentlyViewed } from '@/app/_hooks/useRecentlyViewed'
 import { BrowseSection } from './_components/BrowseSection'
@@ -27,22 +25,10 @@ function haversineDistance(lat1: number, lon1: number, lat2: number, lon2: numbe
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
 }
 
-const fuseOptions = {
-  keys: [
-    { name: 'title', weight: 0.5 },
-    { name: 'province', weight: 0.25 },
-    { name: 'district', weight: 0.15 },
-    { name: 'description', weight: 0.1 },
-  ],
-  threshold: 0.4,
-  includeScore: true,
-  ignoreLocation: true,
-}
-
-const SKELETON_COUNT = 12
 const RECOMMEND_LIMIT = 10
-const TOP_RATED_MIN = 4.0
 const PAGE_SIZE = 50
+const SECTION_FETCH_LIMIT = 7
+const EMPTY_SECTION = { data: [] as Property[], totalRows: 0, totalPages: 0, limit: 0, page: 1, orderBy: '', sort: '' }
 
 export default function Home() {
   const [properties, setProperties] = useState<Property[]>([])
@@ -53,32 +39,56 @@ export default function Home() {
   const [totalRows, setTotalRows] = useState(0)
   const [recommendedProperties, setRecommendedProperties] = useState<Property[]>([])
   const [recommendedTotal, setRecommendedTotal] = useState(0)
-  const [allProperties, setAllProperties] = useState<Property[]>([])
+  const [sectionData, setSectionData] = useState({
+    topRated: [] as Property[], topRatedTotal: 0,
+    bestValue: [] as Property[], bestValueTotal: 0,
+    newListings: [] as Property[], newListingsTotal: 0,
+    trending: [] as Property[], trendingTotal: 0,
+  })
   const { isAuthenticated, user } = useAuth()
   const { searchQuery, filters, buildSeeAllUrl } = useBrowseFilters()
   const { ids: recentlyViewedIds } = useRecentlyViewed()
   const [userLocation, setUserLocation] = useState<{ lat: number; lon: number } | null>(null)
 
+  const [filterResults, setFilterResults] = useState<Property[]>([])
+  const [filterTotal, setFilterTotal] = useState(0)
+  const [isFilterLoading, setIsFilterLoading] = useState(false)
+
   const fetchKeyRef = useRef(0)
+  const filterKeyRef = useRef(0)
 
   const fetchProperties = useCallback(async (pageNum: number, reset: boolean) => {
     const key = ++fetchKeyRef.current
     if (reset) setIsLoading(true)
     else setLoadingMore(true)
     try {
-      const response = (await getProperties(pageNum, PAGE_SIZE)) as PropertiesResponse
-      if (key !== fetchKeyRef.current) return
       if (reset) {
-        setProperties(response.data)
-        getProperties(1, response.totalRows)
-          .then((res) => setAllProperties((res as PropertiesResponse).data))
-          .catch(() => {})
+        const [propertiesRes, topRatedRes, bestValueRes, newListingsRes, trendingRes] = await Promise.all([
+          getProperties(pageNum, PAGE_SIZE),
+          getProperties(1, SECTION_FETCH_LIMIT, { minRating: 4.0 }).catch(() => EMPTY_SECTION),
+          getProperties(1, SECTION_FETCH_LIMIT, { sortBy: 'price' }).catch(() => EMPTY_SECTION),
+          getProperties(1, SECTION_FETCH_LIMIT, { days: 30 }).catch(() => EMPTY_SECTION),
+          getProperties(1, SECTION_FETCH_LIMIT, { sortBy: 'trending' }).catch(() => EMPTY_SECTION),
+        ])
+        if (key !== fetchKeyRef.current) return
+        setProperties(propertiesRes.data)
+        setPage(pageNum)
+        setTotalPages(propertiesRes.totalPages)
+        setTotalRows(propertiesRes.totalRows)
+        setSectionData({
+          topRated: topRatedRes.data, topRatedTotal: topRatedRes.totalRows,
+          bestValue: bestValueRes.data, bestValueTotal: bestValueRes.totalRows,
+          newListings: newListingsRes.data, newListingsTotal: newListingsRes.totalRows,
+          trending: trendingRes.data, trendingTotal: trendingRes.totalRows,
+        })
       } else {
+        const response = await getProperties(pageNum, PAGE_SIZE)
+        if (key !== fetchKeyRef.current) return
         setProperties((prev) => [...prev, ...response.data])
+        setPage(pageNum)
+        setTotalPages(response.totalPages)
+        setTotalRows(response.totalRows)
       }
-      setPage(pageNum)
-      setTotalPages(response.totalPages)
-      setTotalRows(response.totalRows)
     } catch (error) {
       console.error(error)
     } finally {
@@ -95,6 +105,35 @@ export default function Home() {
       () => {}
     )
   }, [])
+
+  const hasActiveFilters = filters.petTypes.length > 0 || filters.minRating > 0 || filters.maxPrice !== ''
+  const isFiltering = !!searchQuery || hasActiveFilters
+
+  useEffect(() => {
+    if (!isFiltering) {
+      setFilterResults([])
+      setFilterTotal(0)
+      return
+    }
+    const key = ++filterKeyRef.current
+    setIsFilterLoading(true)
+    getProperties(1, PAGE_SIZE, {
+      search: searchQuery || undefined,
+      petTypes: filters.petTypes.length > 0 ? filters.petTypes.join(',') : undefined,
+      minRating: filters.minRating || undefined,
+      maxPrice: filters.maxPrice || undefined,
+    })
+      .then((res) => {
+        if (key !== filterKeyRef.current) return
+        setFilterResults(res.data)
+        setFilterTotal(res.totalRows)
+      })
+      .catch(console.error)
+      .finally(() => {
+        if (key === filterKeyRef.current) setIsFilterLoading(false)
+      })
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isFiltering, searchQuery, filters.petTypes.join(','), filters.minRating, filters.maxPrice])
 
   useEffect(() => {
     fetchProperties(1, true)
@@ -123,81 +162,26 @@ export default function Home() {
     return properties.filter((p) => p.hostId !== user.id)
   }, [properties, user])
 
-  const searchedProperties = useMemo(() => {
-    if (!searchQuery.trim()) return visibleProperties
-    const fuse = new Fuse(visibleProperties, fuseOptions)
-    return fuse.search(searchQuery).map((r) => r.item)
-  }, [visibleProperties, searchQuery])
-
-  const filteredProperties = useMemo(() => {
-    return searchedProperties.filter((p) => {
-      if (filters.petTypes.length > 0) {
-        const names = (p.pets || []).map((pet) => pet.name.toLowerCase())
-        if (!filters.petTypes.some((t) => names.includes(t))) return false
-      }
-      if (filters.minRating > 0 && p.avgRating < filters.minRating) return false
-      if (filters.maxPrice !== '') {
-        const price = getLowestPrice(p.roomCategories)
-        if (price !== null && price > Number(filters.maxPrice)) return false
-      }
-      return true
-    })
-  }, [searchedProperties, filters])
-
-  const sectionBase = useMemo(() => {
-    const base = allProperties.length > 0 ? allProperties : filteredProperties
-    return base.filter((p) => {
-      if (user && p.hostId === user.id) return false
-      if (filters.petTypes.length > 0) {
-        const names = (p.pets || []).map((pet) => pet.name.toLowerCase())
-        if (!filters.petTypes.some((t) => names.includes(t))) return false
-      }
-      if (filters.minRating > 0 && p.avgRating < filters.minRating) return false
-      if (filters.maxPrice !== '') {
-        const price = getLowestPrice(p.roomCategories)
-        if (price !== null && price > Number(filters.maxPrice)) return false
-      }
-      return true
-    })
-  }, [allProperties, filteredProperties, user, filters])
-
-  const bestValue = useMemo(() => {
-    const withPrice = sectionBase.filter((p) => getLowestPrice(p.roomCategories) !== null)
-    const avg =
-      withPrice.reduce((sum, p) => sum + (getLowestPrice(p.roomCategories) ?? 0), 0) /
-      (withPrice.length || 1)
-    return withPrice
-      .filter((p) => (getLowestPrice(p.roomCategories) ?? Infinity) <= avg)
-      .sort((a, b) => {
-        const priceA = getLowestPrice(a.roomCategories) ?? Infinity
-        const priceB = getLowestPrice(b.roomCategories) ?? Infinity
-        return priceA - priceB
-      })
-  }, [sectionBase])
-
-  const topRated = useMemo(
-    () =>
-      [...sectionBase]
-        .filter((p) => p.avgRating >= TOP_RATED_MIN)
-        .sort((a, b) => b.avgRating - a.avgRating),
-    [sectionBase]
+  const topRatedItems = useMemo(
+    () => sectionData.topRated.filter((p) => !user || p.hostId !== user.id),
+    [sectionData.topRated, user]
   )
-
-  const newListings = useMemo(() => {
-    const sorted = [...sectionBase].sort(
-      (a, b) =>
-        new Date(b.publishedAt ?? b.createdAt).getTime() -
-        new Date(a.publishedAt ?? a.createdAt).getTime()
-    )
-    const cutoff = new Date()
-    cutoff.setDate(cutoff.getDate() - 30)
-    const recent = sorted.filter((p) => new Date(p.publishedAt ?? p.createdAt) >= cutoff)
-    return recent.length >= 5 ? recent : sorted.slice(0, 20)
-  }, [filteredProperties])
+  const bestValueItems = useMemo(
+    () => sectionData.bestValue.filter((p) => !user || p.hostId !== user.id),
+    [sectionData.bestValue, user]
+  )
+  const newListingsItems = useMemo(
+    () => sectionData.newListings.filter((p) => !user || p.hostId !== user.id),
+    [sectionData.newListings, user]
+  )
+  const trendingItems = useMemo(
+    () => sectionData.trending.filter((p) => !user || p.hostId !== user.id),
+    [sectionData.trending, user]
+  )
 
   const nearYou = useMemo(() => {
     if (!userLocation) return []
-    return [...sectionBase]
+    return [...visibleProperties]
       .filter((p) => {
         if (p.latitude == null || p.longitude == null) return false
         return haversineDistance(userLocation.lat, userLocation.lon, Number(p.latitude), Number(p.longitude)) <= 50
@@ -207,24 +191,24 @@ export default function Home() {
         const distB = haversineDistance(userLocation.lat, userLocation.lon, Number(b.latitude), Number(b.longitude))
         return distA - distB
       })
-  }, [sectionBase, userLocation])
+  }, [visibleProperties, userLocation])
 
   const dogFriendly = useMemo(
-    () => sectionBase.filter((p) => (p.pets || []).some((pet) => pet.name.toLowerCase() === 'dog')),
-    [sectionBase]
+    () => visibleProperties.filter((p) => (p.pets || []).some((pet) => pet.name.toLowerCase() === 'dog')),
+    [visibleProperties]
   )
 
   const catFriendly = useMemo(
-    () => sectionBase.filter((p) => (p.pets || []).some((pet) => pet.name.toLowerCase() === 'cat')),
-    [sectionBase]
+    () => visibleProperties.filter((p) => (p.pets || []).some((pet) => pet.name.toLowerCase() === 'cat')),
+    [visibleProperties]
   )
 
   const recentlyViewed = useMemo(() => {
     if (recentlyViewedIds.length === 0) return []
     return recentlyViewedIds
-      .map((id) => sectionBase.find((p) => p.id === id))
+      .map((id) => visibleProperties.find((p) => p.id === id))
       .filter((p): p is Property => p != null)
-  }, [recentlyViewedIds, sectionBase])
+  }, [recentlyViewedIds, visibleProperties])
 
   return (
     <div>
@@ -236,9 +220,6 @@ export default function Home() {
       {/* IMPORTANT: use <div> not <main> — root layout already wraps in <main> */}
       <div className="px-5 lg:px-12 mt-6 lg:mt-0 pb-28 lg:pb-16">
         {(() => {
-          const hasActiveFilters = filters.petTypes.length > 0 || filters.minRating > 0 || filters.maxPrice !== ''
-          const isFiltering = !!searchQuery || hasActiveFilters
-
           const filterLabel = [
             searchQuery ? `"${searchQuery}"` : null,
             filters.petTypes.length > 0 ? filters.petTypes.map((t) => t.charAt(0).toUpperCase() + t.slice(1)).join(' & ') : null,
@@ -255,7 +236,7 @@ export default function Home() {
                     {filterLabel}
                   </h5>
                   <AnimatePresence>
-                    {!isLoading && (
+                    {!isFilterLoading && (
                       <motion.span
                         initial={{ opacity: 0, y: -4 }}
                         animate={{ opacity: 1, y: 0 }}
@@ -263,8 +244,8 @@ export default function Home() {
                         transition={{ duration: 0.2 }}
                         className="text-sm lg:text-lg xl:text-xl text-neutral-gray shrink-0"
                       >
-                        {filteredProperties.length}{' '}
-                        {filteredProperties.length === 1 ? 'place' : 'places'}
+                        {filterTotal}{' '}
+                        {filterTotal === 1 ? 'place' : 'places'}
                       </motion.span>
                     )}
                   </AnimatePresence>
@@ -313,30 +294,45 @@ export default function Home() {
                     exit={{ opacity: 0 }}
                     transition={{ duration: 0.25 }}
                   >
-                    {filteredProperties.length === 0 ? (
-                      <EmptyState searchQuery={searchQuery} hasFilters={hasActiveFilters} />
-                    ) : (
-                      <>
-                        <PropertyList
-                          properties={filteredProperties}
+                    <AnimatePresence mode="wait">
+                      {isFilterLoading ? (
+                        <motion.div
+                          key="filter-skeleton"
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          exit={{ opacity: 0 }}
+                          transition={{ duration: 0.15 }}
                           className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-7 gap-4 lg:gap-6"
-                          showPetPolicyChip={true}
-                          showHeartIcon={isAuthenticated}
-                        />
-                        {!isFiltering && page < totalPages && (
-                          <div className="flex justify-center mt-8">
-                            <button
-                              onClick={() => fetchProperties(page + 1, false)}
-                              disabled={loadingMore}
-                              className="flex items-center gap-2 px-6 py-2.5 rounded-full border border-gray-200 text-sm font-medium text-gray-600 hover:border-deep-teal/40 hover:text-deep-teal transition disabled:opacity-50"
-                            >
-                              {loadingMore && <Loader2 className="w-4 h-4 animate-spin" />}
-                              {loadingMore ? 'Loading…' : 'Load more'}
-                            </button>
-                          </div>
-                        )}
-                      </>
-                    )}
+                        >
+                          {Array.from({ length: 14 }).map((_, i) => (
+                            <div key={i} className="animate-pulse">
+                              <div className="aspect-square w-full bg-gray-200 rounded-[20px]" />
+                              <div className="mt-2 space-y-2">
+                                <div className="h-4 bg-gray-200 rounded w-3/4" />
+                                <div className="h-3 bg-gray-200 rounded w-1/2" />
+                              </div>
+                            </div>
+                          ))}
+                        </motion.div>
+                      ) : filterResults.length === 0 ? (
+                        <EmptyState searchQuery={searchQuery} hasFilters={hasActiveFilters} />
+                      ) : (
+                        <motion.div
+                          key="filter-results"
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          exit={{ opacity: 0 }}
+                          transition={{ duration: 0.2 }}
+                        >
+                          <PropertyList
+                            properties={filterResults}
+                            className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-7 gap-4 lg:gap-6"
+                            showPetPolicyChip={true}
+                            showHeartIcon={isAuthenticated}
+                          />
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
                   </motion.div>
                 ) : (
                   /* Sectioned browse — no active search or filters */
@@ -374,7 +370,7 @@ export default function Home() {
                       />
                     )}
 
-                    {filteredProperties.length === 0 ? (
+                    {visibleProperties.length === 0 ? (
                       <EmptyState searchQuery="" hasFilters={false} />
                     ) : (
                       <>
@@ -394,8 +390,8 @@ export default function Home() {
                         <BrowseSection
                           title="Top Rated"
                           icon={<Star className="w-5 h-5 fill-yellow-400 text-yellow-500" />}
-                          properties={topRated}
-                          totalCount={topRated.length}
+                          properties={topRatedItems}
+                          totalCount={sectionData.topRatedTotal}
                           showHeartIcon={isAuthenticated}
                           showPetPolicyChip={true}
                           seeAllHref={buildSeeAllUrl('/top-rated')}
@@ -403,8 +399,8 @@ export default function Home() {
                         <BrowseSection
                           title="Best Value"
                           icon={<Tag className="w-5 h-5 text-positive-green" />}
-                          properties={bestValue}
-                          totalCount={bestValue.length}
+                          properties={bestValueItems}
+                          totalCount={sectionData.bestValueTotal}
                           showHeartIcon={isAuthenticated}
                           showPetPolicyChip={true}
                           seeAllHref={buildSeeAllUrl('/best-value')}
@@ -412,11 +408,20 @@ export default function Home() {
                         <BrowseSection
                           title="New Listings"
                           icon={<Sparkles className="w-5 h-5 text-deep-teal" />}
-                          properties={newListings}
-                          totalCount={newListings.length}
+                          properties={newListingsItems}
+                          totalCount={sectionData.newListingsTotal}
                           showHeartIcon={isAuthenticated}
                           showPetPolicyChip={true}
                           seeAllHref={buildSeeAllUrl('/new-listings')}
+                        />
+                        <BrowseSection
+                          title="Trending"
+                          icon={<TrendingUp className="w-5 h-5 text-accent-orange" />}
+                          properties={trendingItems}
+                          totalCount={sectionData.trendingTotal}
+                          showHeartIcon={isAuthenticated}
+                          showPetPolicyChip={true}
+                          seeAllHref={buildSeeAllUrl('/trending')}
                         />
 
                         {/* Dog-friendly */}
