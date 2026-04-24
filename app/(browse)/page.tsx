@@ -168,22 +168,10 @@ export default function Home() {
     return properties.filter((p) => p.hostId !== user.id)
   }, [properties, user])
 
-  const topRatedItems = useMemo(
-    () => sectionData.topRated.filter((p) => !user || p.hostId !== user.id),
-    [sectionData.topRated, user]
-  )
-  const bestValueItems = useMemo(
-    () => sectionData.bestValue.filter((p) => !user || p.hostId !== user.id),
-    [sectionData.bestValue, user]
-  )
-  const newListingsItems = useMemo(
-    () => sectionData.newListings.filter((p) => !user || p.hostId !== user.id),
-    [sectionData.newListings, user]
-  )
-  const trendingItems = useMemo(
-    () => sectionData.trending.filter((p) => !user || p.hostId !== user.id),
-    [sectionData.trending, user]
-  )
+  const topRatedItems = sectionData.topRated
+  const bestValueItems = sectionData.bestValue
+  const newListingsItems = sectionData.newListings
+  const trendingItems = sectionData.trending
 
   const nearYou = useMemo(() => {
     if (!userLocation) return []
@@ -199,15 +187,8 @@ export default function Home() {
       })
   }, [visibleProperties, userLocation])
 
-  const dogFriendly = useMemo(
-    () => sectionData.dogFriendly.filter((p) => !user || p.hostId !== user.id),
-    [sectionData.dogFriendly, user]
-  )
-
-  const catFriendly = useMemo(
-    () => sectionData.catFriendly.filter((p) => !user || p.hostId !== user.id),
-    [sectionData.catFriendly, user]
-  )
+  const dogFriendly = sectionData.dogFriendly
+  const catFriendly = sectionData.catFriendly
 
   const recentlyViewed = useMemo(() => {
     if (recentlyViewedIds.length === 0) return []

@@ -64,7 +64,10 @@ export function Step1({ onNext }: { onNext: () => void }) {
             return (
               <button
                 key={type.id}
-                onClick={() => updateField('petTypeId', type.id)}
+                onClick={() => {
+                  updateField('petTypeId', type.id)
+                  updateField('petTypeName', type.name)
+                }}
                 className={cn(
                   'flex flex-col items-center justify-center p-4 border rounded-[20px] shadow-sm cursor-pointer transition-colors w-[150px] h-[150px] bg-white',
                   isSelected

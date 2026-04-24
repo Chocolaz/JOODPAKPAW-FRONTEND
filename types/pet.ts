@@ -59,11 +59,14 @@ export enum PetGender {
 
 export interface PetProfileFormData {
   petTypeId: number | null
+  petTypeName: string | null
   petBreedId: number | null
+  petBreedName: string | null
   petName: string | null
   petImage: File | null
   petGender: PetGender | null
   petSizeCategoryId: number | null
+  petSizeName: string | null
   petBirthDate: string | null
   petActivityLevel: number | null
   contactName: string | null

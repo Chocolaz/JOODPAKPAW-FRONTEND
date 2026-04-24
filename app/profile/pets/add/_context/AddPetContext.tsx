@@ -29,11 +29,14 @@ const AddPetContext = createContext<AddPetContextType | undefined>(
 
 const initialFormData: PetProfileFormData = {
   petTypeId: null,
+  petTypeName: null,
   petBreedId: null,
+  petBreedName: null,
   petName: null,
   petImage: null,
   petGender: null,
   petSizeCategoryId: null,
+  petSizeName: null,
   petBirthDate: null,
   petActivityLevel: null,
   contactName: null,

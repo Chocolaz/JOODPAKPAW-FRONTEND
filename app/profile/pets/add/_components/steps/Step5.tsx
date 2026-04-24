@@ -114,7 +114,10 @@ export function Step5({ onNext, onBack }: Step5Props) {
             return (
               <button
                 key={size.id}
-                onClick={() => updateField('petSizeCategoryId', size.id)}
+                onClick={() => {
+                  updateField('petSizeCategoryId', size.id)
+                  updateField('petSizeName', size.name)
+                }}
                 className={cn(
                   'flex flex-col items-center justify-center p-3 border rounded-[20px] cursor-pointer bg-white transition-transform duration-300 ease-in-out',
                   'min-w-[100px] my-2', // min-width and margin for spacing

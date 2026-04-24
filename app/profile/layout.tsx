@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { ProfileHeader } from './_components/ProfileHeader'
 import { HostBanner } from './_components/HostBanner'
 import { DesktopStepper } from './host/add-property/_components/DesktopStepper'
+import { DesktopPetStepper } from './pets/add/_components/DesktopPetStepper'
 import { PetsBanner } from './pets/_components/PetsBanner'
 import { AddPetBanner } from './pets/add/_components/AddPetBanner'
 import { addPetStepsComponents } from './pets/add/steps' // Import the steps array
@@ -145,6 +146,12 @@ function LayoutContent({ children }: { children: ReactNode }) {
               const stepId = parseInt(normalizedPath.split('/').pop() || '', 10)
               if (!isNaN(stepId) && stepId >= 1 && stepId <= 7) {
                 return <div className="hidden lg:block"><DesktopStepper stepId={stepId} /></div>
+              }
+            }
+            if (normalizedPath.startsWith('/profile/pets/add')) {
+              const stepId = parseInt(normalizedPath.split('/').pop() || '', 10)
+              if (!isNaN(stepId) && stepId >= 1 && stepId <= 9) {
+                return <div className="hidden lg:block"><DesktopPetStepper stepId={stepId} /></div>
               }
             }
             return null

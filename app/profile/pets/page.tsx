@@ -1,6 +1,7 @@
 'use client'
 
 import Image from 'next/image'
+import Link from 'next/link'
 import { assetPath } from '@/lib/utils'
 import { ErrorState } from '@/app/profile/_components/ErrorState'
 import { useProfileContext } from '../ProfileContext'
@@ -9,11 +10,14 @@ import { PetCard } from './_components/PetCard'
 import { useRouter } from 'next/navigation'
 import { Plus } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useAuth } from '@/app/_components/AuthContext'
+import { Button } from '@/components/ui/button'
 
 export default function PetsPage() {
   const {
     petProfiles: { pets, loading, error, refetch },
   } = useProfileContext()
+  const { user } = useAuth()
   const router = useRouter()
 
   useEffect(() => {
@@ -21,8 +25,31 @@ export default function PetsPage() {
   }, [refetch])
 
   return (
-    <div className="flex flex-col px-5">
-      <div className="pb-24">
+    <div className="flex flex-col px-5 lg:px-12 max-w-[500px] lg:max-w-[1440px] mx-auto">
+      {/* Desktop header */}
+      <div className="hidden lg:flex items-center justify-between py-8 border-b border-gray-100 mb-6">
+        <div>
+          <p className="text-accent-orange font-semibold text-sm uppercase tracking-widest mb-1">
+            Hello, {user?.firstName}
+          </p>
+          <h1 className="text-3xl xl:text-4xl font-bold text-deep-teal">
+            Your Pets
+          </h1>
+          {!loading && !error && pets.length > 0 && (
+            <p className="text-neutral-gray mt-1">
+              {pets.length} {pets.length === 1 ? 'pet' : 'pets'} registered
+            </p>
+          )}
+        </div>
+        <Link href="/profile/pets/add/1">
+          <Button className="interact-button bg-accent-orange! gap-2 px-6">
+            <Plus className="w-4 h-4" />
+            Add Pet
+          </Button>
+        </Link>
+      </div>
+
+      <div className="pb-24 lg:pb-12">
         <AnimatePresence mode="wait">
           {loading ? (
             <motion.div
@@ -31,7 +58,7 @@ export default function PetsPage() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.2 }}
-              className="grid grid-cols-2 gap-3 mt-4"
+              className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 lg:gap-5 mt-4 lg:mt-0"
             >
               {Array.from({ length: 4 }).map((_, i) => (
                 <div key={i} className="animate-pulse">
@@ -59,12 +86,12 @@ export default function PetsPage() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.3, ease: 'easeOut' }}
-              className="grid grid-cols-2 gap-3 mt-4"
+              className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 lg:gap-5 mt-4 lg:mt-0"
             >
-              {/* Add Pet Card */}
+              {/* Add Pet card — mobile only; desktop uses header button */}
               <button
                 onClick={() => router.push('/profile/pets/add/1')}
-                className="block w-full cursor-pointer text-left group"
+                className="lg:hidden block w-full cursor-pointer text-left group"
               >
                 <div className="aspect-square w-full rounded-xl border-2 border-dashed border-gray-300 group-hover:border-deep-teal flex flex-col items-center justify-center transition-colors bg-gray-50 group-hover:bg-teal-50/50">
                   <div className="w-12 h-12 rounded-full bg-deep-teal/10 group-hover:bg-deep-teal/20 flex items-center justify-center transition-colors mb-2">
