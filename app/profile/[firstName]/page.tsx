@@ -401,7 +401,7 @@ export default function UserProfilePage() {
           <div className="px-8 py-6 space-y-8">
             {/* Personal Information */}
             <section>
-              <h3 className="text-xs! font-semibold text-neutral-gray uppercase tracking-widest mb-4">
+              <h3 className="text-xs font-semibold text-neutral-gray uppercase tracking-widest mb-4">
                 Personal Information
               </h3>
               <div className="divide-y divide-gray-50">
@@ -440,7 +440,7 @@ export default function UserProfilePage() {
 
             {/* Security */}
             <section>
-              <h3 className="text-xs! font-semibold text-neutral-gray uppercase tracking-widest mb-4">
+              <h3 className="text-xs font-semibold text-neutral-gray uppercase tracking-widest mb-4">
                 Account & Security
               </h3>
               <div className="divide-y divide-gray-50">

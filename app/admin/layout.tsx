@@ -166,7 +166,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
         {/* Topbar */}
         <header className="h-16 bg-white border-b border-gray-100 flex items-center justify-between px-8 shrink-0">
           <div>
-            <h1 className="font-bold text-[17px]! text-gray-900 font-baloo2 leading-none">
+            <h1 className="font-bold text-[17px] text-gray-900 font-baloo2 leading-none">
               {NAV_ITEMS.find((n) => pathname.startsWith(n.href))?.label ??
                 'Admin'}
             </h1>

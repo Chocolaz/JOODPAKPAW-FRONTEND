@@ -7,7 +7,6 @@ import { cn } from '@/lib/utils'
 import { Dog, Cat } from 'lucide-react'
 import { getPetTypes } from '@/lib/api'
 import { Pet } from '@/types'
-import { Spinner } from '@/components/ui/spinner'
 import { ErrorState } from '@/app/profile/_components/ErrorState'
 
 
@@ -38,8 +37,16 @@ export function Step1({ onNext }: { onNext: () => void }) {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-40">
-        <Spinner />
+      <div className="w-full mt-5 animate-pulse">
+        <div className="flex flex-col items-center mb-16">
+          <div className="h-6 bg-gray-200 rounded w-52 mb-2" />
+          <div className="h-4 bg-gray-100 rounded w-64" />
+        </div>
+        <div className="flex flex-wrap justify-center gap-8 pb-4">
+          {[1, 2].map((i) => (
+            <div key={i} className="w-[150px] h-[150px] bg-gray-100 rounded-[20px]" />
+          ))}
+        </div>
       </div>
     )
   }

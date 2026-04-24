@@ -77,7 +77,7 @@ export default function RecommendationsPage() {
         </button>
         <div className="flex items-center gap-2">
           <Heart className="w-5 h-5 fill-accent-orange text-accent-orange" />
-          <h1 className="text-lg! lg:text-2xl! font-semibold text-deep-teal">
+          <h1 className="text-lg lg:text-2xl font-semibold text-deep-teal">
             Recommended for You
           </h1>
           {!isLoading && (

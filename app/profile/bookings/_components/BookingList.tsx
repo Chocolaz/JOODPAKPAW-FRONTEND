@@ -376,7 +376,7 @@ export function BookingList() {
                   <ChevronLeft className="w-5 h-5" />
                 </button>
                 <div className="w-px h-5 bg-gray-200" />
-                <h1 className="text-base! font-semibold text-gray-900">
+                <h1 className="text-base font-semibold text-gray-900">
                   My Bookings
                 </h1>
               </div>

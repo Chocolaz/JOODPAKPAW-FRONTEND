@@ -7,12 +7,29 @@ import { getProperties, getRecommendedProperties } from '@/lib/api'
 import { Property } from '@/types'
 import { useAuth } from '@/app/_components/AuthContext'
 import { motion, AnimatePresence } from 'framer-motion'
-import { SearchX, Sparkles, Star, Heart, Loader2, Tag, MapPin, Dog, Cat, Clock, TrendingUp } from 'lucide-react'
+import {
+  SearchX,
+  Sparkles,
+  Star,
+  Heart,
+  Loader2,
+  Tag,
+  MapPin,
+  Dog,
+  Cat,
+  Clock,
+  TrendingUp,
+} from 'lucide-react'
 import { useBrowseFilters } from '@/app/_hooks/useBrowseFilters'
 import { useRecentlyViewed } from '@/app/_hooks/useRecentlyViewed'
 import { BrowseSection } from './_components/BrowseSection'
 
-function haversineDistance(lat1: number, lon1: number, lat2: number, lon2: number) {
+function haversineDistance(
+  lat1: number,
+  lon1: number,
+  lat2: number,
+  lon2: number
+) {
   const R = 6371
   const dLat = ((lat2 - lat1) * Math.PI) / 180
   const dLon = ((lon2 - lon1) * Math.PI) / 180
@@ -28,7 +45,15 @@ function haversineDistance(lat1: number, lon1: number, lat2: number, lon2: numbe
 const RECOMMEND_LIMIT = 10
 const PAGE_SIZE = 50
 const SECTION_FETCH_LIMIT = 7
-const EMPTY_SECTION = { data: [] as Property[], totalRows: 0, totalPages: 0, limit: 0, page: 1, orderBy: '', sort: '' }
+const EMPTY_SECTION = {
+  data: [] as Property[],
+  totalRows: 0,
+  totalPages: 0,
+  limit: 0,
+  page: 1,
+  orderBy: '',
+  sort: '',
+}
 
 export default function Home() {
   const [properties, setProperties] = useState<Property[]>([])
@@ -37,20 +62,31 @@ export default function Home() {
   const [page, setPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
   const [totalRows, setTotalRows] = useState(0)
-  const [recommendedProperties, setRecommendedProperties] = useState<Property[]>([])
+  const [recommendedProperties, setRecommendedProperties] = useState<
+    Property[]
+  >([])
   const [recommendedTotal, setRecommendedTotal] = useState(0)
   const [sectionData, setSectionData] = useState({
-    topRated: [] as Property[], topRatedTotal: 0,
-    bestValue: [] as Property[], bestValueTotal: 0,
-    newListings: [] as Property[], newListingsTotal: 0,
-    trending: [] as Property[], trendingTotal: 0,
-    dogFriendly: [] as Property[], dogFriendlyTotal: 0,
-    catFriendly: [] as Property[], catFriendlyTotal: 0,
+    topRated: [] as Property[],
+    topRatedTotal: 0,
+    bestValue: [] as Property[],
+    bestValueTotal: 0,
+    newListings: [] as Property[],
+    newListingsTotal: 0,
+    trending: [] as Property[],
+    trendingTotal: 0,
+    dogFriendly: [] as Property[],
+    dogFriendlyTotal: 0,
+    catFriendly: [] as Property[],
+    catFriendlyTotal: 0,
   })
   const { isAuthenticated, user } = useAuth()
   const { searchQuery, filters, buildSeeAllUrl } = useBrowseFilters()
   const { ids: recentlyViewedIds } = useRecentlyViewed()
-  const [userLocation, setUserLocation] = useState<{ lat: number; lon: number } | null>(null)
+  const [userLocation, setUserLocation] = useState<{
+    lat: number
+    lon: number
+  } | null>(null)
 
   const [filterResults, setFilterResults] = useState<Property[]>([])
   const [filterTotal, setFilterTotal] = useState(0)
@@ -59,60 +95,96 @@ export default function Home() {
   const fetchKeyRef = useRef(0)
   const filterKeyRef = useRef(0)
 
-  const fetchProperties = useCallback(async (pageNum: number, reset: boolean) => {
-    const key = ++fetchKeyRef.current
-    if (reset) setIsLoading(true)
-    else setLoadingMore(true)
-    try {
-      if (reset) {
-        const [propertiesRes, topRatedRes, bestValueRes, newListingsRes, trendingRes, dogRes, catRes] = await Promise.all([
-          getProperties(pageNum, PAGE_SIZE),
-          getProperties(1, SECTION_FETCH_LIMIT, { minRating: 4.0 }).catch(() => EMPTY_SECTION),
-          getProperties(1, SECTION_FETCH_LIMIT, { sortBy: 'price' }).catch(() => EMPTY_SECTION),
-          getProperties(1, SECTION_FETCH_LIMIT, { days: 30 }).catch(() => EMPTY_SECTION),
-          getProperties(1, SECTION_FETCH_LIMIT, { sortBy: 'trending' }).catch(() => EMPTY_SECTION),
-          getProperties(1, SECTION_FETCH_LIMIT, { petTypes: 'dog' }).catch(() => EMPTY_SECTION),
-          getProperties(1, SECTION_FETCH_LIMIT, { petTypes: 'cat' }).catch(() => EMPTY_SECTION),
-        ])
-        if (key !== fetchKeyRef.current) return
-        setProperties(propertiesRes.data)
-        setPage(pageNum)
-        setTotalPages(propertiesRes.totalPages)
-        setTotalRows(propertiesRes.totalRows)
-        setSectionData({
-          topRated: topRatedRes.data, topRatedTotal: topRatedRes.totalRows,
-          bestValue: bestValueRes.data, bestValueTotal: bestValueRes.totalRows,
-          newListings: newListingsRes.data, newListingsTotal: newListingsRes.totalRows,
-          trending: trendingRes.data, trendingTotal: trendingRes.totalRows,
-          dogFriendly: dogRes.data, dogFriendlyTotal: dogRes.totalRows,
-          catFriendly: catRes.data, catFriendlyTotal: catRes.totalRows,
-        })
-      } else {
-        const response = await getProperties(pageNum, PAGE_SIZE)
-        if (key !== fetchKeyRef.current) return
-        setProperties((prev) => [...prev, ...response.data])
-        setPage(pageNum)
-        setTotalPages(response.totalPages)
-        setTotalRows(response.totalRows)
+  const fetchProperties = useCallback(
+    async (pageNum: number, reset: boolean) => {
+      const key = ++fetchKeyRef.current
+      if (reset) setIsLoading(true)
+      else setLoadingMore(true)
+      try {
+        if (reset) {
+          const [
+            propertiesRes,
+            topRatedRes,
+            bestValueRes,
+            newListingsRes,
+            trendingRes,
+            dogRes,
+            catRes,
+          ] = await Promise.all([
+            getProperties(pageNum, PAGE_SIZE),
+            getProperties(1, SECTION_FETCH_LIMIT, { minRating: 4.0 }).catch(
+              () => EMPTY_SECTION
+            ),
+            getProperties(1, SECTION_FETCH_LIMIT, { sortBy: 'price' }).catch(
+              () => EMPTY_SECTION
+            ),
+            getProperties(1, SECTION_FETCH_LIMIT, { days: 30 }).catch(
+              () => EMPTY_SECTION
+            ),
+            getProperties(1, SECTION_FETCH_LIMIT, { sortBy: 'trending' }).catch(
+              () => EMPTY_SECTION
+            ),
+            getProperties(1, SECTION_FETCH_LIMIT, { petTypes: 'dog' }).catch(
+              () => EMPTY_SECTION
+            ),
+            getProperties(1, SECTION_FETCH_LIMIT, { petTypes: 'cat' }).catch(
+              () => EMPTY_SECTION
+            ),
+          ])
+          if (key !== fetchKeyRef.current) return
+          setProperties(propertiesRes.data)
+          setPage(pageNum)
+          setTotalPages(propertiesRes.totalPages)
+          setTotalRows(propertiesRes.totalRows)
+          setSectionData({
+            topRated: topRatedRes.data,
+            topRatedTotal: topRatedRes.totalRows,
+            bestValue: bestValueRes.data,
+            bestValueTotal: bestValueRes.totalRows,
+            newListings: newListingsRes.data,
+            newListingsTotal: newListingsRes.totalRows,
+            trending: trendingRes.data,
+            trendingTotal: trendingRes.totalRows,
+            dogFriendly: dogRes.data,
+            dogFriendlyTotal: dogRes.totalRows,
+            catFriendly: catRes.data,
+            catFriendlyTotal: catRes.totalRows,
+          })
+        } else {
+          const response = await getProperties(pageNum, PAGE_SIZE)
+          if (key !== fetchKeyRef.current) return
+          setProperties((prev) => [...prev, ...response.data])
+          setPage(pageNum)
+          setTotalPages(response.totalPages)
+          setTotalRows(response.totalRows)
+        }
+      } catch (error) {
+        console.error(error)
+      } finally {
+        if (key === fetchKeyRef.current) {
+          setIsLoading(false)
+          setLoadingMore(false)
+        }
       }
-    } catch (error) {
-      console.error(error)
-    } finally {
-      if (key === fetchKeyRef.current) {
-        setIsLoading(false)
-        setLoadingMore(false)
-      }
-    }
-  }, [])
+    },
+    []
+  )
 
   useEffect(() => {
     navigator.geolocation?.getCurrentPosition(
-      (pos) => setUserLocation({ lat: pos.coords.latitude, lon: pos.coords.longitude }),
+      (pos) =>
+        setUserLocation({
+          lat: pos.coords.latitude,
+          lon: pos.coords.longitude,
+        }),
       () => {}
     )
   }, [])
 
-  const hasActiveFilters = filters.petTypes.length > 0 || filters.minRating > 0 || filters.maxPrice !== ''
+  const hasActiveFilters =
+    filters.petTypes.length > 0 ||
+    filters.minRating > 0 ||
+    filters.maxPrice !== ''
   const isFiltering = !!searchQuery || hasActiveFilters
 
   useEffect(() => {
@@ -125,7 +197,8 @@ export default function Home() {
     setIsFilterLoading(true)
     getProperties(1, PAGE_SIZE, {
       search: searchQuery || undefined,
-      petTypes: filters.petTypes.length > 0 ? filters.petTypes.join(',') : undefined,
+      petTypes:
+        filters.petTypes.length > 0 ? filters.petTypes.join(',') : undefined,
       minRating: filters.minRating || undefined,
       maxPrice: filters.maxPrice || undefined,
     })
@@ -138,8 +211,14 @@ export default function Home() {
       .finally(() => {
         if (key === filterKeyRef.current) setIsFilterLoading(false)
       })
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isFiltering, searchQuery, filters.petTypes.join(','), filters.minRating, filters.maxPrice])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    isFiltering,
+    searchQuery,
+    filters.petTypes.join(','),
+    filters.minRating,
+    filters.maxPrice,
+  ])
 
   useEffect(() => {
     fetchProperties(1, true)
@@ -178,11 +257,28 @@ export default function Home() {
     return [...visibleProperties]
       .filter((p) => {
         if (p.latitude == null || p.longitude == null) return false
-        return haversineDistance(userLocation.lat, userLocation.lon, Number(p.latitude), Number(p.longitude)) <= 50
+        return (
+          haversineDistance(
+            userLocation.lat,
+            userLocation.lon,
+            Number(p.latitude),
+            Number(p.longitude)
+          ) <= 50
+        )
       })
       .sort((a, b) => {
-        const distA = haversineDistance(userLocation.lat, userLocation.lon, Number(a.latitude), Number(a.longitude))
-        const distB = haversineDistance(userLocation.lat, userLocation.lon, Number(b.latitude), Number(b.longitude))
+        const distA = haversineDistance(
+          userLocation.lat,
+          userLocation.lon,
+          Number(a.latitude),
+          Number(a.longitude)
+        )
+        const distB = haversineDistance(
+          userLocation.lat,
+          userLocation.lon,
+          Number(b.latitude),
+          Number(b.longitude)
+        )
         return distA - distB
       })
   }, [visibleProperties, userLocation])
@@ -209,10 +305,18 @@ export default function Home() {
         {(() => {
           const filterLabel = [
             searchQuery ? `"${searchQuery}"` : null,
-            filters.petTypes.length > 0 ? filters.petTypes.map((t) => t.charAt(0).toUpperCase() + t.slice(1)).join(' & ') : null,
+            filters.petTypes.length > 0
+              ? filters.petTypes
+                  .map((t) => t.charAt(0).toUpperCase() + t.slice(1))
+                  .join(' & ')
+              : null,
             filters.minRating > 0 ? `${filters.minRating}★+` : null,
-            filters.maxPrice ? `฿${Number(filters.maxPrice).toLocaleString()} max` : null,
-          ].filter(Boolean).join(' · ')
+            filters.maxPrice
+              ? `฿${Number(filters.maxPrice).toLocaleString()} max`
+              : null,
+          ]
+            .filter(Boolean)
+            .join(' · ')
 
           return (
             <>
@@ -231,8 +335,7 @@ export default function Home() {
                         transition={{ duration: 0.2 }}
                         className="text-sm lg:text-lg xl:text-xl text-neutral-gray shrink-0"
                       >
-                        {filterTotal}{' '}
-                        {filterTotal === 1 ? 'place' : 'places'}
+                        {filterTotal} {filterTotal === 1 ? 'place' : 'places'}
                       </motion.span>
                     )}
                   </AnimatePresence>
@@ -250,7 +353,10 @@ export default function Home() {
                     className="space-y-0 lg:pt-2"
                   >
                     {Array.from({ length: 3 }).map((_, si) => (
-                      <div key={si} className="mb-10 lg:mb-0 lg:py-10 lg:border-b lg:border-gray-100 animate-pulse">
+                      <div
+                        key={si}
+                        className="mb-10 lg:mb-0 lg:py-10 lg:border-b lg:border-gray-100 animate-pulse"
+                      >
                         {/* Section header */}
                         <div className="flex items-center gap-2 mb-4 lg:mb-6">
                           <div className="w-5 h-5 bg-gray-200 rounded-full" />
@@ -259,7 +365,10 @@ export default function Home() {
                         {/* Cards row */}
                         <div className="flex gap-4 overflow-hidden -mx-5 px-5 lg:mx-0 lg:px-0">
                           {Array.from({ length: 7 }).map((_, ci) => (
-                            <div key={ci} className="w-44 shrink-0 lg:w-[calc((100%-6*1rem)/7)]">
+                            <div
+                              key={ci}
+                              className="w-44 shrink-0 lg:w-[calc((100%-6*1rem)/7)]"
+                            >
                               <div className="aspect-square w-full bg-gray-200 rounded-[20px]" />
                               <div className="mt-2 space-y-2">
                                 <div className="h-4 bg-gray-200 rounded w-3/4" />
@@ -302,7 +411,10 @@ export default function Home() {
                           ))}
                         </motion.div>
                       ) : filterResults.length === 0 ? (
-                        <EmptyState searchQuery={searchQuery} hasFilters={hasActiveFilters} />
+                        <EmptyState
+                          searchQuery={searchQuery}
+                          hasFilters={hasActiveFilters}
+                        />
                       ) : (
                         <motion.div
                           key="filter-results"
@@ -348,7 +460,9 @@ export default function Home() {
                     {isAuthenticated && recommendedProperties.length > 0 && (
                       <BrowseSection
                         title="Recommended for You"
-                        icon={<Heart className="w-5 h-5 fill-accent-orange text-accent-orange" />}
+                        icon={
+                          <Heart className="w-5 h-5 fill-accent-orange text-accent-orange" />
+                        }
                         properties={recommendedProperties}
                         totalCount={recommendedTotal}
                         showHeartIcon={true}
@@ -365,7 +479,9 @@ export default function Home() {
                         {nearYou.length > 0 && (
                           <BrowseSection
                             title="Near You"
-                            icon={<MapPin className="w-5 h-5 text-accent-orange" />}
+                            icon={
+                              <MapPin className="w-5 h-5 text-accent-orange" />
+                            }
                             properties={nearYou}
                             totalCount={nearYou.length}
                             showHeartIcon={isAuthenticated}
@@ -376,7 +492,9 @@ export default function Home() {
 
                         <BrowseSection
                           title="Top Rated"
-                          icon={<Star className="w-5 h-5 fill-yellow-400 text-yellow-500" />}
+                          icon={
+                            <Star className="w-5 h-5 fill-yellow-400 text-yellow-500" />
+                          }
                           properties={topRatedItems}
                           totalCount={sectionData.topRatedTotal}
                           showHeartIcon={isAuthenticated}
@@ -403,7 +521,9 @@ export default function Home() {
                         />
                         <BrowseSection
                           title="Trending"
-                          icon={<TrendingUp className="w-5 h-5 text-accent-orange" />}
+                          icon={
+                            <TrendingUp className="w-5 h-5 text-accent-orange" />
+                          }
                           properties={trendingItems}
                           totalCount={sectionData.trendingTotal}
                           showHeartIcon={isAuthenticated}
@@ -449,7 +569,13 @@ export default function Home() {
   )
 }
 
-function EmptyState({ searchQuery, hasFilters }: { searchQuery: string; hasFilters: boolean }) {
+function EmptyState({
+  searchQuery,
+  hasFilters,
+}: {
+  searchQuery: string
+  hasFilters: boolean
+}) {
   return (
     <motion.div
       key="empty"
@@ -473,7 +599,9 @@ function EmptyState({ searchQuery, hasFilters }: { searchQuery: string; hasFilte
         transition={{ delay: 0.2, duration: 0.3 }}
         className="space-y-1 lg:space-y-2"
       >
-        <p className="font-semibold text-gray-700 lg:text-xl xl:text-2xl">No properties found</p>
+        <p className="font-semibold text-gray-700 lg:text-xl xl:text-2xl">
+          No properties found
+        </p>
         <p className="text-sm lg:text-lg xl:text-xl text-neutral-gray">
           {searchQuery || hasFilters
             ? 'Try adjusting your search or filters.'

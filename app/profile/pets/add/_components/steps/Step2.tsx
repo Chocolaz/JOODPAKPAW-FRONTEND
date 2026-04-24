@@ -6,7 +6,6 @@ import { StepNavigation } from '@/app/profile/host/add-property/_components/Step
 import { cn } from '@/lib/utils'
 import { getPetBreeds } from '@/lib/api'
 import { PetBreed } from '@/types'
-import { Spinner } from '@/components/ui/spinner'
 import { ErrorState } from '@/app/profile/_components/ErrorState'
 import { Input } from '@/components/ui/input'
 import { Search, Check } from 'lucide-react'
@@ -52,8 +51,19 @@ export function Step2({ onNext, onBack }: Step2Props) {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-40">
-        <Spinner />
+      <div className="flex flex-col w-full animate-pulse">
+        <div className="flex flex-col items-center mt-5 mb-4">
+          <div className="h-6 bg-gray-200 rounded w-48 mb-2" />
+          <div className="h-4 bg-gray-100 rounded w-36" />
+        </div>
+        <div className="pb-3 pt-1">
+          <div className="h-10 bg-gray-100 rounded-full w-full" />
+        </div>
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 pb-4">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div key={i} className="h-24 bg-gray-100 rounded-lg" />
+          ))}
+        </div>
       </div>
     )
   }

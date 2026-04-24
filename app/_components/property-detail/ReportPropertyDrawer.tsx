@@ -149,7 +149,7 @@ function ReportContent({
               </button>
             </div>
 
-            <h2 className="text-[20px]! font-bold text-gray-900 leading-snug mt-2">
+            <h2 className="text-[20px] font-bold text-gray-900 leading-snug mt-2">
               Tell us more
             </h2>
             <div className="mt-2 inline-flex items-center gap-1.5 px-3 py-1 bg-deep-teal/10 rounded-full">

@@ -221,7 +221,7 @@ export default function HostPage() {
                 >
                   <ChevronLeft className="w-5 h-5" />
                 </button>
-                <h2 className="text-xl! font-semibold text-deep-teal">
+                <h2 className="text-xl font-semibold text-deep-teal">
                   My Properties
                 </h2>
                 {user?.id && (

@@ -5,7 +5,6 @@ import { useParams, useRouter } from 'next/navigation'
 import { useEffect } from 'react'
 import { useAddPet } from '../_context/AddPetContext'
 import { addPetStepsComponents } from '../steps' // Import the centralized steps
-import { Spinner } from '@/components/ui/spinner'
 import { useAuth } from '@/app/_components/AuthContext'
 
 export default function AddPetDynamicStepsPage() {
@@ -31,11 +30,7 @@ export default function AddPetDynamicStepsPage() {
   }, [stepId, highestStepReached, isLoading, router])
 
   if (!authLoading && !isAuthenticated) {
-    return (
-      <div className="flex grow items-center justify-center">
-        <Spinner />
-      </div>
-    )
+    return null
   }
 
   const handleNext = () => {
@@ -71,8 +66,14 @@ export default function AddPetDynamicStepsPage() {
 
   if (isLoading || authLoading || stepId > highestStepReached + 1) {
     return (
-      <div className="flex grow items-center justify-center">
-        <Spinner />
+      <div className="flex flex-col w-full mt-5 animate-pulse">
+        <div className="h-7 bg-gray-200 rounded-lg w-48 mx-auto mb-2" />
+        <div className="h-4 bg-gray-100 rounded w-32 mx-auto mb-8" />
+        <div className="flex justify-center gap-4 mb-6">
+          {[1, 2].map((i) => (
+            <div key={i} className="w-[150px] h-[150px] bg-gray-100 rounded-[20px]" />
+          ))}
+        </div>
       </div>
     )
   }

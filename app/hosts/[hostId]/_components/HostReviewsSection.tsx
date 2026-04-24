@@ -42,7 +42,7 @@ export function HostReviewsSection({
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
           <div className="w-1 h-6 rounded-full bg-accent-orange shrink-0" />
-          <h2 className="text-lg! font-bold text-deep-teal font-baloo2">
+          <h2 className="text-lg font-bold text-deep-teal font-baloo2">
             Reviews
             {reviewCount > 0 && (
               <span className="ml-2 text-sm font-medium text-neutral-gray">({totalRows})</span>

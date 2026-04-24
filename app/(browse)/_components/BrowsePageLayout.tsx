@@ -59,7 +59,7 @@ export function BrowsePageLayout({
         </Link>
         <div className="flex items-center gap-2">
           {icon}
-          <h1 className="text-xl! lg:text-xl! font-semibold text-deep-teal">{title}</h1>
+          <h1 className="text-xl lg:text-xl font-semibold text-deep-teal">{title}</h1>
           {!isLoading && <span className="text-sm text-neutral-gray">({filtered.length})</span>}
         </div>
       </div>

@@ -13,6 +13,7 @@ import { addPetStepsComponents } from './pets/add/steps' // Import the steps arr
 import { ProfileProvider, useProfileContext } from './ProfileContext'
 import { useAuth } from '@/app/_components/AuthContext'
 import { Spinner } from '@/components/ui/spinner'
+import { cn } from '@/lib/utils'
 
 function LayoutContent({ children }: { children: ReactNode }) {
   const normalizedPath = useNormalizedPathname()
@@ -135,12 +136,20 @@ function LayoutContent({ children }: { children: ReactNode }) {
     return null
   }
 
+  const isAddPetFlow = normalizedPath.startsWith('/profile/pets/add')
+
   return (
     <main className="flex justify-center">
       <div className="w-full">
         {headerProps && <div className="lg:hidden"><ProfileHeader {...headerProps} menu={menu} /></div>}
-        <div className={headerProps ? 'pt-14 lg:pt-0' : ''}>
-          <div className="lg:hidden">{renderBanner()}</div>
+        <div className={cn(
+          headerProps ? 'pt-14 lg:pt-0' : '',
+          isAddPetFlow && 'flex flex-col h-[calc(100dvh-56px)] lg:block lg:h-auto overflow-hidden lg:overflow-visible'
+        )}>
+          {/* Banner — shrink-0 so it never scrolls away on mobile add-pet */}
+          <div className={cn('lg:hidden', isAddPetFlow && 'shrink-0')}>{renderBanner()}</div>
+
+          {/* Desktop steppers */}
           {(() => {
             if (normalizedPath.startsWith('/profile/host/add-property')) {
               const stepId = parseInt(normalizedPath.split('/').pop() || '', 10)
@@ -148,7 +157,7 @@ function LayoutContent({ children }: { children: ReactNode }) {
                 return <div className="hidden lg:block"><DesktopStepper stepId={stepId} /></div>
               }
             }
-            if (normalizedPath.startsWith('/profile/pets/add')) {
+            if (isAddPetFlow) {
               const stepId = parseInt(normalizedPath.split('/').pop() || '', 10)
               if (!isNaN(stepId) && stepId >= 1 && stepId <= 9) {
                 return <div className="hidden lg:block"><DesktopPetStepper stepId={stepId} /></div>
@@ -156,7 +165,11 @@ function LayoutContent({ children }: { children: ReactNode }) {
             }
             return null
           })()}
-          {children}
+
+          {/* Scrollable content on mobile add-pet, normal on everything else */}
+          <div className={cn(isAddPetFlow && 'flex-1 overflow-y-auto lg:overflow-visible lg:flex-none')}>
+            {children}
+          </div>
         </div>
       </div>
     </main>

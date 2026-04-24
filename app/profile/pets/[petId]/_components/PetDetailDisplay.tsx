@@ -42,7 +42,7 @@ export default function PetDetailDisplay({
   onPetUpdate,
 }: PetDetailDisplayProps) {
   const basePath = process.env.NEXT_PUBLIC_BASE_PATH || ''
-  const guestPetImageSrc = `${basePath}/graphics/guest.jpg`
+  const pawPrintSrc = `${basePath}/icons/PawPrint.svg`
 
   const birthDate = pet.birthDate ? new Date(pet.birthDate) : null
   const ageYears = birthDate ? differenceInYears(new Date(), birthDate) : null
@@ -94,16 +94,18 @@ export default function PetDetailDisplay({
             : 'Hyper'
 
   return (
-    <div className="pb-10 min-h-screen bg-white">
+    <div className="bg-white">
       {/* ========== MOBILE LAYOUT ========== */}
       <div className="md:hidden">
         {/* Hero image */}
         <div className="relative w-full aspect-[4/3]">
-          <img
-            src={pet.image || guestPetImageSrc}
-            alt={pet.name}
-            className="object-cover w-full h-full"
-          />
+          {pet.image ? (
+            <img src={pet.image} alt={pet.name} className="object-cover w-full h-full" />
+          ) : (
+            <div className="w-full h-full bg-gray-100 flex items-center justify-center">
+              <img src={pawPrintSrc} alt="No image" className="w-24 h-24 opacity-20" />
+            </div>
+          )}
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
 
           {/* Top bar */}
@@ -214,9 +216,7 @@ export default function PetDetailDisplay({
                   <div
                     key={level}
                     className={`w-2 h-5 rounded-full ${
-                      level <= energyLevel
-                        ? 'bg-yellow-400'
-                        : 'bg-gray-200'
+                      level <= energyLevel ? 'bg-yellow-400' : 'bg-gray-200'
                     }`}
                   />
                 ))}
@@ -293,12 +293,12 @@ export default function PetDetailDisplay({
           {/* Left — Image + actions */}
           <div className="col-span-5">
             <div className="sticky top-24 space-y-4">
-              <div className="relative rounded-2xl overflow-hidden shadow-md">
-                <img
-                  src={pet.image || guestPetImageSrc}
-                  alt={pet.name}
-                  className="object-cover w-full aspect-square"
-                />
+              <div className="relative rounded-2xl overflow-hidden shadow-md aspect-square bg-gray-100 flex items-center justify-center">
+                {pet.image ? (
+                  <img src={pet.image} alt={pet.name} className="object-cover w-full h-full" />
+                ) : (
+                  <img src={pawPrintSrc} alt="No image" className="w-24 h-24 opacity-20" />
+                )}
               </div>
               <div className="flex gap-2">
                 <Button
@@ -399,9 +399,7 @@ export default function PetDetailDisplay({
                       <div
                         key={level}
                         className={`w-2 h-5 rounded-full ${
-                          level <= energyLevel
-                            ? 'bg-yellow-400'
-                            : 'bg-gray-200'
+                          level <= energyLevel ? 'bg-yellow-400' : 'bg-gray-200'
                         }`}
                       />
                     ))}

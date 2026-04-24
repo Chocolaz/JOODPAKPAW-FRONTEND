@@ -8,7 +8,6 @@ import { useAddPet } from '../../_context/AddPetContext'
 import { PawPrint, HelpCircle } from 'lucide-react'
 import { PetSizeCategory } from '@/types'
 import { getPetSizeCategories } from '@/lib/api'
-import { Spinner } from '@/components/ui/spinner'
 import { ErrorState } from '@/app/profile/_components/ErrorState'
 
 interface Step5Props {
@@ -66,8 +65,17 @@ export function Step5({ onNext, onBack }: Step5Props) {
   
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-40">
-        <Spinner />
+      <div className="flex flex-col flex-grow w-full animate-pulse">
+        <div className="flex flex-col items-center mt-5">
+          <div className="w-24 h-24 bg-gray-100 rounded-full mb-8" />
+          <div className="h-6 bg-gray-200 rounded w-44 mb-2" />
+          <div className="h-4 bg-gray-100 rounded w-64 mb-4" />
+          <div className="flex flex-row gap-2 pb-4 w-full">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="flex-1 h-28 bg-gray-100 rounded-[20px]" />
+            ))}
+          </div>
+        </div>
       </div>
     )
   }
@@ -108,7 +116,7 @@ export function Step5({ onNext, onBack }: Step5Props) {
         </p>
 
         {/* Size Selection Cards */}
-        <div className="flex flex-row justify-center items-center gap-4 pb-4 overflow-x-auto whitespace-nowrap px-4">
+        <div className="flex flex-row justify-center items-center gap-2 pb-4 w-full">
           {sizeCategories.map((size) => {
             const isSelected = formData.petSizeCategoryId === size.id
             return (
@@ -119,22 +127,21 @@ export function Step5({ onNext, onBack }: Step5Props) {
                   updateField('petSizeName', size.name)
                 }}
                 className={cn(
-                  'flex flex-col items-center justify-center p-3 border rounded-[20px] cursor-pointer bg-white transition-transform duration-300 ease-in-out',
-                  'min-w-[100px] my-2', // min-width and margin for spacing
+                  'flex flex-col items-center justify-center p-3 border rounded-[20px] cursor-pointer bg-white transition-all duration-300 ease-in-out flex-1',
                   isSelected
-                    ? 'border-positive-green scale-110 shadow-lg'
+                    ? 'border-positive-green shadow-lg'
                     : 'border-gray-200 hover:border-deep-teal/50 shadow-sm'
                 )}
               >
                 <div
                   className={cn(
-                    'w-16 h-16 rounded-full flex items-center justify-center transition-colors',
+                    'w-10 h-10 rounded-full flex items-center justify-center transition-colors',
                     isSelected ? 'bg-teal-50' : 'bg-gray-100'
                   )}
                 >
                   <PawPrint
                     className={cn(
-                      getIconSizeClass(size.name),
+                      'w-5 h-5',
                       isSelected ? 'text-positive-green' : 'text-neutral-gray'
                     )}
                     strokeWidth={1.5}
@@ -150,7 +157,7 @@ export function Step5({ onNext, onBack }: Step5Props) {
                 </span>
                 <p
                   className={cn(
-                    'text-center text-xs', // Reduced text size for description
+                    'text-center text-xs',
                     isSelected ? 'text-positive-green' : 'text-neutral-gray'
                   )}
                 >

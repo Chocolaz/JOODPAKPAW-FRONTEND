@@ -24,7 +24,7 @@ export function ApprovedView() {
         unoptimized
       />
       <div>
-        <h2 className="text-xl! font-bold text-deep-teal font-baloo2">Identity Verified</h2>
+        <h2 className="text-xl font-bold text-deep-teal font-baloo2">Identity Verified</h2>
         <p className="text-sm text-neutral-gray mt-1.5 max-w-xs">
           Your identity has been confirmed. Your profile now shows a verified badge.
         </p>

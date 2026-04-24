@@ -18,8 +18,13 @@ export default function LoginPage() {
 
       {/* Desktop title */}
       <div className="hidden lg:block text-center mb-2 mt-2">
-        <h1 className="text-3xl xl:text-4xl font-bold text-accent-orange mb-2">Login Here</h1>
-        <p className="text-neutral-gray">Glad to see you again! Let&apos;s find the perfect stay for your furry friend.</p>
+        <h1 className="text-3xl xl:text-4xl font-bold text-accent-orange mb-2">
+          Login Here
+        </h1>
+        <p className="text-neutral-gray">
+          Glad to see you again! Let&apos;s find the perfect stay for your furry
+          friend.
+        </p>
       </div>
 
       <LoginForm />

@@ -117,7 +117,7 @@ export function Step3({ onNext, onBack }: Step3Props) {
         <StepNavigation
           onNext={onNext}
           onBack={onBack}
-          isNextDisabled={!formData.petName || !formData.petImage}
+          isNextDisabled={!formData.petName}
         />
       </div>
     </>

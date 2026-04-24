@@ -24,7 +24,7 @@ export function PendingView({ submittedAt }: { submittedAt?: string }) {
         unoptimized
       />
       <div>
-        <h2 className="text-xl! font-bold text-deep-teal font-baloo2">Under Review</h2>
+        <h2 className="text-xl font-bold text-deep-teal font-baloo2">Under Review</h2>
         <p className="text-sm text-neutral-gray mt-1.5 max-w-xs">
           We&apos;ll notify you once your identity has been reviewed.
         </p>

@@ -11,9 +11,7 @@ interface PetCardProps {
 }
 
 export function PetCard({ pet, onClick }: PetCardProps) {
-  // Removed const { publicRuntimeConfig } = getConfig()
   const basePath = process.env.NEXT_PUBLIC_BASE_PATH || ''
-  const guestPetImageSrc = `${basePath}/graphics/guest.jpg`
 
   const handleCardClick = () => {
     if (onClick) {
@@ -24,11 +22,21 @@ export function PetCard({ pet, onClick }: PetCardProps) {
   return (
     <div onClick={handleCardClick} className="cursor-pointer group">
       <Card className="rounded-xl shadow-sm group-hover:shadow-lg transition-all duration-300 aspect-square overflow-hidden relative">
-        <img
-          src={pet.image || guestPetImageSrc}
-          alt={pet.name}
-          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-        />
+        {pet.image ? (
+          <img
+            src={pet.image}
+            alt={pet.name}
+            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+          />
+        ) : (
+          <div className="w-full h-full bg-gray-100 flex items-center justify-center group-hover:bg-gray-200 transition-colors">
+            <img
+              src={`${basePath}/icons/PawPrint.svg`}
+              alt="No image"
+              className="w-16 h-16 opacity-25"
+            />
+          </div>
+        )}
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
         <div className="absolute bottom-0 left-0 right-0 p-3 text-white">
           <h4 className="font-bold text-lg truncate">{pet.name}</h4>

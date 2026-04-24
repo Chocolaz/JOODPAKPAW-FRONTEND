@@ -72,7 +72,7 @@ export default function VerificationPage() {
             <ArrowLeft className="w-4 h-4 text-neutral-gray" />
           </button>
           <ShieldCheck className="w-5 h-5 text-deep-teal shrink-0" />
-          <h1 className="text-xl! font-bold text-deep-teal font-baloo2">
+          <h1 className="text-xl font-bold text-deep-teal font-baloo2">
             Identity Verification
           </h1>
         </div>

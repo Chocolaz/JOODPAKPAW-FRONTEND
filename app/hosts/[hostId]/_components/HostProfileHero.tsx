@@ -63,7 +63,7 @@ export function HostProfileHero({ host, chatRoomId, onChatCreated }: { host: Hos
           {/* Name + meta */}
           <div className="flex-1 mt-3 lg:mt-0 lg:pb-1 text-center lg:text-left">
             <div className="flex items-center gap-2 justify-center lg:justify-start flex-wrap">
-              <h1 className="text-2xl! lg:text-2xl! font-bold text-deep-teal font-baloo2 leading-tight">
+              <h1 className="text-2xl lg:text-2xl font-bold text-deep-teal font-baloo2 leading-tight">
                 {host.firstName} {host.lastName}
               </h1>
               {host.isVerifiedHost && (

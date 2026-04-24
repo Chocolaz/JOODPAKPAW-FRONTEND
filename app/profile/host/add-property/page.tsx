@@ -38,7 +38,7 @@ export default function AddPropertyPage() {
     <div className="flex flex-col min-h-full px-5 lg:px-12 max-w-[500px] lg:max-w-[1440px] mx-auto">
       {/* Mobile layout */}
       <div className="lg:hidden flex flex-col mt-10 pb-28">
-        <h1 className="text-2xl! font-bold mb-2 text-deep-teal">
+        <h1 className="text-2xl font-bold mb-2 text-deep-teal">
           Become a Host
         </h1>
         <p className="text-neutral-gray text-sm mb-8">
@@ -54,7 +54,7 @@ export default function AddPropertyPage() {
               }`}
             >
               <div className="flex-1">
-                <h3 className="font-semibold text-base! mb-1.5 text-deep-teal">
+                <h3 className="font-semibold text-base mb-1.5 text-deep-teal">
                   {step.title}
                 </h3>
                 <p className="text-sm text-neutral-gray leading-relaxed">
@@ -89,7 +89,7 @@ export default function AddPropertyPage() {
           <p className="text-accent-orange font-semibold text-sm uppercase tracking-widest mb-3">
             Host with Joodpakpaw
           </p>
-          <h1 className="text-4xl! xl:text-5xl font-bold text-deep-teal mb-4">
+          <h1 className="text-4xl xl:text-5xl font-bold text-deep-teal mb-4">
             Become a Host
           </h1>
           <p className="text-neutral-gray text-base xl:text-lg max-w-lg mx-auto leading-relaxed">
@@ -115,7 +115,7 @@ export default function AddPropertyPage() {
                   {index + 1}
                 </span>
               </div>
-              <h3 className="font-bold text-lg! xl:text-xl! text-deep-teal mb-3 leading-snug">
+              <h3 className="font-bold text-lg xl:text-xl text-deep-teal mb-3 leading-snug">
                 {step.title}
               </h3>
               <p className="text-sm xl:text-base text-neutral-gray leading-relaxed">

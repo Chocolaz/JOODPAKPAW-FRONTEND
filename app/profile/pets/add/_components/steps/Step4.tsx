@@ -69,8 +69,9 @@ export function Step4({ onNext, onBack }: Step4Props) {
         </p>
 
         {/* Gender Selection Cards */}
-        <div className="flex flex-wrap justify-center gap-8 pb-4">
-          {genderOptions.map((option) => {
+        <div className="flex flex-col items-center gap-6 pb-4">
+          <div className="flex gap-8">
+            {genderOptions.slice(0, 2).map((option) => {
             const isSelected = formData.petGender === option.value
 
             let cardBorderColor = 'border-gray-200 hover:border-deep-teal/50'
@@ -98,7 +99,7 @@ export function Step4({ onNext, onBack }: Step4Props) {
               }
             }
 
-            const IconComponent = option.icon // Re-add this line
+            const IconComponent = option.icon
 
             return (
               <button
@@ -120,14 +121,47 @@ export function Step4({ onNext, onBack }: Step4Props) {
                     strokeWidth={1.5}
                   />
                 </div>
-                <span
-                  className={cn('mt-4 text-center font-medium', labelTextColor)}
-                >
+                <span className={cn('mt-4 text-center font-medium', labelTextColor)}>
                   {option.label}
                 </span>
               </button>
             )
           })}
+          </div>
+
+          {/* Row 2 — Not sure */}
+          {(() => {
+            const option = genderOptions[2]
+            const isSelected = formData.petGender === option.value
+            const IconComponent = option.icon
+            return (
+              <button
+                key={option.value}
+                onClick={() => updateField('petGender', option.value)}
+                className={cn(
+                  'flex flex-col items-center justify-center p-4 border rounded-[20px] shadow-sm cursor-pointer transition-colors w-[150px] h-[150px] bg-white',
+                  isSelected
+                    ? 'border-positive-green'
+                    : 'border-gray-200 hover:border-deep-teal/50'
+                )}
+              >
+                <div
+                  className={cn(
+                    'w-20 h-20 rounded-full flex items-center justify-center transition-colors',
+                    isSelected ? 'bg-green-50' : 'bg-gray-100'
+                  )}
+                >
+                  <IconComponent
+                    className={cn('w-12 h-12', isSelected ? 'text-positive-green' : 'text-neutral-gray')}
+                    strokeWidth={1.5}
+                  />
+                </div>
+                <span className={cn('mt-4 text-center font-medium', isSelected ? 'text-positive-green' : 'text-neutral-dark')}>
+                  {option.label}
+                </span>
+              </button>
+            )
+          })()}
         </div>
       </div>
 
