@@ -7,10 +7,15 @@ import './globals.css'
 import { afacad, baloo2, sarabun, prompt } from './fonts'
 
 // Suppress vaul's spurious pointer-capture error (upstream bug, cosmetic only)
+// and browser extension connection errors that pollute the console.
 if (typeof window !== 'undefined') {
   const _consoleError = console.error.bind(console)
   console.error = (...args: unknown[]) => {
-    if (typeof args[0] === 'string' && args[0].includes('releasePointerCapture')) return
+    if (typeof args[0] === 'string') {
+      const msg = args[0]
+      if (msg.includes('releasePointerCapture')) return
+      if (msg.includes('Could not establish connection')) return
+    }
     _consoleError(...args)
   }
 }

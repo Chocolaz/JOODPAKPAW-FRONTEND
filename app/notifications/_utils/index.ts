@@ -28,9 +28,12 @@ export function groupByDate(
 }
 
 export function getNotificationRoute(notification: AppNotification): string | null {
-  const { actionName, roleName, referenceId } = notification
+  const { actionName, roleName, referenceId, referenceTable } = notification
 
-  if (BOOKING_DETAIL_ACTIONS.has(actionName ?? '') && referenceId) {
+  if (
+    (BOOKING_DETAIL_ACTIONS.has(actionName ?? '') || referenceTable === 'bookings') &&
+    referenceId
+  ) {
     return roleName === 'host'
       ? `/profile/host/booking/${referenceId}`
       : `/profile/bookings/${referenceId}`
