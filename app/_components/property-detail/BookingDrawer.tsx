@@ -71,6 +71,7 @@ export function BookingDrawer({
   const [petProfiles, setPetProfiles] = React.useState<PetProfile[]>([])
   const [petProfilesLoading, setPetProfilesLoading] = React.useState(false)
   const [petSizeCategories, setPetSizeCategories] = React.useState<PetSizeCategory[]>([])
+  const [inlinePanelOpen, setInlinePanelOpen] = React.useState(false)
 
   React.useEffect(() => {
     getPetSizeCategories()
@@ -222,20 +223,25 @@ export function BookingDrawer({
         petSizeCategories={petSizeCategories}
         onPetSizeUpdated={handlePetSizeUpdated}
         inlineMode={true}
+        onInlinePanelChange={setInlinePanelOpen}
       />
-      {searchedNumberOfNights > 0 && (
-        <p className="text-sm font-medium text-deep-teal mt-1 mb-2">
-          Select a Room for {searchedNumberOfNights} night{searchedNumberOfNights > 1 ? 's' : ''}
-        </p>
-      )}
-      {loading && <div className="flex justify-center py-4"><Spinner /></div>}
-      {error && <p className="text-red-500 text-sm">{error}</p>}
-      {!loading && !error && (
-        <BookingRoomCard
-          categories={roomCategories}
-          selectedRooms={selectedRooms}
-          onSelectChange={handleSelectChange}
-        />
+      {!inlinePanelOpen && (
+        <>
+          {searchedNumberOfNights > 0 && (
+            <p className="text-sm font-medium text-deep-teal mt-1 mb-2">
+              Select a Room for {searchedNumberOfNights} night{searchedNumberOfNights > 1 ? 's' : ''}
+            </p>
+          )}
+          {loading && <div className="flex justify-center py-4"><Spinner /></div>}
+          {error && <p className="text-red-500 text-sm">{error}</p>}
+          {!loading && !error && (
+            <BookingRoomCard
+              categories={roomCategories}
+              selectedRooms={selectedRooms}
+              onSelectChange={handleSelectChange}
+            />
+          )}
+        </>
       )}
     </>
   )

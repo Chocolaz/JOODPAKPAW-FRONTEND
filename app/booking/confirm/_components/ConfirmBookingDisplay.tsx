@@ -6,7 +6,7 @@ import { format } from 'date-fns'
 import { RoomCategories, BookingDetail, PetProfile } from '@/types'
 import { CalendarCheck, CalendarX, ArrowLeft, PawPrint, Moon } from 'lucide-react'
 import Image from 'next/image'
-import { cn } from '@/lib/utils'
+import { cn, getApiImageUrl } from '@/lib/utils'
 import PaymentSection from './PaymentSection'
 
 interface ConfirmBookingDisplayProps {
@@ -164,9 +164,9 @@ export default function ConfirmBookingDisplay({
                   )}
                 >
                   <div className="w-6 h-6 rounded-full overflow-hidden bg-gray-100 shrink-0 flex items-center justify-center">
-                    {pet.image ? (
+                    {getApiImageUrl(pet.image) ? (
                       <Image
-                        src={pet.image}
+                        src={getApiImageUrl(pet.image)!}
                         alt={pet.name}
                         width={24}
                         height={24}

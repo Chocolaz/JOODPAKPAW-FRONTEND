@@ -9,7 +9,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 
 import { getPetProfileById, updatePetProfile } from '@/lib/api'
 import { toast } from 'sonner'
-import { cn, formatPetSizeRange } from '@/lib/utils'
+import { cn, formatPetSizeRange, getApiImageUrl } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Calendar } from '@/components/ui/calendar'
 import {
@@ -47,6 +47,8 @@ interface BookingSearchBarProps {
   onPetSizeUpdated: (petId: number, newSizeCategoryId: number) => void
   /** Inline expand mode — no nested dialogs, expands in place (use inside Drawer) */
   inlineMode?: boolean
+  /** Callback when inline panel opens/closes — used to hide sibling content */
+  onInlinePanelChange?: (isOpen: boolean) => void
 }
 
 type PetMode = 'profiles' | 'count'
@@ -67,6 +69,7 @@ export function BookingSearchBar({
   petSizeCategories,
   onPetSizeUpdated,
   inlineMode = false,
+  onInlinePanelChange,
 }: BookingSearchBarProps) {
   const [selectedDateRange, setSelectedDateRange] = React.useState<DateRange | undefined>(undefined)
   const [isDateDialogOpen, setIsDateDialogOpen] = React.useState(false)
@@ -136,6 +139,13 @@ export function BookingSearchBar({
       setSavingSize(false)
     }
   }
+
+  // Notify parent when inline panel opens/closes
+  React.useEffect(() => {
+    if (inlineMode && onInlinePanelChange) {
+      onInlinePanelChange(inlineOpen !== null)
+    }
+  }, [inlineOpen, inlineMode, onInlinePanelChange])
 
   // Sync draft state when dialogs/panels open
   React.useEffect(() => {
@@ -289,8 +299,8 @@ export function BookingSearchBar({
                             )}
                           >
                             <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-100 shrink-0 flex items-center justify-center">
-                              {pet.image ? (
-                                <Image src={pet.image} alt={pet.name} width={40} height={40} className="object-cover w-full h-full" />
+                              {getApiImageUrl(pet.image) ? (
+                                <Image src={getApiImageUrl(pet.image)!} alt={pet.name} width={40} height={40} className="object-cover w-full h-full" />
                               ) : (
                                 <PawPrint className="w-5 h-5 text-gray-400" />
                               )}

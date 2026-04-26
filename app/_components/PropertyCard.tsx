@@ -4,7 +4,7 @@ import { Property } from '@/types'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
-import { cn, getLowestPrice, getPetPolicy, assetPath } from '@/lib/utils'
+import { cn, getLowestPrice, getPetPolicy, assetPath, getApiImageUrl } from '@/lib/utils'
 import { Globe, GlobeLock, Heart, Star, Ban } from 'lucide-react'
 import { FavoriteDrawer } from './FavoriteDrawer'
 import { useAuth } from '@/app/_components/AuthContext'
@@ -16,8 +16,6 @@ import {
 } from '@/lib/api'
 import { ApiError } from '@/lib/errorHandling'
 import { toast } from 'sonner'
-
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL
 
 interface PropertyCardProps {
   property: Property
@@ -44,9 +42,7 @@ export function PropertyCard({
   const isOwner = user && property.hostId === user.id
 
   const [imgSrc, setImgSrc] = useState(
-    property.images.length > 0 && API_BASE_URL
-      ? new URL(property.images[0].filePath, API_BASE_URL).toString()
-      : assetPath('/graphics/welcome.svg')
+    getApiImageUrl(property.images[0]?.filePath) || assetPath('/graphics/welcome.svg')
   )
   const [isHeartClicked, setIsHeartClicked] = useState(property.isFavorite)
   const [isDrawerOpen, setIsDrawerOpen] = useState(false)

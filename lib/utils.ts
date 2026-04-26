@@ -3,9 +3,24 @@ import { twMerge } from 'tailwind-merge'
 import { Pet, RoomCategories } from '@/types'
 
 const BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH || ''
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL
 
 export function assetPath(path: string): string {
   return `${BASE_PATH}${path}`
+}
+
+export function getApiImageUrl(path: string | null | undefined): string | null {
+  if (!path || typeof path !== 'string' || path.trim() === '') return null
+  if (path.startsWith('http://') || path.startsWith('https://') || path.startsWith('data:image/')) return path
+
+  try {
+    // If path starts with /, remove it for new URL(path, base) to work correctly as a relative path to base
+    const relativePath = path.startsWith('/') ? path.slice(1) : path
+    return new URL(relativePath, API_BASE_URL).toString()
+  } catch (e) {
+    console.error('Failed to construct API image URL:', e)
+    return null
+  }
 }
 
 export function cn(...inputs: ClassValue[]) {
