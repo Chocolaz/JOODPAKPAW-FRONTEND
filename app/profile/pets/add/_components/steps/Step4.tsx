@@ -5,7 +5,7 @@ import Image from 'next/image'
 import { StepNavigation } from '@/app/profile/host/add-property/_components/StepNavigation'
 import { cn } from '@/lib/utils'
 import { useAddPet } from '../../_context/AddPetContext'
-import { Mars, Venus, HelpCircle } from 'lucide-react' // Changed from Male/Female
+import { Mars, Venus, HelpCircle } from 'lucide-react'
 import { PetGender } from '@/types'
 
 interface Step4Props {
@@ -33,7 +33,6 @@ export function Step4({ onNext, onBack }: Step4Props) {
   const genderOptions = [
     { label: 'Male', value: PetGender.Male, icon: Mars },
     { label: 'Female', value: PetGender.Female, icon: Venus },
-    { label: 'Not sure', value: PetGender.Other, icon: HelpCircle },
   ]
 
   return (
@@ -43,7 +42,7 @@ export function Step4({ onNext, onBack }: Step4Props) {
         <div className="flex justify-center mb-8">
           <div
             className={cn(
-              'w-26 h-26 rounded-full flex items-center justify-center overflow-hidden border relative', // Added 'relative'
+              'w-26 h-26 rounded-full flex items-center justify-center overflow-hidden border relative',
               petImageSrc ? 'border-positive-green' : 'border-deep-teal'
             )}
           >
@@ -55,7 +54,7 @@ export function Step4({ onNext, onBack }: Step4Props) {
                 className="rounded-full object-cover"
               />
             ) : (
-              renderDefaultIcon() // Use the renderDefaultIcon function here
+              renderDefaultIcon()
             )}
           </div>
         </div>
@@ -63,105 +62,62 @@ export function Step4({ onNext, onBack }: Step4Props) {
         <h3 className="text-deep-teal text-2xl font-semibold">
           What&apos;s your pet&apos;s gender?
         </h3>
-        <p className="mb-4 text-neutral-gray text-sm">
-          If the gender isn&apos;t known yet, it&apos;s okay to choose &quot;Not
-          sure&quot;.
-        </p>
+        <div className="h-4" />
 
         {/* Gender Selection Cards */}
         <div className="flex flex-col items-center gap-6 pb-4">
           <div className="flex gap-8">
-            {genderOptions.slice(0, 2).map((option) => {
-            const isSelected = formData.petGender === option.value
+            {genderOptions.map((option) => {
+              const isSelected = formData.petGender === option.value
 
-            let cardBorderColor = 'border-gray-200 hover:border-deep-teal/50'
-            let iconBgColor = 'bg-gray-100'
-            let iconTextColor = 'text-neutral-gray'
-            let labelTextColor = 'text-neutral-dark'
+              let cardBorderColor = 'border-gray-200 hover:border-deep-teal/50'
+              let iconBgColor = 'bg-gray-100'
+              let iconTextColor = 'text-neutral-gray'
+              let labelTextColor = 'text-neutral-dark'
 
-            if (isSelected) {
-              if (option.value === PetGender.Male) {
-                cardBorderColor = 'border-positive-green'
-                iconBgColor = 'bg-blue-50'
-                iconTextColor = 'text-blue-400'
-                labelTextColor = 'text-blue-500'
-              } else if (option.value === PetGender.Female) {
-                cardBorderColor = 'border-positive-green'
-                iconBgColor = 'bg-pink-50'
-                iconTextColor = 'text-pink-400'
-                labelTextColor = 'text-pink-500'
-              } else {
-                // PetGender.Other (Not sure)
-                cardBorderColor = 'border-positive-green'
-                iconBgColor = 'bg-green-50'
-                iconTextColor = 'text-positive-green'
-                labelTextColor = 'text-positive-green'
+              if (isSelected) {
+                if (option.value === PetGender.Male) {
+                  cardBorderColor = 'border-positive-green'
+                  iconBgColor = 'bg-blue-50'
+                  iconTextColor = 'text-blue-400'
+                  labelTextColor = 'text-blue-500'
+                } else if (option.value === PetGender.Female) {
+                  cardBorderColor = 'border-positive-green'
+                  iconBgColor = 'bg-pink-50'
+                  iconTextColor = 'text-pink-400'
+                  labelTextColor = 'text-pink-500'
+                }
               }
-            }
 
-            const IconComponent = option.icon
+              const IconComponent = option.icon
 
-            return (
-              <button
-                key={option.value}
-                onClick={() => updateField('petGender', option.value)}
-                className={cn(
-                  'flex flex-col items-center justify-center p-4 border rounded-[20px] shadow-sm cursor-pointer transition-colors w-[150px] h-[150px] bg-white',
-                  cardBorderColor
-                )}
-              >
-                <div
+              return (
+                <button
+                  key={option.value}
+                  onClick={() => updateField('petGender', option.value)}
                   className={cn(
-                    'w-20 h-20 rounded-full flex items-center justify-center transition-colors',
-                    iconBgColor
+                    'flex flex-col items-center justify-center p-4 border rounded-[20px] shadow-sm cursor-pointer transition-colors w-[150px] h-[150px] bg-white',
+                    cardBorderColor
                   )}
                 >
-                  <IconComponent
-                    className={cn('w-12 h-12', iconTextColor)}
-                    strokeWidth={1.5}
-                  />
-                </div>
-                <span className={cn('mt-4 text-center font-medium', labelTextColor)}>
-                  {option.label}
-                </span>
-              </button>
-            )
-          })}
+                  <div
+                    className={cn(
+                      'w-20 h-20 rounded-full flex items-center justify-center transition-colors',
+                      iconBgColor
+                    )}
+                  >
+                    <IconComponent
+                      className={cn('w-12 h-12', iconTextColor)}
+                      strokeWidth={1.5}
+                    />
+                  </div>
+                  <span className={cn('mt-4 text-center font-medium', labelTextColor)}>
+                    {option.label}
+                  </span>
+                </button>
+              )
+            })}
           </div>
-
-          {/* Row 2 — Not sure */}
-          {(() => {
-            const option = genderOptions[2]
-            const isSelected = formData.petGender === option.value
-            const IconComponent = option.icon
-            return (
-              <button
-                key={option.value}
-                onClick={() => updateField('petGender', option.value)}
-                className={cn(
-                  'flex flex-col items-center justify-center p-4 border rounded-[20px] shadow-sm cursor-pointer transition-colors w-[150px] h-[150px] bg-white',
-                  isSelected
-                    ? 'border-positive-green'
-                    : 'border-gray-200 hover:border-deep-teal/50'
-                )}
-              >
-                <div
-                  className={cn(
-                    'w-20 h-20 rounded-full flex items-center justify-center transition-colors',
-                    isSelected ? 'bg-green-50' : 'bg-gray-100'
-                  )}
-                >
-                  <IconComponent
-                    className={cn('w-12 h-12', isSelected ? 'text-positive-green' : 'text-neutral-gray')}
-                    strokeWidth={1.5}
-                  />
-                </div>
-                <span className={cn('mt-4 text-center font-medium', isSelected ? 'text-positive-green' : 'text-neutral-dark')}>
-                  {option.label}
-                </span>
-              </button>
-            )
-          })()}
         </div>
       </div>
 
