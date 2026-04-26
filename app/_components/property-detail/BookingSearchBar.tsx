@@ -526,7 +526,7 @@ export function BookingSearchBar({
     </div>
   )
 
-  // ── INLINE MODE ───────────────────────────────────────────────────────────
+  // ── Inline MODE ───────────────────────────────────────────────────────────
   const handleInlineSelectCheckin = (day: Date | undefined) => {
     if (!day) return
     const newTo = date?.to && date.to > day ? date.to : undefined
@@ -542,113 +542,124 @@ export function BookingSearchBar({
   }
 
   if (inlineMode) {
+    const pillTriggers = (
+      <div className="flex items-center p-1.5 rounded-full border bg-off-white shadow-sm">
+        <button
+          type="button"
+          onClick={() => setInlineOpen('checkin')}
+          className={cn(
+            'flex-1 flex flex-col items-start px-4 py-2 rounded-full transition-colors min-w-0',
+            inlineOpen === 'checkin' ? 'bg-deep-teal/10' : 'hover:bg-neutral-200'
+          )}
+        >
+          <span className="font-semibold text-xs text-deep-teal">Check-in</span>
+          <span className={cn('text-sm truncate', date?.from ? 'text-gray-800' : 'text-neutral-gray')}>
+            {date?.from ? format(date.from, 'MMM dd') : 'Add date'}
+          </span>
+        </button>
+        <div className="w-px h-8 bg-gray-200 shrink-0" />
+        <button
+          type="button"
+          onClick={() => setInlineOpen('checkout')}
+          className={cn(
+            'flex-1 flex flex-col items-start px-4 py-2 rounded-full transition-colors min-w-0',
+            inlineOpen === 'checkout' ? 'bg-deep-teal/10' : 'hover:bg-neutral-200'
+          )}
+        >
+          <span className="font-semibold text-xs text-deep-teal">Check-out</span>
+          <span className={cn('text-sm truncate', date?.to ? 'text-gray-800' : 'text-neutral-gray')}>
+            {date?.to ? format(date.to, 'MMM dd') : 'Add date'}
+          </span>
+        </button>
+        <div className="w-px h-8 bg-gray-200 shrink-0" />
+        <button
+          type="button"
+          onClick={() => setInlineOpen('pets')}
+          className={cn(
+            'flex-1 flex flex-col items-start px-4 py-2 rounded-full transition-colors min-w-0',
+            inlineOpen === 'pets' ? 'bg-accent-orange/10' : 'hover:bg-neutral-200'
+          )}
+        >
+          <span className="font-semibold text-xs text-deep-teal">Pets</span>
+          <span className={cn('text-sm truncate', selectedPetIds.length === 0 && numberOfPets === 0 ? 'text-neutral-gray' : 'text-gray-800')}>
+            {petButtonLabel}
+          </span>
+        </button>
+      </div>
+    )
+
+    if (inlineOpen === null) {
+      return <div className="flex flex-col gap-3 mb-4">{pillTriggers}</div>
+    }
+
     return (
-      <div className="flex flex-col gap-3 mb-4">
-        {/* Pill trigger row — 3 sections */}
-        <div className="flex items-center p-1.5 rounded-full border bg-off-white shadow-sm">
-          {/* Check-in */}
-          <button
-            type="button"
-            onClick={() => setInlineOpen((o) => (o === 'checkin' ? null : 'checkin'))}
-            className={cn(
-              'flex-1 flex flex-col items-start px-4 py-2 rounded-full transition-colors min-w-0',
-              inlineOpen === 'checkin' ? 'bg-deep-teal/10' : 'hover:bg-neutral-200'
-            )}
-          >
-            <span className="font-semibold text-xs text-deep-teal">Check-in</span>
-            <span className={cn('text-sm truncate', date?.from ? 'text-gray-800' : 'text-neutral-gray')}>
-              {date?.from ? format(date.from, 'MMM dd') : 'Add date'}
-            </span>
-          </button>
+      <div className="flex flex-col gap-2 -mx-5 px-5 pb-6 bg-white min-h-[60vh]">
+        <div className="pt-4 pb-3">{pillTriggers}</div>
 
-          <div className="w-px h-8 bg-gray-200 shrink-0" />
-
-          {/* Check-out */}
-          <button
-            type="button"
-            onClick={() => setInlineOpen((o) => (o === 'checkout' ? null : 'checkout'))}
-            className={cn(
-              'flex-1 flex flex-col items-start px-4 py-2 rounded-full transition-colors min-w-0',
-              inlineOpen === 'checkout' ? 'bg-deep-teal/10' : 'hover:bg-neutral-200'
-            )}
-          >
-            <span className="font-semibold text-xs text-deep-teal">Check-out</span>
-            <span className={cn('text-sm truncate', date?.to ? 'text-gray-800' : 'text-neutral-gray')}>
-              {date?.to ? format(date.to, 'MMM dd') : 'Add date'}
-            </span>
-          </button>
-
-          <div className="w-px h-8 bg-gray-200 shrink-0" />
-
-          {/* Pets */}
-          <button
-            type="button"
-            onClick={() => setInlineOpen((o) => (o === 'pets' ? null : 'pets'))}
-            className={cn(
-              'flex-1 flex flex-col items-start px-4 py-2 rounded-full transition-colors min-w-0',
-              inlineOpen === 'pets' ? 'bg-accent-orange/10' : 'hover:bg-neutral-200'
-            )}
-          >
-            <span className="font-semibold text-xs text-deep-teal">Pets</span>
-            <span className={cn('text-sm truncate', selectedPetIds.length === 0 && numberOfPets === 0 ? 'text-neutral-gray' : 'text-gray-800')}>
-              {petButtonLabel}
-            </span>
-          </button>
-        </div>
-
-        {/* Inline expanded panels */}
-        <AnimatePresence initial={false}>
-          {(inlineOpen === 'checkin' || inlineOpen === 'checkout') && (
+        <AnimatePresence mode="wait">
+          {inlineOpen === 'checkin' && (
             <motion.div
-              key="date-panel"
-              initial={{ opacity: 0, y: -8 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -8 }}
-              transition={{ duration: 0.2, ease: 'easeOut' }}
-              className="rounded-2xl border border-gray-200 bg-white overflow-hidden shadow-sm"
+              key="checkin"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.15 }}
             >
-              <div className="px-4 pt-3 pb-1 flex items-center gap-2">
-                <span className={cn(
-                  'text-xs font-semibold px-2 py-0.5 rounded-full',
-                  inlineOpen === 'checkin' ? 'bg-deep-teal text-white' : 'bg-gray-100 text-gray-400'
-                )}>
-                  Check-in
-                </span>
-                <span className="text-gray-300 text-xs">→</span>
-                <span className={cn(
-                  'text-xs font-semibold px-2 py-0.5 rounded-full',
-                  inlineOpen === 'checkout' ? 'bg-deep-teal text-white' : 'bg-gray-100 text-gray-400'
-                )}>
-                  Check-out
-                </span>
-              </div>
-              <div className="flex justify-center pb-3">
-                <Calendar
-                  mode="single"
-                  defaultMonth={inlineOpen === 'checkout' ? (date?.to ?? date?.from ?? new Date()) : (date?.from ?? new Date())}
-                  selected={inlineOpen === 'checkin' ? date?.from : date?.to}
-                  onSelect={inlineOpen === 'checkin' ? handleInlineSelectCheckin : handleInlineSelectCheckout}
-                  startMonth={new Date()}
-                  hidden={[{
-                    before: inlineOpen === 'checkout' && date?.from
-                      ? new Date(date.from.getTime() + 86400000)
-                      : new Date()
-                  }]}
-                  fixedWeeks
-                  className="w-full"
-                />
-              </div>
+              <p className="text-sm font-medium text-deep-teal mb-3">Select check-in date</p>
+              <Calendar
+                mode="single"
+                defaultMonth={date?.from ?? new Date()}
+                selected={date?.from}
+                onSelect={(day) => {
+                  if (!day) return
+                  const newTo = date?.to && date.to > day ? date.to : undefined
+                  setDate({ from: day, to: newTo })
+                  if (!newTo) setInlineOpen('checkout')
+                }}
+                startMonth={new Date()}
+                hidden={[{ before: new Date() }]}
+                fixedWeeks
+                className="w-full"
+              />
+            </motion.div>
+          )}
+
+          {inlineOpen === 'checkout' && (
+            <motion.div
+              key="checkout"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.15 }}
+            >
+              <p className="text-sm font-medium text-deep-teal mb-3">Select check-out date</p>
+              <Calendar
+                mode="single"
+                defaultMonth={date?.to ?? date?.from ?? new Date()}
+                selected={date?.to}
+                onSelect={(day) => {
+                  if (!day) return
+                  setDate((prev) => ({ from: prev?.from, to: day }))
+                  setInlineOpen(null)
+                }}
+                startMonth={new Date()}
+                hidden={[{
+                  before: date?.from ? new Date(date.from.getTime() + 86400000) : new Date()
+                }]}
+                fixedWeeks
+                className="w-full"
+              />
             </motion.div>
           )}
 
           {inlineOpen === 'pets' && (
             <motion.div
-              key="pets-panel"
-              initial={{ opacity: 0, y: -8 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -8 }}
-              transition={{ duration: 0.2, ease: 'easeOut' }}
-              className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm space-y-3"
+              key="pets"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.15 }}
+              className="space-y-3"
             >
               {petPanelContent}
               {confirmPetsButton}
