@@ -7,6 +7,7 @@ import { StepNavigation } from '@/app/profile/host/add-property/_components/Step
 import { cn } from '@/lib/utils'
 import { useAddPet } from '../../_context/AddPetContext'
 import { createPetProfile } from '@/lib/api'
+import { useProfileContext } from '@/app/profile/ProfileContext'
 import { toast } from 'sonner'
 import {
   Baby,
@@ -51,6 +52,7 @@ const GENDER_CONFIG = {
 
 export function Step9({ onBack }: Step9Props) {
   const { formData, clearAddPetSession } = useAddPet()
+  const { petProfiles } = useProfileContext()
   const router = useRouter()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -79,6 +81,7 @@ export function Step9({ onBack }: Step9Props) {
 
     try {
       await createPetProfile(apiFormData)
+      await petProfiles.refetch()
       toast.success('Pet profile created successfully!')
       clearAddPetSession()
       router.push('/profile/pets')

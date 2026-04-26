@@ -9,6 +9,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { Spinner } from '@/components/ui/spinner'
 import { toast } from 'sonner'
 import { updatePetProfile, getPetSizeCategories } from '@/lib/api'
+import { useProfileContext } from '@/app/profile/ProfileContext'
 import {
   Select,
   SelectContent,
@@ -32,6 +33,7 @@ export default function EditPetProfileForm({
   onClose,
   onSuccess,
 }: EditPetProfileFormProps) {
+  const { petProfiles } = useProfileContext()
   const [formData, setFormData] = useState({
     name: pet.name,
     contactName: pet.contactName || '',
@@ -220,6 +222,7 @@ export default function EditPetProfileForm({
       }
 
       await updatePetProfile(pet.id.toString(), formPayload)
+      await petProfiles.refetch()
       toast.success('Pet profile updated successfully!')
       onSuccess()
       onClose()

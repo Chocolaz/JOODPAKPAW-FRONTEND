@@ -12,6 +12,7 @@ export interface PetBreed {
   breed: string
   petId: number
   petName: string
+  imageUrl?: string
 }
 
 export interface PetBreedsResponse {

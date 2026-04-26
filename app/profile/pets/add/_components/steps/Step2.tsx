@@ -8,11 +8,38 @@ import { getPetBreeds } from '@/lib/api'
 import { PetBreed } from '@/types'
 import { ErrorState } from '@/app/profile/_components/ErrorState'
 import { Input } from '@/components/ui/input'
-import { Search, Check } from 'lucide-react'
+import { Search, Check, PawPrint } from 'lucide-react'
+import Image from 'next/image'
+import { getApiImageUrl } from '@/lib/utils'
+import { Spinner } from '@/components/ui/spinner'
 
 interface Step2Props {
   onNext: () => void
   onBack: () => void
+}
+
+function BreedImage({ src, alt }: { src: string; alt: string }) {
+  const [isLoading, setIsLoading] = useState(true)
+
+  return (
+    <div className="w-full h-full relative flex items-center justify-center">
+      {isLoading && (
+        <div className="absolute inset-0 flex items-center justify-center z-10 bg-gray-50">
+          <Spinner className="w-4 h-4 text-deep-teal/40" />
+        </div>
+      )}
+      <Image
+        src={src}
+        alt={alt}
+        fill
+        className={cn(
+          'object-contain transition-opacity duration-300',
+          isLoading ? 'opacity-0' : 'opacity-100'
+        )}
+        onLoad={() => setIsLoading(false)}
+      />
+    </div>
+  )
 }
 
 export function Step2({ onNext, onBack }: Step2Props) {
@@ -61,7 +88,10 @@ export function Step2({ onNext, onBack }: Step2Props) {
         </div>
         <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 pb-4">
           {Array.from({ length: 6 }).map((_, i) => (
-            <div key={i} className="h-24 bg-gray-100 rounded-lg" />
+            <div key={i} className="h-[140px] bg-gray-50 rounded-xl flex flex-col items-center p-3">
+               <div className="w-full aspect-square max-w-[80px] rounded-lg bg-gray-100 mb-3" />
+               <div className="h-4 bg-gray-100 rounded w-20" />
+            </div>
           ))}
         </div>
       </div>
@@ -108,6 +138,8 @@ export function Step2({ onNext, onBack }: Step2Props) {
         ) : (
           filteredBreeds.map((breed) => {
             const isSelected = formData.petBreedId === breed.id
+            const breedImageUrl = getApiImageUrl(breed.imageUrl)
+            
             return (
               <button
                 key={breed.id}
@@ -116,20 +148,30 @@ export function Step2({ onNext, onBack }: Step2Props) {
                   updateField('petBreedName', breed.breed)
                 }}
                 className={cn(
-                  'relative flex items-center justify-center p-4 border rounded-lg shadow-sm cursor-pointer transition-colors bg-white h-24',
+                  'relative flex flex-col items-center p-3 border rounded-xl shadow-sm cursor-pointer transition-all duration-200 bg-white min-h-[140px]',
                   isSelected
-                    ? 'border-positive-green bg-teal-50/40'
-                    : 'border-gray-200 hover:border-deep-teal/50',
+                    ? 'border-positive-green bg-teal-50/20 ring-1 ring-positive-green/20'
+                    : 'border-gray-100 hover:border-deep-teal/30 hover:shadow-md',
                 )}
               >
+                {/* Breed Image Container */}
+                <div className="w-full aspect-square max-w-[80px] rounded-lg overflow-hidden mb-3 bg-gray-50 flex items-center justify-center relative">
+                  {breedImageUrl ? (
+                    <BreedImage src={breedImageUrl} alt={breed.breed} />
+                  ) : (
+                    <PawPrint className="w-8 h-8 text-neutral-gray/20" />
+                  )}
+                </div>
+
                 {isSelected && (
-                  <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-positive-green flex items-center justify-center">
+                  <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-positive-green flex items-center justify-center z-10">
                     <Check className="w-3 h-3 text-white" strokeWidth={2.5} />
                   </div>
                 )}
+                
                 <span
                   className={cn(
-                    'text-center font-medium text-sm',
+                    'text-center font-semibold text-xs lg:text-sm line-clamp-2 px-1',
                     isSelected ? 'text-positive-green' : 'text-neutral-dark',
                   )}
                 >

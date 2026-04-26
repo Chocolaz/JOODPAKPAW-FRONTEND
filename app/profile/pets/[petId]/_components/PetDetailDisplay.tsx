@@ -41,6 +41,7 @@ export default function PetDetailDisplay({
   onDelete,
   onPetUpdate,
 }: PetDetailDisplayProps) {
+  const { petProfiles } = useProfileContext()
   const basePath = process.env.NEXT_PUBLIC_BASE_PATH || ''
   const pawPrintSrc = `${basePath}/icons/PawPrint.svg`
 
@@ -69,6 +70,7 @@ export default function PetDetailDisplay({
     try {
       setIsDeleting(true)
       await deletePetProfile(String(pet.id))
+      await petProfiles.refetch()
       toast.success(`${pet.name} has been deleted.`)
       router.push('/profile/pets')
     } catch (error) {
