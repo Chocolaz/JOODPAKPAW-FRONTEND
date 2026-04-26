@@ -274,6 +274,15 @@ export const getRecommendedProperties = (page = 1, limit = 20): Promise<Properti
   })
 }
 
+export const getPropertyRecommendations = (propertyId: string | number, limit = 12): Promise<PropertiesResponse> => {
+  return request<PropertiesResponse>({
+    endpoint: `api/v1/properties/recommend/property/${propertyId}?limit=${limit}`,
+    method: 'GET',
+    sendAuthIfAvailable: true,
+    errorContext: 'Get Property Recommendations',
+  })
+}
+
 export const trackPropertyView = (propertyId: number): Promise<void> => {
   return request<void>({
     endpoint: `api/v1/user-behaviors/view-property/${propertyId}`,

@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { getPropertyById } from '@/lib/api'
+import { getPropertyById, getPropertyRecommendations } from '@/lib/api'
 import { ErrorState } from '@/app/profile/_components/ErrorState'
 import { usePropertyLoader } from '@/app/_hooks/usePropertyLoader'
 import { PropertyImageGallery } from '@/app/_components/property-detail/PropertyImageGallery'
@@ -20,6 +20,8 @@ import { useAuth } from '@/app/_components/AuthContext'
 import { useRecentlyViewed } from '@/app/_hooks/useRecentlyViewed'
 import { Skeleton } from '@/components/ui/skeleton'
 import { motion } from 'framer-motion'
+import { PropertyCard } from '@/app/_components/PropertyCard'
+import type { Property } from '@/types'
 
 function PropertyDetailSkeleton() {
   return (
@@ -138,9 +140,26 @@ export default function PropertyDetailPage() {
   const { user, isAuthenticated } = useAuth()
   const [reportOpen, setReportOpen] = useState(false)
   const { track } = useRecentlyViewed()
+  const [recommendations, setRecommendations] = useState<Property[]>([])
+  const [recommendationsLoading, setRecommendationsLoading] = useState(false)
 
   useEffect(() => {
     if (property?.id) track(property.id)
+  }, [property?.id])
+
+  useEffect(() => {
+    if (!property?.id) return
+
+    setRecommendationsLoading(true)
+    getPropertyRecommendations(property.id, 12)
+      .then((res) => {
+        setRecommendations(res.properties || [])
+      })
+      .catch((err) => {
+        console.error('Failed to load recommendations:', err)
+        setRecommendations([])
+      })
+      .finally(() => setRecommendationsLoading(false))
   }, [property?.id])
 
   const handleShare = async () => {
@@ -162,6 +181,7 @@ export default function PropertyDetailPage() {
     const bookingId = searchParams.get('bookingId')
     const fromFavorites = searchParams.get('fromFavorites')
     const folderId = searchParams.get('folderId')
+    const propertyChain = searchParams.get('propertyChain')
 
     if (fromBookings === 'true' && bookingId) {
       router.push(`/profile/bookings/${bookingId}`)
@@ -171,6 +191,16 @@ export default function PropertyDetailPage() {
       router.push(`/favorites/${folderId}`)
     } else if (fromFavorites === 'true') {
       router.push('/favorites')
+    } else if (propertyChain) {
+      const chain = propertyChain.split(',')
+      if (chain.length > 0) {
+        const previousPropertyId = chain[chain.length - 1]
+        const updatedChain = chain.slice(0, -1).join(',')
+        const query = updatedChain ? `?propertyChain=${updatedChain}` : ''
+        router.push(`/detail/${previousPropertyId}${query}`)
+      } else {
+        router.push('/')
+      }
     } else {
       router.push('/')
     }
@@ -309,6 +339,36 @@ export default function PropertyDetailPage() {
       <div className="lg:hidden">
         <BookingDrawer propertyId={property.id} />
       </div>
+
+      {/* Recommendations Section */}
+      {recommendations.length > 0 && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, ease: 'easeOut' }}
+          viewport={{ once: true }}
+          className="mt-16 px-4 md:px-8 lg:px-2"
+        >
+          <div className="max-w-6xl mx-auto">
+            <h2 className="text-2xl md:text-3xl font-baloo2 font-bold mb-6">
+              Similar Properties
+            </h2>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 lg:gap-6">
+              {recommendations.map((rec) => {
+                const currentChain = searchParams.get('propertyChain') || ''
+                const newChain = currentChain ? `${currentChain},${property.id}` : String(property.id)
+                return (
+                  <PropertyCard
+                    key={rec.id}
+                    property={rec}
+                    href={`/detail/${rec.id}?propertyChain=${newChain}`}
+                  />
+                )
+              })}
+            </div>
+          </div>
+        </motion.div>
+      )}
 
       <ReportPropertyDrawer
         propertyId={property.id}
