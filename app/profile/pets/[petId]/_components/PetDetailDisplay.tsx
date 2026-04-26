@@ -18,6 +18,7 @@ import {
   Notebook,
 } from 'lucide-react'
 import { differenceInYears, differenceInMonths, format } from 'date-fns'
+import { useProfileContext } from '@/app/profile/ProfileContext'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import { deletePetProfile } from '@/lib/api'

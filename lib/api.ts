@@ -274,8 +274,8 @@ export const getRecommendedProperties = (page = 1, limit = 20): Promise<Properti
   })
 }
 
-export const getPropertyRecommendations = (propertyId: string | number, limit = 12): Promise<PropertiesResponse> => {
-  return request<PropertiesResponse>({
+export const getPropertyRecommendations = (propertyId: string | number, limit = 12): Promise<HostPropertiesResponse> => {
+  return request<HostPropertiesResponse>({
     endpoint: `api/v1/properties/recommend/property/${propertyId}?limit=${limit}`,
     method: 'GET',
     sendAuthIfAvailable: true,
