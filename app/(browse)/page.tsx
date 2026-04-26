@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState, useCallback, useRef } from 'react'
 import { PageHeader } from '@/app/_components/PageHeader'
 import { PropertyList } from '@/app/_components/PropertyList'
-import { getProperties, getRecommendedProperties } from '@/lib/api'
+import { getProperties, getRecommendedProperties, getPropertyById } from '@/lib/api'
 import { Property } from '@/types'
 import { useAuth } from '@/app/_components/AuthContext'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -286,12 +286,49 @@ export default function Home() {
   const dogFriendly = sectionData.dogFriendly
   const catFriendly = sectionData.catFriendly
 
-  const recentlyViewed = useMemo(() => {
-    if (recentlyViewedIds.length === 0) return []
-    return recentlyViewedIds
-      .map((id) => visibleProperties.find((p) => p.id === id))
-      .filter((p): p is Property => p != null)
-  }, [recentlyViewedIds, visibleProperties])
+  const [recentlyViewedFullProperties, setRecentlyViewedFullProperties] = useState<Property[]>([])
+
+  useEffect(() => {
+    if (recentlyViewedIds.length === 0) {
+      setRecentlyViewedFullProperties([])
+      return
+    }
+
+    const fetchRecentlyViewed = async () => {
+      // Create a pool of all currently loaded properties to avoid redundant API calls
+      const allLoaded = [
+        ...visibleProperties,
+        ...sectionData.topRated,
+        ...sectionData.bestValue,
+        ...sectionData.newListings,
+        ...sectionData.trending,
+        ...sectionData.dogFriendly,
+        ...sectionData.catFriendly,
+      ]
+
+      try {
+        const promises = recentlyViewedIds.map(async (id) => {
+          const existing = allLoaded.find((p) => p.id === id)
+          if (existing) return existing
+
+          try {
+            const res = await getPropertyById(String(id))
+            return res.property
+          } catch (err) {
+            console.error(`Failed to fetch recently viewed property ${id}:`, err)
+            return null
+          }
+        })
+
+        const results = await Promise.all(promises)
+        setRecentlyViewedFullProperties(results.filter((p): p is Property => p != null))
+      } catch (err) {
+        console.error('Error fetching recently viewed properties:', err)
+      }
+    }
+
+    fetchRecentlyViewed()
+  }, [recentlyViewedIds, visibleProperties, sectionData])
 
   return (
     <div>
@@ -444,12 +481,12 @@ export default function Home() {
                     className="lg:pt-2"
                   >
                     {/* Recently Viewed */}
-                    {recentlyViewed.length > 0 && (
+                    {recentlyViewedFullProperties.length > 0 && (
                       <BrowseSection
                         title="Recently Viewed"
                         icon={<Clock className="w-5 h-5 text-neutral-gray" />}
-                        properties={recentlyViewed}
-                        totalCount={recentlyViewed.length}
+                        properties={recentlyViewedFullProperties}
+                        totalCount={recentlyViewedFullProperties.length}
                         showHeartIcon={isAuthenticated}
                         showPetPolicyChip={true}
                         seeAllHref={buildSeeAllUrl('/recently-viewed')}

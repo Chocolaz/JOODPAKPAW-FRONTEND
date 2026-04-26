@@ -2,8 +2,8 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import { Clock } from 'lucide-react'
-import { getProperties } from '@/lib/api'
-import { PropertiesResponse, Property } from '@/types'
+import { getProperties, getPropertyById } from '@/lib/api'
+import { Property } from '@/types'
 import { useAuth } from '@/app/_components/AuthContext'
 import { useRecentlyViewed } from '@/app/_hooks/useRecentlyViewed'
 import { useBrowseFilters } from '@/app/_hooks/useBrowseFilters'
@@ -18,17 +18,29 @@ export default function RecentlyViewedPage() {
   const { } = useBrowseFilters()
 
   useEffect(() => {
-    getProperties(1, 1000)
-      .then((res) => setProperties((res as PropertiesResponse).data))
-      .catch(console.error)
-      .finally(() => setIsLoading(false))
-  }, [isAuthenticated])
+    if (ids.length === 0) {
+      setProperties([])
+      setIsLoading(false)
+      return
+    }
 
-  const filtered = useMemo(() => {
-    return ids
-      .map((id) => properties.find((p) => p.id === id))
-      .filter((p): p is Property => p != null)
-  }, [ids, properties])
+    const fetchProperties = async () => {
+      setIsLoading(true)
+      try {
+        const promises = ids.map((id) => getPropertyById(String(id)))
+        const results = await Promise.all(promises)
+        setProperties(results.map((r) => r.property))
+      } catch (err) {
+        console.error('Failed to fetch recently viewed properties:', err)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    fetchProperties()
+  }, [ids])
+
+  const filtered = properties
 
   return (
     <BrowsePageLayout

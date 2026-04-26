@@ -9,26 +9,28 @@ const MAX = 10
 
 export function useRecentlyViewed() {
   const { user } = useAuth()
-  const storageKey = user ? KEY(user.id) : null
+  const storageKey = user ? KEY(user.id) : GUEST_KEY
   const [ids, setIds] = useState<number[]>([])
 
   useEffect(() => {
-    // Clear guest key when user logs in
-    if (user) localStorage.removeItem(GUEST_KEY)
-
-    if (!storageKey) {
-      setIds([])
-      return
+    // When user logs in, we might want to clear guest key
+    // But we should only do it once when transitioning from guest to user
+    if (user) {
+      // Optional: migrate guest history to user history here if desired
+      // For now, let's keep it simple and just clear it as before
+      localStorage.removeItem(GUEST_KEY)
     }
+
     try {
       const stored = localStorage.getItem(storageKey)
       if (stored) setIds(JSON.parse(stored))
       else setIds([])
-    } catch {}
+    } catch {
+      setIds([])
+    }
   }, [storageKey, user])
 
   const track = (propertyId: number) => {
-    if (!storageKey) return
     try {
       const stored = localStorage.getItem(storageKey)
       const current: number[] = stored ? JSON.parse(stored) : []
