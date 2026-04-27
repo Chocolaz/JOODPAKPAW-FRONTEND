@@ -146,7 +146,7 @@ export default function HostProfilePage() {
           loading={reviewsLoading}
           onPageChange={handlePageChange}
           onSeeAll={handleSeeAll}
-          onReport={(id) => setReportReviewId(id)}
+          onReport={isOwner ? (id) => setReportReviewId(id) : undefined}
         />
       </motion.div>
       {reportReviewId !== null && (
