@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Spinner } from '@/components/ui/spinner'
+import { Skeleton } from '@/components/ui/skeleton'
 import { toast } from 'sonner'
 import { updatePetProfile, getPetSizeCategories } from '@/lib/api'
 import { useProfileContext } from '@/app/profile/ProfileContext'
@@ -264,7 +265,7 @@ export default function EditPetProfileForm({
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 p-4 px-10">
+    <form onSubmit={handleSubmit} className="space-y-4 p-4 md:p-0">
       <Tabs defaultValue="details" className="w-full">
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="details">Details</TabsTrigger>
@@ -272,32 +273,72 @@ export default function EditPetProfileForm({
         </TabsList>
         <TabsContent value="details">
           <div className="space-y-4 pt-4">
-            {/* Pet Name */}
-            <div>
-              <Label htmlFor="name" className="text-deep-teal">
-                Pet Name
-              </Label>
-              <Input
-                id="name"
-                name="name"
-                value={formData.name}
-                onChange={handleChange}
-                maxLength={20} // Added maxLength
-                required
-                className={errors.name ? 'border-red-500' : ''}
-              />
-              {errors.name && (
-                <p className="text-red-500 text-xs mt-1">{errors.name}</p>
-              )}
-            </div>
+            {isLoadingCategories ? (
+              <>
+                {/* Loading skeleton for all fields */}
+                <div className="space-y-4">
+                  <div>
+                    <Skeleton className="h-4 w-20 mb-2" />
+                    <Skeleton className="h-10 w-full" />
+                  </div>
+                  <div>
+                    <Skeleton className="h-4 w-16 mb-2" />
+                    <div className="flex justify-center gap-4">
+                      {[1, 2, 3].map((i) => (
+                        <Skeleton key={i} className="w-20 h-24 rounded-2xl" />
+                      ))}
+                    </div>
+                  </div>
+                  <div>
+                    <Skeleton className="h-4 w-16 mb-2" />
+                    <div className="flex justify-center gap-1">
+                      {[1, 2, 3, 4, 5].map((i) => (
+                        <Skeleton key={i} className="w-8 h-8 rounded-full" />
+                      ))}
+                    </div>
+                  </div>
+                  <div>
+                    <Skeleton className="h-4 w-24 mb-2" />
+                    <Skeleton className="h-10 w-full" />
+                  </div>
+                  <div>
+                    <Skeleton className="h-4 w-20 mb-2" />
+                    <Skeleton className="h-10 w-full" />
+                  </div>
+                  <div>
+                    <Skeleton className="h-4 w-16 mb-2" />
+                    <Skeleton className="h-16 w-full" />
+                  </div>
+                </div>
+              </>
+            ) : (
+              <>
+                {/* Pet Name */}
+                <div>
+                  <Label htmlFor="name" className="text-deep-teal">
+                    Pet Name
+                  </Label>
+                  <Input
+                    id="name"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleChange}
+                    maxLength={20}
+                    required
+                    className={errors.name ? 'border-red-500' : ''}
+                  />
+                  {errors.name && (
+                    <p className="text-red-500 text-xs mt-1">{errors.name}</p>
+                  )}
+                </div>
 
-            {/* Pet Size Cards */}
-            <div>
-              <Label className="mb-2 block text-deep-teal">Pet Size</Label>
-              {isLoadingCategories ? (
-                <Spinner />
-              ) : (
-                <div className="flex flex-row justify-center items-center gap-4 pb-4 overflow-x-auto whitespace-nowrap px-4">
+                {/* Pet Size Cards */}
+                <div>
+                  <Label className="mb-2 block text-deep-teal">Pet Size</Label>
+                  {isLoadingCategories ? (
+                    <Spinner />
+                  ) : (
+                    <div className="flex flex-row justify-center items-center gap-4 pb-4 overflow-x-auto whitespace-nowrap px-4">
                   {petSizeCategories.map((size) => {
                     const isSelected = selectedPetSizeId === size.id.toString()
                     return (
@@ -360,172 +401,178 @@ export default function EditPetProfileForm({
                   {errors.petSizeId}
                 </p>
               )}
-            </div>
+                </div>
 
-            {/* Energy Level */}
-            <div>
-              <Label htmlFor="petActivityLevel" className="text-deep-teal">
-                Energy
-              </Label>
-              <div
-                className={cn(
-                  'flex justify-center gap-1 mb-8',
-                  errors.petActivityLevel
-                    ? 'border border-red-500 rounded-md p-2'
-                    : ''
-                )}
-              >
-                {' '}
-                {/* Changed gap-2 to gap-1 */}
-                {petActivityLevels.map((level) => (
-                  <Zap
-                    key={level}
+                {/* Energy Level */}
+                <div>
+                  <Label htmlFor="petActivityLevel" className="text-deep-teal">
+                    Energy
+                  </Label>
+                  <div
                     className={cn(
-                      'w-8 h-8 cursor-pointer transition-colors',
-                      selectedPetActivityLevel &&
-                        parseInt(selectedPetActivityLevel) >= level
-                        ? 'text-accent-orange'
-                        : 'text-gray-300'
+                      'flex justify-center gap-1 mb-8',
+                      errors.petActivityLevel
+                        ? 'border border-red-500 rounded-md p-2'
+                        : ''
                     )}
-                    onClick={() =>
-                      handlePetActivityLevelChange(level.toString())
-                    }
-                    fill={
-                      selectedPetActivityLevel &&
-                      parseInt(selectedPetActivityLevel) >= level
-                        ? 'currentColor'
-                        : 'none'
-                    }
+                  >
+                    {petActivityLevels.map((level) => (
+                      <Zap
+                        key={level}
+                        className={cn(
+                          'w-8 h-8 cursor-pointer transition-colors',
+                          selectedPetActivityLevel &&
+                            parseInt(selectedPetActivityLevel) >= level
+                            ? 'text-accent-orange'
+                            : 'text-gray-300'
+                        )}
+                        onClick={() =>
+                          handlePetActivityLevelChange(level.toString())
+                        }
+                        fill={
+                          selectedPetActivityLevel &&
+                          parseInt(selectedPetActivityLevel) >= level
+                            ? 'currentColor'
+                            : 'none'
+                        }
+                      />
+                    ))}
+                  </div>
+                  {errors.petActivityLevel && (
+                    <p className="text-red-500 text-xs mt-1 text-center">
+                      {errors.petActivityLevel}
+                    </p>
+                  )}
+                </div>
+
+                {/* Contact Name */}
+                <div>
+                  <Label htmlFor="contactName" className="text-deep-teal">
+                    Contact Name
+                  </Label>
+                  <Input
+                    id="contactName"
+                    name="contactName"
+                    value={formData.contactName}
+                    onChange={handleChange}
+                    maxLength={20}
+                    required
+                    className={errors.contactName ? 'border-red-500' : ''}
                   />
-                ))}
-              </div>
-              {errors.petActivityLevel && (
-                <p className="text-red-500 text-xs mt-1 text-center">
-                  {errors.petActivityLevel}
-                </p>
-              )}
-            </div>
+                  {errors.contactName && (
+                    <p className="text-red-500 text-xs mt-1">
+                      {errors.contactName}
+                    </p>
+                  )}
+                </div>
 
-            {/* Contact Name */}
-            <div>
-              <Label htmlFor="contactName" className="text-deep-teal">
-                Contact Name
-              </Label>
-              <Input
-                id="contactName"
-                name="contactName"
-                value={formData.contactName}
-                onChange={handleChange}
-                maxLength={20} // Added maxLength
-                required
-                className={errors.contactName ? 'border-red-500' : ''}
-              />
-              {errors.contactName && (
-                <p className="text-red-500 text-xs mt-1">
-                  {errors.contactName}
-                </p>
-              )}
-            </div>
+                {/* Contact Phone */}
+                <div>
+                  <Label htmlFor="contactPhone" className="text-deep-teal">
+                    Contact Tel
+                  </Label>
+                  <Input
+                    id="contactPhone"
+                    name="contactPhone"
+                    type="tel"
+                    inputMode="numeric"
+                    pattern="[0-9]*"
+                    value={formData.contactPhone}
+                    onChange={handlePhoneChange}
+                    maxLength={10}
+                    required
+                    className={errors.contactPhone ? 'border-red-500' : ''}
+                  />
+                  {errors.contactPhone && (
+                    <p className="text-red-500 text-xs mt-1">
+                      {errors.contactPhone}
+                    </p>
+                  )}
+                </div>
 
-            {/* Contact Phone */}
-            <div>
-              <Label htmlFor="contactPhone" className="text-deep-teal">
-                Contact Tel
-              </Label>
-              <Input
-                id="contactPhone"
-                name="contactPhone"
-                type="tel" // Use type="tel" for telephone numbers
-                inputMode="numeric" // Hint at numeric input for mobile keyboards
-                pattern="[0-9]*" // Optional: for client-side regex if type="text" was used
-                value={formData.contactPhone}
-                onChange={handlePhoneChange}
-                maxLength={10} // Limit to 10 characters
-                required
-                className={errors.contactPhone ? 'border-red-500' : ''}
-              />
-              {errors.contactPhone && (
-                <p className="text-red-500 text-xs mt-1">
-                  {errors.contactPhone}
-                </p>
-              )}
-            </div>
-
-            {/* Note */}
-            <div>
-              <Label htmlFor="note" className="text-deep-teal">
-                Note
-              </Label>
-              <Textarea
-                id="note"
-                name="note"
-                value={formData.note}
-                onChange={handleChange}
-                rows={2}
-                maxLength={100} // Added maxLength
-                className={errors.note ? 'border-red-500' : ''}
-              />
-              {errors.note && (
-                <p className="text-red-500 text-xs mt-1">{errors.note}</p>
-              )}
-            </div>
+                {/* Note */}
+                <div>
+                  <Label htmlFor="note" className="text-deep-teal">
+                    Note
+                  </Label>
+                  <Textarea
+                    id="note"
+                    name="note"
+                    value={formData.note}
+                    onChange={handleChange}
+                    rows={2}
+                    maxLength={100}
+                    className={errors.note ? 'border-red-500' : ''}
+                  />
+                  {errors.note && (
+                    <p className="text-red-500 text-xs mt-1">{errors.note}</p>
+                  )}
+                </div>
+              </>
+            )}
           </div>
         </TabsContent>
         <TabsContent value="image">
           <div className="space-y-4 pt-4">
             {/* Pet Image */}
             <div className="flex justify-center mb-4">
-              <label htmlFor="image-upload" className="relative cursor-pointer">
-                <div
-                  className={cn(
-                    'w-40 h-40 rounded-full flex items-center justify-center overflow-hidden border relative',
-                    imagePreviewUrl
-                      ? 'border-positive-green'
-                      : 'border-gray-300'
-                  )}
-                >
-                  {imagePreviewUrl ? (
-                    <Image
-                      src={imagePreviewUrl}
-                      alt="Pet preview"
-                      fill
-                      className="rounded-full object-cover"
-                    />
-                  ) : (
-                    <PawPrint className="w-16 h-16 text-neutral-gray" />
-                  )}
-                  {imagePreviewUrl && (
-                    <Button
-                      type="button"
-                      size="icon"
-                      variant="ghost"
-                      onClick={handleRemoveImage}
-                      className="absolute top-0 right-0 p-1 w-8 h-8 rounded-full bg-white/70 hover:bg-white text-red-500 flex items-center justify-center"
-                      aria-label="Remove image"
-                    >
-                      <XCircle className="w-4 h-4" />
-                    </Button>
-                  )}
-                </div>
-                <input
-                  id="image-upload"
-                  name="image"
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  onChange={handleFileChange}
-                />
-                <Button
-                  type="button"
-                  size="icon"
-                  className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-10 h-10 rounded-full bg-white text-deep-teal flex items-center justify-center shadow-md"
-                  onClick={() =>
-                    document.getElementById('image-upload')?.click()
-                  }
-                >
-                  <CameraIcon className="w-5 h-5" />
-                </Button>
-              </label>
+              {isLoadingCategories ? (
+                <Skeleton className="w-40 h-40 rounded-full" />
+              ) : (
+                <label htmlFor="image-upload" className="relative cursor-pointer">
+                  <div
+                    className={cn(
+                      'w-40 h-40 rounded-full flex items-center justify-center overflow-hidden border relative',
+                      imagePreviewUrl
+                        ? 'border-positive-green'
+                        : 'border-gray-300'
+                    )}
+                  >
+                    {imagePreviewUrl ? (
+                      <Image
+                        src={imagePreviewUrl}
+                        alt="Pet preview"
+                        fill
+                        className="rounded-full object-cover"
+                      />
+                    ) : (
+                      <PawPrint className="w-16 h-16 text-neutral-gray" />
+                    )}
+                    {imagePreviewUrl && (
+                      <Button
+                        type="button"
+                        size="icon"
+                        variant="ghost"
+                        onClick={handleRemoveImage}
+                        className="absolute top-0 right-0 p-1 w-8 h-8 rounded-full bg-white/70 hover:bg-white text-red-500 flex items-center justify-center"
+                        aria-label="Remove image"
+                      >
+                        <XCircle className="w-4 h-4" />
+                      </Button>
+                    )}
+                  </div>
+                  <input
+                    id="image-upload"
+                    name="image"
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handleFileChange}
+                    disabled={isLoadingCategories}
+                  />
+                  <Button
+                    type="button"
+                    size="icon"
+                    className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-10 h-10 rounded-full bg-white text-deep-teal flex items-center justify-center shadow-md"
+                    onClick={() =>
+                      document.getElementById('image-upload')?.click()
+                    }
+                    disabled={isLoadingCategories}
+                  >
+                    <CameraIcon className="w-5 h-5" />
+                  </Button>
+                </label>
+              )}
             </div>
           </div>
         </TabsContent>

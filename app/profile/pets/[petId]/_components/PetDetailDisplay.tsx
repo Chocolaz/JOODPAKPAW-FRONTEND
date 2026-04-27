@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { PetProfile } from '@/types'
 import { Button } from '@/components/ui/button'
 import {
@@ -28,6 +28,12 @@ import {
   DrawerHeader,
   DrawerTitle,
 } from '@/components/ui/drawer'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
 import { ConfirmationModal } from '@/app/_components/ConfirmationModal'
 import EditPetProfileForm from './EditPetProfileForm'
 
@@ -65,7 +71,17 @@ export default function PetDetailDisplay({
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
   const [isEditDrawerOpen, setIsEditDrawerOpen] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
+  const [isMobile, setIsMobile] = useState(false)
+  const [isHydrated, setIsHydrated] = useState(false)
   const router = useRouter()
+
+  useEffect(() => {
+    setIsHydrated(true)
+    const checkMobile = () => setIsMobile(window.innerWidth < 768)
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
 
   const handleDelete = async () => {
     try {
@@ -466,24 +482,44 @@ export default function PetDetailDisplay({
         </div>
       </div>
 
-      {/* Edit Pet Drawer */}
-      <Drawer open={isEditDrawerOpen} onOpenChange={setIsEditDrawerOpen}>
-        <DrawerContent>
-          <div className="mx-auto w-full max-w-md">
-            <DrawerHeader>
-              <DrawerTitle>Edit {pet.name}</DrawerTitle>
-            </DrawerHeader>
-            <EditPetProfileForm
-              pet={pet}
-              onClose={() => setIsEditDrawerOpen(false)}
-              onSuccess={() => {
-                onPetUpdate()
-                setIsEditDrawerOpen(false)
-              }}
-            />
-          </div>
-        </DrawerContent>
-      </Drawer>
+      {/* Edit Pet Drawer (Mobile) / Modal (Desktop) */}
+      {isHydrated && (
+        isMobile ? (
+          <Drawer open={isEditDrawerOpen} onOpenChange={setIsEditDrawerOpen}>
+            <DrawerContent>
+              <div className="mx-auto w-full max-w-md">
+                <DrawerHeader>
+                  <DrawerTitle>Edit {pet.name}</DrawerTitle>
+                </DrawerHeader>
+                <EditPetProfileForm
+                  pet={pet}
+                  onClose={() => setIsEditDrawerOpen(false)}
+                  onSuccess={() => {
+                    onPetUpdate()
+                    setIsEditDrawerOpen(false)
+                  }}
+                />
+              </div>
+            </DrawerContent>
+          </Drawer>
+        ) : (
+          <Dialog open={isEditDrawerOpen} onOpenChange={setIsEditDrawerOpen}>
+            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle>Edit {pet.name}</DialogTitle>
+              </DialogHeader>
+              <EditPetProfileForm
+                pet={pet}
+                onClose={() => setIsEditDrawerOpen(false)}
+                onSuccess={() => {
+                  onPetUpdate()
+                  setIsEditDrawerOpen(false)
+                }}
+              />
+            </DialogContent>
+          </Dialog>
+        )
+      )}
 
       <ConfirmationModal
         isOpen={isDeleteDialogOpen}
