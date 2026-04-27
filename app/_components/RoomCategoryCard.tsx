@@ -173,15 +173,22 @@ export function RoomCategoryCard({
           </div>
 
           <div className="flex items-start justify-between flex-wrap gap-3 text-sm text-neutral-700">
-            <div className="flex items-center gap-6">
-              <div className="flex items-center gap-2">
-                <BedDouble className="w-4 h-4 text-accent-orange/80" />
-                <span>{category.totalRoom} {category.totalRoom === 1 ? 'room' : 'rooms'}</span>
+            <div className="space-y-2">
+              <div className="flex items-center gap-6">
+                <div className="flex items-center gap-2">
+                  <BedDouble className="w-4 h-4 text-accent-orange/80" />
+                  <span>{category.totalRoom} {category.totalRoom === 1 ? 'room' : 'rooms'}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <PawPrint className="w-4 h-4 text-accent-orange/80" />
+                  <span>{category.numberOfPets} pets max</span>
+                </div>
               </div>
-              <div className="flex items-center gap-2">
-                <PawPrint className="w-4 h-4 text-accent-orange/80" />
-                <span>{category.numberOfPets} pets max</span>
-              </div>
+              {category.petSizeCategoryName && (
+                <div className="text-xs text-neutral-600 font-medium">
+                  Room size: {category.petSizeCategoryName.toLowerCase() === 'small' ? '< 12m²' : category.petSizeCategoryName.toLowerCase() === 'medium' ? '12–20m²' : '> 20m²'}
+                </div>
+              )}
             </div>
             {petPolicy && (
               <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs bg-neutral-900 text-white font-medium shadow-sm">
@@ -191,9 +198,9 @@ export function RoomCategoryCard({
           </div>
 
           {(category.facilities || []).length > 0 && (
-            <div className="flex flex-wrap gap-2 mt-1">
+            <div className="flex flex-wrap gap-2 mt-1 min-w-0">
               {category.facilities?.map((facility) => (
-                <span key={facility.id} className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-neutral-100 text-neutral-700 border border-neutral-200">
+                <span key={facility.id} className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-neutral-100 text-neutral-700 border border-neutral-200 truncate">
                   {facility.name}
                 </span>
               ))}

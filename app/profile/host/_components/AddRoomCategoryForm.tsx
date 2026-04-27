@@ -63,6 +63,7 @@ const initialRoomState: RoomCategoryFormData = {
   facilities: [],
   petSizeCategoryId: 1,
   images: [],
+  roomSize: undefined,
 }
 
 export function AddRoomCategoryForm({
@@ -146,7 +147,9 @@ export function AddRoomCategoryForm({
     loadPets()
   }, [])
 
-  const roomFacilities = allFacilities.filter((f) => f.category.name === 'indoor')
+  const roomFacilities = allFacilities
+    .filter((f) => f.category.name === 'indoor')
+    .sort((a, b) => a.name.localeCompare(b.name))
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
@@ -260,25 +263,39 @@ export function AddRoomCategoryForm({
                   <div className="flex flex-wrap gap-3">
                     {petSizeCategories.map((size) => {
                       const selected = roomData.petSizeCategoryId === size.id
-                      const description = size.max === 14 ? 'under 14kg' : size.min === 14 && size.max === 25 ? '14–25kg' : 'over 25kg'
+                      const kgDescription = size.max === 14 ? 'under 14kg' : size.min === 14 && size.max === 25 ? '14–25kg' : 'over 25kg'
+                      const m2Description = size.max === 14 ? 'under 14m²' : size.min === 14 && size.max === 25 ? '14–25m²' : 'over 25m²'
                       return (
                         <button
                           key={size.id}
                           type="button"
                           onClick={() => updateRoom('petSizeCategoryId', size.id)}
                           className={cn(
-                            'flex flex-col items-center justify-center rounded-xl border shadow-sm transition gap-1.5 px-4 py-3 min-w-[80px]',
+                            'flex flex-col items-center justify-center rounded-xl border shadow-sm transition gap-1 px-4 py-3 min-w-[100px]',
                             selected ? 'border-positive-green bg-teal-50/60' : 'bg-white hover:border-deep-teal/40'
                           )}
                         >
                           {renderSizeIcon(size.name, selected)}
                           <span className={cn('text-sm font-medium', selected ? 'text-positive-green' : 'text-gray-700')}>{size.name}</span>
-                          <span className="text-[10px] text-gray-400">{description}</span>
+                          <span className="text-[10px] text-gray-400">{kgDescription}</span>
+                          <span className="text-[10px] text-gray-400">{m2Description}</span>
                         </button>
                       )
                     })}
                   </div>
                 )}
+              </div>
+
+              {/* Room Size (approx.) */}
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1.5">Room Size (approx. m²)</label>
+                <Input
+                  name="roomSize"
+                  type="number"
+                  placeholder="e.g. 25"
+                  value={roomData.roomSize ?? ''}
+                  onChange={(e) => updateRoom('roomSize', e.target.value ? Number(e.target.value) : undefined)}
+                />
               </div>
 
             </div>
@@ -289,9 +306,9 @@ export function AddRoomCategoryForm({
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-3">Room Facilities</label>
                 {facilitiesLoading ? (
-                  <SkeletonFacilities cols={2} />
+                  <SkeletonFacilities cols={1} />
                 ) : (
-                  <div className="grid grid-cols-2 gap-2">
+                  <div className="grid grid-cols-1 gap-2">
                     {roomFacilities.map((f) => (
                       <FacilityCard
                         key={f.id}
@@ -422,25 +439,27 @@ export function AddRoomCategoryForm({
 
       {/* Pet Size */}
       <div>
-        <Label className="text-deep-teal block mb-2">Size</Label>
+        <Label className="text-deep-teal block mb-2">Pet Size</Label>
         {loadingPetData ? <SkeletonPetSizes /> : (
           <div className="flex justify-center items-center gap-6">
             {petSizeCategories.map((size) => {
               const selected = roomData.petSizeCategoryId === size.id
-              const description = size.max === 14 ? 'under 14kg' : size.min === 14 && size.max === 25 ? '14-25kg' : 'over 25kg'
+              const kgDescription = size.max === 14 ? 'under 14kg' : size.min === 14 && size.max === 25 ? '14-25kg' : 'over 25kg'
+              const m2Description = size.max === 14 ? '< 12m²' : size.min === 14 && size.max === 25 ? '12-20m²' : '> 20m²'
               return (
                 <button
                   key={size.id}
                   type="button"
                   onClick={() => updateRoom('petSizeCategoryId', size.id)}
                   className={cn(
-                    'flex flex-col items-center justify-center p-4 rounded-xl border shadow-sm transition w-[100px] h-[125px] space-y-1',
+                    'flex flex-col items-center justify-center p-4 rounded-xl border shadow-sm transition w-[100px] h-[145px] space-y-0.5',
                     selected ? 'border-positive-green' : 'bg-white hover:border-deep-teal/40'
                   )}
                 >
                   {renderSizeIcon(size.name, selected)}
-                  <span className={cn('font-medium', selected && 'text-positive-green')}>{size.name}</span>
-                  <p className="text-xs text-gray-500">{description}</p>
+                  <span className={cn('font-medium text-sm', selected && 'text-positive-green')}>{size.name}</span>
+                  <p className="text-xs text-gray-500">{kgDescription}</p>
+                  <p className="text-xs text-gray-500">{m2Description}</p>
                 </button>
               )
             })}
@@ -448,11 +467,12 @@ export function AddRoomCategoryForm({
         )}
       </div>
 
-      {/* Facilities */}
+
+{/* Facilities */}
       <div>
         <Label className="text-deep-teal block mb-2">Room Facilities</Label>
-        {facilitiesLoading ? <SkeletonFacilities cols={2} /> : (
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+        {facilitiesLoading ? <SkeletonFacilities cols={1} /> : (
+          <div className="grid grid-cols-1 gap-2">
             {roomFacilities.map((f) => (
               <FacilityCard
                 key={f.id}
