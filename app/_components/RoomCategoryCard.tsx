@@ -184,9 +184,9 @@ export function RoomCategoryCard({
                   <span>{category.numberOfPets} pets max</span>
                 </div>
               </div>
-              {category.petSizeCategoryName && (
+              {category.petSizeCategory?.name && (
                 <div className="text-xs text-neutral-600 font-medium">
-                  Room size: {category.petSizeCategoryName.toLowerCase() === 'small' ? '< 12m²' : category.petSizeCategoryName.toLowerCase() === 'medium' ? '12–20m²' : '> 20m²'}
+                  Room size: {category.petSizeCategory.name.toLowerCase() === 'small' ? '< 12m²' : category.petSizeCategory.name.toLowerCase() === 'medium' ? '12–20m²' : '> 20m²'}
                 </div>
               )}
             </div>
